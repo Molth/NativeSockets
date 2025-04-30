@@ -1,0 +1,62 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net9.0;net8.0;net7.0;net6.0;net5.0;netstandard2.1</TargetFrameworks>
+        <RootNamespace>NativeSockets</RootNamespace>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+        <PackageId>NativeSockets</PackageId>
+        <Version>1.0.0</Version>
+        <Authors>Molth Nevin</Authors>
+        <Company>Hell</Company>
+        <Description>High performance pure c# sockets library with no binary dependencies.</Description>
+        <PackageProjectUrl>https://github.com/Molth/NativeSockets</PackageProjectUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageTags>sockets;performance;networking</PackageTags>
+
+        <PackageOutputPath>./nupkgs</PackageOutputPath>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+        <SolutionRoot>$(MSBuildThisFileDirectory)../</SolutionRoot>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+        <LangVersion>9.0</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+        <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="$(SolutionRoot)README.md">
+            <Pack>true</Pack>
+            <PackagePath>\</PackagePath>
+            <Link>README.md</Link>
+        </None>
+
+        <None Include="$(SolutionRoot)LICENSE">
+            <Pack>true</Pack>
+            <PackagePath>\</PackagePath>
+            <Link>LICENSE</Link>
+        </None>
+    </ItemGroup>
+
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    </PropertyGroup>
+
+    <Target Name="CleanPackageOutputPath" BeforeTargets="GenerateNuspec">
+        <RemoveDir Directories="$(PackageOutputPath)" />
+        <MakeDir Directories="$(PackageOutputPath)" />
+    </Target>
+
+</Project>

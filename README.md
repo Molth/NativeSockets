@@ -1,0 +1,1 @@
+This project is a pure C# sockets library with no binary dependencies.
