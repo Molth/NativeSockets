@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NativeSockets", "NativeSockets\NativeSockets.csproj", "{B1872C54-449C-410F-9B87-98BE8A52A8E3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Examples", "Examples\Examples.csproj", "{C79DE1DF-14FE-4D36-A0B1-8B35D81A0BF0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{B1872C54-449C-410F-9B87-98BE8A52A8E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B1872C54-449C-410F-9B87-98BE8A52A8E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B1872C54-449C-410F-9B87-98BE8A52A8E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C79DE1DF-14FE-4D36-A0B1-8B35D81A0BF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C79DE1DF-14FE-4D36-A0B1-8B35D81A0BF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C79DE1DF-14FE-4D36-A0B1-8B35D81A0BF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C79DE1DF-14FE-4D36-A0B1-8B35D81A0BF0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

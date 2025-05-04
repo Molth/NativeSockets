@@ -23,8 +23,8 @@ namespace NativeSockets
         private static readonly delegate* managed<nint, SocketError> _Close;
         private static readonly delegate* managed<nint, sockaddr_in6*, SocketError> _Bind;
         private static readonly delegate* managed<nint, sockaddr_in6*, SocketError> _Connect;
-        private static readonly delegate* managed<nint, SocketOptionLevel, SocketOptionName, int*, SocketError> _SetOption;
-        private static readonly delegate* managed<nint, SocketOptionLevel, SocketOptionName, int*, SocketError> _GetOption;
+        private static readonly delegate* managed<nint, SocketOptionLevel, SocketOptionName, int*, int, SocketError> _SetOption;
+        private static readonly delegate* managed<nint, SocketOptionLevel, SocketOptionName, int*, int*, SocketError> _GetOption;
         private static readonly delegate* managed<nint, bool, SocketError> _SetBlocking;
         private static readonly delegate* managed<nint, int, SelectMode, out bool, SocketError> _Poll;
         private static readonly delegate* managed<nint, void*, int, sockaddr_in6*, int> _SendTo;
@@ -111,10 +111,10 @@ namespace NativeSockets
         public static SocketError Connect(nint socket, sockaddr_in6* socketAddress) => _Connect(socket, socketAddress);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetOption(nint socket, SocketOptionLevel level, SocketOptionName name, int* value) => _SetOption(socket, level, name, value);
+        public static SocketError SetOption(nint socket, SocketOptionLevel level, SocketOptionName name, int* value, int length = sizeof(int)) => _SetOption(socket, level, name, value, length);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetOption(nint socket, SocketOptionLevel level, SocketOptionName name, int* value) => _GetOption(socket, level, name, value);
+        public static SocketError GetOption(nint socket, SocketOptionLevel level, SocketOptionName name, int* value, int* length = null) => _GetOption(socket, level, name, value, length);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError SetBlocking(nint socket, bool blocking) => _SetBlocking(socket, blocking);
