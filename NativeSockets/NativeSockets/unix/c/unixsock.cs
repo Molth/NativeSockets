@@ -18,8 +18,100 @@ namespace unixsock
         private const string NATIVE_LIBRARY = "libc";
         public const ushort ADDRESS_FAMILY_INTER_NETWORK_V6 = 10;
 
+#if !NET6_0_OR_GREATER
+        private static ReadOnlySpan<(int errno, SocketError error)> SocketErrors => new[]
+        {
+            (0, SocketError.Success),
+            (1, SocketError.AccessDenied),
+            (2, SocketError.AddressNotAvailable),
+            (4, SocketError.Interrupted),
+            (6, SocketError.HostNotFound),
+            (7, SocketError.MessageSize),
+            (9, SocketError.OperationAborted),
+            (11, SocketError.WouldBlock),
+            (12, SocketError.NoBufferSpaceAvailable),
+            (13, SocketError.AccessDenied),
+            (14, SocketError.Fault),
+            (20, SocketError.InvalidArgument),
+            (22, SocketError.InvalidArgument),
+            (23, SocketError.TooManyOpenSockets),
+            (24, SocketError.TooManyOpenSockets),
+            (28, SocketError.NoBufferSpaceAvailable),
+            (32, SocketError.Shutdown),
+            (36, SocketError.InvalidArgument),
+            (40, SocketError.AccessDenied),
+            (59, SocketError.TooManyOpenSockets),
+            (61, SocketError.NoData),
+            (63, SocketError.NoBufferSpaceAvailable),
+            (67, SocketError.NetworkUnreachable),
+            (70, SocketError.ConnectionReset),
+            (72, SocketError.NetworkUnreachable),
+            (74, SocketError.InvalidArgument),
+            (75, SocketError.MessageSize),
+            (84, SocketError.InvalidArgument),
+            (88, SocketError.NotSocket),
+            (89, SocketError.DestinationAddressRequired),
+            (90, SocketError.MessageSize),
+            (91, SocketError.ProtocolType),
+            (92, SocketError.ProtocolOption),
+            (93, SocketError.ProtocolNotSupported),
+            (94, SocketError.SocketNotSupported),
+            (96, SocketError.ProtocolFamilyNotSupported),
+            (97, SocketError.AddressFamilyNotSupported),
+            (98, SocketError.AddressAlreadyInUse),
+            (99, SocketError.AddressNotAvailable),
+            (100, SocketError.NetworkDown),
+            (101, SocketError.NetworkUnreachable),
+            (102, SocketError.NetworkReset),
+            (103, SocketError.ConnectionAborted),
+            (104, SocketError.ConnectionReset),
+            (105, SocketError.NoBufferSpaceAvailable),
+            (106, SocketError.IsConnected),
+            (107, SocketError.NotConnected),
+            (108, SocketError.Disconnecting),
+            (110, SocketError.TimedOut),
+            (111, SocketError.ConnectionRefused),
+            (112, SocketError.HostDown),
+            (113, SocketError.HostUnreachable),
+            (114, SocketError.AlreadyInProgress),
+            (115, SocketError.InProgress)
+        };
+#endif
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetLastSocketError() => (SocketError)Marshal.GetLastWin32Error();
+        public static SocketError GetLastSocketError()
+        {
+#if NET6_0_OR_GREATER
+            return (SocketError)Marshal.GetLastPInvokeError();
+#else
+            int errno = Marshal.GetLastWin32Error();
+            int low = 0;
+            int high = SocketErrors.Length - 1;
+            ref (int errno, SocketError error) reference = ref MemoryMarshal.GetReference(SocketErrors);
+            int index;
+            while (low <= high)
+            {
+                int i = (int)(((uint)high + (uint)low) >> 1);
+                int c = errno.CompareTo(Unsafe.Add(ref reference, i).errno);
+                switch (c)
+                {
+                    case 0:
+                        index = i;
+                        goto label;
+                    case > 0:
+                        low = i + 1;
+                        break;
+                    default:
+                        high = i - 1;
+                        break;
+                }
+            }
+
+            index = ~low;
+            label:
+            return index >= 0 ? SocketErrors[index].error : (SocketError)errno;
+#endif
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Initialize() => SocketError.Success;
