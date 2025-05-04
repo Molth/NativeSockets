@@ -1,1 +1,1 @@
-This project is a pure C# sockets library with no binary dependencies.
+This project is a pure C# udp-sockets library with no binary dependencies.

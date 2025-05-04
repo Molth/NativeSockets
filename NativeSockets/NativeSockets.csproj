@@ -12,10 +12,10 @@
         <Version>1.0.0</Version>
         <Authors>Molth Nevin</Authors>
         <Company>Hell</Company>
-        <Description>High performance pure c# sockets library with no binary dependencies.</Description>
+        <Description>High performance pure c# udp-sockets library with no binary dependencies.</Description>
         <PackageProjectUrl>https://github.com/Molth/NativeSockets</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <PackageTags>sockets;performance;networking</PackageTags>
+        <PackageTags>udp;sockets;performance;networking</PackageTags>
 
         <PackageOutputPath>./nupkgs</PackageOutputPath>
         <PackageReadmeFile>README.md</PackageReadmeFile>

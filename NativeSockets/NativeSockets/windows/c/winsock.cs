@@ -296,17 +296,17 @@ namespace winsock
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetHostName(sockaddr_in6* address, Span<byte> buffer)
+        public static SocketError GetHostName(sockaddr_in6* socketAddress, Span<byte> buffer)
         {
-            sockaddr_in6 socketAddress;
+            sockaddr_in6 _socketAddress;
 
-            socketAddress.sin6_family = (ushort)ADDRESS_FAMILY_INTER_NETWORK_V6;
-            socketAddress.sin6_port = WinSock2.HOST_TO_NET_16(address->sin6_port);
-            socketAddress.sin6_flowinfo = 0;
-            Unsafe.CopyBlockUnaligned(socketAddress.sin6_addr, address->sin6_addr, 16);
-            socketAddress.sin6_scope_id = 0;
+            _socketAddress.sin6_family = (ushort)ADDRESS_FAMILY_INTER_NETWORK_V6;
+            _socketAddress.sin6_port = WinSock2.HOST_TO_NET_16(socketAddress->sin6_port);
+            _socketAddress.sin6_flowinfo = 0;
+            Unsafe.CopyBlockUnaligned(_socketAddress.sin6_addr, socketAddress->sin6_addr, 16);
+            _socketAddress.sin6_scope_id = 0;
 
-            int error = getnameinfo((sockaddr*)&socketAddress, sizeof(sockaddr_in6), (byte*)Unsafe.AsPointer(ref MemoryMarshal.GetReference(buffer)), (ulong)buffer.Length, null, 0, 0x4);
+            int error = getnameinfo((sockaddr*)&_socketAddress, sizeof(sockaddr_in6), (byte*)Unsafe.AsPointer(ref MemoryMarshal.GetReference(buffer)), (ulong)buffer.Length, null, 0, 0x4);
 
             if (error == 0)
             {
@@ -319,7 +319,7 @@ namespace winsock
             if (error != 0x2AF9L)
                 return SocketError.Fault;
 
-            return GetIP(address->sin6_addr, buffer);
+            return GetIP(socketAddress->sin6_addr, buffer);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
