@@ -40,7 +40,7 @@ namespace Examples
             SocketAddress address = new SocketAddress();
             byte* buffer = stackalloc byte[1024];
 
-            var error = UdpPal.GetHostName(ref localAddress, MemoryMarshal.CreateSpan(ref *buffer, 1024));
+            SocketError error = UdpPal.GetHostName(ref localAddress, MemoryMarshal.CreateSpan(ref *buffer, 1024));
             Console.WriteLine("Server HostName: " + Encoding.ASCII.GetString(MemoryMarshal.CreateReadOnlySpan(ref *buffer, 1024)));
 
             Console.WriteLine();

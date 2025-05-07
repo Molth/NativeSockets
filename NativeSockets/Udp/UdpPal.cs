@@ -57,13 +57,23 @@ namespace NativeSockets.Udp
 
         public static SocketError SetOption(Socket socket, SocketOptionLevel level, SocketOptionName name, ref int value)
         {
-            SocketError error = SocketPal.SetOption(socket, level, name, (int*)Unsafe.AsPointer(ref value));
+            SocketError error;
+            fixed (int* pinnedBuffer = &value)
+            {
+                error = SocketPal.SetOption(socket, level, name, pinnedBuffer);
+            }
+
             return error;
         }
 
         public static SocketError GetOption(Socket socket, SocketOptionLevel level, SocketOptionName name, ref int value)
         {
-            SocketError error = SocketPal.GetOption(socket, level, name, (int*)Unsafe.AsPointer(ref value));
+            SocketError error;
+            fixed (int* pinnedBuffer = &value)
+            {
+                error = SocketPal.GetOption(socket, level, name, pinnedBuffer);
+            }
+
             return error;
         }
 
@@ -81,13 +91,23 @@ namespace NativeSockets.Udp
 
         public static int Send(Socket socket, ref byte buffer, int length)
         {
-            int num = SocketPal.SendTo(socket, Unsafe.AsPointer(ref buffer), length, null);
+            int num;
+            fixed (byte* pinnedBuffer = &buffer)
+            {
+                num = SocketPal.SendTo(socket, pinnedBuffer, length, null);
+            }
+
             return num;
         }
 
         public static int Receive(Socket socket, ref byte buffer, int length)
         {
-            int result = SocketPal.ReceiveFrom(socket, Unsafe.AsPointer(ref buffer), length, null);
+            int result;
+            fixed (byte* pinnedBuffer = &buffer)
+            {
+                result = SocketPal.ReceiveFrom(socket, pinnedBuffer, length, null);
+            }
+
             return result;
         }
 
@@ -100,13 +120,24 @@ namespace NativeSockets.Udp
             Unsafe.CopyBlockUnaligned(__socketAddress_native.sin6_addr, Unsafe.AsPointer(ref socketAddress), 16);
             __socketAddress_native.sin6_scope_id = 0;
 
-            return SocketPal.SendTo(socket, Unsafe.AsPointer(ref buffer), length, &__socketAddress_native);
+            int num;
+            fixed (byte* pinnedBuffer = &buffer)
+            {
+                num = SocketPal.SendTo(socket, pinnedBuffer, length, &__socketAddress_native);
+            }
+
+            return num;
         }
 
         public static int ReceiveFrom(Socket socket, ref byte buffer, int length, ref SocketAddress socketAddress)
         {
             sockaddr_in6 __socketAddress_native;
-            int result = SocketPal.ReceiveFrom(socket, Unsafe.AsPointer(ref buffer), length, &__socketAddress_native);
+            int result;
+            fixed (byte* pinnedBuffer = &buffer)
+            {
+                result = SocketPal.ReceiveFrom(socket, pinnedBuffer, length, &__socketAddress_native);
+            }
+
             if (result <= 0)
                 return result;
 
