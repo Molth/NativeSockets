@@ -330,13 +330,9 @@ namespace winsock
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetHostName(sockaddr_in6* socketAddress, Span<byte> buffer)
         {
-            sockaddr_in6 __socketAddress_native;
+            sockaddr_in6 __socketAddress_native = *socketAddress;
 
-            __socketAddress_native.sin6_family = (ushort)ADDRESS_FAMILY_INTER_NETWORK_V6;
             __socketAddress_native.sin6_port = WinSock2.HOST_TO_NET_16(socketAddress->sin6_port);
-            __socketAddress_native.sin6_flowinfo = 0;
-            Unsafe.CopyBlockUnaligned(__socketAddress_native.sin6_addr, socketAddress->sin6_addr, 16);
-            __socketAddress_native.sin6_scope_id = 0;
 
             int error = getnameinfo((sockaddr*)&__socketAddress_native, sizeof(sockaddr_in6), ref MemoryMarshal.GetReference(buffer), (ulong)buffer.Length, null, 0, 0x4);
 

@@ -171,6 +171,13 @@ namespace NativeSockets.Udp
         public static SocketError GetHostName(ref SocketAddress socketAddress, Span<byte> hostName)
         {
             sockaddr_in6 __socketAddress_native;
+
+            __socketAddress_native.sin6_family = (ushort)SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
+            __socketAddress_native.sin6_port = socketAddress.Port;
+            __socketAddress_native.sin6_flowinfo = 0;
+            Unsafe.CopyBlockUnaligned(__socketAddress_native.sin6_addr, Unsafe.AsPointer(ref socketAddress), 16);
+            __socketAddress_native.sin6_scope_id = 0;
+
             SocketError result = SocketPal.GetHostName(&__socketAddress_native, hostName);
             if (result == 0)
             {
