@@ -37,10 +37,13 @@ namespace Examples
             UdpPal.GetAddress(server, ref localAddress);
             Console.WriteLine($"Server local: {localAddress}");
 
-            Console.WriteLine();
-
             SocketAddress address = new SocketAddress();
             byte* buffer = stackalloc byte[1024];
+
+            var error = UdpPal.GetHostName(ref localAddress, MemoryMarshal.CreateSpan(ref *buffer, 1024));
+            Console.WriteLine("Server HostName: " + Encoding.ASCII.GetString(MemoryMarshal.CreateReadOnlySpan(ref *buffer, 1024)));
+
+            Console.WriteLine();
 
             while (!Console.KeyAvailable)
             {
