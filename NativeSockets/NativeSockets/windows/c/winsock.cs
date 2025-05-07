@@ -44,6 +44,15 @@ namespace winsock
                     Close(socket);
                     socket = -1;
                 }
+
+                byte* __inBuffer_native = stackalloc byte[1] { 0x00 };
+                int __bytesTransferred_native;
+                errorCode = WSAIoctl(socket, -1744830452, __inBuffer_native, 1, null, 0, &__bytesTransferred_native, 0, 0);
+                if (errorCode != SocketError.Success)
+                {
+                    Close(socket);
+                    socket = -1;
+                }
             }
 
             return socket;
@@ -414,6 +423,9 @@ namespace winsock
 
         [DllImport(NATIVE_LIBRARY)]
         private static extern int getnameinfo(sockaddr* pSockaddr, int SockaddrLength, ref byte pNodeBuffer, ulong NodeBufferSize, byte* pServiceBuffer, ulong ServiceBufferSize, int Flags);
+
+        [DllImport(NATIVE_LIBRARY)]
+        private static extern unsafe SocketError WSAIoctl(nint __socketHandle_native, int __ioControlCode_native, byte* __inBuffer_native, int __inBufferSize_native, byte* __outBuffer_native, int __outBufferSize_native, int* __bytesTransferred_native, nint __overlapped_native, nint __completionRoutine_native);
 
         [StructLayout(LayoutKind.Sequential, Size = 408)]
         private struct WSAData
