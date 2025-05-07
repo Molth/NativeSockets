@@ -425,7 +425,7 @@ namespace winsock
         private static extern int getnameinfo(sockaddr* pSockaddr, int SockaddrLength, ref byte pNodeBuffer, ulong NodeBufferSize, byte* pServiceBuffer, ulong ServiceBufferSize, int Flags);
 
         [DllImport(NATIVE_LIBRARY)]
-        private static extern unsafe SocketError WSAIoctl(nint __socketHandle_native, int __ioControlCode_native, byte* __inBuffer_native, int __inBufferSize_native, byte* __outBuffer_native, int __outBufferSize_native, int* __bytesTransferred_native, nint __overlapped_native, nint __completionRoutine_native);
+        private static extern SocketError WSAIoctl(nint __socketHandle_native, int __ioControlCode_native, byte* __inBuffer_native, int __inBufferSize_native, byte* __outBuffer_native, int __outBufferSize_native, int* __bytesTransferred_native, nint __overlapped_native, nint __completionRoutine_native);
 
         [StructLayout(LayoutKind.Sequential, Size = 408)]
         private struct WSAData
