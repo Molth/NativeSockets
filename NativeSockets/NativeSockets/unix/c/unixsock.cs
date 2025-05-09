@@ -568,14 +568,7 @@ namespace unixsock
             if (results != null)
                 freeaddrinfo(results);
 
-            int addressFamily = (int)ADDRESS_FAMILY_INTER_NETWORK_V6;
-            if (buffer.IndexOf((byte)':') == -1)
-            {
-                addressFamily = (int)AddressFamily.InterNetwork;
-                Unsafe.InitBlockUnaligned(pAddrBuf, 0, 8);
-                Unsafe.WriteUnaligned((byte*)pAddrBuf + 8, -0x10000);
-                pAddrBuf = (byte*)pAddrBuf + 12;
-            }
+            const int addressFamily = (int)AddressFamily.InterNetwork;
 
             int error = inet_pton(addressFamily, Unsafe.AsPointer(ref MemoryMarshal.GetReference(buffer)), pAddrBuf);
 

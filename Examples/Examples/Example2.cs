@@ -26,7 +26,7 @@ namespace Examples
             SocketAddress4 listenAddress = new SocketAddress4();
             listenAddress.Port = port;
 
-            if (UdpPal4.SetIP(ref listenAddress, localIP) == SocketError.Success)
+            if (UdpPal4.SetHostName(ref listenAddress, localIP) == SocketError.Success)
                 Console.WriteLine($"SocketAddress set! {listenAddress}");
 
             error = UdpPal4.Bind(server, ref listenAddress);
