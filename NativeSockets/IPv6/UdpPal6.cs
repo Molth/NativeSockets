@@ -194,7 +194,7 @@ namespace NativeSockets.Udp
 
         public static SocketError GetHostName(ref SocketAddress6 socketAddress, Span<byte> hostName)
         {
-            ref var reference = ref socketAddress.GetPinnableReference();
+            ref byte reference = ref socketAddress.GetPinnableReference();
 
             sockaddr_in6 __socketAddress_native;
 

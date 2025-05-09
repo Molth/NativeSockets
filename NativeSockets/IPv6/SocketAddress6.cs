@@ -128,7 +128,7 @@ namespace NativeSockets.Udp
 
         public override int GetHashCode()
         {
-            var hashCode = new HashCode();
+            HashCode hashCode = new HashCode();
 #if NET6_0_OR_GREATER
             hashCode.AddBytes(MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<SocketAddress6, byte>(ref Unsafe.AsRef(in this)), 20));
 #else

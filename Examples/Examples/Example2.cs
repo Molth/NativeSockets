@@ -114,7 +114,7 @@ namespace Examples
 
             int bytes = Encoding.UTF8.GetBytes("hello server.", MemoryMarshal.CreateSpan(ref *buffer, 1024));
 
-            var a = UdpPal4.Send(client, ref *buffer, bytes);
+            int a = UdpPal4.Send(client, ref *buffer, bytes);
 
             byte i = 0;
 
