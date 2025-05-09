@@ -21,28 +21,28 @@ namespace NativeSockets
         private static readonly delegate* managed<SocketError> _Cleanup;
         private static readonly delegate* managed<bool, nint> _Create;
         private static readonly delegate* managed<nint, SocketError> _Close;
-        private static readonly delegate* managed<nint, sockaddr_in*, SocketError> _Bind_IPv4;
-        private static readonly delegate* managed<nint, sockaddr_in6*, SocketError> _Bind_IPv6;
-        private static readonly delegate* managed<nint, sockaddr_in*, SocketError> _Connect_IPv4;
-        private static readonly delegate* managed<nint, sockaddr_in6*, SocketError> _Connect_IPv6;
+        private static readonly delegate* managed<nint, sockaddr_in*, SocketError> _Bind_4;
+        private static readonly delegate* managed<nint, sockaddr_in6*, SocketError> _Bind_6;
+        private static readonly delegate* managed<nint, sockaddr_in*, SocketError> _Connect_4;
+        private static readonly delegate* managed<nint, sockaddr_in6*, SocketError> _Connect_6;
         private static readonly delegate* managed<nint, SocketOptionLevel, SocketOptionName, int*, int, SocketError> _SetOption;
         private static readonly delegate* managed<nint, SocketOptionLevel, SocketOptionName, int*, int*, SocketError> _GetOption;
         private static readonly delegate* managed<nint, bool, SocketError> _SetBlocking;
         private static readonly delegate* managed<nint, int, SelectMode, out bool, SocketError> _Poll;
-        private static readonly delegate* managed<nint, void*, int, sockaddr_in*, int> _SendTo_IPv4;
-        private static readonly delegate* managed<nint, void*, int, sockaddr_in6*, int> _SendTo_IPv6;
-        private static readonly delegate* managed<nint, void*, int, sockaddr_in*, int> _ReceiveFrom_IPv4;
-        private static readonly delegate* managed<nint, void*, int, sockaddr_in6*, int> _ReceiveFrom_IPv6;
-        private static readonly delegate* managed<nint, sockaddr_in*, SocketError> _GetName_IPv4;
-        private static readonly delegate* managed<nint, sockaddr_in6*, SocketError> _GetName_IPv6;
-        private static readonly delegate* managed<sockaddr_in*, ReadOnlySpan<char>, SocketError> _SetIP_IPv4;
-        private static readonly delegate* managed<sockaddr_in6*, ReadOnlySpan<char>, SocketError> _SetIP_IPv6;
-        private static readonly delegate* managed<sockaddr_in*, Span<byte>, SocketError> _GetIP_IPv4;
-        private static readonly delegate* managed<sockaddr_in6*, Span<byte>, SocketError> _GetIP_IPv6;
-        private static readonly delegate* managed<sockaddr_in*, ReadOnlySpan<char>, SocketError> _SetHostName_IPv4;
-        private static readonly delegate* managed<sockaddr_in6*, ReadOnlySpan<char>, SocketError> _SetHostName_IPv6;
-        private static readonly delegate* managed<sockaddr_in*, Span<byte>, SocketError> _GetHostName_IPv4;
-        private static readonly delegate* managed<sockaddr_in6*, Span<byte>, SocketError> _GetHostName_IPv6;
+        private static readonly delegate* managed<nint, void*, int, sockaddr_in*, int> _SendTo_4;
+        private static readonly delegate* managed<nint, void*, int, sockaddr_in6*, int> _SendTo_6;
+        private static readonly delegate* managed<nint, void*, int, sockaddr_in*, int> _ReceiveFrom_4;
+        private static readonly delegate* managed<nint, void*, int, sockaddr_in6*, int> _ReceiveFrom_6;
+        private static readonly delegate* managed<nint, sockaddr_in*, SocketError> _GetName_4;
+        private static readonly delegate* managed<nint, sockaddr_in6*, SocketError> _GetName_6;
+        private static readonly delegate* managed<sockaddr_in*, ReadOnlySpan<char>, SocketError> _SetIP_4;
+        private static readonly delegate* managed<sockaddr_in6*, ReadOnlySpan<char>, SocketError> _SetIP_6;
+        private static readonly delegate* managed<sockaddr_in*, Span<byte>, SocketError> _GetIP_4;
+        private static readonly delegate* managed<sockaddr_in6*, Span<byte>, SocketError> _GetIP_6;
+        private static readonly delegate* managed<sockaddr_in*, ReadOnlySpan<char>, SocketError> _SetHostName_4;
+        private static readonly delegate* managed<sockaddr_in6*, ReadOnlySpan<char>, SocketError> _SetHostName_6;
+        private static readonly delegate* managed<sockaddr_in*, Span<byte>, SocketError> _GetHostName_4;
+        private static readonly delegate* managed<sockaddr_in6*, Span<byte>, SocketError> _GetHostName_6;
 
         static SocketPal()
         {
@@ -60,28 +60,28 @@ namespace NativeSockets
                 _Cleanup = &WinSock.Cleanup;
                 _Create = &WinSock.Create;
                 _Close = &WinSock.Close;
-                _Bind_IPv4 = &WinSock.Bind;
-                _Bind_IPv6 = &WinSock.Bind;
-                _Connect_IPv4 = &WinSock.Connect;
-                _Connect_IPv6 = &WinSock.Connect;
+                _Bind_4 = &WinSock.Bind;
+                _Bind_6 = &WinSock.Bind;
+                _Connect_4 = &WinSock.Connect;
+                _Connect_6 = &WinSock.Connect;
                 _SetOption = &WinSock.SetOption;
                 _GetOption = &WinSock.GetOption;
                 _SetBlocking = &WinSock.SetBlocking;
                 _Poll = &WinSock.Poll;
-                _SendTo_IPv4 = &WinSock.SendTo;
-                _SendTo_IPv6 = &WinSock.SendTo;
-                _ReceiveFrom_IPv4 = &WinSock.ReceiveFrom;
-                _ReceiveFrom_IPv6 = &WinSock.ReceiveFrom;
-                _GetName_IPv4 = &WinSock.GetName;
-                _GetName_IPv6 = &WinSock.GetName;
-                _SetIP_IPv4 = &WinSock.SetIP;
-                _SetIP_IPv6 = &WinSock.SetIP;
-                _GetIP_IPv4 = &WinSock.GetIP;
-                _GetIP_IPv6 = &WinSock.GetIP;
-                _SetHostName_IPv4 = &WinSock.SetHostName;
-                _SetHostName_IPv6 = &WinSock.SetHostName;
-                _GetHostName_IPv4 = &WinSock.GetHostName;
-                _GetHostName_IPv6 = &WinSock.GetHostName;
+                _SendTo_4 = &WinSock.SendTo;
+                _SendTo_6 = &WinSock.SendTo;
+                _ReceiveFrom_4 = &WinSock.ReceiveFrom;
+                _ReceiveFrom_6 = &WinSock.ReceiveFrom;
+                _GetName_4 = &WinSock.GetName;
+                _GetName_6 = &WinSock.GetName;
+                _SetIP_4 = &WinSock.SetIP;
+                _SetIP_6 = &WinSock.SetIP;
+                _GetIP_4 = &WinSock.GetIP;
+                _GetIP_6 = &WinSock.GetIP;
+                _SetHostName_4 = &WinSock.SetHostName;
+                _SetHostName_6 = &WinSock.SetHostName;
+                _GetHostName_4 = &WinSock.GetHostName;
+                _GetHostName_6 = &WinSock.GetHostName;
             }
             else
             {
@@ -91,28 +91,28 @@ namespace NativeSockets
                 _Cleanup = &UnixSock.Cleanup;
                 _Create = &UnixSock.Create;
                 _Close = &UnixSock.Close;
-                _Bind_IPv4 = &UnixSock.Bind;
-                _Bind_IPv6 = &UnixSock.Bind;
-                _Connect_IPv4 = &UnixSock.Connect;
-                _Connect_IPv6 = &UnixSock.Connect;
+                _Bind_4 = &UnixSock.Bind;
+                _Bind_6 = &UnixSock.Bind;
+                _Connect_4 = &UnixSock.Connect;
+                _Connect_6 = &UnixSock.Connect;
                 _SetOption = &UnixSock.SetOption;
                 _GetOption = &UnixSock.GetOption;
                 _SetBlocking = &UnixSock.SetBlocking;
                 _Poll = &UnixSock.Poll;
-                _SendTo_IPv4 = &UnixSock.SendTo;
-                _SendTo_IPv6 = &UnixSock.SendTo;
-                _ReceiveFrom_IPv4 = &UnixSock.ReceiveFrom;
-                _ReceiveFrom_IPv6 = &UnixSock.ReceiveFrom;
-                _GetName_IPv4 = &UnixSock.GetName;
-                _GetName_IPv6 = &UnixSock.GetName;
-                _SetIP_IPv4 = &UnixSock.SetIP;
-                _SetIP_IPv6 = &UnixSock.SetIP;
-                _GetIP_IPv4 = &UnixSock.GetIP;
-                _GetIP_IPv6 = &UnixSock.GetIP;
-                _SetHostName_IPv4 = &UnixSock.SetHostName;
-                _SetHostName_IPv6 = &UnixSock.SetHostName;
-                _GetHostName_IPv4 = &UnixSock.GetHostName;
-                _GetHostName_IPv6 = &UnixSock.GetHostName;
+                _SendTo_4 = &UnixSock.SendTo;
+                _SendTo_6 = &UnixSock.SendTo;
+                _ReceiveFrom_4 = &UnixSock.ReceiveFrom;
+                _ReceiveFrom_6 = &UnixSock.ReceiveFrom;
+                _GetName_4 = &UnixSock.GetName;
+                _GetName_6 = &UnixSock.GetName;
+                _SetIP_4 = &UnixSock.SetIP;
+                _SetIP_6 = &UnixSock.SetIP;
+                _GetIP_4 = &UnixSock.GetIP;
+                _GetIP_6 = &UnixSock.GetIP;
+                _SetHostName_4 = &UnixSock.SetHostName;
+                _SetHostName_6 = &UnixSock.SetHostName;
+                _GetHostName_4 = &UnixSock.GetHostName;
+                _GetHostName_6 = &UnixSock.GetHostName;
             }
         }
 
@@ -132,16 +132,16 @@ namespace NativeSockets
         public static SocketError Close(nint socket) => _Close(socket);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError Bind(nint socket, sockaddr_in* socketAddress) => _Bind_IPv4(socket, socketAddress);
+        public static SocketError Bind(nint socket, sockaddr_in* socketAddress) => _Bind_4(socket, socketAddress);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError Bind(nint socket, sockaddr_in6* socketAddress) => _Bind_IPv6(socket, socketAddress);
+        public static SocketError Bind(nint socket, sockaddr_in6* socketAddress) => _Bind_6(socket, socketAddress);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError Connect(nint socket, sockaddr_in* socketAddress) => _Connect_IPv4(socket, socketAddress);
+        public static SocketError Connect(nint socket, sockaddr_in* socketAddress) => _Connect_4(socket, socketAddress);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError Connect(nint socket, sockaddr_in6* socketAddress) => _Connect_IPv6(socket, socketAddress);
+        public static SocketError Connect(nint socket, sockaddr_in6* socketAddress) => _Connect_6(socket, socketAddress);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError SetOption(nint socket, SocketOptionLevel level, SocketOptionName name, int* value, int length = sizeof(int)) => _SetOption(socket, level, name, value, length);
@@ -156,45 +156,45 @@ namespace NativeSockets
         public static SocketError Poll(nint socket, int microseconds, SelectMode mode, out bool status) => _Poll(socket, microseconds, mode, out status);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendTo(nint socket, void* buffer, int length, sockaddr_in* socketAddress) => _SendTo_IPv4(socket, buffer, length, socketAddress);
+        public static int SendTo(nint socket, void* buffer, int length, sockaddr_in* socketAddress) => _SendTo_4(socket, buffer, length, socketAddress);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendTo(nint socket, void* buffer, int length, sockaddr_in6* socketAddress) => _SendTo_IPv6(socket, buffer, length, socketAddress);
+        public static int SendTo(nint socket, void* buffer, int length, sockaddr_in6* socketAddress) => _SendTo_6(socket, buffer, length, socketAddress);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveFrom(nint socket, void* buffer, int length, sockaddr_in* socketAddress) => _ReceiveFrom_IPv4(socket, buffer, length, socketAddress);
+        public static int ReceiveFrom(nint socket, void* buffer, int length, sockaddr_in* socketAddress) => _ReceiveFrom_4(socket, buffer, length, socketAddress);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveFrom(nint socket, void* buffer, int length, sockaddr_in6* socketAddress) => _ReceiveFrom_IPv6(socket, buffer, length, socketAddress);
+        public static int ReceiveFrom(nint socket, void* buffer, int length, sockaddr_in6* socketAddress) => _ReceiveFrom_6(socket, buffer, length, socketAddress);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetName(nint socket, sockaddr_in* socketAddress) => _GetName_IPv4(socket, socketAddress);
+        public static SocketError GetName(nint socket, sockaddr_in* socketAddress) => _GetName_4(socket, socketAddress);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetName(nint socket, sockaddr_in6* socketAddress) => _GetName_IPv6(socket, socketAddress);
+        public static SocketError GetName(nint socket, sockaddr_in6* socketAddress) => _GetName_6(socket, socketAddress);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetIP(sockaddr_in* pAddrBuf, ReadOnlySpan<char> ip) => _SetIP_IPv4(pAddrBuf, ip);
+        public static SocketError SetIP(sockaddr_in* pAddrBuf, ReadOnlySpan<char> ip) => _SetIP_4(pAddrBuf, ip);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetIP(sockaddr_in6* pAddrBuf, ReadOnlySpan<char> ip) => _SetIP_IPv6(pAddrBuf, ip);
+        public static SocketError SetIP(sockaddr_in6* pAddrBuf, ReadOnlySpan<char> ip) => _SetIP_6(pAddrBuf, ip);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetIP(sockaddr_in* pAddrBuf, Span<byte> ip) => _GetIP_IPv4(pAddrBuf, ip);
+        public static SocketError GetIP(sockaddr_in* pAddrBuf, Span<byte> ip) => _GetIP_4(pAddrBuf, ip);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetIP(sockaddr_in6* pAddrBuf, Span<byte> ip) => _GetIP_IPv6(pAddrBuf, ip);
+        public static SocketError GetIP(sockaddr_in6* pAddrBuf, Span<byte> ip) => _GetIP_6(pAddrBuf, ip);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetHostName(sockaddr_in* pAddrBuf, ReadOnlySpan<char> hostName) => _SetHostName_IPv4(pAddrBuf, hostName);
+        public static SocketError SetHostName(sockaddr_in* pAddrBuf, ReadOnlySpan<char> hostName) => _SetHostName_4(pAddrBuf, hostName);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetHostName(sockaddr_in6* pAddrBuf, ReadOnlySpan<char> hostName) => _SetHostName_IPv6(pAddrBuf, hostName);
+        public static SocketError SetHostName(sockaddr_in6* pAddrBuf, ReadOnlySpan<char> hostName) => _SetHostName_6(pAddrBuf, hostName);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetHostName(sockaddr_in* socketAddress, Span<byte> hostName) => _GetHostName_IPv4(socketAddress, hostName);
+        public static SocketError GetHostName(sockaddr_in* socketAddress, Span<byte> hostName) => _GetHostName_4(socketAddress, hostName);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetHostName(sockaddr_in6* socketAddress, Span<byte> hostName) => _GetHostName_IPv6(socketAddress, hostName);
+        public static SocketError GetHostName(sockaddr_in6* socketAddress, Span<byte> hostName) => _GetHostName_6(socketAddress, hostName);
     }
 }
