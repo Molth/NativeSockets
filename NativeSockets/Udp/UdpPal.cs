@@ -20,7 +20,7 @@ namespace NativeSockets.Udp
 
         public static void Cleanup() => SocketPal.Cleanup();
 
-        public static Socket Create() => SocketPal.Create();
+        public static Socket Create() => SocketPal.Create(true);
 
         public static void Close(ref Socket socket)
         {
@@ -32,7 +32,7 @@ namespace NativeSockets.Udp
         {
             ref var reference = ref socketAddress.GetPinnableReference();
             if (Unsafe.AsPointer(ref reference) == null)
-                return (int)SocketPal.Bind(socket, null);
+                return (int)SocketPal.Bind(socket, (sockaddr_in6*)null);
 
             sockaddr_in6 __socketAddress_native;
             __socketAddress_native.sin6_family = SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
@@ -95,7 +95,7 @@ namespace NativeSockets.Udp
             int num;
             fixed (byte* pinnedBuffer = &buffer)
             {
-                num = SocketPal.SendTo(socket, pinnedBuffer, length, null);
+                num = SocketPal.SendTo(socket, pinnedBuffer, length, (sockaddr_in6*)null);
             }
 
             return num;
@@ -106,7 +106,7 @@ namespace NativeSockets.Udp
             int result;
             fixed (byte* pinnedBuffer = &buffer)
             {
-                result = SocketPal.ReceiveFrom(socket, pinnedBuffer, length, null);
+                result = SocketPal.ReceiveFrom(socket, pinnedBuffer, length, (sockaddr_in6*)null);
             }
 
             return result;
@@ -164,22 +164,20 @@ namespace NativeSockets.Udp
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError SetIP(ref SocketAddress socketAddress, ReadOnlySpan<char> ip)
         {
-            SocketError error;
-            fixed (void* pinnedBuffer = &socketAddress)
-            {
-                error = SocketPal.SetIP(pinnedBuffer, ip);
-            }
+            sockaddr_in6 __socketAddress_native;
+            SocketError error = SocketPal.SetIP(&__socketAddress_native, ip);
+            if (error == 0)
+                Unsafe.CopyBlockUnaligned(ref socketAddress.GetPinnableReference(), ref *__socketAddress_native.sin6_addr, 16);
 
             return error;
         }
 
         public static SocketError GetIP(ref SocketAddress socketAddress, Span<byte> ip)
         {
-            SocketError error;
-            fixed (void* pinnedBuffer = &socketAddress)
-            {
-                error = SocketPal.GetIP(pinnedBuffer, ip);
-            }
+            sockaddr_in6 __socketAddress_native;
+            Unsafe.CopyBlockUnaligned(ref *__socketAddress_native.sin6_addr, ref socketAddress.GetPinnableReference(), 16);
+
+            SocketError error = SocketPal.GetIP(&__socketAddress_native, ip);
 
             return error;
         }
@@ -187,11 +185,10 @@ namespace NativeSockets.Udp
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError SetHostName(ref SocketAddress socketAddress, ReadOnlySpan<char> hostName)
         {
-            SocketError error;
-            fixed (void* pinnedBuffer = &socketAddress)
-            {
-                error = SocketPal.SetHostName(pinnedBuffer, hostName);
-            }
+            sockaddr_in6 __socketAddress_native;
+            SocketError error = SocketPal.SetHostName(&__socketAddress_native, hostName);
+            if (error == 0)
+                Unsafe.CopyBlockUnaligned(ref socketAddress.GetPinnableReference(), ref *__socketAddress_native.sin6_addr, 16);
 
             return error;
         }
