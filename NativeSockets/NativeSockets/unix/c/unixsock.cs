@@ -214,13 +214,13 @@ namespace unixsock
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError Bind(nint socket, sockaddr_in* socketAddress)
+        public static SocketError Bind4(nint socket, sockaddr_in* socketAddress)
         {
             sockaddr_in __socketAddress_native;
             if (socketAddress == null)
             {
                 __socketAddress_native = new sockaddr_in();
-                SetIP(&__socketAddress_native, "0.0.0.0");
+                SetIP4(&__socketAddress_native, "0.0.0.0");
             }
             else
             {
@@ -233,13 +233,13 @@ namespace unixsock
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError Bind(nint socket, sockaddr_in6* socketAddress)
+        public static SocketError Bind6(nint socket, sockaddr_in6* socketAddress)
         {
             sockaddr_in6 __socketAddress_native;
             if (socketAddress == null)
             {
                 __socketAddress_native = new sockaddr_in6();
-                SetIP(&__socketAddress_native, "::");
+                SetIP6(&__socketAddress_native, "::");
             }
             else
             {
@@ -252,7 +252,7 @@ namespace unixsock
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError Connect(nint socket, sockaddr_in* socketAddress)
+        public static SocketError Connect4(nint socket, sockaddr_in* socketAddress)
         {
             sockaddr_in __socketAddress_native = *socketAddress;
             __socketAddress_native.sin_port = WinSock2.HOST_TO_NET_16(socketAddress->sin_port);
@@ -262,7 +262,7 @@ namespace unixsock
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError Connect(nint socket, sockaddr_in6* socketAddress)
+        public static SocketError Connect6(nint socket, sockaddr_in6* socketAddress)
         {
             sockaddr_in6 __socketAddress_native = *socketAddress;
             __socketAddress_native.sin6_port = WinSock2.HOST_TO_NET_16(socketAddress->sin6_port);
@@ -330,7 +330,7 @@ namespace unixsock
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendTo(nint socket, void* buffer, int length, sockaddr_in* socketAddress)
+        public static int SendTo4(nint socket, void* buffer, int length, sockaddr_in* socketAddress)
         {
             if (socketAddress != null)
             {
@@ -344,7 +344,7 @@ namespace unixsock
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendTo(nint socket, void* buffer, int length, sockaddr_in6* socketAddress)
+        public static int SendTo6(nint socket, void* buffer, int length, sockaddr_in6* socketAddress)
         {
             if (socketAddress != null)
             {
@@ -358,7 +358,7 @@ namespace unixsock
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveFrom(nint socket, void* buffer, int length, sockaddr_in* socketAddress)
+        public static int ReceiveFrom4(nint socket, void* buffer, int length, sockaddr_in* socketAddress)
         {
             sockaddr_storage addressStorage = new sockaddr_storage();
             int socketAddressSize = sizeof(sockaddr_storage);
@@ -376,7 +376,7 @@ namespace unixsock
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveFrom(nint socket, void* buffer, int length, sockaddr_in6* socketAddress)
+        public static int ReceiveFrom6(nint socket, void* buffer, int length, sockaddr_in6* socketAddress)
         {
             sockaddr_storage addressStorage = new sockaddr_storage();
             int socketAddressSize = sizeof(sockaddr_storage);
@@ -405,7 +405,7 @@ namespace unixsock
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetName(nint socket, sockaddr_in* socketAddress)
+        public static SocketError GetName4(nint socket, sockaddr_in* socketAddress)
         {
             sockaddr_storage addressStorage = new sockaddr_storage();
             int socketAddressSize = sizeof(sockaddr_storage);
@@ -421,7 +421,7 @@ namespace unixsock
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetName(nint socket, sockaddr_in6* socketAddress)
+        public static SocketError GetName6(nint socket, sockaddr_in6* socketAddress)
         {
             sockaddr_storage addressStorage = new sockaddr_storage();
             int socketAddressSize = sizeof(sockaddr_storage);
@@ -448,7 +448,7 @@ namespace unixsock
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetIP(sockaddr_in* socketAddress, ReadOnlySpan<char> ip)
+        public static SocketError SetIP4(sockaddr_in* socketAddress, ReadOnlySpan<char> ip)
         {
             void* pAddrBuf = &socketAddress->sin_addr;
 
@@ -472,7 +472,7 @@ namespace unixsock
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetIP(sockaddr_in6* socketAddress, ReadOnlySpan<char> ip)
+        public static SocketError SetIP6(sockaddr_in6* socketAddress, ReadOnlySpan<char> ip)
         {
             void* pAddrBuf = socketAddress->sin6_addr;
 
@@ -503,7 +503,7 @@ namespace unixsock
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetIP(sockaddr_in* socketAddress, Span<byte> buffer)
+        public static SocketError GetIP4(sockaddr_in* socketAddress, Span<byte> buffer)
         {
             void* pAddrBuf = &socketAddress->sin_addr;
 
@@ -514,7 +514,7 @@ namespace unixsock
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetIP(sockaddr_in6* socketAddress, Span<byte> buffer)
+        public static SocketError GetIP6(sockaddr_in6* socketAddress, Span<byte> buffer)
         {
             void* pAddrBuf = socketAddress->sin6_addr;
 
@@ -533,7 +533,7 @@ namespace unixsock
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetHostName(sockaddr_in* socketAddress, ReadOnlySpan<char> hostName)
+        public static SocketError SetHostName4(sockaddr_in* socketAddress, ReadOnlySpan<char> hostName)
         {
             void* pAddrBuf = &socketAddress->sin_addr;
 
@@ -584,7 +584,7 @@ namespace unixsock
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetHostName(sockaddr_in6* socketAddress, ReadOnlySpan<char> hostName)
+        public static SocketError SetHostName6(sockaddr_in6* socketAddress, ReadOnlySpan<char> hostName)
         {
             void* pAddrBuf = socketAddress->sin6_addr;
 
@@ -654,7 +654,7 @@ namespace unixsock
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetHostName(sockaddr_in* socketAddress, Span<byte> buffer)
+        public static SocketError GetHostName4(sockaddr_in* socketAddress, Span<byte> buffer)
         {
             sockaddr_in __socketAddress_native = *socketAddress;
 
@@ -673,11 +673,11 @@ namespace unixsock
             if (error != 0x2AF9L)
                 return SocketError.Fault;
 
-            return GetIP(socketAddress, buffer);
+            return GetIP4(socketAddress, buffer);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetHostName(sockaddr_in6* socketAddress, Span<byte> buffer)
+        public static SocketError GetHostName6(sockaddr_in6* socketAddress, Span<byte> buffer)
         {
             sockaddr_in6 __socketAddress_native = *socketAddress;
 
@@ -696,7 +696,7 @@ namespace unixsock
             if (error != 0x2AF9L)
                 return SocketError.Fault;
 
-            return GetIP(socketAddress, buffer);
+            return GetIP6(socketAddress, buffer);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

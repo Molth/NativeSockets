@@ -31,7 +31,7 @@ namespace NativeSockets.Udp
         public static SocketError Bind(Socket4 socket, ref SocketAddress4 socketAddress)
         {
             if (Unsafe.AsPointer(ref socketAddress) == null)
-                return SocketPal.Bind(socket, (sockaddr_in*)null);
+                return SocketPal.Bind4(socket, (sockaddr_in*)null);
 
             sockaddr_in __socketAddress_native;
             __socketAddress_native.sin_family = (ushort)AddressFamily.InterNetwork;
@@ -39,7 +39,7 @@ namespace NativeSockets.Udp
             Unsafe.WriteUnaligned(&__socketAddress_native.sin_addr, socketAddress.Address);
             Unsafe.InitBlockUnaligned(__socketAddress_native.sin_zero, 0, 8);
 
-            return SocketPal.Bind(socket, &__socketAddress_native);
+            return SocketPal.Bind4(socket, &__socketAddress_native);
         }
 
         public static SocketError Connect(Socket4 socket, ref SocketAddress4 socketAddress)
@@ -50,7 +50,7 @@ namespace NativeSockets.Udp
             Unsafe.WriteUnaligned(&__socketAddress_native.sin_addr, socketAddress.Address);
             Unsafe.InitBlockUnaligned(__socketAddress_native.sin_zero, 0, 8);
 
-            return SocketPal.Connect(socket, &__socketAddress_native);
+            return SocketPal.Connect4(socket, &__socketAddress_native);
         }
 
         public static SocketError SetOption(Socket4 socket, SocketOptionLevel level, SocketOptionName name, ref int value)
@@ -92,7 +92,7 @@ namespace NativeSockets.Udp
             int num;
             fixed (byte* pinnedBuffer = &buffer)
             {
-                num = SocketPal.SendTo(socket, pinnedBuffer, length, (sockaddr_in*)null);
+                num = SocketPal.SendTo4(socket, pinnedBuffer, length, (sockaddr_in*)null);
             }
 
             return num;
@@ -103,7 +103,7 @@ namespace NativeSockets.Udp
             int result;
             fixed (byte* pinnedBuffer = &buffer)
             {
-                result = SocketPal.ReceiveFrom(socket, pinnedBuffer, length, (sockaddr_in*)null);
+                result = SocketPal.ReceiveFrom4(socket, pinnedBuffer, length, (sockaddr_in*)null);
             }
 
             return result;
@@ -120,7 +120,7 @@ namespace NativeSockets.Udp
             int num;
             fixed (byte* pinnedBuffer = &buffer)
             {
-                num = SocketPal.SendTo(socket, pinnedBuffer, length, &__socketAddress_native);
+                num = SocketPal.SendTo4(socket, pinnedBuffer, length, &__socketAddress_native);
             }
 
             return num;
@@ -132,7 +132,7 @@ namespace NativeSockets.Udp
             int result;
             fixed (byte* pinnedBuffer = &buffer)
             {
-                result = SocketPal.ReceiveFrom(socket, pinnedBuffer, length, &__socketAddress_native);
+                result = SocketPal.ReceiveFrom4(socket, pinnedBuffer, length, &__socketAddress_native);
             }
 
             if (result <= 0)
@@ -147,7 +147,7 @@ namespace NativeSockets.Udp
         public static SocketError GetAddress(Socket4 socket, ref SocketAddress4 socketAddress)
         {
             sockaddr_in __socketAddress_native;
-            SocketError error = SocketPal.GetName(socket, &__socketAddress_native);
+            SocketError error = SocketPal.GetName4(socket, &__socketAddress_native);
             if (error == 0)
             {
                 socketAddress.Address = Unsafe.ReadUnaligned<uint>(&__socketAddress_native.sin_addr);
@@ -161,7 +161,7 @@ namespace NativeSockets.Udp
         public static SocketError SetIP(ref SocketAddress4 socketAddress, ReadOnlySpan<char> ip)
         {
             sockaddr_in __socketAddress_native;
-            SocketError error = SocketPal.SetIP(&__socketAddress_native, ip);
+            SocketError error = SocketPal.SetIP4(&__socketAddress_native, ip);
             if (error == 0)
                 socketAddress.Address = Unsafe.ReadUnaligned<uint>(&__socketAddress_native.sin_addr);
 
@@ -176,7 +176,7 @@ namespace NativeSockets.Udp
             Unsafe.WriteUnaligned(&__socketAddress_native.sin_addr, socketAddress.Address);
             Unsafe.InitBlockUnaligned(__socketAddress_native.sin_zero, 0, 8);
 
-            SocketError error = SocketPal.GetIP(&__socketAddress_native, ip);
+            SocketError error = SocketPal.GetIP4(&__socketAddress_native, ip);
 
             return error;
         }
@@ -185,7 +185,7 @@ namespace NativeSockets.Udp
         public static SocketError SetHostName(ref SocketAddress4 socketAddress, ReadOnlySpan<char> hostName)
         {
             sockaddr_in __socketAddress_native;
-            SocketError error = SocketPal.SetHostName(&__socketAddress_native, hostName);
+            SocketError error = SocketPal.SetHostName4(&__socketAddress_native, hostName);
             if (error == 0)
                 socketAddress.Address = Unsafe.ReadUnaligned<uint>(&__socketAddress_native.sin_addr);
 
@@ -200,7 +200,7 @@ namespace NativeSockets.Udp
             Unsafe.WriteUnaligned(&__socketAddress_native.sin_addr, socketAddress.Address);
             Unsafe.InitBlockUnaligned(__socketAddress_native.sin_zero, 0, 8);
 
-            SocketError error = SocketPal.GetHostName(&__socketAddress_native, hostName);
+            SocketError error = SocketPal.GetHostName4(&__socketAddress_native, hostName);
             if (error == 0)
             {
                 socketAddress.Address = Unsafe.ReadUnaligned<uint>(&__socketAddress_native.sin_addr);
