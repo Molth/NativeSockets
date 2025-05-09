@@ -48,6 +48,7 @@ namespace winsock
                     {
                         Close(socket);
                         socket = -1;
+                        goto label;
                     }
                 }
 
@@ -61,6 +62,7 @@ namespace winsock
                 }
             }
 
+            label:
             return socket;
         }
 
