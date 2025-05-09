@@ -458,7 +458,7 @@ namespace unixsock
 
             int addressFamily = (int)AddressFamily.InterNetwork;
 
-            int error = inet_pton(addressFamily, Unsafe.AsPointer(ref MemoryMarshal.GetReference(buffer)), (byte*)pAddrBuf);
+            int error = inet_pton(addressFamily, Unsafe.AsPointer(ref MemoryMarshal.GetReference(buffer)), pAddrBuf);
 
             switch (error)
             {
@@ -489,7 +489,7 @@ namespace unixsock
                 pAddrBuf = (byte*)pAddrBuf + 12;
             }
 
-            int error = inet_pton(addressFamily, Unsafe.AsPointer(ref MemoryMarshal.GetReference(buffer)), (byte*)pAddrBuf);
+            int error = inet_pton(addressFamily, Unsafe.AsPointer(ref MemoryMarshal.GetReference(buffer)), pAddrBuf);
 
             switch (error)
             {

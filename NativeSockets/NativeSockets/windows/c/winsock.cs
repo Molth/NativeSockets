@@ -316,7 +316,7 @@ namespace winsock
 
             int addressFamily = (int)AddressFamily.InterNetwork;
 
-            int error = inet_pton(addressFamily, Unsafe.AsPointer(ref MemoryMarshal.GetReference(buffer)), (byte*)pAddrBuf);
+            int error = inet_pton(addressFamily, Unsafe.AsPointer(ref MemoryMarshal.GetReference(buffer)), pAddrBuf);
 
             switch (error)
             {
@@ -347,7 +347,7 @@ namespace winsock
                 pAddrBuf = (byte*)pAddrBuf + 12;
             }
 
-            int error = inet_pton(addressFamily, Unsafe.AsPointer(ref MemoryMarshal.GetReference(buffer)), (byte*)pAddrBuf);
+            int error = inet_pton(addressFamily, Unsafe.AsPointer(ref MemoryMarshal.GetReference(buffer)), pAddrBuf);
 
             switch (error)
             {
