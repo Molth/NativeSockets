@@ -78,7 +78,7 @@ namespace winsock
             if (socketAddress == null)
             {
                 __socketAddress_native = new sockaddr_in();
-                SetIP(&__socketAddress_native, "::");
+                SetIP(&__socketAddress_native, "0.0.0.0");
             }
             else
             {

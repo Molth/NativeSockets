@@ -243,9 +243,6 @@ namespace unixsock
             }
             else
             {
-                if (socketAddress->sin6_family != (int)ADDRESS_FAMILY_INTER_NETWORK_V6)
-                    return SocketError.InvalidArgument;
-
                 __socketAddress_native = *socketAddress;
                 __socketAddress_native.sin6_port = WinSock2.HOST_TO_NET_16(socketAddress->sin6_port);
             }

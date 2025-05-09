@@ -3,54 +3,60 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
+using NativeSockets;
 using NativeSockets.Udp;
 
 // ReSharper disable ALL
 
 namespace Examples
 {
-    // ipv6
-    public sealed unsafe class Example1
+    // ipv4
+    public sealed unsafe class Example2
     {
-        public static void StartServer(ushort port, string localIP = "::0")
+        public static void StartServer(ushort port, string localIP = "0.0.0.0")
         {
-            UdpPal6.Initialize();
+            SocketError error;
 
-            Socket6 server = UdpPal6.Create();
+            UdpPal4.Initialize();
+
+            Socket4 server = UdpPal4.Create();
             server.SetSendBufferSize(256 * 1024);
             server.SetReceiveBufferSize(256 * 1024);
 
-            SocketAddress6 listenAddress = new SocketAddress6();
+            SocketAddress4 listenAddress = new SocketAddress4();
             listenAddress.Port = port;
 
-            if (UdpPal6.SetIP(ref listenAddress, localIP) == SocketError.Success)
-                Console.WriteLine("SocketAddress set!");
+            if (UdpPal4.SetIP(ref listenAddress, localIP) == SocketError.Success)
+                Console.WriteLine($"SocketAddress set! {listenAddress}");
 
-            if (UdpPal6.Bind(server, ref listenAddress) == 0)
+            error = UdpPal4.Bind(server, ref listenAddress);
+            if (error == 0)
                 Console.WriteLine("Socket bound!");
+            else
+                Console.WriteLine(error + " " + SocketPal.GetLastSocketError());
 
-            if (UdpPal6.SetNonBlocking(server, true) != SocketError.Success)
+            if (UdpPal4.SetNonBlocking(server, true) != SocketError.Success)
                 Console.WriteLine("Non-blocking option error!");
 
-            SocketAddress6 localAddress = new SocketAddress6();
-            UdpPal6.GetAddress(server, ref localAddress);
-            Console.WriteLine($"Server local: {localAddress}");
+            SocketAddress4 localAddress = new SocketAddress4();
+            error = UdpPal4.GetAddress(server, ref localAddress);
+            Console.WriteLine($"Server local: {error} {localAddress}");
 
-            SocketAddress6 address = new SocketAddress6();
+            SocketAddress4 address = new SocketAddress4();
             byte* buffer = stackalloc byte[1024];
 
-            SocketError error = UdpPal6.GetHostName(ref localAddress, MemoryMarshal.CreateSpan(ref *buffer, 1024));
+            error = UdpPal4.GetHostName(ref localAddress, MemoryMarshal.CreateSpan(ref *buffer, 1024));
             Console.WriteLine("Server HostName: " + Encoding.ASCII.GetString(MemoryMarshal.CreateReadOnlySpan(ref *buffer, 1024)));
 
             Console.WriteLine();
 
             while (!Console.KeyAvailable)
             {
-                if (UdpPal6.Poll(server, 15, SelectMode.SelectRead))
+                if (UdpPal4.Poll(server, 15, SelectMode.SelectRead))
                 {
                     int dataLength;
 
-                    while ((dataLength = UdpPal6.ReceiveFrom(server, ref *buffer, 1024, ref address)) > 0)
+                    while ((dataLength = UdpPal4.ReceiveFrom(server, ref *buffer, 1024, ref address)) > 0)
                     {
                         string data = Encoding.UTF8.GetString(MemoryMarshal.CreateReadOnlySpan(ref *buffer, dataLength));
 
@@ -58,7 +64,7 @@ namespace Examples
 
                         int bytes = Encoding.UTF8.GetBytes($"send back[{data}]", MemoryMarshal.CreateSpan(ref *buffer, 1024));
 
-                        UdpPal6.SendTo(server, ref *buffer, bytes, ref address);
+                        UdpPal4.SendTo(server, ref *buffer, bytes, ref address);
                     }
 
                     Console.WriteLine();
@@ -67,39 +73,39 @@ namespace Examples
                 Thread.Sleep(100);
             }
 
-            UdpPal6.Close(ref server);
+            UdpPal4.Close(ref server);
 
-            UdpPal6.Cleanup();
+            UdpPal4.Cleanup();
         }
 
         public static void StartClient(string serverIP, ushort port, ushort localPort)
         {
-            UdpPal6.Initialize();
+            UdpPal4.Initialize();
 
-            Socket6 client = UdpPal6.Create();
+            Socket4 client = UdpPal4.Create();
             client.SetSendBufferSize(256 * 1024);
             client.SetReceiveBufferSize(256 * 1024);
 
-            SocketAddress6 connectionAddress = new SocketAddress6();
+            SocketAddress4 connectionAddress = new SocketAddress4();
 
             connectionAddress.Port = port;
 
-            SocketAddress6 listenAddress = new SocketAddress6();
+            SocketAddress4 listenAddress = new SocketAddress4();
             listenAddress.Port = localPort;
 
-            if (UdpPal6.SetIP(ref listenAddress, "::0") == SocketError.Success)
+            if (UdpPal4.SetIP(ref listenAddress, "0.0.0.0") == SocketError.Success)
                 Console.WriteLine("SocketAddress set!");
 
-            if (UdpPal6.Bind(client, ref listenAddress) == 0)
+            if (UdpPal4.Bind(client, ref listenAddress) == 0)
                 Console.WriteLine("Socket bound!");
 
-            if (UdpPal6.SetIP(ref connectionAddress, serverIP) == SocketError.Success)
+            if (UdpPal4.SetIP(ref connectionAddress, serverIP) == SocketError.Success)
                 Console.WriteLine("SocketAddress set!");
 
-            if (UdpPal6.Connect(client, ref connectionAddress) == 0)
+            if (UdpPal4.Connect(client, ref connectionAddress) == 0)
                 Console.WriteLine("Socket connected!");
 
-            if (UdpPal6.SetNonBlocking(client, true) != SocketError.Success)
+            if (UdpPal4.SetNonBlocking(client, true) != SocketError.Success)
                 Console.WriteLine("Non-blocking option error!");
 
             Console.WriteLine();
@@ -108,7 +114,7 @@ namespace Examples
 
             int bytes = Encoding.UTF8.GetBytes("hello server.", MemoryMarshal.CreateSpan(ref *buffer, 1024));
 
-            UdpPal6.Send(client, ref *buffer, bytes);
+            var a = UdpPal4.Send(client, ref *buffer, bytes);
 
             byte i = 0;
 
@@ -116,13 +122,13 @@ namespace Examples
             {
                 bytes = Encoding.UTF8.GetBytes($"test send {i++}.", MemoryMarshal.CreateSpan(ref *buffer, 1024));
 
-                UdpPal6.Send(client, ref *buffer, bytes);
+                UdpPal4.Send(client, ref *buffer, bytes);
 
-                if (UdpPal6.Poll(client, 15, SelectMode.SelectRead))
+                if (UdpPal4.Poll(client, 15, SelectMode.SelectRead))
                 {
                     int dataLength;
 
-                    while ((dataLength = UdpPal6.Receive(client, ref *buffer, 1024)) > 0)
+                    while ((dataLength = UdpPal4.Receive(client, ref *buffer, 1024)) > 0)
                     {
                         string data = Encoding.UTF8.GetString(MemoryMarshal.CreateReadOnlySpan(ref *buffer, dataLength));
 
@@ -135,9 +141,9 @@ namespace Examples
                 Thread.Sleep(1000);
             }
 
-            UdpPal6.Close(ref client);
+            UdpPal4.Close(ref client);
 
-            UdpPal6.Cleanup();
+            UdpPal4.Cleanup();
         }
     }
 }

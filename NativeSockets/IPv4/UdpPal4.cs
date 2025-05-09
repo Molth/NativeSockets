@@ -1,0 +1,213 @@
+﻿using System;
+using System.Net.Sockets;
+using System.Runtime.CompilerServices;
+using System.Security;
+using winsock;
+
+#pragma warning disable CS1591
+#pragma warning disable SYSLIB1054
+#pragma warning disable CA1401
+#pragma warning disable CA2101
+
+// ReSharper disable ALL
+
+namespace NativeSockets.Udp
+{
+    [SuppressUnmanagedCodeSecurity]
+    public static unsafe class UdpPal4
+    {
+        public static void Initialize() => SocketPal.Initialize();
+
+        public static void Cleanup() => SocketPal.Cleanup();
+
+        public static Socket4 Create() => SocketPal.Create(false);
+
+        public static void Close(ref Socket4 socket)
+        {
+            SocketPal.Close(socket);
+            socket = -1;
+        }
+
+        public static SocketError Bind(Socket4 socket, ref SocketAddress4 socketAddress)
+        {
+            if (Unsafe.AsPointer(ref socketAddress) == null)
+                return SocketPal.Bind(socket, (sockaddr_in*)null);
+
+            sockaddr_in __socketAddress_native;
+            __socketAddress_native.sin_family = (ushort)AddressFamily.InterNetwork;
+            __socketAddress_native.sin_port = socketAddress.Port;
+            Unsafe.WriteUnaligned(&__socketAddress_native.sin_addr, socketAddress.Address);
+            Unsafe.InitBlockUnaligned(__socketAddress_native.sin_zero, 0, 8);
+
+            return SocketPal.Bind(socket, &__socketAddress_native);
+        }
+
+        public static SocketError Connect(Socket4 socket, ref SocketAddress4 socketAddress)
+        {
+            sockaddr_in __socketAddress_native;
+            __socketAddress_native.sin_family = (ushort)AddressFamily.InterNetwork;
+            __socketAddress_native.sin_port = socketAddress.Port;
+            Unsafe.WriteUnaligned(&__socketAddress_native.sin_addr, socketAddress.Address);
+            Unsafe.InitBlockUnaligned(__socketAddress_native.sin_zero, 0, 8);
+
+            return SocketPal.Connect(socket, &__socketAddress_native);
+        }
+
+        public static SocketError SetOption(Socket4 socket, SocketOptionLevel level, SocketOptionName name, ref int value)
+        {
+            SocketError error;
+            fixed (int* pinnedBuffer = &value)
+            {
+                error = SocketPal.SetOption(socket, level, name, pinnedBuffer);
+            }
+
+            return error;
+        }
+
+        public static SocketError GetOption(Socket4 socket, SocketOptionLevel level, SocketOptionName name, ref int value)
+        {
+            SocketError error;
+            fixed (int* pinnedBuffer = &value)
+            {
+                error = SocketPal.GetOption(socket, level, name, pinnedBuffer);
+            }
+
+            return error;
+        }
+
+        public static SocketError SetNonBlocking(Socket4 socket, bool nonBlocking)
+        {
+            SocketError error = SocketPal.SetBlocking(socket, !nonBlocking);
+            return error;
+        }
+
+        public static bool Poll(Socket4 socket, int microseconds, SelectMode mode)
+        {
+            SocketError error = SocketPal.Poll(socket, microseconds, mode, out bool status);
+            return error == SocketError.Success && status;
+        }
+
+        public static int Send(Socket4 socket, ref byte buffer, int length)
+        {
+            int num;
+            fixed (byte* pinnedBuffer = &buffer)
+            {
+                num = SocketPal.SendTo(socket, pinnedBuffer, length, (sockaddr_in*)null);
+            }
+
+            return num;
+        }
+
+        public static int Receive(Socket4 socket, ref byte buffer, int length)
+        {
+            int result;
+            fixed (byte* pinnedBuffer = &buffer)
+            {
+                result = SocketPal.ReceiveFrom(socket, pinnedBuffer, length, (sockaddr_in*)null);
+            }
+
+            return result;
+        }
+
+        public static int SendTo(Socket4 socket, ref byte buffer, int length, ref SocketAddress4 socketAddress)
+        {
+            sockaddr_in __socketAddress_native;
+            __socketAddress_native.sin_family = (ushort)AddressFamily.InterNetwork;
+            __socketAddress_native.sin_port = socketAddress.Port;
+            Unsafe.WriteUnaligned(&__socketAddress_native.sin_addr, socketAddress.Address);
+            Unsafe.InitBlockUnaligned(__socketAddress_native.sin_zero, 0, 8);
+
+            int num;
+            fixed (byte* pinnedBuffer = &buffer)
+            {
+                num = SocketPal.SendTo(socket, pinnedBuffer, length, &__socketAddress_native);
+            }
+
+            return num;
+        }
+
+        public static int ReceiveFrom(Socket4 socket, ref byte buffer, int length, ref SocketAddress4 socketAddress)
+        {
+            sockaddr_in __socketAddress_native;
+            int result;
+            fixed (byte* pinnedBuffer = &buffer)
+            {
+                result = SocketPal.ReceiveFrom(socket, pinnedBuffer, length, &__socketAddress_native);
+            }
+
+            if (result <= 0)
+                return result;
+
+            socketAddress.Address = Unsafe.ReadUnaligned<uint>(&__socketAddress_native.sin_addr);
+            socketAddress.Port = __socketAddress_native.sin_port;
+
+            return result;
+        }
+
+        public static SocketError GetAddress(Socket4 socket, ref SocketAddress4 socketAddress)
+        {
+            sockaddr_in __socketAddress_native;
+            SocketError error = SocketPal.GetName(socket, &__socketAddress_native);
+            if (error == 0)
+            {
+                socketAddress.Address = Unsafe.ReadUnaligned<uint>(&__socketAddress_native.sin_addr);
+                socketAddress.Port = __socketAddress_native.sin_port;
+            }
+
+            return error;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError SetIP(ref SocketAddress4 socketAddress, ReadOnlySpan<char> ip)
+        {
+            sockaddr_in __socketAddress_native;
+            SocketError error = SocketPal.SetIP(&__socketAddress_native, ip);
+            if (error == 0)
+                socketAddress.Address = Unsafe.ReadUnaligned<uint>(&__socketAddress_native.sin_addr);
+
+            return error;
+        }
+
+        public static SocketError GetIP(ref SocketAddress4 socketAddress, Span<byte> ip)
+        {
+            sockaddr_in __socketAddress_native;
+            __socketAddress_native.sin_family = (ushort)AddressFamily.InterNetwork;
+            __socketAddress_native.sin_port = socketAddress.Port;
+            Unsafe.WriteUnaligned(&__socketAddress_native.sin_addr, socketAddress.Address);
+            Unsafe.InitBlockUnaligned(__socketAddress_native.sin_zero, 0, 8);
+
+            SocketError error = SocketPal.GetIP(&__socketAddress_native, ip);
+
+            return error;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError SetHostName(ref SocketAddress4 socketAddress, ReadOnlySpan<char> hostName)
+        {
+            sockaddr_in __socketAddress_native;
+            SocketError error = SocketPal.SetHostName(&__socketAddress_native, hostName);
+            if (error == 0)
+                socketAddress.Address = Unsafe.ReadUnaligned<uint>(&__socketAddress_native.sin_addr);
+
+            return error;
+        }
+
+        public static SocketError GetHostName(ref SocketAddress4 socketAddress, Span<byte> hostName)
+        {
+            sockaddr_in __socketAddress_native;
+            __socketAddress_native.sin_family = (ushort)AddressFamily.InterNetwork;
+            __socketAddress_native.sin_port = socketAddress.Port;
+            Unsafe.WriteUnaligned(&__socketAddress_native.sin_addr, socketAddress.Address);
+            Unsafe.InitBlockUnaligned(__socketAddress_native.sin_zero, 0, 8);
+
+            SocketError error = SocketPal.GetHostName(&__socketAddress_native, hostName);
+            if (error == 0)
+            {
+                socketAddress.Address = Unsafe.ReadUnaligned<uint>(&__socketAddress_native.sin_addr);
+                socketAddress.Port = __socketAddress_native.sin_port;
+            }
+
+            return error;
+        }
+    }
+}
