@@ -44,11 +44,26 @@ namespace NativeSockets.Udp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool GetIP(int bufferSize, out string? ip)
+        {
+            Span<byte> buffer = stackalloc byte[bufferSize];
+            SocketError error = UdpPal4.GetIP(ref Unsafe.AsRef(in this), buffer);
+            if (error == 0)
+            {
+                ip = Encoding.ASCII.GetString(buffer[..buffer.IndexOf((byte)'\0')]);
+                return true;
+            }
+
+            ip = null;
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool GetIP(int bufferSize, Span<byte> ip, out int byteCount)
         {
             Span<byte> buffer = stackalloc byte[bufferSize];
-            SocketError status = UdpPal4.GetIP(ref Unsafe.AsRef(in this), buffer);
-            if (status == 0)
+            SocketError error = UdpPal4.GetIP(ref Unsafe.AsRef(in this), buffer);
+            if (error == 0)
             {
                 byteCount = buffer.IndexOf((byte)'\0');
                 if (ip.Length < byteCount)
@@ -62,11 +77,26 @@ namespace NativeSockets.Udp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool GetHostName(int bufferSize, out string? ip)
+        {
+            Span<byte> buffer = stackalloc byte[bufferSize];
+            SocketError error = UdpPal4.GetHostName(ref Unsafe.AsRef(in this), buffer);
+            if (error == 0)
+            {
+                ip = Encoding.ASCII.GetString(buffer[..buffer.IndexOf((byte)'\0')]);
+                return true;
+            }
+
+            ip = null;
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool GetHostName(int bufferSize, Span<byte> name, out int byteCount)
         {
             Span<byte> buffer = stackalloc byte[bufferSize];
-            SocketError status = UdpPal4.GetHostName(ref Unsafe.AsRef(in this), buffer);
-            if (status == 0)
+            SocketError error = UdpPal4.GetHostName(ref Unsafe.AsRef(in this), buffer);
+            if (error == 0)
             {
                 byteCount = buffer.IndexOf((byte)'\0');
                 if (name.Length < byteCount)
