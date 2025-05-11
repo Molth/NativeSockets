@@ -194,22 +194,15 @@ namespace NativeSockets.Udp
 
         public static SocketError GetHostName(ref SocketAddress6 socketAddress, Span<byte> hostName)
         {
-            ref byte reference = ref socketAddress.GetPinnableReference();
-
             sockaddr_in6 __socketAddress_native;
 
             __socketAddress_native.sin6_family = (ushort)SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
             __socketAddress_native.sin6_port = socketAddress.Port;
             __socketAddress_native.sin6_flowinfo = 0;
-            Unsafe.CopyBlockUnaligned(ref *__socketAddress_native.sin6_addr, ref reference, 16);
+            Unsafe.CopyBlockUnaligned(ref *__socketAddress_native.sin6_addr, ref socketAddress.GetPinnableReference(), 16);
             __socketAddress_native.sin6_scope_id = 0;
 
             SocketError error = SocketPal.GetHostName6(&__socketAddress_native, hostName);
-            if (error == 0)
-            {
-                Unsafe.CopyBlockUnaligned(ref reference, ref *__socketAddress_native.sin6_addr, 16);
-                socketAddress.Port = __socketAddress_native.sin6_port;
-            }
 
             return error;
         }

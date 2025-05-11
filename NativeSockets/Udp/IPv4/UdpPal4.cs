@@ -201,11 +201,6 @@ namespace NativeSockets.Udp
             Unsafe.InitBlockUnaligned(__socketAddress_native.sin_zero, 0, 8);
 
             SocketError error = SocketPal.GetHostName4(&__socketAddress_native, hostName);
-            if (error == 0)
-            {
-                socketAddress.Address = Unsafe.ReadUnaligned<uint>(&__socketAddress_native.sin_addr);
-                socketAddress.Port = __socketAddress_native.sin_port;
-            }
 
             return error;
         }
