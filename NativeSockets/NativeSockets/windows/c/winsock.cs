@@ -2,6 +2,7 @@
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Security;
 using System.Text;
 
 #pragma warning disable CS1591
@@ -12,6 +13,7 @@ using System.Text;
 
 namespace winsock
 {
+    [SuppressUnmanagedCodeSecurity]
     public static unsafe class WinSock
     {
         private const string NATIVE_LIBRARY = "ws2_32.dll";

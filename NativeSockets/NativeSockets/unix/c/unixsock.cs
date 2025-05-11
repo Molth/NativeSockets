@@ -2,6 +2,7 @@
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Security;
 using System.Text;
 using winsock;
 
@@ -13,6 +14,7 @@ using winsock;
 
 namespace unixsock
 {
+    [SuppressUnmanagedCodeSecurity]
     public static unsafe class UnixSock
     {
         public const ushort ADDRESS_FAMILY_INTER_NETWORK_V6 = 10;

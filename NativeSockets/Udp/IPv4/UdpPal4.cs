@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
-using System.Security;
 using winsock;
 
 #pragma warning disable CS1591
@@ -13,7 +12,6 @@ using winsock;
 
 namespace NativeSockets.Udp
 {
-    [SuppressUnmanagedCodeSecurity]
     public static unsafe class UdpPal4
     {
         public static void Initialize() => SocketPal.Initialize();
