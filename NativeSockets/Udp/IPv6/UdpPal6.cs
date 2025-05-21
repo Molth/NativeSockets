@@ -14,18 +14,26 @@ namespace NativeSockets.Udp
 {
     public static unsafe class UdpPal6
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Initialize() => SocketPal.Initialize();
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Cleanup() => SocketPal.Cleanup();
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Socket6 Create() => SocketPal.Create(true);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Close(ref Socket6 socket)
         {
             SocketPal.Close(socket);
             socket = -1;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError SetDualMode(Socket6 socket, bool dualMode) => SocketPal.SetDualMode6(socket, dualMode);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Bind(Socket6 socket, ref SocketAddress6 socketAddress)
         {
             if (Unsafe.AsPointer(ref socketAddress) == null)
@@ -41,6 +49,7 @@ namespace NativeSockets.Udp
             return SocketPal.Bind6(socket, &__socketAddress_native);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Connect(Socket6 socket, ref SocketAddress6 socketAddress)
         {
             sockaddr_in6 __socketAddress_native;
@@ -53,6 +62,7 @@ namespace NativeSockets.Udp
             return SocketPal.Connect6(socket, &__socketAddress_native);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError SetOption(Socket6 socket, SocketOptionLevel level, SocketOptionName name, ref int value)
         {
             SocketError error;
@@ -64,6 +74,7 @@ namespace NativeSockets.Udp
             return error;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetOption(Socket6 socket, SocketOptionLevel level, SocketOptionName name, ref int value)
         {
             SocketError error;
@@ -75,18 +86,21 @@ namespace NativeSockets.Udp
             return error;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError SetNonBlocking(Socket6 socket, bool nonBlocking)
         {
             SocketError error = SocketPal.SetBlocking(socket, !nonBlocking);
             return error;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Poll(Socket6 socket, int microseconds, SelectMode mode)
         {
             SocketError error = SocketPal.Poll(socket, microseconds, mode, out bool status);
             return error == SocketError.Success && status;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Send(Socket6 socket, ref byte buffer, int length)
         {
             int num;
@@ -98,6 +112,7 @@ namespace NativeSockets.Udp
             return num;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Receive(Socket6 socket, ref byte buffer, int length)
         {
             int result;
@@ -109,6 +124,7 @@ namespace NativeSockets.Udp
             return result;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int SendTo(Socket6 socket, ref byte buffer, int length, ref SocketAddress6 socketAddress)
         {
             sockaddr_in6 __socketAddress_native;
@@ -127,6 +143,7 @@ namespace NativeSockets.Udp
             return num;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveFrom(Socket6 socket, ref byte buffer, int length, ref SocketAddress6 socketAddress)
         {
             sockaddr_in6 __socketAddress_native;
@@ -145,6 +162,7 @@ namespace NativeSockets.Udp
             return result;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetAddress(Socket6 socket, ref SocketAddress6 socketAddress)
         {
             sockaddr_in6 __socketAddress_native;
@@ -169,6 +187,7 @@ namespace NativeSockets.Udp
             return error;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetIP(ref SocketAddress6 socketAddress, Span<byte> ip)
         {
             sockaddr_in6 __socketAddress_native;
@@ -190,6 +209,7 @@ namespace NativeSockets.Udp
             return error;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetHostName(ref SocketAddress6 socketAddress, Span<byte> hostName)
         {
             sockaddr_in6 __socketAddress_native;

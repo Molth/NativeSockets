@@ -33,6 +33,18 @@ namespace NativeSockets.Udp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public SocketError SetDualMode(bool dualMode) => UdpPal6.SetDualMode(this, dualMode);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool GetDualMode(out bool dualMode)
+        {
+            int optionValue = 0;
+            bool error = GetOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, ref optionValue);
+            dualMode = optionValue == 0;
+            return error;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public SocketError Bind(in SocketAddress6 address) => UdpPal6.Bind(this, ref Unsafe.AsRef(in address));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

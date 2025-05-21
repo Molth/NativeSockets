@@ -17,6 +17,7 @@ namespace Examples
             UdpPal6.Initialize();
 
             Socket6 server = UdpPal6.Create();
+            server.SetDualMode(true);
             server.SetSendBufferSize(256 * 1024);
             server.SetReceiveBufferSize(256 * 1024);
 
@@ -77,6 +78,7 @@ namespace Examples
             UdpPal6.Initialize();
 
             Socket6 client = UdpPal6.Create();
+            client.SetDualMode(true);
             client.SetSendBufferSize(256 * 1024);
             client.SetReceiveBufferSize(256 * 1024);
 
