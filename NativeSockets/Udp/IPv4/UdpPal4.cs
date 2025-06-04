@@ -33,7 +33,7 @@ namespace NativeSockets.Udp
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Bind(Socket4 socket, ref SocketAddress4 socketAddress)
         {
-            if (Unsafe.AsPointer(ref socketAddress) == null)
+            if (Unsafe.IsNullRef(ref socketAddress))
                 return SocketPal.Bind4(socket, (sockaddr_in*)null);
 
             sockaddr_in __socketAddress_native;

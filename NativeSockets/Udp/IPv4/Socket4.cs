@@ -51,10 +51,16 @@ namespace NativeSockets.Udp
         public bool Poll(int microseconds, SelectMode mode) => UdpPal4.Poll(this, microseconds, mode);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int ReceiveFrom(Span<byte> buffer, ref SocketAddress4 address) => UdpPal4.ReceiveFrom(this, ref MemoryMarshal.GetReference(buffer), buffer.Length, ref address);
+        public int Send(ReadOnlySpan<byte> buffer) => UdpPal4.Send(this, ref MemoryMarshal.GetReference(buffer), buffer.Length);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int Send(ReadOnlySpan<byte> buffer, in SocketAddress4 address) => UdpPal4.SendTo(this, ref MemoryMarshal.GetReference(buffer), buffer.Length, ref Unsafe.AsRef(in address));
+        public int Receive(Span<byte> buffer) => UdpPal4.Receive(this, ref MemoryMarshal.GetReference(buffer), buffer.Length);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int SendTo(ReadOnlySpan<byte> buffer, in SocketAddress4 address) => UdpPal4.SendTo(this, ref MemoryMarshal.GetReference(buffer), buffer.Length, ref Unsafe.AsRef(in address));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int ReceiveFrom(Span<byte> buffer, ref SocketAddress4 address) => UdpPal4.ReceiveFrom(this, ref MemoryMarshal.GetReference(buffer), buffer.Length, ref address);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool GetAddress(ref SocketAddress4 address) => UdpPal4.GetAddress(this, ref address) == 0;

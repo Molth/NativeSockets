@@ -36,7 +36,7 @@ namespace NativeSockets.Udp
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Bind(Socket6 socket, ref SocketAddress6 socketAddress)
         {
-            if (Unsafe.AsPointer(ref socketAddress) == null)
+            if (Unsafe.IsNullRef(ref socketAddress))
                 return SocketPal.Bind6(socket, (sockaddr_in6*)null);
 
             sockaddr_in6 __socketAddress_native;
