@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using winsock;
 #if NET7_0_OR_GREATER
 using System.Runtime.Intrinsics;
 #endif
@@ -59,6 +61,88 @@ namespace NativeSockets.Udp
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => !IsIPv4;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool CreateFromIPEndPoint(IPEndPoint socketAddress, out MnSocketAddress address)
+        {
+            address = new MnSocketAddress();
+
+            if (socketAddress.AddressFamily == AddressFamily.InterNetworkV6)
+            {
+                socketAddress.Address.TryWriteBytes(MemoryMarshal.CreateSpan(ref Unsafe.As<MnSocketAddress, byte>(ref address), 16), out _);
+                address.Port = (ushort)socketAddress.Port;
+
+                return true;
+            }
+
+            if (socketAddress.AddressFamily == AddressFamily.InterNetwork)
+            {
+                ref byte reference = ref Unsafe.As<MnSocketAddress, byte>(ref address);
+                Unsafe.InitBlockUnaligned(ref reference, 0, 8);
+                Unsafe.WriteUnaligned(ref Unsafe.AddByteOffset(ref reference, (nint)8), -0x10000);
+
+                socketAddress.Address.TryWriteBytes(MemoryMarshal.CreateSpan(ref Unsafe.As<uint, byte>(ref address.Address), 4), out _);
+                address.Port = (ushort)socketAddress.Port;
+
+                return true;
+            }
+
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool CreateFromSocketAddress(SocketAddress socketAddress, out MnSocketAddress address)
+        {
+            address = new MnSocketAddress();
+
+            if (socketAddress.Family == AddressFamily.InterNetworkV6)
+            {
+                if (socketAddress.Size != 28)
+                    return false;
+
+                sockaddr_in6 sockaddrIn6 = new sockaddr_in6();
+                Span<byte> buffer = MemoryMarshal.CreateSpan(ref Unsafe.As<sockaddr_in6, byte>(ref sockaddrIn6), 28);
+
+#if NET8_0_OR_GREATER
+                socketAddress.Buffer.Span.Slice(0,28).CopyTo(buffer);
+#else
+                for (int i = 0; i < 28; i++)
+                    buffer[i] = socketAddress[i];
+#endif
+
+                Unsafe.CopyBlockUnaligned(Unsafe.AsPointer(ref address), sockaddrIn6.sin6_addr, 16);
+                address.Port = WinSock2.NET_TO_HOST_16(sockaddrIn6.sin6_port);
+
+                return true;
+            }
+
+            if (socketAddress.Family == AddressFamily.InterNetwork)
+            {
+                if (socketAddress.Size != 16)
+                    return false;
+
+                sockaddr_in sockaddrIn4 = new sockaddr_in();
+                Span<byte> buffer = MemoryMarshal.CreateSpan(ref Unsafe.As<sockaddr_in, byte>(ref sockaddrIn4), 16);
+
+#if NET8_0_OR_GREATER
+                socketAddress.Buffer.Span.Slice(0,16).CopyTo(buffer);
+#else
+                for (int i = 0; i < 16; i++)
+                    buffer[i] = socketAddress[i];
+#endif
+
+                ref byte reference = ref Unsafe.As<MnSocketAddress, byte>(ref address);
+                Unsafe.InitBlockUnaligned(ref reference, 0, 8);
+                Unsafe.WriteUnaligned(ref Unsafe.AddByteOffset(ref reference, (nint)8), -0x10000);
+
+                Unsafe.WriteUnaligned(Unsafe.AsPointer(ref address.Address), sockaddrIn4.sin_addr);
+                address.Port = WinSock2.NET_TO_HOST_16(sockaddrIn4.sin_port);
+
+                return true;
+            }
+
+            return false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

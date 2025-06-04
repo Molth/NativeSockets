@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -95,9 +96,9 @@ namespace Examples
             client.SetSendBufferSize(256 * 1024);
             client.SetReceiveBufferSize(256 * 1024);
 
-            MnSocketAddress connectionAddress = new MnSocketAddress();
+            MnSocketAddress.CreateFromIPEndPoint(new IPEndPoint(IPAddress.Parse(serverIP), port), out MnSocketAddress connectionAddress);
 
-            connectionAddress.Port = port;
+            Console.WriteLine(connectionAddress);
 
             MnSocketAddress listenAddress = new MnSocketAddress();
             listenAddress.Port = localPort;
@@ -107,9 +108,6 @@ namespace Examples
 
             if (MnUdpPal.Bind(client, ref listenAddress) == 0)
                 Console.WriteLine("Socket bound!");
-
-            if (MnUdpPal.SetIP(ref connectionAddress, serverIP) == SocketError.Success)
-                Console.WriteLine("SocketAddress set!");
 
             if (MnUdpPal.Connect(client, ref connectionAddress) == 0)
                 Console.WriteLine("Socket connected!");
