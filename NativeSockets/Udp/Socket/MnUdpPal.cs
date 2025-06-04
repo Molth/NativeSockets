@@ -11,7 +11,7 @@ using System.Runtime.CompilerServices;
 
 namespace NativeSockets.Udp
 {
-    public static unsafe class UdpPal
+    public static unsafe class MnUdpPal
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Initialize() => SocketPal.Initialize();
@@ -20,29 +20,29 @@ namespace NativeSockets.Udp
         public static void Cleanup() => SocketPal.Cleanup();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Socket Create(bool ipv6)
+        public static MnSocket Create(bool ipv6)
         {
-            Socket socket;
+            MnSocket socket;
             socket.Handle = (int)SocketPal.Create(ipv6);
             socket.IsIPv6 = ipv6;
             return socket;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Close(ref Socket socket)
+        public static void Close(ref MnSocket socket)
         {
             SocketPal.Close(socket);
             socket.Handle = -1;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetDualMode(Socket socket, bool dualMode) => SocketPal.SetDualMode6(socket, dualMode);
+        public static SocketError SetDualMode(MnSocket socket, bool dualMode) => SocketPal.SetDualMode6(socket, dualMode);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError Bind(Socket socket, ref SocketAddress socketAddress)
+        public static SocketError Bind(MnSocket socket, ref MnSocketAddress socketAddress)
         {
             if (socket.IsIPv6)
-                return UdpPal6.Bind(new Socket6 { Handle = socket }, ref Unsafe.As<SocketAddress, SocketAddress6>(ref socketAddress));
+                return UdpPal6.Bind(new Socket6 { Handle = socket }, ref Unsafe.As<MnSocketAddress, SocketAddress6>(ref socketAddress));
 
             if (Unsafe.IsNullRef(ref socketAddress))
                 return UdpPal4.Bind(new Socket4 { Handle = socket }, ref Unsafe.NullRef<SocketAddress4>());
@@ -54,10 +54,10 @@ namespace NativeSockets.Udp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError Connect(Socket socket, ref SocketAddress socketAddress)
+        public static SocketError Connect(MnSocket socket, ref MnSocketAddress socketAddress)
         {
             if (socket.IsIPv6)
-                return UdpPal6.Connect(new Socket6 { Handle = socket }, ref Unsafe.As<SocketAddress, SocketAddress6>(ref socketAddress));
+                return UdpPal6.Connect(new Socket6 { Handle = socket }, ref Unsafe.As<MnSocketAddress, SocketAddress6>(ref socketAddress));
 
             if (socketAddress.IsIPv6)
                 return SocketError.AddressFamilyNotSupported;
@@ -66,7 +66,7 @@ namespace NativeSockets.Udp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetOption(Socket socket, SocketOptionLevel level, SocketOptionName name, ref int value)
+        public static SocketError SetOption(MnSocket socket, SocketOptionLevel level, SocketOptionName name, ref int value)
         {
             SocketError error;
             fixed (int* pinnedBuffer = &value)
@@ -78,7 +78,7 @@ namespace NativeSockets.Udp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetOption(Socket socket, SocketOptionLevel level, SocketOptionName name, ref int value)
+        public static SocketError GetOption(MnSocket socket, SocketOptionLevel level, SocketOptionName name, ref int value)
         {
             SocketError error;
             fixed (int* pinnedBuffer = &value)
@@ -90,21 +90,21 @@ namespace NativeSockets.Udp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetNonBlocking(Socket socket, bool nonBlocking)
+        public static SocketError SetNonBlocking(MnSocket socket, bool nonBlocking)
         {
             SocketError error = SocketPal.SetBlocking(socket, !nonBlocking);
             return error;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool Poll(Socket socket, int microseconds, SelectMode mode)
+        public static bool Poll(MnSocket socket, int microseconds, SelectMode mode)
         {
             SocketError error = SocketPal.Poll(socket, microseconds, mode, out bool status);
             return error == SocketError.Success && status;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Send(Socket socket, ref byte buffer, int length)
+        public static int Send(MnSocket socket, ref byte buffer, int length)
         {
             if (socket.IsIPv6)
                 return UdpPal6.Send(new Socket6 { Handle = socket }, ref buffer, length);
@@ -113,7 +113,7 @@ namespace NativeSockets.Udp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Receive(Socket socket, ref byte buffer, int length)
+        public static int Receive(MnSocket socket, ref byte buffer, int length)
         {
             if (socket.IsIPv6)
                 return UdpPal6.Receive(new Socket6 { Handle = socket }, ref buffer, length);
@@ -122,10 +122,10 @@ namespace NativeSockets.Udp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendTo(Socket socket, ref byte buffer, int length, ref SocketAddress socketAddress)
+        public static int SendTo(MnSocket socket, ref byte buffer, int length, ref MnSocketAddress socketAddress)
         {
             if (socket.IsIPv6)
-                return UdpPal6.SendTo(new Socket6 { Handle = socket }, ref buffer, length, ref Unsafe.As<SocketAddress, SocketAddress6>(ref socketAddress));
+                return UdpPal6.SendTo(new Socket6 { Handle = socket }, ref buffer, length, ref Unsafe.As<MnSocketAddress, SocketAddress6>(ref socketAddress));
 
             if (socketAddress.IsIPv6)
                 return -1;
@@ -134,12 +134,12 @@ namespace NativeSockets.Udp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveFrom(Socket socket, ref byte buffer, int length, ref SocketAddress socketAddress)
+        public static int ReceiveFrom(MnSocket socket, ref byte buffer, int length, ref MnSocketAddress socketAddress)
         {
             if (socket.IsIPv6)
-                return UdpPal6.ReceiveFrom(new Socket6 { Handle = socket }, ref buffer, length, ref Unsafe.As<SocketAddress, SocketAddress6>(ref socketAddress));
+                return UdpPal6.ReceiveFrom(new Socket6 { Handle = socket }, ref buffer, length, ref Unsafe.As<MnSocketAddress, SocketAddress6>(ref socketAddress));
 
-            ref byte reference = ref Unsafe.As<SocketAddress, byte>(ref socketAddress);
+            ref byte reference = ref Unsafe.As<MnSocketAddress, byte>(ref socketAddress);
             Unsafe.InitBlockUnaligned(ref reference, 0, 8);
             Unsafe.WriteUnaligned(ref Unsafe.AddByteOffset(ref reference, (nint)8), -0x10000);
 
@@ -147,33 +147,33 @@ namespace NativeSockets.Udp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetAddress(Socket socket, ref SocketAddress socketAddress)
+        public static SocketError GetAddress(MnSocket socket, ref MnSocketAddress socketAddress)
         {
-            return UdpPal6.GetAddress(new Socket6 { Handle = socket }, ref Unsafe.As<SocketAddress, SocketAddress6>(ref socketAddress));
+            return UdpPal6.GetAddress(new Socket6 { Handle = socket }, ref Unsafe.As<MnSocketAddress, SocketAddress6>(ref socketAddress));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetIP(ref SocketAddress socketAddress, ReadOnlySpan<char> ip)
+        public static SocketError SetIP(ref MnSocketAddress socketAddress, ReadOnlySpan<char> ip)
         {
-            return UdpPal6.SetIP(ref Unsafe.As<SocketAddress, SocketAddress6>(ref socketAddress), ip);
+            return UdpPal6.SetIP(ref Unsafe.As<MnSocketAddress, SocketAddress6>(ref socketAddress), ip);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetIP(ref SocketAddress socketAddress, Span<byte> ip, bool ipv6)
+        public static SocketError GetIP(ref MnSocketAddress socketAddress, Span<byte> ip, bool ipv6)
         {
-            return UdpPal6.GetIP(ref Unsafe.As<SocketAddress, SocketAddress6>(ref socketAddress), ip);
+            return UdpPal6.GetIP(ref Unsafe.As<MnSocketAddress, SocketAddress6>(ref socketAddress), ip);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetHostName(ref SocketAddress socketAddress, ReadOnlySpan<char> hostName)
+        public static SocketError SetHostName(ref MnSocketAddress socketAddress, ReadOnlySpan<char> hostName)
         {
-            return UdpPal6.SetHostName(ref Unsafe.As<SocketAddress, SocketAddress6>(ref socketAddress), hostName);
+            return UdpPal6.SetHostName(ref Unsafe.As<MnSocketAddress, SocketAddress6>(ref socketAddress), hostName);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetHostName(ref SocketAddress socketAddress, Span<byte> hostName)
+        public static SocketError GetHostName(ref MnSocketAddress socketAddress, Span<byte> hostName)
         {
-            return UdpPal6.GetHostName(ref Unsafe.As<SocketAddress, SocketAddress6>(ref socketAddress), hostName);
+            return UdpPal6.GetHostName(ref Unsafe.As<MnSocketAddress, SocketAddress6>(ref socketAddress), hostName);
         }
     }
 }

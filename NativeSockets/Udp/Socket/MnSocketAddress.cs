@@ -16,20 +16,20 @@ using System.Runtime.Intrinsics;
 namespace NativeSockets.Udp
 {
     [StructLayout(LayoutKind.Explicit, Size = 20)]
-    public unsafe struct SocketAddress
+    public unsafe struct MnSocketAddress
     {
-        public static ref SocketAddress NullRef => ref Unsafe.NullRef<SocketAddress>();
+        public static ref MnSocketAddress NullRef => ref Unsafe.NullRef<MnSocketAddress>();
 
         public Span<byte> IPv6
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => MemoryMarshal.CreateSpan(ref Unsafe.As<SocketAddress, byte>(ref Unsafe.AsRef(in this)), 16);
+            get => MemoryMarshal.CreateSpan(ref Unsafe.As<MnSocketAddress, byte>(ref Unsafe.AsRef(in this)), 16);
         }
 
         public Span<byte> IPv4
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => MemoryMarshal.CreateSpan(ref Unsafe.Add(ref Unsafe.As<SocketAddress, byte>(ref Unsafe.AsRef(in this)), 12), 4);
+            get => MemoryMarshal.CreateSpan(ref Unsafe.Add(ref Unsafe.As<MnSocketAddress, byte>(ref Unsafe.AsRef(in this)), 12), 4);
         }
 
         [FieldOffset(12)] public uint Address;
@@ -40,7 +40,7 @@ namespace NativeSockets.Udp
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                ref long reference = ref Unsafe.As<SocketAddress, long>(ref Unsafe.AsRef(in this));
+                ref long reference = ref Unsafe.As<MnSocketAddress, long>(ref Unsafe.AsRef(in this));
                 return reference != 0 || Unsafe.Add(ref reference, 1) != 0;
             }
         }
@@ -50,7 +50,7 @@ namespace NativeSockets.Udp
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                ref int reference = ref Unsafe.As<SocketAddress, int>(ref Unsafe.AsRef(in this));
+                ref int reference = ref Unsafe.As<MnSocketAddress, int>(ref Unsafe.AsRef(in this));
                 return Unsafe.Add(ref reference, 2) == -0x10000 && reference == 0 && Unsafe.Add(ref reference, 1) == 0;
             }
         }
@@ -62,27 +62,27 @@ namespace NativeSockets.Udp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref byte GetPinnableReference() => ref Unsafe.As<SocketAddress, byte>(ref Unsafe.AsRef(in this));
+        public ref byte GetPinnableReference() => ref Unsafe.As<MnSocketAddress, byte>(ref Unsafe.AsRef(in this));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool CreateFromIP(ReadOnlySpan<char> ip, out SocketAddress address)
+        public static bool CreateFromIP(ReadOnlySpan<char> ip, out MnSocketAddress address)
         {
-            address = new SocketAddress();
-            return UdpPal6.SetIP(ref Unsafe.As<SocketAddress, SocketAddress6>(ref address), ip) == 0;
+            address = new MnSocketAddress();
+            return UdpPal6.SetIP(ref Unsafe.As<MnSocketAddress, SocketAddress6>(ref address), ip) == 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool CreateFromHostName(ReadOnlySpan<char> name, out SocketAddress address)
+        public static bool CreateFromHostName(ReadOnlySpan<char> name, out MnSocketAddress address)
         {
-            address = new SocketAddress();
-            return UdpPal6.SetHostName(ref Unsafe.As<SocketAddress, SocketAddress6>(ref address), name) == 0;
+            address = new MnSocketAddress();
+            return UdpPal6.SetHostName(ref Unsafe.As<MnSocketAddress, SocketAddress6>(ref address), name) == 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool GetIP(int bufferSize, out string? ip)
         {
             Span<byte> buffer = stackalloc byte[bufferSize];
-            SocketError error = UdpPal6.GetIP(ref Unsafe.As<SocketAddress, SocketAddress6>(ref Unsafe.AsRef(in this)), buffer);
+            SocketError error = UdpPal6.GetIP(ref Unsafe.As<MnSocketAddress, SocketAddress6>(ref Unsafe.AsRef(in this)), buffer);
             if (error == 0)
             {
                 ip = Encoding.ASCII.GetString(buffer[..buffer.IndexOf((byte)'\0')]);
@@ -97,7 +97,7 @@ namespace NativeSockets.Udp
         public bool GetIP(int bufferSize, Span<byte> ip, out int byteCount)
         {
             Span<byte> buffer = stackalloc byte[bufferSize];
-            SocketError error = UdpPal6.GetIP(ref Unsafe.As<SocketAddress, SocketAddress6>(ref Unsafe.AsRef(in this)), buffer);
+            SocketError error = UdpPal6.GetIP(ref Unsafe.As<MnSocketAddress, SocketAddress6>(ref Unsafe.AsRef(in this)), buffer);
             if (error == 0)
             {
                 byteCount = buffer.IndexOf((byte)'\0');
@@ -115,7 +115,7 @@ namespace NativeSockets.Udp
         public bool GetHostName(int bufferSize, out string? ip)
         {
             Span<byte> buffer = stackalloc byte[bufferSize];
-            SocketError error = UdpPal6.GetHostName(ref Unsafe.As<SocketAddress, SocketAddress6>(ref Unsafe.AsRef(in this)), buffer);
+            SocketError error = UdpPal6.GetHostName(ref Unsafe.As<MnSocketAddress, SocketAddress6>(ref Unsafe.AsRef(in this)), buffer);
             if (error == 0)
             {
                 ip = Encoding.ASCII.GetString(buffer[..buffer.IndexOf((byte)'\0')]);
@@ -130,7 +130,7 @@ namespace NativeSockets.Udp
         public bool GetHostName(int bufferSize, Span<byte> name, out int byteCount)
         {
             Span<byte> buffer = stackalloc byte[bufferSize];
-            SocketError error = UdpPal6.GetHostName(ref Unsafe.As<SocketAddress, SocketAddress6>(ref Unsafe.AsRef(in this)), buffer);
+            SocketError error = UdpPal6.GetHostName(ref Unsafe.As<MnSocketAddress, SocketAddress6>(ref Unsafe.AsRef(in this)), buffer);
             if (error == 0)
             {
                 byteCount = buffer.IndexOf((byte)'\0');
@@ -144,26 +144,26 @@ namespace NativeSockets.Udp
             return false;
         }
 
-        public bool Equals(SocketAddress other)
+        public bool Equals(MnSocketAddress other)
         {
 #if NET7_0_OR_GREATER
             if (Vector128.IsHardwareAccelerated)
-                return Vector128.LoadUnsafe(ref Unsafe.As<SocketAddress, byte>(ref Unsafe.AsRef(in this))) == Vector128.LoadUnsafe(ref Unsafe.As<SocketAddress, byte>(ref other)) && Port == other.Port;
+                return Vector128.LoadUnsafe(ref Unsafe.As<MnSocketAddress, byte>(ref Unsafe.AsRef(in this))) == Vector128.LoadUnsafe(ref Unsafe.As<MnSocketAddress, byte>(ref other)) && Port == other.Port;
 #endif
-            ref int left = ref Unsafe.As<SocketAddress, int>(ref Unsafe.AsRef(in this));
-            ref int right = ref Unsafe.As<SocketAddress, int>(ref other);
+            ref int left = ref Unsafe.As<MnSocketAddress, int>(ref Unsafe.AsRef(in this));
+            ref int right = ref Unsafe.As<MnSocketAddress, int>(ref other);
             return left == right && Unsafe.Add(ref left, 1) == Unsafe.Add(ref right, 1) && Unsafe.Add(ref left, 2) == Unsafe.Add(ref right, 2) && Unsafe.Add(ref left, 3) == Unsafe.Add(ref right, 3) && Unsafe.Add(ref left, 4) == Unsafe.Add(ref right, 4);
         }
 
-        public override bool Equals(object? obj) => obj is SocketAddress socketAddress && Equals(socketAddress);
+        public override bool Equals(object? obj) => obj is MnSocketAddress socketAddress && Equals(socketAddress);
 
         public override int GetHashCode()
         {
             HashCode hashCode = new HashCode();
 #if NET6_0_OR_GREATER
-            hashCode.AddBytes(MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<SocketAddress, byte>(ref Unsafe.AsRef(in this)), 20));
+            hashCode.AddBytes(MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<MnSocketAddress, byte>(ref Unsafe.AsRef(in this)), 20));
 #else
-            ref int reference = ref Unsafe.As<SocketAddress, int>(ref Unsafe.AsRef(in this));
+            ref int reference = ref Unsafe.As<MnSocketAddress, int>(ref Unsafe.AsRef(in this));
             for (int i = 0; i < 5; i++)
                 hashCode.Add(Unsafe.Add(ref reference, i));
 #endif
@@ -173,19 +173,19 @@ namespace NativeSockets.Udp
         public override string ToString()
         {
             Span<byte> buffer = stackalloc byte[64];
-            return UdpPal6.GetIP(ref Unsafe.As<SocketAddress, SocketAddress6>(ref Unsafe.AsRef(in this)), buffer) == 0 ? Encoding.ASCII.GetString(buffer[..buffer.IndexOf((byte)'\0')]) + ":" + Port : "ERROR";
+            return UdpPal6.GetIP(ref Unsafe.As<MnSocketAddress, SocketAddress6>(ref Unsafe.AsRef(in this)), buffer) == 0 ? Encoding.ASCII.GetString(buffer[..buffer.IndexOf((byte)'\0')]) + ":" + Port : "ERROR";
         }
 
         public string ToString(int bufferSize)
         {
             Span<byte> buffer = stackalloc byte[bufferSize];
-            return UdpPal6.GetIP(ref Unsafe.As<SocketAddress, SocketAddress6>(ref Unsafe.AsRef(in this)), buffer) == 0 ? Encoding.ASCII.GetString(buffer[..buffer.IndexOf((byte)'\0')]) + ":" + Port : "ERROR";
+            return UdpPal6.GetIP(ref Unsafe.As<MnSocketAddress, SocketAddress6>(ref Unsafe.AsRef(in this)), buffer) == 0 ? Encoding.ASCII.GetString(buffer[..buffer.IndexOf((byte)'\0')]) + ":" + Port : "ERROR";
         }
 
-        public static bool operator ==(SocketAddress left, SocketAddress right) => left.Equals(right);
-        public static bool operator !=(SocketAddress left, SocketAddress right) => !(left == right);
+        public static bool operator ==(MnSocketAddress left, MnSocketAddress right) => left.Equals(right);
+        public static bool operator !=(MnSocketAddress left, MnSocketAddress right) => !(left == right);
 
-        public static implicit operator SocketAddress6(SocketAddress socketAddress) => Unsafe.As<SocketAddress, SocketAddress6>(ref socketAddress);
-        public static implicit operator SocketAddress4(SocketAddress socketAddress) => Unsafe.As<uint, SocketAddress4>(ref socketAddress.Address);
+        public static implicit operator SocketAddress6(MnSocketAddress socketAddress) => Unsafe.As<MnSocketAddress, SocketAddress6>(ref socketAddress);
+        public static implicit operator SocketAddress4(MnSocketAddress socketAddress) => Unsafe.As<uint, SocketAddress4>(ref socketAddress.Address);
     }
 }

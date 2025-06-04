@@ -109,5 +109,6 @@ namespace NativeSockets.Udp
         public static implicit operator bool(Socket6 socket) => socket.Handle > 0;
         public static implicit operator nint(Socket6 socket) => socket.Handle;
         public static implicit operator Socket6(nint handle) => Unsafe.As<nint, Socket6>(ref handle);
+        public static implicit operator Socket6(Socket socket) => new Socket6 { Handle = (int)socket.Handle };
     }
 }

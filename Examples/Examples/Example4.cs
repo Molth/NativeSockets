@@ -11,7 +11,7 @@ using NativeSockets.Udp;
 namespace Examples
 {
     // ipv4
-    public sealed unsafe class Example3
+    public sealed unsafe class Example4
     {
         public static void StartServer(ushort port, string localIP = "0.0.0.0", bool ipv6 = true)
         {
@@ -19,12 +19,12 @@ namespace Examples
 
             MnUdpPal.Initialize();
 
-            MnSocket server = MnUdpPal.Create(ipv6);
+            Socket server = new Socket(ipv6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
             if (ipv6)
-                server.SetDualMode(true);
-            server.SetSendBufferSize(256 * 1024);
-            server.SetReceiveBufferSize(256 * 1024);
+                server.DualMode = true;
+            server.SendBufferSize = 256 * 1024;
+            server.ReceiveBufferSize = 256 * 1024;
 
             MnSocketAddress listenAddress = new MnSocketAddress();
             listenAddress.Port = port;
@@ -79,7 +79,7 @@ namespace Examples
                 Thread.Sleep(100);
             }
 
-            MnUdpPal.Close(ref server);
+            server.Close();
 
             MnUdpPal.Cleanup();
         }
@@ -88,7 +88,7 @@ namespace Examples
         {
             MnUdpPal.Initialize();
 
-            MnSocket client = MnUdpPal.Create(ipv6);
+            MnSocket client = new Socket(ipv6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
             if (ipv6)
                 client.SetDualMode(true);
