@@ -15,7 +15,7 @@ namespace NativeSockets.Udp
     [StructLayout(LayoutKind.Explicit, Size = 8)]
     public unsafe struct SocketAddress4 : IEquatable<SocketAddress4>
     {
-        public static ref SocketAddress4 NullRef => ref Unsafe.AsRef<SocketAddress4>(null);
+        public static ref SocketAddress4 NullRef => ref Unsafe.NullRef<SocketAddress4>();
 
         [FieldOffset(0)] public uint Address;
         [FieldOffset(4)] public ushort Port;

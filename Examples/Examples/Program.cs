@@ -9,7 +9,13 @@ namespace Examples
     {
         private static void Main(string[] args)
         {
-            StartExample4();
+            new Thread(() => { Example3.StartServer(7777); }) { IsBackground = true }.Start();
+
+            Thread.Sleep(1000);
+
+            new Thread(() => { Example3.StartClient("127.0.0.1", 7777, 7778); }) { IsBackground = true }.Start();
+
+            Console.ReadLine();
         }
 
         private static void StartExample1()

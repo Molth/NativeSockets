@@ -20,7 +20,7 @@ namespace NativeSockets.Udp
         {
             UdpPal6.Initialize();
             Socket6 socket = UdpPal6.Create();
-            if (socket == -1)
+            if (socket.Handle == -1)
                 UdpPal6.Cleanup();
             return socket;
         }
@@ -81,21 +81,21 @@ namespace NativeSockets.Udp
         public bool GetSendBufferSize(out int sendBufferSize)
         {
             sendBufferSize = 0;
-            return UdpPal6.GetOption(Handle, SocketOptionLevel.Socket, SocketOptionName.SendBuffer, ref sendBufferSize) == 0;
+            return UdpPal6.GetOption(this, SocketOptionLevel.Socket, SocketOptionName.SendBuffer, ref sendBufferSize) == 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool SetSendBufferSize(int sendBufferSize) => UdpPal6.SetOption(Handle, SocketOptionLevel.Socket, SocketOptionName.SendBuffer, ref sendBufferSize) == 0;
+        public bool SetSendBufferSize(int sendBufferSize) => UdpPal6.SetOption(this, SocketOptionLevel.Socket, SocketOptionName.SendBuffer, ref sendBufferSize) == 0;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool GetReceiveBufferSize(out int receiveBufferSize)
         {
             receiveBufferSize = 0;
-            return UdpPal6.GetOption(Handle, SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, ref receiveBufferSize) == 0;
+            return UdpPal6.GetOption(this, SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, ref receiveBufferSize) == 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool SetReceiveBufferSize(int receiveBufferSize) => UdpPal6.SetOption(Handle, SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, ref receiveBufferSize) == 0;
+        public bool SetReceiveBufferSize(int receiveBufferSize) => UdpPal6.SetOption(this, SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, ref receiveBufferSize) == 0;
 
         public bool Equals(Socket6 other) => Handle == other.Handle;
         public override bool Equals(object? obj) => obj is Socket6 socket && Equals(socket);
