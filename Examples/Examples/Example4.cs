@@ -49,7 +49,7 @@ namespace Examples
             error = MnUdpPal.GetAddress(server, ref localAddress);
             Console.WriteLine($"Server local: {error} {localAddress}");
 
-            MnSocketAddress address = new MnSocketAddress();
+            Span<byte> address = stackalloc byte[28];
             byte* buffer = stackalloc byte[1024];
 
             error = MnUdpPal.GetHostName(ref localAddress, MemoryMarshal.CreateSpan(ref *buffer, 1024));
@@ -63,15 +63,23 @@ namespace Examples
                 {
                     int dataLength;
 
-                    while ((dataLength = MnUdpPal.ReceiveFrom(server, ref *buffer, 1024, ref address)) > 0)
+                    while (true)
                     {
-                        string data = Encoding.UTF8.GetString(MemoryMarshal.CreateReadOnlySpan(ref *buffer, dataLength));
+                        Span<byte> addressSnapshot = address;
 
-                        Console.WriteLine($"Server received from {address.ToString()}: " + data);
+                        if ((dataLength = UdpPal.ReceiveFrom(server, MemoryMarshal.CreateSpan(ref *buffer, 1024), ref addressSnapshot)) > 0)
+                        {
+                            string data = Encoding.UTF8.GetString(MemoryMarshal.CreateReadOnlySpan(ref *buffer, dataLength));
 
-                        int bytes = Encoding.UTF8.GetBytes($"send back[{data}]", MemoryMarshal.CreateSpan(ref *buffer, 1024));
+                            UdpPal.CreateIPEndPoint(addressSnapshot, out IPEndPoint? ipEndPoint);
+                            Console.WriteLine($"Server received from {ipEndPoint}: " + data);
 
-                        MnUdpPal.SendTo(server, ref *buffer, bytes, ref address);
+                            int bytes = Encoding.UTF8.GetBytes($"send back[{data}]", MemoryMarshal.CreateSpan(ref *buffer, 1024));
+
+                            UdpPal.SendTo(server, MemoryMarshal.CreateReadOnlySpan(ref *buffer, bytes), addressSnapshot);
+                        }
+                        else
+                            break;
                     }
 
                     Console.WriteLine();
