@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using winsock;
 #if NET7_0_OR_GREATER
 using System.Runtime.Intrinsics;
 #endif
@@ -75,6 +77,28 @@ namespace NativeSockets.Udp
         {
             address = new SocketAddress6();
             return UdpPal6.SetHostName(ref address, name) == 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IPEndPoint CreateIPEndPoint() => new IPEndPoint(new IPAddress(IPv6), Port);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public SocketAddress CreateSocketAddress()
+        {
+            SocketAddress socketAddress = new SocketAddress(AddressFamily.InterNetworkV6);
+            ReadOnlySpan<byte> buffer = (ReadOnlySpan<byte>)IPv6;
+            ushort port = WinSock2.HOST_TO_NET_16(Port);
+#if NET8_0_OR_GREATER
+            buffer.CopyTo(socketAddress.Buffer.Span.Slice(8));
+            Unsafe.WriteUnaligned(ref socketAddress.Buffer.Span[2], port);
+#else
+            for (int i = 8; i < 24; ++i)
+                socketAddress[i] = buffer[i - 8];
+            buffer = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ushort, byte>(ref port), 2);
+            for (int i = 2; i < 4; ++i)
+                socketAddress[i] = buffer[i - 2];
+#endif
+            return socketAddress;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

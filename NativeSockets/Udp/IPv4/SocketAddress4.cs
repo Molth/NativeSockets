@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using winsock;
 
 #pragma warning disable CS1591
 #pragma warning disable CS8632
@@ -41,6 +43,28 @@ namespace NativeSockets.Udp
         {
             address = new SocketAddress4();
             return UdpPal4.SetHostName(ref address, name) == 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IPEndPoint CreateIPEndPoint() => new IPEndPoint(Address, Port);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public SocketAddress CreateSocketAddress()
+        {
+            SocketAddress socketAddress = new SocketAddress(AddressFamily.InterNetwork);
+            ReadOnlySpan<byte> buffer = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<uint, byte>(ref Address), 4);
+            ushort port = WinSock2.HOST_TO_NET_16(Port);
+#if NET8_0_OR_GREATER
+            buffer.CopyTo(socketAddress.Buffer.Span.Slice(4));
+            Unsafe.WriteUnaligned(ref socketAddress.Buffer.Span[2], port);
+#else
+            for (int i = 4; i < 8; ++i)
+                socketAddress[i] = buffer[i - 4];
+            buffer = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<ushort, byte>(ref port), 2);
+            for (int i = 2; i < 4; ++i)
+                socketAddress[i] = buffer[i - 2];
+#endif
+            return socketAddress;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

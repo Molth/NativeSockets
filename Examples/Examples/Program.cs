@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using NativeSockets.Udp;
 
 // ReSharper disable ALL
 
@@ -16,6 +17,17 @@ namespace Examples
             new Thread(() => { Example4.StartClient("127.0.0.1", 7777, 7778); }) { IsBackground = true }.Start();
 
             Console.ReadLine();
+        }
+
+        private static void Test()
+        {
+            MnSocketAddress.CreateFromIP("127.0.0.1", out MnSocketAddress address);
+            address.Port = 9999;
+            Console.WriteLine(((SocketAddress6)address).CreateSocketAddress());
+            Console.WriteLine(((SocketAddress6)address).CreateIPEndPoint().Serialize());
+            Console.WriteLine(((SocketAddress6)address).CreateSocketAddress().Equals(((SocketAddress6)address).CreateIPEndPoint().Serialize()));
+            MnSocketAddress.CreateFromSocketAddress(((SocketAddress6)address).CreateIPEndPoint().Serialize(), out MnSocketAddress a);
+            Console.WriteLine(a.CreateIPEndPoint(true));
         }
 
         private static void StartExample1()

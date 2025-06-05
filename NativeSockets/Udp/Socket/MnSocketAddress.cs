@@ -64,6 +64,23 @@ namespace NativeSockets.Udp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ref byte GetPinnableReference() => ref Unsafe.As<MnSocketAddress, byte>(ref Unsafe.AsRef(in this));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool CreateFromIP(ReadOnlySpan<char> ip, out MnSocketAddress address)
+        {
+            address = new MnSocketAddress();
+            return UdpPal6.SetIP(ref Unsafe.As<MnSocketAddress, SocketAddress6>(ref address), ip) == 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool CreateFromHostName(ReadOnlySpan<char> name, out MnSocketAddress address)
+        {
+            address = new MnSocketAddress();
+            return UdpPal6.SetHostName(ref Unsafe.As<MnSocketAddress, SocketAddress6>(ref address), name) == 0;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool CreateFromIPEndPoint(IPEndPoint socketAddress, out MnSocketAddress address)
         {
             address = new MnSocketAddress();
@@ -105,7 +122,7 @@ namespace NativeSockets.Udp
                 Span<byte> buffer = MemoryMarshal.CreateSpan(ref Unsafe.As<sockaddr_in6, byte>(ref sockaddrIn6), 28);
 
 #if NET8_0_OR_GREATER
-                socketAddress.Buffer.Span.Slice(0,28).CopyTo(buffer);
+                socketAddress.Buffer.Span.Slice(0, 28).CopyTo(buffer);
 #else
                 for (int i = 0; i < 28; i++)
                     buffer[i] = socketAddress[i];
@@ -126,7 +143,7 @@ namespace NativeSockets.Udp
                 Span<byte> buffer = MemoryMarshal.CreateSpan(ref Unsafe.As<sockaddr_in, byte>(ref sockaddrIn4), 16);
 
 #if NET8_0_OR_GREATER
-                socketAddress.Buffer.Span.Slice(0,16).CopyTo(buffer);
+                socketAddress.Buffer.Span.Slice(0, 16).CopyTo(buffer);
 #else
                 for (int i = 0; i < 16; i++)
                     buffer[i] = socketAddress[i];
@@ -146,21 +163,10 @@ namespace NativeSockets.Udp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ref byte GetPinnableReference() => ref Unsafe.As<MnSocketAddress, byte>(ref Unsafe.AsRef(in this));
+        public IPEndPoint CreateIPEndPoint(bool ipv6 = false) => ipv6 || IsIPv6 ? ((SocketAddress6)this).CreateIPEndPoint() : ((SocketAddress4)this).CreateIPEndPoint();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool CreateFromIP(ReadOnlySpan<char> ip, out MnSocketAddress address)
-        {
-            address = new MnSocketAddress();
-            return UdpPal6.SetIP(ref Unsafe.As<MnSocketAddress, SocketAddress6>(ref address), ip) == 0;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool CreateFromHostName(ReadOnlySpan<char> name, out MnSocketAddress address)
-        {
-            address = new MnSocketAddress();
-            return UdpPal6.SetHostName(ref Unsafe.As<MnSocketAddress, SocketAddress6>(ref address), name) == 0;
-        }
+        public SocketAddress CreateSocketAddress(bool ipv6 = false) => ipv6 || IsIPv6 ? ((SocketAddress6)this).CreateSocketAddress() : ((SocketAddress4)this).CreateSocketAddress();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool GetIP(int bufferSize, out string? ip)
