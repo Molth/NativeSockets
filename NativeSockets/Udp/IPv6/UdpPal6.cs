@@ -44,7 +44,7 @@ namespace NativeSockets.Udp
             __socketAddress_native.sin6_port = socketAddress.Port;
             __socketAddress_native.sin6_flowinfo = 0;
             Unsafe.CopyBlockUnaligned(ref *__socketAddress_native.sin6_addr, ref socketAddress.GetPinnableReference(), 16);
-            __socketAddress_native.sin6_scope_id = 0;
+            __socketAddress_native.sin6_scope_id = socketAddress.ScopeId;
 
             return SocketPal.Bind6(socket, &__socketAddress_native);
         }
@@ -57,7 +57,7 @@ namespace NativeSockets.Udp
             __socketAddress_native.sin6_port = socketAddress.Port;
             __socketAddress_native.sin6_flowinfo = 0;
             Unsafe.CopyBlockUnaligned(ref *__socketAddress_native.sin6_addr, ref socketAddress.GetPinnableReference(), 16);
-            __socketAddress_native.sin6_scope_id = 0;
+            __socketAddress_native.sin6_scope_id = socketAddress.ScopeId;
 
             return SocketPal.Connect6(socket, &__socketAddress_native);
         }
@@ -132,7 +132,7 @@ namespace NativeSockets.Udp
             __socketAddress_native.sin6_port = socketAddress.Port;
             __socketAddress_native.sin6_flowinfo = 0;
             Unsafe.CopyBlockUnaligned(ref *__socketAddress_native.sin6_addr, ref socketAddress.GetPinnableReference(), 16);
-            __socketAddress_native.sin6_scope_id = 0;
+            __socketAddress_native.sin6_scope_id = socketAddress.ScopeId;
 
             int num;
             fixed (byte* pinnedBuffer = &buffer)
@@ -158,6 +158,7 @@ namespace NativeSockets.Udp
 
             Unsafe.CopyBlockUnaligned(ref socketAddress.GetPinnableReference(), ref *__socketAddress_native.sin6_addr, 16);
             socketAddress.Port = __socketAddress_native.sin6_port;
+            socketAddress.ScopeId = __socketAddress_native.sin6_scope_id;
 
             return result;
         }
@@ -171,6 +172,7 @@ namespace NativeSockets.Udp
             {
                 Unsafe.CopyBlockUnaligned(ref socketAddress.GetPinnableReference(), ref *__socketAddress_native.sin6_addr, 16);
                 socketAddress.Port = __socketAddress_native.sin6_port;
+                socketAddress.ScopeId = __socketAddress_native.sin6_scope_id;
             }
 
             return error;
@@ -218,7 +220,7 @@ namespace NativeSockets.Udp
             __socketAddress_native.sin6_port = socketAddress.Port;
             __socketAddress_native.sin6_flowinfo = 0;
             Unsafe.CopyBlockUnaligned(ref *__socketAddress_native.sin6_addr, ref socketAddress.GetPinnableReference(), 16);
-            __socketAddress_native.sin6_scope_id = 0;
+            __socketAddress_native.sin6_scope_id = socketAddress.ScopeId;
 
             SocketError error = SocketPal.GetHostName6(&__socketAddress_native, hostName);
 

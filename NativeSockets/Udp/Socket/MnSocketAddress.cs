@@ -17,7 +17,7 @@ using System.Runtime.Intrinsics;
 
 namespace NativeSockets.Udp
 {
-    [StructLayout(LayoutKind.Explicit, Size = 20)]
+    [StructLayout(LayoutKind.Explicit, Size = 24)]
     public unsafe struct MnSocketAddress
     {
         public static ref MnSocketAddress NullRef => ref Unsafe.NullRef<MnSocketAddress>();
@@ -36,6 +36,7 @@ namespace NativeSockets.Udp
 
         [FieldOffset(12)] public uint Address;
         [FieldOffset(16)] public ushort Port;
+        [FieldOffset(20)] public uint ScopeId;
 
         public bool IsCreated
         {
