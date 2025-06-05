@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 namespace NativeSockets.Udp
 {
     [StructLayout(LayoutKind.Explicit, Size = 8)]
-    public struct MnSocket
+    public struct MnSocket : IDisposable, IEquatable<MnSocket>
     {
         [FieldOffset(0)] public int Handle;
         public bool IsIPv4 => !IsIPv6;
