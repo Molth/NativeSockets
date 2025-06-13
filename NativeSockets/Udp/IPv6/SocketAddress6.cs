@@ -81,7 +81,10 @@ namespace NativeSockets.Udp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IPEndPoint CreateIPEndPoint() => new IPEndPoint(new IPAddress(IPv6), Port);
+        public IPAddress CreateIPAddress() => new IPAddress(IPv6, ScopeId);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IPEndPoint CreateIPEndPoint() => new IPEndPoint(CreateIPAddress(), Port);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public SocketAddress CreateSocketAddress()
@@ -185,10 +188,10 @@ namespace NativeSockets.Udp
         {
             HashCode hashCode = new HashCode();
 #if NET6_0_OR_GREATER
-            hashCode.AddBytes(MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<SocketAddress6, byte>(ref Unsafe.AsRef(in this)), 20));
+            hashCode.AddBytes(MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<SocketAddress6, byte>(ref Unsafe.AsRef(in this)), 24));
 #else
             ref int reference = ref Unsafe.As<SocketAddress6, int>(ref Unsafe.AsRef(in this));
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 6; i++)
                 hashCode.Add(Unsafe.Add(ref reference, i));
 #endif
             return hashCode.ToHashCode();
@@ -209,7 +212,17 @@ namespace NativeSockets.Udp
         public static bool operator ==(SocketAddress6 left, SocketAddress6 right) => left.Equals(right);
         public static bool operator !=(SocketAddress6 left, SocketAddress6 right) => !(left == right);
 
-        public Span<byte> AsSpan() => MemoryMarshal.CreateSpan(ref Unsafe.As<SocketAddress6, byte>(ref Unsafe.AsRef(in this)), 20);
-        public ReadOnlySpan<byte> AsReadOnlySpan() => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<SocketAddress6, byte>(ref Unsafe.AsRef(in this)), 20);
+        public Span<byte> AsSpan() => MemoryMarshal.CreateSpan(ref Unsafe.As<SocketAddress6, byte>(ref Unsafe.AsRef(in this)), 24);
+        public ReadOnlySpan<byte> AsReadOnlySpan() => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<SocketAddress6, byte>(ref Unsafe.AsRef(in this)), 24);
+
+        public static implicit operator MnSocketAddress(SocketAddress6 socketAddress) => Unsafe.As<SocketAddress6, MnSocketAddress>(ref socketAddress);
+
+        public static implicit operator SocketAddress4(SocketAddress6 socketAddress)
+        {
+            if (socketAddress.IsIPv6)
+                throw new SocketException((int)SocketError.AddressFamilyNotSupported);
+
+            return Unsafe.As<byte, SocketAddress4>(ref Unsafe.AddByteOffset(ref Unsafe.As<SocketAddress6, byte>(ref socketAddress), (nint)12));
+        }
     }
 }

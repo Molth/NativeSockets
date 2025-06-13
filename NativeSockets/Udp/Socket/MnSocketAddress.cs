@@ -82,14 +82,14 @@ namespace NativeSockets.Udp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool CreateFromIPEndPoint(IPEndPoint socketAddress, out MnSocketAddress address)
+        public static bool CreateFromIPAddress(IPAddress socketAddress, out MnSocketAddress address)
         {
             address = new MnSocketAddress();
 
             if (socketAddress.AddressFamily == AddressFamily.InterNetworkV6)
             {
-                socketAddress.Address.TryWriteBytes(MemoryMarshal.CreateSpan(ref Unsafe.As<MnSocketAddress, byte>(ref address), 16), out _);
-                address.Port = (ushort)socketAddress.Port;
+                socketAddress.TryWriteBytes(MemoryMarshal.CreateSpan(ref Unsafe.As<MnSocketAddress, byte>(ref address), 16), out _);
+                address.ScopeId = (uint)socketAddress.ScopeId;
 
                 return true;
             }
@@ -100,9 +100,20 @@ namespace NativeSockets.Udp
                 Unsafe.InitBlockUnaligned(ref reference, 0, 8);
                 Unsafe.WriteUnaligned(ref Unsafe.AddByteOffset(ref reference, (nint)8), -0x10000);
 
-                socketAddress.Address.TryWriteBytes(MemoryMarshal.CreateSpan(ref Unsafe.As<uint, byte>(ref address.Address), 4), out _);
-                address.Port = (ushort)socketAddress.Port;
+                socketAddress.TryWriteBytes(MemoryMarshal.CreateSpan(ref Unsafe.As<uint, byte>(ref address.Address), 4), out _);
 
+                return true;
+            }
+
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool CreateFromIPEndPoint(IPEndPoint socketAddress, out MnSocketAddress address)
+        {
+            if (CreateFromIPAddress(socketAddress.Address, out address))
+            {
+                address.Port = (ushort)socketAddress.Port;
                 return true;
             }
 
@@ -252,10 +263,10 @@ namespace NativeSockets.Udp
         {
             HashCode hashCode = new HashCode();
 #if NET6_0_OR_GREATER
-            hashCode.AddBytes(MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<MnSocketAddress, byte>(ref Unsafe.AsRef(in this)), 20));
+            hashCode.AddBytes(MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<MnSocketAddress, byte>(ref Unsafe.AsRef(in this)), 24));
 #else
             ref int reference = ref Unsafe.As<MnSocketAddress, int>(ref Unsafe.AsRef(in this));
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 6; i++)
                 hashCode.Add(Unsafe.Add(ref reference, i));
 #endif
             return hashCode.ToHashCode();
@@ -276,7 +287,17 @@ namespace NativeSockets.Udp
         public static bool operator ==(MnSocketAddress left, MnSocketAddress right) => left.Equals(right);
         public static bool operator !=(MnSocketAddress left, MnSocketAddress right) => !(left == right);
 
+        public Span<byte> AsSpan() => MemoryMarshal.CreateSpan(ref Unsafe.As<MnSocketAddress, byte>(ref Unsafe.AsRef(in this)), 24);
+        public ReadOnlySpan<byte> AsReadOnlySpan() => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<MnSocketAddress, byte>(ref Unsafe.AsRef(in this)), 24);
+
         public static implicit operator SocketAddress6(MnSocketAddress socketAddress) => Unsafe.As<MnSocketAddress, SocketAddress6>(ref socketAddress);
-        public static implicit operator SocketAddress4(MnSocketAddress socketAddress) => Unsafe.As<uint, SocketAddress4>(ref socketAddress.Address);
+
+        public static implicit operator SocketAddress4(MnSocketAddress socketAddress)
+        {
+            if (socketAddress.IsIPv6)
+                throw new SocketException((int)SocketError.AddressFamilyNotSupported);
+
+            return Unsafe.As<uint, SocketAddress4>(ref socketAddress.Address);
+        }
     }
 }

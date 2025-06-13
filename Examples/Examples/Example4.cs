@@ -50,10 +50,10 @@ namespace Examples
             Console.WriteLine($"Server local: {error} {localAddress}");
 
             Span<byte> address = stackalloc byte[28];
-            byte* buffer = stackalloc byte[1024];
+            Span<byte> buffer = stackalloc byte[1024];
 
-            error = MnUdpPal.GetHostName(ref localAddress, MemoryMarshal.CreateSpan(ref *buffer, 1024));
-            Console.WriteLine("Server HostName: " + Encoding.ASCII.GetString(MemoryMarshal.CreateReadOnlySpan(ref *buffer, 1024)));
+            error = MnUdpPal.GetHostName(ref localAddress, buffer);
+            Console.WriteLine("Server HostName: " + Encoding.ASCII.GetString(buffer));
 
             Console.WriteLine();
 
@@ -67,16 +67,16 @@ namespace Examples
                     {
                         Span<byte> addressSnapshot = address;
 
-                        if ((dataLength = UdpPal.ReceiveFrom(server, MemoryMarshal.CreateSpan(ref *buffer, 1024), ref addressSnapshot)) > 0)
+                        if ((dataLength = server.ReceiveFromNonAlloc(buffer, ref addressSnapshot)) > 0)
                         {
-                            string data = Encoding.UTF8.GetString(MemoryMarshal.CreateReadOnlySpan(ref *buffer, dataLength));
+                            string data = Encoding.UTF8.GetString(buffer.Slice(0, dataLength));
 
                             UdpPal.CreateIPEndPoint(addressSnapshot, out IPEndPoint? ipEndPoint);
                             Console.WriteLine($"Server received from {ipEndPoint}: " + data);
 
-                            int bytes = Encoding.UTF8.GetBytes($"send back[{data}]", MemoryMarshal.CreateSpan(ref *buffer, 1024));
+                            int bytes = Encoding.UTF8.GetBytes($"send back[{data}]", buffer);
 
-                            UdpPal.SendTo(server, MemoryMarshal.CreateReadOnlySpan(ref *buffer, bytes), addressSnapshot);
+                            server.SendToNonAlloc(buffer.Slice(0, bytes), addressSnapshot);
                         }
                         else
                             break;

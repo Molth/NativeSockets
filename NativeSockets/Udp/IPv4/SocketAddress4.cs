@@ -46,7 +46,10 @@ namespace NativeSockets.Udp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IPEndPoint CreateIPEndPoint() => new IPEndPoint(Address, Port);
+        public IPAddress CreateIPAddress() => new IPAddress(Address);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IPEndPoint CreateIPEndPoint() => new IPEndPoint(CreateIPAddress(), Port);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public SocketAddress CreateSocketAddress()
@@ -172,5 +175,33 @@ namespace NativeSockets.Udp
 
         public Span<byte> AsSpan() => MemoryMarshal.CreateSpan(ref Unsafe.As<SocketAddress4, byte>(ref Unsafe.AsRef(in this)), 8);
         public ReadOnlySpan<byte> AsReadOnlySpan() => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<SocketAddress4, byte>(ref Unsafe.AsRef(in this)), 8);
+
+        public static implicit operator MnSocketAddress(SocketAddress4 socketAddress)
+        {
+            MnSocketAddress address = new MnSocketAddress();
+
+            ref byte reference = ref Unsafe.As<MnSocketAddress, byte>(ref address);
+            Unsafe.InitBlockUnaligned(ref reference, 0, 8);
+            Unsafe.WriteUnaligned(ref Unsafe.AddByteOffset(ref reference, (nint)8), -0x10000);
+
+            address.Address = socketAddress.Address;
+            address.Port = socketAddress.Port;
+
+            return address;
+        }
+
+        public static implicit operator SocketAddress6(SocketAddress4 socketAddress)
+        {
+            SocketAddress6 address = new SocketAddress6();
+
+            ref byte reference = ref Unsafe.As<SocketAddress6, byte>(ref address);
+            Unsafe.InitBlockUnaligned(ref reference, 0, 8);
+            Unsafe.WriteUnaligned(ref Unsafe.AddByteOffset(ref reference, (nint)8), -0x10000);
+
+            Unsafe.As<byte, uint>(ref Unsafe.AddByteOffset(ref Unsafe.As<SocketAddress6, byte>(ref address), (nint)12)) = socketAddress.Address;
+            address.Port = socketAddress.Port;
+
+            return address;
+        }
     }
 }

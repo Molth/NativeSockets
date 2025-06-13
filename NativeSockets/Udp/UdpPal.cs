@@ -104,7 +104,6 @@ namespace NativeSockets.Udp
                     return -1;
 
                 socketAddress = socketAddress.Slice(0, 28);
-                Unsafe.WriteUnaligned(ref MemoryMarshal.GetReference(socketAddress), SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6);
 
                 fixed (byte* pinnedBuffer = &MemoryMarshal.GetReference(buffer))
                 {
@@ -121,7 +120,6 @@ namespace NativeSockets.Udp
                     return -1;
 
                 socketAddress = socketAddress.Slice(0, 16);
-                Unsafe.WriteUnaligned(ref MemoryMarshal.GetReference(socketAddress), (ushort)AddressFamily.InterNetwork);
 
                 fixed (byte* pinnedBuffer = &MemoryMarshal.GetReference(buffer))
                 {
