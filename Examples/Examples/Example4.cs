@@ -36,7 +36,8 @@ namespace Examples
             if (MnUdpPal.SetHostName(ref listenAddress, localIP) == SocketError.Success)
                 Console.WriteLine($"SocketAddress set! {listenAddress}");
 
-            error = MnUdpPal.Bind(server, ref listenAddress);
+            server.Bind(listenAddress.CreateIPEndPoint());
+            error = 0;
             if (error == 0)
                 Console.WriteLine("Socket bound!");
             else
@@ -49,7 +50,7 @@ namespace Examples
             error = MnUdpPal.GetAddress(server, ref localAddress);
             Console.WriteLine($"Server local: {error} {localAddress}");
 
-            Span<byte> address = stackalloc byte[28];
+            EndPoint endPoint = new IPEndPoint(IPAddress.Any, 0);
             Span<byte> buffer = stackalloc byte[1024];
 
             error = MnUdpPal.GetHostName(ref localAddress, buffer);
@@ -59,30 +60,24 @@ namespace Examples
 
             while (!Console.KeyAvailable)
             {
-                if (MnUdpPal.Poll(server, 15, SelectMode.SelectRead))
+                int dataLength;
+
+                while (true)
                 {
-                    int dataLength;
-
-                    while (true)
+                    if (MnUdpPal.Poll(server, 15, SelectMode.SelectRead) && (dataLength = server.ReceiveFrom(buffer, ref endPoint)) > 0)
                     {
-                        Span<byte> addressSnapshot = address;
+                        string data = Encoding.UTF8.GetString(buffer.Slice(0, dataLength));
 
-                        if ((dataLength = server.ReceiveFromNonAlloc(buffer, ref addressSnapshot)) > 0)
-                        {
-                            string data = Encoding.UTF8.GetString(buffer.Slice(0, dataLength));
+                        Console.WriteLine($"Server received from {endPoint}: " + data);
 
-                            UdpPal.CreateIPEndPoint(addressSnapshot, out IPEndPoint? ipEndPoint);
-                            Console.WriteLine($"Server received from {ipEndPoint}: " + data);
+                        int bytes = Encoding.UTF8.GetBytes($"send back[{data}]", buffer);
 
-                            int bytes = Encoding.UTF8.GetBytes($"send back[{data}]", buffer);
+                        server.SendTo(buffer.Slice(0, bytes), endPoint);
 
-                            server.SendToNonAlloc(buffer.Slice(0, bytes), addressSnapshot);
-                        }
-                        else
-                            break;
+                        Console.WriteLine();
                     }
-
-                    Console.WriteLine();
+                    else
+                        break;
                 }
 
                 Thread.Sleep(100);
