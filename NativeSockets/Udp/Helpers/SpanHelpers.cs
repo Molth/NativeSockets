@@ -2,7 +2,6 @@
 #if !NET7_0_OR_GREATER
 using System;
 using System.Runtime.InteropServices;
-
 #else
 using System.Runtime.Intrinsics;
 #endif

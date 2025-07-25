@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using winsock;
 
+#pragma warning disable CA1401
 #pragma warning disable CS1591
 #pragma warning disable CS8981
 #pragma warning disable SYSLIB1054
@@ -14,7 +15,7 @@ using winsock;
 
 namespace unixsock
 {
-    internal static unsafe class UnixPal
+    public static unsafe class UnixSock
     {
         private const string NATIVE_LIBRARY = "libc";
 

@@ -5,8 +5,9 @@ using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
 using winsock;
-using static unixsock.UnixPal;
+using static unixsock.UnixSock;
 
+#pragma warning disable CA1401
 #pragma warning disable CS1591
 #pragma warning disable CS8981
 #pragma warning disable SYSLIB1054
@@ -16,13 +17,13 @@ using static unixsock.UnixPal;
 namespace unixsock
 {
     [SuppressUnmanagedCodeSecurity]
-    public static unsafe class UnixSock
+    public static unsafe class LinuxSock
     {
         private const string NATIVE_LIBRARY = "libc";
         public const ushort ADDRESS_FAMILY_INTER_NETWORK_V6 = 10;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetLastSocketError() => UnixPal.GetLastSocketError();
+        public static SocketError GetLastSocketError() => UnixSock.GetLastSocketError();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Initialize() => SocketError.Success;

@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using bsdsock;
 using unixsock;
 using winsock;
 
@@ -17,9 +15,9 @@ namespace NativeSockets
     {
         public static readonly ushort ADDRESS_FAMILY_INTER_NETWORK_V6;
 
-        public static readonly bool IsWindows;
-        public static readonly bool IsUnix;
-        public static readonly bool IsBsd;
+        public static bool IsWindows => ADDRESS_FAMILY_INTER_NETWORK_V6 == WinSock.ADDRESS_FAMILY_INTER_NETWORK_V6;
+        public static bool IsLinux => ADDRESS_FAMILY_INTER_NETWORK_V6 == LinuxSock.ADDRESS_FAMILY_INTER_NETWORK_V6;
+        public static bool IsBsd => ADDRESS_FAMILY_INTER_NETWORK_V6 == BsdSock.ADDRESS_FAMILY_INTER_NETWORK_V6;
 
         private static readonly delegate* managed<SocketError> _GetLastSocketError;
         private static readonly delegate* managed<SocketError> _Initialize;
@@ -55,7 +53,6 @@ namespace NativeSockets
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 ADDRESS_FAMILY_INTER_NETWORK_V6 = WinSock.ADDRESS_FAMILY_INTER_NETWORK_V6;
-                IsWindows = true;
                 _GetLastSocketError = &WinSock.GetLastSocketError;
                 _Initialize = &WinSock.Initialize;
                 _Cleanup = &WinSock.Cleanup;
@@ -89,72 +86,39 @@ namespace NativeSockets
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                ADDRESS_FAMILY_INTER_NETWORK_V6 = UnixSock.ADDRESS_FAMILY_INTER_NETWORK_V6;
-                IsUnix = true;
-                _GetLastSocketError = &UnixSock.GetLastSocketError;
-                _Initialize = &UnixSock.Initialize;
-                _Cleanup = &UnixSock.Cleanup;
-                _Create = &UnixSock.Create;
-                _Close = &UnixSock.Close;
-                _SetDualMode6 = &UnixSock.SetDualMode6;
-                _Bind4 = &UnixSock.Bind4;
-                _Bind6 = &UnixSock.Bind6;
-                _Connect4 = &UnixSock.Connect4;
-                _Connect6 = &UnixSock.Connect6;
-                _SetOption = &UnixSock.SetOption;
-                _GetOption = &UnixSock.GetOption;
-                _SetBlocking = &UnixSock.SetBlocking;
-                _Poll = &UnixSock.Poll;
-                _SendTo4 = &UnixSock.SendTo4;
-                _SendTo6 = &UnixSock.SendTo6;
-                _ReceiveFrom4 = &UnixSock.ReceiveFrom4;
-                _ReceiveFrom6 = &UnixSock.ReceiveFrom6;
-                _GetName4 = &UnixSock.GetName4;
-                _GetName6 = &UnixSock.GetName6;
-                _SetIP4 = &UnixSock.SetIP4;
-                _SetIP6 = &UnixSock.SetIP6;
-                _GetIP4 = &UnixSock.GetIP4;
-                _GetIP6 = &UnixSock.GetIP6;
-                _SetHostName4 = &UnixSock.SetHostName4;
-                _SetHostName6 = &UnixSock.SetHostName6;
-                _GetHostName4 = &UnixSock.GetHostName4;
-                _GetHostName6 = &UnixSock.GetHostName6;
+                ADDRESS_FAMILY_INTER_NETWORK_V6 = LinuxSock.ADDRESS_FAMILY_INTER_NETWORK_V6;
+                _GetLastSocketError = &LinuxSock.GetLastSocketError;
+                _Initialize = &LinuxSock.Initialize;
+                _Cleanup = &LinuxSock.Cleanup;
+                _Create = &LinuxSock.Create;
+                _Close = &LinuxSock.Close;
+                _SetDualMode6 = &LinuxSock.SetDualMode6;
+                _Bind4 = &LinuxSock.Bind4;
+                _Bind6 = &LinuxSock.Bind6;
+                _Connect4 = &LinuxSock.Connect4;
+                _Connect6 = &LinuxSock.Connect6;
+                _SetOption = &LinuxSock.SetOption;
+                _GetOption = &LinuxSock.GetOption;
+                _SetBlocking = &LinuxSock.SetBlocking;
+                _Poll = &LinuxSock.Poll;
+                _SendTo4 = &LinuxSock.SendTo4;
+                _SendTo6 = &LinuxSock.SendTo6;
+                _ReceiveFrom4 = &LinuxSock.ReceiveFrom4;
+                _ReceiveFrom6 = &LinuxSock.ReceiveFrom6;
+                _GetName4 = &LinuxSock.GetName4;
+                _GetName6 = &LinuxSock.GetName6;
+                _SetIP4 = &LinuxSock.SetIP4;
+                _SetIP6 = &LinuxSock.SetIP6;
+                _GetIP4 = &LinuxSock.GetIP4;
+                _GetIP6 = &LinuxSock.GetIP6;
+                _SetHostName4 = &LinuxSock.SetHostName4;
+                _SetHostName6 = &LinuxSock.SetHostName6;
+                _GetHostName4 = &LinuxSock.GetHostName4;
+                _GetHostName6 = &LinuxSock.GetHostName6;
                 return;
             }
 
-            if (Socket.OSSupportsIPv6)
-            {
-                using (Socket socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Dgram, ProtocolType.Udp))
-                {
-                    socket.Bind(new IPEndPoint(IPAddress.IPv6Any, 0));
-                    sockaddr_storage addressStorage = new sockaddr_storage();
-                    int socketAddressSize;
-                    SocketError errorCode;
-                    try
-                    {
-                        socketAddressSize = sizeof(sockaddr_storage);
-                        errorCode = UnixPal.getsockname(socket.Handle, (sockaddr*)&addressStorage, &socketAddressSize);
-                    }
-                    catch
-                    {
-                        try
-                        {
-                            socketAddressSize = sizeof(sockaddr_storage);
-                            errorCode = iOSPal.getsockname(socket.Handle, (sockaddr*)&addressStorage, &socketAddressSize);
-                        }
-                        catch
-                        {
-                            goto label;
-                        }
-                    }
-
-                    if (errorCode == SocketError.Success)
-                        ADDRESS_FAMILY_INTER_NETWORK_V6 = addressStorage.ss_family.bsd_family;
-                }
-            }
-
-            label:
-            IsBsd = true;
+            ADDRESS_FAMILY_INTER_NETWORK_V6 = BsdSock.ADDRESS_FAMILY_INTER_NETWORK_V6;
             _GetLastSocketError = &BsdSock.GetLastSocketError;
             _Initialize = &BsdSock.Initialize;
             _Cleanup = &BsdSock.Cleanup;

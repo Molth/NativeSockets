@@ -9,7 +9,7 @@
 namespace winsock
 {
     [StructLayout(LayoutKind.Sequential)]
-    internal struct TimeValue
+    public struct TimeValue
     {
         public int Seconds;
         public int Microseconds;

@@ -4,30 +4,28 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
-using NativeSockets;
-using unixsock;
 using winsock;
 
+#pragma warning disable CA1401
 #pragma warning disable CS1591
 #pragma warning disable CS8981
 #pragma warning disable SYSLIB1054
 
 // ReSharper disable ALL
 
-namespace bsdsock
+namespace unixsock
 {
     [SuppressUnmanagedCodeSecurity]
     public static unsafe class BsdSock
     {
-        public static readonly ushort ADDRESS_FAMILY_INTER_NETWORK_V6;
+        public const ushort ADDRESS_FAMILY_INTER_NETWORK_V6 = 30;
 
         static BsdSock()
         {
-            ADDRESS_FAMILY_INTER_NETWORK_V6 = (byte)SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
             bool isUnix;
             try
             {
-                _ = UnixPal.getpid();
+                _ = UnixSock.getpid();
                 isUnix = true;
             }
             catch
@@ -37,46 +35,46 @@ namespace bsdsock
 
             if (isUnix)
             {
-                _bind = &UnixPal.bind;
-                _getsockname = &UnixPal.getsockname;
-                _socket = &UnixPal.socket;
-                _fcntl = &UnixPal.fcntl;
-                _setsockopt = &UnixPal.setsockopt;
-                _getsockopt = &UnixPal.getsockopt;
-                _connect = &UnixPal.connect;
-                _close = &UnixPal.close;
-                _sendto = &UnixPal.sendto;
-                _recvfrom = &UnixPal.recvfrom;
-                _select = &UnixPal.select;
-                _inet_pton = &UnixPal.inet_pton;
-                _getaddrinfo = &UnixPal.getaddrinfo;
-                _freeaddrinfo = &UnixPal.freeaddrinfo;
-                _inet_ntop = &UnixPal.inet_ntop;
-                _getnameinfo = &UnixPal.getnameinfo;
+                _bind = &UnixSock.bind;
+                _getsockname = &UnixSock.getsockname;
+                _socket = &UnixSock.socket;
+                _fcntl = &UnixSock.fcntl;
+                _setsockopt = &UnixSock.setsockopt;
+                _getsockopt = &UnixSock.getsockopt;
+                _connect = &UnixSock.connect;
+                _close = &UnixSock.close;
+                _sendto = &UnixSock.sendto;
+                _recvfrom = &UnixSock.recvfrom;
+                _select = &UnixSock.select;
+                _inet_pton = &UnixSock.inet_pton;
+                _getaddrinfo = &UnixSock.getaddrinfo;
+                _freeaddrinfo = &UnixSock.freeaddrinfo;
+                _inet_ntop = &UnixSock.inet_ntop;
+                _getnameinfo = &UnixSock.getnameinfo;
             }
             else
             {
-                _bind = &iOSPal.bind;
-                _getsockname = &iOSPal.getsockname;
-                _socket = &iOSPal.socket;
-                _fcntl = &iOSPal.fcntl;
-                _setsockopt = &iOSPal.setsockopt;
-                _getsockopt = &iOSPal.getsockopt;
-                _connect = &iOSPal.connect;
-                _close = &iOSPal.close;
-                _sendto = &iOSPal.sendto;
-                _recvfrom = &iOSPal.recvfrom;
-                _select = &iOSPal.select;
-                _inet_pton = &iOSPal.inet_pton;
-                _getaddrinfo = &iOSPal.getaddrinfo;
-                _freeaddrinfo = &iOSPal.freeaddrinfo;
-                _inet_ntop = &iOSPal.inet_ntop;
-                _getnameinfo = &iOSPal.getnameinfo;
+                _bind = &iOSSock.bind;
+                _getsockname = &iOSSock.getsockname;
+                _socket = &iOSSock.socket;
+                _fcntl = &iOSSock.fcntl;
+                _setsockopt = &iOSSock.setsockopt;
+                _getsockopt = &iOSSock.getsockopt;
+                _connect = &iOSSock.connect;
+                _close = &iOSSock.close;
+                _sendto = &iOSSock.sendto;
+                _recvfrom = &iOSSock.recvfrom;
+                _select = &iOSSock.select;
+                _inet_pton = &iOSSock.inet_pton;
+                _getaddrinfo = &iOSSock.getaddrinfo;
+                _freeaddrinfo = &iOSSock.freeaddrinfo;
+                _inet_ntop = &iOSSock.inet_ntop;
+                _getnameinfo = &iOSSock.getnameinfo;
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetLastSocketError() => UnixPal.GetLastSocketError();
+        public static SocketError GetLastSocketError() => UnixSock.GetLastSocketError();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Initialize() => SocketError.Success;

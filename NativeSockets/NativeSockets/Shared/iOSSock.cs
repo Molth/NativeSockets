@@ -2,15 +2,16 @@
 using System.Runtime.InteropServices;
 using winsock;
 
+#pragma warning disable CA1401
 #pragma warning disable CS1591
 #pragma warning disable CS8981
 #pragma warning disable SYSLIB1054
 
 // ReSharper disable ALL
 
-namespace bsdsock
+namespace unixsock
 {
-    internal static unsafe class iOSPal
+    public static unsafe class iOSSock
     {
         private const string NATIVE_LIBRARY = "__Internal";
 

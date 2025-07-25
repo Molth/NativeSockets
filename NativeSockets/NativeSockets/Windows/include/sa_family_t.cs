@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using bsdsock;
+using unixsock;
 using NativeSockets;
 
 #pragma warning disable CS1591

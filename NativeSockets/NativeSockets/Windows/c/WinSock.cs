@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
 
+#pragma warning disable CA1401
 #pragma warning disable CS1591
 #pragma warning disable CS8981
 #pragma warning disable SYSLIB1054
@@ -16,7 +17,6 @@ namespace winsock
     [SuppressUnmanagedCodeSecurity]
     public static unsafe class WinSock
     {
-        private const string NATIVE_LIBRARY = "ws2_32.dll";
         public const ushort ADDRESS_FAMILY_INTER_NETWORK_V6 = 23;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -551,6 +551,8 @@ namespace winsock
 
             return GetIP6(socketAddress, buffer);
         }
+
+        private const string NATIVE_LIBRARY = "ws2_32.dll";
 
         [DllImport(NATIVE_LIBRARY, CallingConvention = CallingConvention.StdCall)]
         private static extern SocketError WSAStartup(short wVersionRequested, WSAData* lpWSAData);

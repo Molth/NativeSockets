@@ -10,16 +10,20 @@ namespace winsock
 {
     public static partial class WinSock2
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ushort HOST_TO_NET_16(ushort host) => BitConverter.IsLittleEndian ? BinaryPrimitives.ReverseEndianness(host) : host;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static uint HOST_TO_NET_32(uint host) => BitConverter.IsLittleEndian ? BinaryPrimitives.ReverseEndianness(host) : host;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ushort NET_TO_HOST_16(ushort network) => BitConverter.IsLittleEndian ? BinaryPrimitives.ReverseEndianness(network) : network;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static uint NET_TO_HOST_32(uint network) => BitConverter.IsLittleEndian ? BinaryPrimitives.ReverseEndianness(network) : network;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void MicrosecondsToTimeValue(long microseconds, ref TimeValue socketTime)
+        public static void MicrosecondsToTimeValue(long microseconds, ref TimeValue socketTime)
         {
             const int microcnv = 1000000;
             socketTime.Seconds = (int)(microseconds / microcnv);
