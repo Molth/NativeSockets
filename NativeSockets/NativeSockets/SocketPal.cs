@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
-#if !NET5_0_OR_GREATER
 using System.Runtime.InteropServices;
-#endif
+using bsdsock;
 using unixsock;
 using winsock;
 
@@ -16,6 +16,11 @@ namespace NativeSockets
     public static unsafe class SocketPal
     {
         public static readonly ushort ADDRESS_FAMILY_INTER_NETWORK_V6;
+
+        public static readonly bool IsWindows;
+        public static readonly bool IsUnix;
+        public static readonly bool IsBsd;
+
         private static readonly delegate* managed<SocketError> _GetLastSocketError;
         private static readonly delegate* managed<SocketError> _Initialize;
         private static readonly delegate* managed<SocketError> _Cleanup;
@@ -47,15 +52,10 @@ namespace NativeSockets
 
         static SocketPal()
         {
-            bool isWindows =
-#if NET5_0_OR_GREATER
-                OperatingSystem.IsWindows();
-#else
-                RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-#endif
-            if (isWindows)
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 ADDRESS_FAMILY_INTER_NETWORK_V6 = WinSock.ADDRESS_FAMILY_INTER_NETWORK_V6;
+                IsWindows = true;
                 _GetLastSocketError = &WinSock.GetLastSocketError;
                 _Initialize = &WinSock.Initialize;
                 _Cleanup = &WinSock.Cleanup;
@@ -84,10 +84,13 @@ namespace NativeSockets
                 _SetHostName6 = &WinSock.SetHostName6;
                 _GetHostName4 = &WinSock.GetHostName4;
                 _GetHostName6 = &WinSock.GetHostName6;
+                return;
             }
-            else
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 ADDRESS_FAMILY_INTER_NETWORK_V6 = UnixSock.ADDRESS_FAMILY_INTER_NETWORK_V6;
+                IsUnix = true;
                 _GetLastSocketError = &UnixSock.GetLastSocketError;
                 _Initialize = &UnixSock.Initialize;
                 _Cleanup = &UnixSock.Cleanup;
@@ -116,7 +119,70 @@ namespace NativeSockets
                 _SetHostName6 = &UnixSock.SetHostName6;
                 _GetHostName4 = &UnixSock.GetHostName4;
                 _GetHostName6 = &UnixSock.GetHostName6;
+                return;
             }
+
+            if (Socket.OSSupportsIPv6)
+            {
+                using (Socket socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Dgram, ProtocolType.Udp))
+                {
+                    socket.Bind(new IPEndPoint(IPAddress.IPv6Any, 0));
+                    sockaddr_storage addressStorage = new sockaddr_storage();
+                    int socketAddressSize;
+                    SocketError errorCode;
+                    try
+                    {
+                        socketAddressSize = sizeof(sockaddr_storage);
+                        errorCode = UnixPal.getsockname(socket.Handle, (sockaddr*)&addressStorage, &socketAddressSize);
+                    }
+                    catch
+                    {
+                        try
+                        {
+                            socketAddressSize = sizeof(sockaddr_storage);
+                            errorCode = iOSPal.getsockname(socket.Handle, (sockaddr*)&addressStorage, &socketAddressSize);
+                        }
+                        catch
+                        {
+                            goto label;
+                        }
+                    }
+
+                    if (errorCode == SocketError.Success)
+                        ADDRESS_FAMILY_INTER_NETWORK_V6 = addressStorage.ss_family.bsd_family;
+                }
+            }
+
+            label:
+            IsBsd = true;
+            _GetLastSocketError = &BsdSock.GetLastSocketError;
+            _Initialize = &BsdSock.Initialize;
+            _Cleanup = &BsdSock.Cleanup;
+            _Create = &BsdSock.Create;
+            _Close = &BsdSock.Close;
+            _SetDualMode6 = &BsdSock.SetDualMode6;
+            _Bind4 = &BsdSock.Bind4;
+            _Bind6 = &BsdSock.Bind6;
+            _Connect4 = &BsdSock.Connect4;
+            _Connect6 = &BsdSock.Connect6;
+            _SetOption = &BsdSock.SetOption;
+            _GetOption = &BsdSock.GetOption;
+            _SetBlocking = &BsdSock.SetBlocking;
+            _Poll = &BsdSock.Poll;
+            _SendTo4 = &BsdSock.SendTo4;
+            _SendTo6 = &BsdSock.SendTo6;
+            _ReceiveFrom4 = &BsdSock.ReceiveFrom4;
+            _ReceiveFrom6 = &BsdSock.ReceiveFrom6;
+            _GetName4 = &BsdSock.GetName4;
+            _GetName6 = &BsdSock.GetName6;
+            _SetIP4 = &BsdSock.SetIP4;
+            _SetIP6 = &BsdSock.SetIP6;
+            _GetIP4 = &BsdSock.GetIP4;
+            _GetIP6 = &BsdSock.GetIP6;
+            _SetHostName4 = &BsdSock.SetHostName4;
+            _SetHostName6 = &BsdSock.SetHostName6;
+            _GetHostName4 = &BsdSock.GetHostName4;
+            _GetHostName6 = &BsdSock.GetHostName6;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

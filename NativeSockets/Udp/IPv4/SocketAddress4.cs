@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using NativeCollections;
 using winsock;
 
 #pragma warning disable CS1591
@@ -71,9 +72,9 @@ namespace NativeSockets.Udp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool GetIP(int bufferSize, out string? ip)
+        public bool GetIP(out string? ip)
         {
-            Span<byte> buffer = stackalloc byte[bufferSize];
+            Span<byte> buffer = stackalloc byte[1024];
             SocketError error = UdpPal4.GetIP(ref Unsafe.AsRef(in this), buffer);
             if (error == 0)
             {
@@ -86,9 +87,9 @@ namespace NativeSockets.Udp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool GetIP(int bufferSize, Span<byte> ip, out int byteCount)
+        public bool GetIP(Span<byte> ip, out int byteCount)
         {
-            Span<byte> buffer = stackalloc byte[bufferSize];
+            Span<byte> buffer = stackalloc byte[1024];
             SocketError error = UdpPal4.GetIP(ref Unsafe.AsRef(in this), buffer);
             if (error == 0)
             {
@@ -104,9 +105,9 @@ namespace NativeSockets.Udp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool GetHostName(int bufferSize, out string? ip)
+        public bool GetHostName(out string? ip)
         {
-            Span<byte> buffer = stackalloc byte[bufferSize];
+            Span<byte> buffer = stackalloc byte[1024];
             SocketError error = UdpPal4.GetHostName(ref Unsafe.AsRef(in this), buffer);
             if (error == 0)
             {
@@ -119,9 +120,9 @@ namespace NativeSockets.Udp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool GetHostName(int bufferSize, Span<byte> name, out int byteCount)
+        public bool GetHostName(Span<byte> name, out int byteCount)
         {
-            Span<byte> buffer = stackalloc byte[bufferSize];
+            Span<byte> buffer = stackalloc byte[1024];
             SocketError error = UdpPal4.GetHostName(ref Unsafe.AsRef(in this), buffer);
             if (error == 0)
             {
@@ -145,28 +146,11 @@ namespace NativeSockets.Udp
 
         public override bool Equals(object? obj) => obj is SocketAddress4 socketAddress && Equals(socketAddress);
 
-        public override int GetHashCode()
-        {
-            HashCode hashCode = new HashCode();
-#if NET6_0_OR_GREATER
-            hashCode.AddBytes(MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<SocketAddress4, byte>(ref Unsafe.AsRef(in this)), 8));
-#else
-            ref int reference = ref Unsafe.As<SocketAddress4, int>(ref Unsafe.AsRef(in this));
-            for (int i = 0; i < 2; i++)
-                hashCode.Add(Unsafe.Add(ref reference, i));
-#endif
-            return hashCode.ToHashCode();
-        }
+        public override int GetHashCode() => XxHash.Hash32(this);
 
         public override string ToString()
         {
-            Span<byte> buffer = stackalloc byte[64];
-            return UdpPal4.GetIP(ref Unsafe.AsRef(in this), buffer) == 0 ? Encoding.ASCII.GetString(buffer[..buffer.IndexOf((byte)'\0')]) + ":" + Port : "ERROR";
-        }
-
-        public string ToString(int bufferSize)
-        {
-            Span<byte> buffer = stackalloc byte[bufferSize];
+            Span<byte> buffer = stackalloc byte[1024];
             return UdpPal4.GetIP(ref Unsafe.AsRef(in this), buffer) == 0 ? Encoding.ASCII.GetString(buffer[..buffer.IndexOf((byte)'\0')]) + ":" + Port : "ERROR";
         }
 

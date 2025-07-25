@@ -50,7 +50,7 @@ namespace Examples
             error = MnUdpPal.GetAddress(server, ref localAddress);
             Console.WriteLine($"Server local: {error} {localAddress}");
 
-            EndPoint endPoint = new IPEndPoint(IPAddress.Any, 0);
+            IPEndPoint? endPoint = null;
             Span<byte> buffer = stackalloc byte[1024];
 
             error = MnUdpPal.GetHostName(ref localAddress, buffer);
@@ -58,21 +58,25 @@ namespace Examples
 
             Console.WriteLine();
 
+            Span<byte> socketAddress = stackalloc byte[28];
             while (!Console.KeyAvailable)
             {
                 int dataLength;
 
                 while (true)
                 {
-                    if (MnUdpPal.Poll(server, 15, SelectMode.SelectRead) && (dataLength = server.ReceiveFrom(buffer, ref endPoint)) > 0)
+                    Span<byte> socketAddressSnapshot = socketAddress;
+                    if (MnUdpPal.Poll(server, 15, SelectMode.SelectRead) && (dataLength = UdpPal.ReceiveFrom(server, buffer, ref socketAddressSnapshot)) > 0)
                     {
+                        UdpPal.CreateIPEndPoint(socketAddressSnapshot, out endPoint);
+
                         string data = Encoding.UTF8.GetString(buffer.Slice(0, dataLength));
 
                         Console.WriteLine($"Server received from {endPoint}: " + data);
 
                         int bytes = Encoding.UTF8.GetBytes($"send back[{data}]", buffer);
 
-                        server.SendTo(buffer.Slice(0, bytes), endPoint);
+                        UdpPal.SendTo(server, buffer.Slice(0, bytes), endPoint!);
 
                         Console.WriteLine();
                     }

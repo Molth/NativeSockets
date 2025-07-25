@@ -4,10 +4,8 @@ using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using NativeCollections;
 using winsock;
-#if NET7_0_OR_GREATER
-using System.Runtime.Intrinsics;
-#endif
 
 #pragma warning disable CS1591
 #pragma warning disable CS8632
@@ -106,9 +104,9 @@ namespace NativeSockets.Udp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool GetIP(int bufferSize, out string? ip)
+        public bool GetIP(out string? ip)
         {
-            Span<byte> buffer = stackalloc byte[bufferSize];
+            Span<byte> buffer = stackalloc byte[1024];
             SocketError error = UdpPal6.GetIP(ref Unsafe.AsRef(in this), buffer);
             if (error == 0)
             {
@@ -121,9 +119,9 @@ namespace NativeSockets.Udp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool GetIP(int bufferSize, Span<byte> ip, out int byteCount)
+        public bool GetIP(Span<byte> ip, out int byteCount)
         {
-            Span<byte> buffer = stackalloc byte[bufferSize];
+            Span<byte> buffer = stackalloc byte[1024];
             SocketError error = UdpPal6.GetIP(ref Unsafe.AsRef(in this), buffer);
             if (error == 0)
             {
@@ -139,9 +137,9 @@ namespace NativeSockets.Udp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool GetHostName(int bufferSize, out string? ip)
+        public bool GetHostName(out string? ip)
         {
-            Span<byte> buffer = stackalloc byte[bufferSize];
+            Span<byte> buffer = stackalloc byte[1024];
             SocketError error = UdpPal6.GetHostName(ref Unsafe.AsRef(in this), buffer);
             if (error == 0)
             {
@@ -154,9 +152,9 @@ namespace NativeSockets.Udp
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool GetHostName(int bufferSize, Span<byte> name, out int byteCount)
+        public bool GetHostName(Span<byte> name, out int byteCount)
         {
-            Span<byte> buffer = stackalloc byte[bufferSize];
+            Span<byte> buffer = stackalloc byte[1024];
             SocketError error = UdpPal6.GetHostName(ref Unsafe.AsRef(in this), buffer);
             if (error == 0)
             {
@@ -173,39 +171,18 @@ namespace NativeSockets.Udp
 
         public bool Equals(SocketAddress6 other)
         {
-#if NET7_0_OR_GREATER
-            if (Vector128.IsHardwareAccelerated)
-                return Vector128.LoadUnsafe(ref Unsafe.As<SocketAddress6, byte>(ref Unsafe.AsRef(in this))) == Vector128.LoadUnsafe(ref Unsafe.As<SocketAddress6, byte>(ref other)) && Port == other.Port;
-#endif
-            ref int left = ref Unsafe.As<SocketAddress6, int>(ref Unsafe.AsRef(in this));
-            ref int right = ref Unsafe.As<SocketAddress6, int>(ref other);
-            return left == right && Unsafe.Add(ref left, 1) == Unsafe.Add(ref right, 1) && Unsafe.Add(ref left, 2) == Unsafe.Add(ref right, 2) && Unsafe.Add(ref left, 3) == Unsafe.Add(ref right, 3) && Unsafe.Add(ref left, 4) == Unsafe.Add(ref right, 4);
+            ref byte local1 = ref Unsafe.As<SocketAddress6, byte>(ref Unsafe.AsRef(in this));
+            ref byte local2 = ref Unsafe.As<SocketAddress6, byte>(ref other);
+            return SpanHelpers.Compare(ref local1, ref local2, (nuint)sizeof(SocketAddress6));
         }
 
         public override bool Equals(object? obj) => obj is SocketAddress6 socketAddress && Equals(socketAddress);
 
-        public override int GetHashCode()
-        {
-            HashCode hashCode = new HashCode();
-#if NET6_0_OR_GREATER
-            hashCode.AddBytes(MemoryMarshal.CreateReadOnlySpan(ref Unsafe.As<SocketAddress6, byte>(ref Unsafe.AsRef(in this)), 24));
-#else
-            ref int reference = ref Unsafe.As<SocketAddress6, int>(ref Unsafe.AsRef(in this));
-            for (int i = 0; i < 6; i++)
-                hashCode.Add(Unsafe.Add(ref reference, i));
-#endif
-            return hashCode.ToHashCode();
-        }
+        public override int GetHashCode() => XxHash.Hash32(this);
 
         public override string ToString()
         {
-            Span<byte> buffer = stackalloc byte[64];
-            return UdpPal6.GetIP(ref Unsafe.AsRef(in this), buffer) == 0 ? Encoding.ASCII.GetString(buffer[..buffer.IndexOf((byte)'\0')]) + ":" + Port : "ERROR";
-        }
-
-        public string ToString(int bufferSize)
-        {
-            Span<byte> buffer = stackalloc byte[bufferSize];
+            Span<byte> buffer = stackalloc byte[1024];
             return UdpPal6.GetIP(ref Unsafe.AsRef(in this), buffer) == 0 ? Encoding.ASCII.GetString(buffer[..buffer.IndexOf((byte)'\0')]) + ":" + Port : "ERROR";
         }
 

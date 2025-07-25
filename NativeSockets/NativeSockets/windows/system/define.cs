@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers.Binary;
+using System.Runtime.CompilerServices;
 
 #pragma warning disable CS1591
 
@@ -16,5 +17,13 @@ namespace winsock
         public static ushort NET_TO_HOST_16(ushort network) => BitConverter.IsLittleEndian ? BinaryPrimitives.ReverseEndianness(network) : network;
 
         public static uint NET_TO_HOST_32(uint network) => BitConverter.IsLittleEndian ? BinaryPrimitives.ReverseEndianness(network) : network;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static void MicrosecondsToTimeValue(long microseconds, ref TimeValue socketTime)
+        {
+            const int microcnv = 1000000;
+            socketTime.Seconds = (int)(microseconds / microcnv);
+            socketTime.Microseconds = (int)(microseconds % microcnv);
+        }
     }
 }
