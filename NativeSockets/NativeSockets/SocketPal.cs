@@ -17,7 +17,7 @@ namespace NativeSockets
 
         public static bool IsWindows => ADDRESS_FAMILY_INTER_NETWORK_V6 == WindowsSock.ADDRESS_FAMILY_INTER_NETWORK_V6;
         public static bool IsLinux => ADDRESS_FAMILY_INTER_NETWORK_V6 == LinuxSock.ADDRESS_FAMILY_INTER_NETWORK_V6;
-        public static bool IsBsd => ADDRESS_FAMILY_INTER_NETWORK_V6 == BsdSock.ADDRESS_FAMILY_INTER_NETWORK_V6;
+        public static bool IsBSD => ADDRESS_FAMILY_INTER_NETWORK_V6 == BSDSock.ADDRESS_FAMILY_INTER_NETWORK_V6;
 
         private static readonly delegate* managed<SocketError> _GetLastSocketError;
         private static readonly delegate* managed<SocketError> _Initialize;
@@ -118,35 +118,35 @@ namespace NativeSockets
                 return;
             }
 
-            ADDRESS_FAMILY_INTER_NETWORK_V6 = BsdSock.ADDRESS_FAMILY_INTER_NETWORK_V6;
-            _GetLastSocketError = &BsdSock.GetLastSocketError;
-            _Initialize = &BsdSock.Initialize;
-            _Cleanup = &BsdSock.Cleanup;
-            _Create = &BsdSock.Create;
-            _Close = &BsdSock.Close;
-            _SetDualMode6 = &BsdSock.SetDualMode6;
-            _Bind4 = &BsdSock.Bind4;
-            _Bind6 = &BsdSock.Bind6;
-            _Connect4 = &BsdSock.Connect4;
-            _Connect6 = &BsdSock.Connect6;
-            _SetOption = &BsdSock.SetOption;
-            _GetOption = &BsdSock.GetOption;
-            _SetBlocking = &BsdSock.SetBlocking;
-            _Poll = &BsdSock.Poll;
-            _SendTo4 = &BsdSock.SendTo4;
-            _SendTo6 = &BsdSock.SendTo6;
-            _ReceiveFrom4 = &BsdSock.ReceiveFrom4;
-            _ReceiveFrom6 = &BsdSock.ReceiveFrom6;
-            _GetName4 = &BsdSock.GetName4;
-            _GetName6 = &BsdSock.GetName6;
-            _SetIP4 = &BsdSock.SetIP4;
-            _SetIP6 = &BsdSock.SetIP6;
-            _GetIP4 = &BsdSock.GetIP4;
-            _GetIP6 = &BsdSock.GetIP6;
-            _SetHostName4 = &BsdSock.SetHostName4;
-            _SetHostName6 = &BsdSock.SetHostName6;
-            _GetHostName4 = &BsdSock.GetHostName4;
-            _GetHostName6 = &BsdSock.GetHostName6;
+            ADDRESS_FAMILY_INTER_NETWORK_V6 = BSDSock.ADDRESS_FAMILY_INTER_NETWORK_V6;
+            _GetLastSocketError = &BSDSock.GetLastSocketError;
+            _Initialize = &BSDSock.Initialize;
+            _Cleanup = &BSDSock.Cleanup;
+            _Create = &BSDSock.Create;
+            _Close = &BSDSock.Close;
+            _SetDualMode6 = &BSDSock.SetDualMode6;
+            _Bind4 = &BSDSock.Bind4;
+            _Bind6 = &BSDSock.Bind6;
+            _Connect4 = &BSDSock.Connect4;
+            _Connect6 = &BSDSock.Connect6;
+            _SetOption = &BSDSock.SetOption;
+            _GetOption = &BSDSock.GetOption;
+            _SetBlocking = &BSDSock.SetBlocking;
+            _Poll = &BSDSock.Poll;
+            _SendTo4 = &BSDSock.SendTo4;
+            _SendTo6 = &BSDSock.SendTo6;
+            _ReceiveFrom4 = &BSDSock.ReceiveFrom4;
+            _ReceiveFrom6 = &BSDSock.ReceiveFrom6;
+            _GetName4 = &BSDSock.GetName4;
+            _GetName6 = &BSDSock.GetName6;
+            _SetIP4 = &BSDSock.SetIP4;
+            _SetIP6 = &BSDSock.SetIP6;
+            _GetIP4 = &BSDSock.GetIP4;
+            _GetIP6 = &BSDSock.GetIP6;
+            _SetHostName4 = &BSDSock.SetHostName4;
+            _SetHostName6 = &BSDSock.SetHostName6;
+            _GetHostName4 = &BSDSock.GetHostName4;
+            _GetHostName6 = &BSDSock.GetHostName6;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

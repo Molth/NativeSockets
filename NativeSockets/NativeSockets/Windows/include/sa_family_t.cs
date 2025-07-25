@@ -21,19 +21,25 @@ namespace winsock
         public bool IsIPv4
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => SocketPal.IsBsd ? bsd_family == (int)AddressFamily.InterNetwork : family == (int)AddressFamily.InterNetwork;
+            get => SocketPal.IsBSD ? bsd_family == (int)AddressFamily.InterNetwork : family == (int)AddressFamily.InterNetwork;
         }
 
         public bool IsIPv6
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => SocketPal.IsBsd ? bsd_family == BsdSock.ADDRESS_FAMILY_INTER_NETWORK_V6 : family == SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
+            get => SocketPal.IsBSD ? bsd_family == BSDSock.ADDRESS_FAMILY_INTER_NETWORK_V6 : family == SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
+        }
+
+        public ushort Family
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => bsd_family != 0 ? bsd_family : family;
         }
 
         public static sa_family_t FromBsd(ushort value)
         {
             Unsafe.SkipInit(out sa_family_t result);
-            result.bsd_len = value == BsdSock.ADDRESS_FAMILY_INTER_NETWORK_V6 ? (byte)28 : (byte)16;
+            result.bsd_len = value == BSDSock.ADDRESS_FAMILY_INTER_NETWORK_V6 ? (byte)28 : (byte)16;
             result.bsd_family = (byte)value;
             return result;
         }
@@ -41,9 +47,9 @@ namespace winsock
         public static implicit operator sa_family_t(ushort value)
         {
             Unsafe.SkipInit(out sa_family_t result);
-            if (SocketPal.IsBsd)
+            if (SocketPal.IsBSD)
             {
-                result.bsd_len = value == BsdSock.ADDRESS_FAMILY_INTER_NETWORK_V6 ? (byte)28 : (byte)16;
+                result.bsd_len = value == BSDSock.ADDRESS_FAMILY_INTER_NETWORK_V6 ? (byte)28 : (byte)16;
                 result.bsd_family = (byte)value;
                 return result;
             }

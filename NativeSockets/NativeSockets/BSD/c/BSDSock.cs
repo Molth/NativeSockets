@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
 using winsock;
+using System.Net;
 
 #pragma warning disable CA1401
 #pragma warning disable CS1591
@@ -16,11 +17,11 @@ using winsock;
 namespace unixsock
 {
     [SuppressUnmanagedCodeSecurity]
-    public static unsafe class BsdSock
+    public static unsafe class BSDSock
     {
-        public const ushort ADDRESS_FAMILY_INTER_NETWORK_V6 = 30;
+        public static readonly ushort ADDRESS_FAMILY_INTER_NETWORK_V6;
 
-        static BsdSock()
+        static BSDSock()
         {
             bool isUnix;
             try
@@ -71,6 +72,44 @@ namespace unixsock
                 _inet_ntop = &iOSSock.inet_ntop;
                 _getnameinfo = &iOSSock.getnameinfo;
             }
+
+            if (!isUnix || RuntimeInformation.IsOSPlatform(OSPlatform.Create("IOS")) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                ADDRESS_FAMILY_INTER_NETWORK_V6 = 30;
+                return;
+            }
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Create("FREEBSD")))
+            {
+                ADDRESS_FAMILY_INTER_NETWORK_V6 = 28;
+                return;
+            }
+
+            if (!Socket.OSSupportsIPv6)
+                goto label;
+
+            try
+            {
+                using (Socket s = new Socket(AddressFamily.InterNetworkV6, SocketType.Dgram, ProtocolType.Udp))
+                {
+                    s.Bind(new IPEndPoint(IPAddress.IPv6Any, 0));
+                    sockaddr_storage addressStorage = new sockaddr_storage();
+                    int socketAddressSize = sizeof(sockaddr_storage);
+                    SocketError errorCode = getsockname(s.Handle, (sockaddr*)&addressStorage, &socketAddressSize);
+                    if (errorCode == SocketError.Success)
+                    {
+                        ADDRESS_FAMILY_INTER_NETWORK_V6 = addressStorage.ss_family.Family;
+                        return;
+                    }
+                }
+            }
+            catch
+            {
+                //
+            }
+
+            label:
+            ADDRESS_FAMILY_INTER_NETWORK_V6 = 28;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
