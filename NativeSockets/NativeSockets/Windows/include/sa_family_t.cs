@@ -27,7 +27,7 @@ namespace winsock
         public bool IsIPv6
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => SocketPal.IsBsd ? bsd_family == SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6 : family == SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
+            get => SocketPal.IsBsd ? bsd_family == BsdSock.ADDRESS_FAMILY_INTER_NETWORK_V6 : family == SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
         }
 
         public static sa_family_t FromBsd(ushort value)
