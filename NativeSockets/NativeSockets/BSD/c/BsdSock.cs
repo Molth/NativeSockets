@@ -25,12 +25,12 @@ namespace unixsock
             bool isUnix;
             try
             {
-                _ = UnixSock.getpid();
-                isUnix = true;
+                _ = iOSSock.getpid();
+                isUnix = false;
             }
             catch
             {
-                isUnix = false;
+                isUnix = true;
             }
 
             if (isUnix)

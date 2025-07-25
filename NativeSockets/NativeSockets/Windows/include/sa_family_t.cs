@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using unixsock;
 using NativeSockets;
@@ -16,6 +17,18 @@ namespace winsock
         [FieldOffset(0)] public byte bsd_len;
         [FieldOffset(1)] public byte bsd_family;
         [FieldOffset(0)] public ushort family;
+
+        public bool IsIPv4
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => SocketPal.IsBsd ? bsd_family == (int)AddressFamily.InterNetwork : family == (int)AddressFamily.InterNetwork;
+        }
+
+        public bool IsIPv6
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => SocketPal.IsBsd ? bsd_family == SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6 : family == SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
+        }
 
         public static implicit operator sa_family_t(ushort value)
         {

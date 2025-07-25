@@ -28,7 +28,7 @@ namespace NativeSockets.Udp
                 socketAddress = stackalloc byte[28];
                 ipEndPoint.Address.TryWriteBytes(socketAddress.Slice(8), out _);
                 ref byte reference = ref MemoryMarshal.GetReference(socketAddress);
-                Unsafe.WriteUnaligned(ref reference, SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6);
+                Unsafe.WriteUnaligned(ref reference, (sa_family_t)SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6);
                 Unsafe.WriteUnaligned(ref Unsafe.AddByteOffset(ref reference, (nint)2), port);
                 Unsafe.WriteUnaligned(ref Unsafe.AddByteOffset(ref reference, (nint)24), (uint)ipEndPoint.Address.ScopeId);
 
@@ -46,7 +46,7 @@ namespace NativeSockets.Udp
                 socketAddress = stackalloc byte[16];
                 ipEndPoint.Address.TryWriteBytes(socketAddress.Slice(4), out _);
                 ref byte reference = ref MemoryMarshal.GetReference(socketAddress);
-                Unsafe.WriteUnaligned(ref reference, (ushort)AddressFamily.InterNetwork);
+                Unsafe.WriteUnaligned(ref reference, (sa_family_t)(ushort)AddressFamily.InterNetwork);
                 Unsafe.WriteUnaligned(ref Unsafe.AddByteOffset(ref reference, (nint)2), port);
 
                 fixed (byte* pinnedBuffer = &MemoryMarshal.GetReference(buffer))
@@ -143,9 +143,9 @@ namespace NativeSockets.Udp
 
             ref byte reference = ref MemoryMarshal.GetReference(socketAddress);
 
-            ushort family = Unsafe.ReadUnaligned<ushort>(ref reference);
+            sa_family_t family = Unsafe.ReadUnaligned<sa_family_t>(ref reference);
 
-            if (family == (ushort)AddressFamily.InterNetwork)
+            if (family.IsIPv4)
             {
                 sockaddr_in sockaddrIn = Unsafe.ReadUnaligned<sockaddr_in>(ref reference);
                 ipEndPoint = new IPEndPoint(Unsafe.ReadUnaligned<uint>(&sockaddrIn.sin_addr), WinSock2.NET_TO_HOST_16(sockaddrIn.sin_port));
@@ -153,7 +153,7 @@ namespace NativeSockets.Udp
                 return true;
             }
 
-            if (family == SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6)
+            if (family.IsIPv6)
             {
                 if (socketAddress.Length < 28)
                     return false;
@@ -177,9 +177,9 @@ namespace NativeSockets.Udp
 
             ref byte reference = ref MemoryMarshal.GetReference(socketAddress);
 
-            ushort family = Unsafe.ReadUnaligned<ushort>(ref reference);
+            sa_family_t family = Unsafe.ReadUnaligned<sa_family_t>(ref reference);
 
-            if (family == (ushort)AddressFamily.InterNetwork)
+            if (family.IsIPv4)
             {
                 address = new SocketAddress(AddressFamily.InterNetwork);
 
@@ -193,7 +193,7 @@ namespace NativeSockets.Udp
                 return true;
             }
 
-            if (family == SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6)
+            if (family.IsIPv6)
             {
                 if (socketAddress.Length < 28)
                     return false;
