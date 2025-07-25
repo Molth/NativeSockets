@@ -30,6 +30,14 @@ namespace winsock
             get => SocketPal.IsBsd ? bsd_family == SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6 : family == SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
         }
 
+        public static sa_family_t FromBsd(ushort value)
+        {
+            Unsafe.SkipInit(out sa_family_t result);
+            result.bsd_len = value == BsdSock.ADDRESS_FAMILY_INTER_NETWORK_V6 ? (byte)28 : (byte)16;
+            result.bsd_family = (byte)value;
+            return result;
+        }
+
         public static implicit operator sa_family_t(ushort value)
         {
             Unsafe.SkipInit(out sa_family_t result);
