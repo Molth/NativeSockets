@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 
 namespace winsock
 {
-    public static partial class WinSock2
+    public static class WinSock2
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ushort HOST_TO_NET_16(ushort host) => BitConverter.IsLittleEndian ? BinaryPrimitives.ReverseEndianness(host) : host;
