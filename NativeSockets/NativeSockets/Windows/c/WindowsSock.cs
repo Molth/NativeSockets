@@ -15,7 +15,7 @@ using System.Text;
 namespace winsock
 {
     [SuppressUnmanagedCodeSecurity]
-    public static unsafe class WinSock
+    public static unsafe class WindowsSock
     {
         public const ushort ADDRESS_FAMILY_INTER_NETWORK_V6 = 23;
 

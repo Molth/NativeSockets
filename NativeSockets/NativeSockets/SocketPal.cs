@@ -15,7 +15,7 @@ namespace NativeSockets
     {
         public static readonly ushort ADDRESS_FAMILY_INTER_NETWORK_V6;
 
-        public static bool IsWindows => ADDRESS_FAMILY_INTER_NETWORK_V6 == WinSock.ADDRESS_FAMILY_INTER_NETWORK_V6;
+        public static bool IsWindows => ADDRESS_FAMILY_INTER_NETWORK_V6 == WindowsSock.ADDRESS_FAMILY_INTER_NETWORK_V6;
         public static bool IsLinux => ADDRESS_FAMILY_INTER_NETWORK_V6 == LinuxSock.ADDRESS_FAMILY_INTER_NETWORK_V6;
         public static bool IsBsd => ADDRESS_FAMILY_INTER_NETWORK_V6 == BsdSock.ADDRESS_FAMILY_INTER_NETWORK_V6;
 
@@ -52,35 +52,35 @@ namespace NativeSockets
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                ADDRESS_FAMILY_INTER_NETWORK_V6 = WinSock.ADDRESS_FAMILY_INTER_NETWORK_V6;
-                _GetLastSocketError = &WinSock.GetLastSocketError;
-                _Initialize = &WinSock.Initialize;
-                _Cleanup = &WinSock.Cleanup;
-                _Create = &WinSock.Create;
-                _Close = &WinSock.Close;
-                _SetDualMode6 = &WinSock.SetDualMode6;
-                _Bind4 = &WinSock.Bind4;
-                _Bind6 = &WinSock.Bind6;
-                _Connect4 = &WinSock.Connect4;
-                _Connect6 = &WinSock.Connect6;
-                _SetOption = &WinSock.SetOption;
-                _GetOption = &WinSock.GetOption;
-                _SetBlocking = &WinSock.SetBlocking;
-                _Poll = &WinSock.Poll;
-                _SendTo4 = &WinSock.SendTo4;
-                _SendTo6 = &WinSock.SendTo6;
-                _ReceiveFrom4 = &WinSock.ReceiveFrom4;
-                _ReceiveFrom6 = &WinSock.ReceiveFrom6;
-                _GetName4 = &WinSock.GetName4;
-                _GetName6 = &WinSock.GetName6;
-                _SetIP4 = &WinSock.SetIP4;
-                _SetIP6 = &WinSock.SetIP6;
-                _GetIP4 = &WinSock.GetIP4;
-                _GetIP6 = &WinSock.GetIP6;
-                _SetHostName4 = &WinSock.SetHostName4;
-                _SetHostName6 = &WinSock.SetHostName6;
-                _GetHostName4 = &WinSock.GetHostName4;
-                _GetHostName6 = &WinSock.GetHostName6;
+                ADDRESS_FAMILY_INTER_NETWORK_V6 = WindowsSock.ADDRESS_FAMILY_INTER_NETWORK_V6;
+                _GetLastSocketError = &WindowsSock.GetLastSocketError;
+                _Initialize = &WindowsSock.Initialize;
+                _Cleanup = &WindowsSock.Cleanup;
+                _Create = &WindowsSock.Create;
+                _Close = &WindowsSock.Close;
+                _SetDualMode6 = &WindowsSock.SetDualMode6;
+                _Bind4 = &WindowsSock.Bind4;
+                _Bind6 = &WindowsSock.Bind6;
+                _Connect4 = &WindowsSock.Connect4;
+                _Connect6 = &WindowsSock.Connect6;
+                _SetOption = &WindowsSock.SetOption;
+                _GetOption = &WindowsSock.GetOption;
+                _SetBlocking = &WindowsSock.SetBlocking;
+                _Poll = &WindowsSock.Poll;
+                _SendTo4 = &WindowsSock.SendTo4;
+                _SendTo6 = &WindowsSock.SendTo6;
+                _ReceiveFrom4 = &WindowsSock.ReceiveFrom4;
+                _ReceiveFrom6 = &WindowsSock.ReceiveFrom6;
+                _GetName4 = &WindowsSock.GetName4;
+                _GetName6 = &WindowsSock.GetName6;
+                _SetIP4 = &WindowsSock.SetIP4;
+                _SetIP6 = &WindowsSock.SetIP6;
+                _GetIP4 = &WindowsSock.GetIP4;
+                _GetIP6 = &WindowsSock.GetIP6;
+                _SetHostName4 = &WindowsSock.SetHostName4;
+                _SetHostName6 = &WindowsSock.SetHostName6;
+                _GetHostName4 = &WindowsSock.GetHostName4;
+                _GetHostName6 = &WindowsSock.GetHostName6;
                 return;
             }
 
