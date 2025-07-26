@@ -298,8 +298,9 @@ namespace unixsock
             void* pAddrBuf = &socketAddress->sin_addr;
 
             int byteCount = Encoding.ASCII.GetByteCount(ip);
-            Span<byte> buffer = stackalloc byte[byteCount];
+            Span<byte> buffer = stackalloc byte[byteCount + 1];
             Encoding.ASCII.GetBytes(ip, buffer);
+            buffer[byteCount] = 0;
 
             int addressFamily = (int)AddressFamily.InterNetwork;
 
@@ -322,8 +323,9 @@ namespace unixsock
             void* pAddrBuf = socketAddress->sin6_addr;
 
             int byteCount = Encoding.ASCII.GetByteCount(ip);
-            Span<byte> buffer = stackalloc byte[byteCount];
+            Span<byte> buffer = stackalloc byte[byteCount + 1];
             Encoding.ASCII.GetBytes(ip, buffer);
+            buffer[byteCount] = 0;
 
             int addressFamily = (int)ADDRESS_FAMILY_INTER_NETWORK_V6;
             if (ip.IndexOf(':') < 0)
@@ -383,8 +385,9 @@ namespace unixsock
             void* pAddrBuf = &socketAddress->sin_addr;
 
             int byteCount = Encoding.ASCII.GetByteCount(hostName);
-            Span<byte> buffer = stackalloc byte[byteCount];
+            Span<byte> buffer = stackalloc byte[byteCount + 1];
             Encoding.ASCII.GetBytes(hostName, buffer);
+            buffer[byteCount] = 0;
 
             addrinfo addressInfo = new addrinfo();
             addrinfo* hint, results = null;
@@ -434,8 +437,9 @@ namespace unixsock
             void* pAddrBuf = socketAddress->sin6_addr;
 
             int byteCount = Encoding.ASCII.GetByteCount(hostName);
-            Span<byte> buffer = stackalloc byte[byteCount];
+            Span<byte> buffer = stackalloc byte[byteCount + 1];
             Encoding.ASCII.GetBytes(hostName, buffer);
+            buffer[byteCount] = 0;
 
             addrinfo addressInfo = new addrinfo();
             addrinfo* hint, results = null;
