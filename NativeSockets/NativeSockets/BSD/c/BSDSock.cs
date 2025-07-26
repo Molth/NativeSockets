@@ -5,7 +5,6 @@ using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
 using winsock;
-using System.Net;
 
 #pragma warning disable CA1401
 #pragma warning disable CS1591
@@ -80,33 +79,37 @@ namespace unixsock
             }
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Create("FREEBSD")))
-            {
-                ADDRESS_FAMILY_INTER_NETWORK_V6 = 28;
-                return;
-            }
-
-            if (!Socket.OSSupportsIPv6)
                 goto label;
 
-            try
+            const string hostName = "::1";
+
+            int byteCount = Encoding.ASCII.GetByteCount(hostName);
+            Span<byte> buffer = stackalloc byte[byteCount];
+            Encoding.ASCII.GetBytes(hostName, buffer);
+
+            addrinfo addressInfo = new addrinfo();
+            addrinfo* hint, results = null;
+
+            if (getaddrinfo((byte*)Unsafe.AsPointer(ref MemoryMarshal.GetReference(buffer)), null, &addressInfo, &results) != 0)
+                goto label;
+
+            for (hint = results; hint != null; hint = hint->ai_next)
             {
-                using (Socket s = new Socket(AddressFamily.InterNetworkV6, SocketType.Dgram, ProtocolType.Udp))
+                if (hint->ai_addr != null && hint->ai_addrlen >= (nuint)sizeof(sockaddr_in))
                 {
-                    s.Bind(new IPEndPoint(IPAddress.IPv6Any, 0));
-                    sockaddr_storage addressStorage = new sockaddr_storage();
-                    int socketAddressSize = sizeof(sockaddr_storage);
-                    SocketError errorCode = getsockname(s.Handle, (sockaddr*)&addressStorage, &socketAddressSize);
-                    if (errorCode == SocketError.Success)
+                    if (hint->ai_family == 30 || hint->ai_family == 28)
                     {
-                        ADDRESS_FAMILY_INTER_NETWORK_V6 = addressStorage.ss_family.Family;
+                        ADDRESS_FAMILY_INTER_NETWORK_V6 = hint->ai_addr->sa_family.bsd_family;
+
+                        freeaddrinfo(results);
+
                         return;
                     }
                 }
             }
-            catch
-            {
-                //
-            }
+
+            if (results != null)
+                freeaddrinfo(results);
 
             label:
             ADDRESS_FAMILY_INTER_NETWORK_V6 = 28;
