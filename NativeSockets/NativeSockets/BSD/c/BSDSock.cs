@@ -99,7 +99,7 @@ namespace unixsock
                 {
                     if (hint->ai_family == 30 || hint->ai_family == 28)
                     {
-                        ADDRESS_FAMILY_INTER_NETWORK_V6 = hint->ai_addr->sa_family.bsd_family;
+                        ADDRESS_FAMILY_INTER_NETWORK_V6 = (ushort)hint->ai_family;
 
                         freeaddrinfo(results);
 
