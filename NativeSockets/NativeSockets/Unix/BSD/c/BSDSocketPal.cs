@@ -339,7 +339,7 @@ namespace NativeSockets
 
             if (num > 0 && socketAddress != null)
             {
-                socketAddress->sin_family = sa_family_t.FromBsd((ushort)AddressFamily.InterNetwork);
+                socketAddress->sin_family = sa_family_t.FromBSD((ushort)AddressFamily.InterNetwork);
                 sockaddr_in* __socketAddress_native = (sockaddr_in*)&addressStorage;
                 *socketAddress = *__socketAddress_native;
                 socketAddress->sin_port = WinSock2.NET_TO_HOST_16(__socketAddress_native->sin_port);
@@ -358,7 +358,7 @@ namespace NativeSockets
 
             if (num > 0 && socketAddress != null)
             {
-                socketAddress->sin6_family = sa_family_t.FromBsd(ADDRESS_FAMILY_INTER_NETWORK_V6);
+                socketAddress->sin6_family = sa_family_t.FromBSD(ADDRESS_FAMILY_INTER_NETWORK_V6);
                 if (addressStorage.ss_family.bsd_family == (int)AddressFamily.InterNetwork)
                 {
                     sockaddr_in* __socketAddress_native = (sockaddr_in*)&addressStorage;

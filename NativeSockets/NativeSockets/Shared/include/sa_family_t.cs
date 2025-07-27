@@ -28,7 +28,7 @@ namespace NativeSockets
             get => SocketPal.IsBSD ? bsd_family == BSDSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6 : family == SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
         }
 
-        public static sa_family_t FromBsd(ushort value)
+        public static sa_family_t FromBSD(ushort value)
         {
             Unsafe.SkipInit(out sa_family_t result);
             result.bsd_len = value == BSDSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6 ? (byte)28 : (byte)16;
