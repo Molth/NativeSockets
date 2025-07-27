@@ -169,7 +169,7 @@ namespace NativeSockets
             fd.revents = 0;
 
             int errno = poll(&fd, 1, milliseconds);
-            if (errno != 0)
+            if (errno == -1)
             {
                 status = false;
                 return GetLastSocketError();

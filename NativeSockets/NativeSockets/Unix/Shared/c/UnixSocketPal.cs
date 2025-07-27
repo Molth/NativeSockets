@@ -20,14 +20,6 @@ namespace NativeSockets
     {
         private const string NATIVE_LIBRARY = "libc";
 
-        public const short POLLNONE = 0;
-        public const short POLLIN = 1;
-        public const short POLLPRI = 2;
-        public const short POLLOUT = 4;
-        public const short POLLERR = 8;
-        public const short POLLHUP = 16;
-        public const short POLLNVAL = 32;
-
 #if !NET6_0_OR_GREATER
         private static readonly Dictionary<int, SocketError> SocketErrors = new Dictionary<int, SocketError>
         {
