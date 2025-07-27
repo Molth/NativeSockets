@@ -50,7 +50,7 @@ namespace NativeSockets
         public static extern int recvfrom(int __socketHandle_native, byte* __pinnedBuffer_native, int __len_native, SocketFlags __socketFlags_native, byte* __socketAddress_native, int* __socketAddressSize_native);
 
         [DllImport(NATIVE_LIBRARY, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int select(int __ignoredParameter_native, int* __readfds_native, int* __writefds_native, int* __exceptfds_native, TimeValue* __timeout_native);
+        public static extern int poll(pollfd* fds, nuint nfds, int timeout);
 
         [DllImport(NATIVE_LIBRARY, CallingConvention = CallingConvention.Cdecl)]
         public static extern int inet_pton(int Family, void* pszAddrString, void* pAddrBuf);

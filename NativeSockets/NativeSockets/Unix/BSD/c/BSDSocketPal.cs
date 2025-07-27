@@ -23,31 +23,14 @@ namespace NativeSockets
 
         static BSDSocketPal()
         {
+            bool isIOS;
+
             if (!IsSupported)
             {
-                ADDRESS_FAMILY_INTER_NETWORK_V6 = 28;
-
-                _bind = &UnixSocketPal.bind;
-                _getsockname = &UnixSocketPal.getsockname;
-                _socket = &UnixSocketPal.socket;
-                _fcntl = &UnixSocketPal.fcntl;
-                _setsockopt = &UnixSocketPal.setsockopt;
-                _getsockopt = &UnixSocketPal.getsockopt;
-                _connect = &UnixSocketPal.connect;
-                _close = &UnixSocketPal.close;
-                _sendto = &UnixSocketPal.sendto;
-                _recvfrom = &UnixSocketPal.recvfrom;
-                _select = &UnixSocketPal.select;
-                _inet_pton = &UnixSocketPal.inet_pton;
-                _getaddrinfo = &UnixSocketPal.getaddrinfo;
-                _freeaddrinfo = &UnixSocketPal.freeaddrinfo;
-                _inet_ntop = &UnixSocketPal.inet_ntop;
-                _getnameinfo = &UnixSocketPal.getnameinfo;
-
-                return;
+                isIOS = false;
+                goto label1;
             }
 
-            bool isIOS;
             try
             {
                 _ = iOSSocketPal.getpid();
@@ -58,6 +41,7 @@ namespace NativeSockets
                 isIOS = false;
             }
 
+            label1:
             if (!isIOS)
             {
                 _bind = &UnixSocketPal.bind;
@@ -70,7 +54,7 @@ namespace NativeSockets
                 _close = &UnixSocketPal.close;
                 _sendto = &UnixSocketPal.sendto;
                 _recvfrom = &UnixSocketPal.recvfrom;
-                _select = &UnixSocketPal.select;
+                _poll = &UnixSocketPal.poll;
                 _inet_pton = &UnixSocketPal.inet_pton;
                 _getaddrinfo = &UnixSocketPal.getaddrinfo;
                 _freeaddrinfo = &UnixSocketPal.freeaddrinfo;
@@ -89,13 +73,16 @@ namespace NativeSockets
                 _close = &iOSSocketPal.close;
                 _sendto = &iOSSocketPal.sendto;
                 _recvfrom = &iOSSocketPal.recvfrom;
-                _select = &iOSSocketPal.select;
+                _poll = &iOSSocketPal.poll;
                 _inet_pton = &iOSSocketPal.inet_pton;
                 _getaddrinfo = &iOSSocketPal.getaddrinfo;
                 _freeaddrinfo = &iOSSocketPal.freeaddrinfo;
                 _inet_ntop = &iOSSocketPal.inet_ntop;
                 _getnameinfo = &iOSSocketPal.getnameinfo;
             }
+
+            if (!IsSupported)
+                goto label2;
 
             if (isIOS || RuntimeInformation.IsOSPlatform(OSPlatform.Create("IOS")) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             {
@@ -104,7 +91,7 @@ namespace NativeSockets
             }
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Create("FREEBSD")))
-                goto label;
+                goto label2;
 
             ReadOnlySpan<char> hostName = "::1";
 
@@ -117,7 +104,7 @@ namespace NativeSockets
             addrinfo* hint, results = null;
 
             if (getaddrinfo((byte*)Unsafe.AsPointer(ref MemoryMarshal.GetReference(buffer)), null, &addressInfo, &results) != 0)
-                goto label;
+                goto label2;
 
             for (hint = results; hint != null; hint = hint->ai_next)
             {
@@ -137,7 +124,7 @@ namespace NativeSockets
             if (results != null)
                 freeaddrinfo(results);
 
-            label:
+            label2:
             ADDRESS_FAMILY_INTER_NETWORK_V6 = 28;
         }
 
@@ -266,26 +253,51 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Poll(nint socket, int microseconds, SelectMode mode, out bool status)
         {
-            int* fileDescriptorSet = stackalloc int[2] { 1, (int)socket };
-            TimeValue timeout = default;
-            int socketCount;
-            if (microseconds != -1)
+            PollEvents inEvent = 0;
+            switch (mode)
             {
-                UnixSocketPal.MicrosecondsToTimeValue(microseconds, ref timeout);
-                socketCount = select(0, mode == SelectMode.SelectRead ? fileDescriptorSet : null, mode == SelectMode.SelectWrite ? fileDescriptorSet : null, mode == SelectMode.SelectError ? fileDescriptorSet : null, &timeout);
-            }
-            else
-            {
-                socketCount = select(0, mode == SelectMode.SelectRead ? fileDescriptorSet : null, mode == SelectMode.SelectWrite ? fileDescriptorSet : null, mode == SelectMode.SelectError ? fileDescriptorSet : null, null);
+                case SelectMode.SelectRead:
+                    inEvent = PollEvents.POLLIN;
+                    break;
+                case SelectMode.SelectWrite:
+                    inEvent = PollEvents.POLLOUT;
+                    break;
+                case SelectMode.SelectError:
+                    inEvent = PollEvents.POLLPRI;
+                    break;
             }
 
-            if ((SocketError)socketCount == SocketError.SocketError)
+            int milliseconds = microseconds == -1 ? -1 : microseconds / 1000;
+
+            pollfd fd;
+            fd.fd = (int)socket;
+            fd.events = (short)inEvent;
+            fd.revents = 0;
+
+            int errno = poll(&fd, 1, milliseconds);
+            if (errno != 0)
             {
                 status = false;
                 return GetLastSocketError();
             }
 
-            status = (int)fileDescriptorSet[0] != 0 && fileDescriptorSet[1] == socket;
+            PollEvents outEvents = (PollEvents)fd.revents;
+            switch (mode)
+            {
+                case SelectMode.SelectRead:
+                    status = (outEvents & (PollEvents.POLLIN | PollEvents.POLLHUP)) != 0;
+                    break;
+                case SelectMode.SelectWrite:
+                    status = (outEvents & PollEvents.POLLOUT) != 0;
+                    break;
+                case SelectMode.SelectError:
+                    status = (outEvents & (PollEvents.POLLERR | PollEvents.POLLPRI)) != 0;
+                    break;
+                default:
+                    status = false;
+                    break;
+            }
+
             return SocketError.Success;
         }
 
@@ -677,7 +689,7 @@ namespace NativeSockets
         private static readonly delegate* managed<int, SocketError> _close;
         private static readonly delegate* managed<int, byte*, int, SocketFlags, byte*, int, int> _sendto;
         private static readonly delegate* managed<int, byte*, int, SocketFlags, byte*, int*, int> _recvfrom;
-        private static readonly delegate* managed<int, int*, int*, int*, TimeValue*, int> _select;
+        private static readonly delegate* managed<pollfd*, nuint, int, int> _poll;
         private static readonly delegate* managed<int, void*, void*, int> _inet_pton;
         private static readonly delegate* managed<byte*, byte*, addrinfo*, addrinfo**, int> _getaddrinfo;
         private static readonly delegate* managed<addrinfo*, void> _freeaddrinfo;
@@ -715,7 +727,7 @@ namespace NativeSockets
         private static int recvfrom(int socketHandle, byte* buffer, int length, SocketFlags flags, byte* socketAddress, int* socketAddressSize) => _recvfrom(socketHandle, buffer, length, flags, socketAddress, socketAddressSize);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int select(int ignoredParameter, int* readfds, int* writefds, int* exceptfds, TimeValue* timeout) => _select(ignoredParameter, readfds, writefds, exceptfds, timeout);
+        private static int poll(pollfd* fds, nuint nfds, int timeout) => _poll(fds, nfds, timeout);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static int inet_pton(int family, void* pszAddrString, void* pAddrBuf) => _inet_pton(family, pszAddrString, pAddrBuf);

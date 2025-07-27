@@ -133,7 +133,7 @@ namespace NativeSockets
         public static extern int recvfrom(int __socketHandle_native, byte* __pinnedBuffer_native, int __len_native, SocketFlags __socketFlags_native, byte* __socketAddress_native, int* __socketAddressSize_native);
 
         [DllImport(NATIVE_LIBRARY, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int select(int __ignoredParameter_native, int* __readfds_native, int* __writefds_native, int* __exceptfds_native, TimeValue* __timeout_native);
+        public static extern int poll(pollfd* fds, nuint nfds, int timeout);
 
         [DllImport(NATIVE_LIBRARY, CallingConvention = CallingConvention.Cdecl)]
         public static extern int inet_pton(int Family, void* pszAddrString, void* pAddrBuf);
@@ -149,13 +149,5 @@ namespace NativeSockets
 
         [DllImport(NATIVE_LIBRARY, CallingConvention = CallingConvention.Cdecl)]
         public static extern int getnameinfo(sockaddr* pSockaddr, int SockaddrLength, ref byte pNodeBuffer, ulong NodeBufferSize, byte* pServiceBuffer, ulong ServiceBufferSize, int Flags);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void MicrosecondsToTimeValue(long microseconds, ref TimeValue socketTime)
-        {
-            const int microcnv = 1000000;
-            socketTime.Seconds = (nint)(microseconds / microcnv);
-            socketTime.Microseconds = (nint)(microseconds % microcnv);
-        }
     }
 }

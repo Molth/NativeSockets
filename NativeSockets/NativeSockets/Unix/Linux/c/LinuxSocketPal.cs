@@ -147,26 +147,51 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Poll(nint socket, int microseconds, SelectMode mode, out bool status)
         {
-            int* fileDescriptorSet = stackalloc int[2] { 1, (int)socket };
-            TimeValue timeout = default;
-            int socketCount;
-            if (microseconds != -1)
+            PollEvents inEvent = 0;
+            switch (mode)
             {
-                MicrosecondsToTimeValue(microseconds, ref timeout);
-                socketCount = select(0, mode == SelectMode.SelectRead ? fileDescriptorSet : null, mode == SelectMode.SelectWrite ? fileDescriptorSet : null, mode == SelectMode.SelectError ? fileDescriptorSet : null, &timeout);
-            }
-            else
-            {
-                socketCount = select(0, mode == SelectMode.SelectRead ? fileDescriptorSet : null, mode == SelectMode.SelectWrite ? fileDescriptorSet : null, mode == SelectMode.SelectError ? fileDescriptorSet : null, null);
+                case SelectMode.SelectRead:
+                    inEvent = PollEvents.POLLIN;
+                    break;
+                case SelectMode.SelectWrite:
+                    inEvent = PollEvents.POLLOUT;
+                    break;
+                case SelectMode.SelectError:
+                    inEvent = PollEvents.POLLPRI;
+                    break;
             }
 
-            if ((SocketError)socketCount == SocketError.SocketError)
+            int milliseconds = microseconds == -1 ? -1 : microseconds / 1000;
+
+            pollfd fd;
+            fd.fd = (int)socket;
+            fd.events = (short)inEvent;
+            fd.revents = 0;
+
+            int errno = poll(&fd, 1, milliseconds);
+            if (errno != 0)
             {
                 status = false;
                 return GetLastSocketError();
             }
 
-            status = (int)fileDescriptorSet[0] != 0 && fileDescriptorSet[1] == socket;
+            PollEvents outEvents = (PollEvents)fd.revents;
+            switch (mode)
+            {
+                case SelectMode.SelectRead:
+                    status = (outEvents & (PollEvents.POLLIN | PollEvents.POLLHUP)) != 0;
+                    break;
+                case SelectMode.SelectWrite:
+                    status = (outEvents & PollEvents.POLLOUT) != 0;
+                    break;
+                case SelectMode.SelectError:
+                    status = (outEvents & (PollEvents.POLLERR | PollEvents.POLLPRI)) != 0;
+                    break;
+                default:
+                    status = false;
+                    break;
+            }
+
             return SocketError.Success;
         }
 
