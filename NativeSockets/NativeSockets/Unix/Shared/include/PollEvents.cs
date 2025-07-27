@@ -15,6 +15,6 @@ namespace NativeSockets
         POLLOUT = 0x0004,
         POLLERR = 0x0008,
         POLLHUP = 0x0010,
-        POLLNVAL = 0x0020,
+        POLLNVAL = 0x0020
     }
 }
