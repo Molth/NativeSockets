@@ -28,6 +28,7 @@ namespace NativeSockets
             get => SocketPal.IsBSD ? bsd_family == BSDSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6 : family == SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static sa_family_t FromBSD(ushort value)
         {
             Unsafe.SkipInit(out sa_family_t result);
@@ -36,6 +37,7 @@ namespace NativeSockets
             return result;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator sa_family_t(ushort value)
         {
             Unsafe.SkipInit(out sa_family_t result);
