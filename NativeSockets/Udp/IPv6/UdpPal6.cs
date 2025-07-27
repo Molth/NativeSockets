@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
-using winsock;
 
 #pragma warning disable CS1591
 #pragma warning disable SYSLIB1054

@@ -1,15 +1,13 @@
 ﻿using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using unixsock;
-using NativeSockets;
 
 #pragma warning disable CS1591
 #pragma warning disable CS8981
 
 // ReSharper disable ALL
 
-namespace winsock
+namespace NativeSockets
 {
     [StructLayout(LayoutKind.Explicit, Size = 2)]
     public struct sa_family_t
@@ -27,13 +25,13 @@ namespace winsock
         public bool IsIPv6
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => SocketPal.IsBSD ? bsd_family == BSDSock.ADDRESS_FAMILY_INTER_NETWORK_V6 : family == SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
+            get => SocketPal.IsBSD ? bsd_family == BSDSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6 : family == SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
         }
 
         public static sa_family_t FromBsd(ushort value)
         {
             Unsafe.SkipInit(out sa_family_t result);
-            result.bsd_len = value == BSDSock.ADDRESS_FAMILY_INTER_NETWORK_V6 ? (byte)28 : (byte)16;
+            result.bsd_len = value == BSDSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6 ? (byte)28 : (byte)16;
             result.bsd_family = (byte)value;
             return result;
         }
@@ -43,7 +41,7 @@ namespace winsock
             Unsafe.SkipInit(out sa_family_t result);
             if (SocketPal.IsBSD)
             {
-                result.bsd_len = value == BSDSock.ADDRESS_FAMILY_INTER_NETWORK_V6 ? (byte)28 : (byte)16;
+                result.bsd_len = value == BSDSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6 ? (byte)28 : (byte)16;
                 result.bsd_family = (byte)value;
                 return result;
             }

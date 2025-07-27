@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 
 // ReSharper disable ALL
 
-namespace winsock
+namespace NativeSockets
 {
     public static class WinSock2
     {
@@ -21,13 +21,5 @@ namespace winsock
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static uint NET_TO_HOST_32(uint network) => BitConverter.IsLittleEndian ? BinaryPrimitives.ReverseEndianness(network) : network;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void MicrosecondsToTimeValue(long microseconds, ref TimeValue socketTime)
-        {
-            const int microcnv = 1000000;
-            socketTime.Seconds = (int)(microseconds / microcnv);
-            socketTime.Microseconds = (int)(microseconds % microcnv);
-        }
     }
 }

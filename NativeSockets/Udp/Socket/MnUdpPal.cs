@@ -23,7 +23,7 @@ namespace NativeSockets.Udp
         public static MnSocket Create(bool ipv6)
         {
             MnSocket socket;
-            socket.Handle = (int)SocketPal.Create(ipv6);
+            socket.Handle = SocketPal.Create(ipv6);
             socket.IsIPv6 = ipv6;
             return socket;
         }

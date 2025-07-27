@@ -2,16 +2,15 @@
 
 #pragma warning disable CS1591
 #pragma warning disable CS8981
-#pragma warning disable SYSLIB1054
 
 // ReSharper disable ALL
 
-namespace winsock
+namespace NativeSockets
 {
     [StructLayout(LayoutKind.Sequential)]
     public struct TimeValue
     {
-        public int Seconds;
-        public int Microseconds;
+        public nint Seconds;
+        public nint Microseconds;
     }
 }

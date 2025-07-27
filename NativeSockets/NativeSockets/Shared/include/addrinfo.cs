@@ -5,7 +5,7 @@
 
 // ReSharper disable ALL
 
-namespace winsock
+namespace NativeSockets
 {
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct addrinfo

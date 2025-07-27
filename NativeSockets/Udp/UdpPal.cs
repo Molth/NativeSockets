@@ -3,7 +3,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using winsock;
 
 #pragma warning disable CS1591
 #pragma warning disable SYSLIB1054
@@ -26,10 +25,11 @@ namespace NativeSockets.Udp
             if (socket.AddressFamily == AddressFamily.InterNetworkV6 && ipEndPoint.AddressFamily == AddressFamily.InterNetworkV6)
             {
                 socketAddress = stackalloc byte[28];
-                ipEndPoint.Address.TryWriteBytes(socketAddress.Slice(8), out _);
                 ref byte reference = ref MemoryMarshal.GetReference(socketAddress);
                 Unsafe.WriteUnaligned(ref reference, (sa_family_t)SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6);
                 Unsafe.WriteUnaligned(ref Unsafe.AddByteOffset(ref reference, (nint)2), port);
+                Unsafe.WriteUnaligned(ref Unsafe.AddByteOffset(ref reference, (nint)4), 0U);
+                ipEndPoint.Address.TryWriteBytes(MemoryMarshal.CreateSpan(ref Unsafe.AddByteOffset(ref reference, (nint)8), 16), out _);
                 Unsafe.WriteUnaligned(ref Unsafe.AddByteOffset(ref reference, (nint)24), (uint)ipEndPoint.Address.ScopeId);
 
                 fixed (byte* pinnedBuffer = &MemoryMarshal.GetReference(buffer))
@@ -44,10 +44,11 @@ namespace NativeSockets.Udp
             if (socket.AddressFamily == AddressFamily.InterNetwork && ipEndPoint.AddressFamily == AddressFamily.InterNetwork)
             {
                 socketAddress = stackalloc byte[16];
-                ipEndPoint.Address.TryWriteBytes(socketAddress.Slice(4), out _);
                 ref byte reference = ref MemoryMarshal.GetReference(socketAddress);
                 Unsafe.WriteUnaligned(ref reference, (sa_family_t)(ushort)AddressFamily.InterNetwork);
                 Unsafe.WriteUnaligned(ref Unsafe.AddByteOffset(ref reference, (nint)2), port);
+                ipEndPoint.Address.TryWriteBytes(MemoryMarshal.CreateSpan(ref Unsafe.AddByteOffset(ref reference, (nint)4), 4), out _);
+                Unsafe.InitBlockUnaligned(ref Unsafe.AddByteOffset(ref reference, (nint)8), 0, 8);
 
                 fixed (byte* pinnedBuffer = &MemoryMarshal.GetReference(buffer))
                 {

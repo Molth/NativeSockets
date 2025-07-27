@@ -4,16 +4,10 @@ using System.Runtime.InteropServices;
 
 // ReSharper disable ALL
 
-namespace NativeCollections
+namespace NativeSockets
 {
-    /// <summary>
-    ///     Span helpers
-    /// </summary>
     internal static class SpanHelpers
     {
-        /// <summary>
-        ///     Determines whether two sequences are equal.
-        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Compare(ref byte left, ref byte right, nuint byteCount)
         {

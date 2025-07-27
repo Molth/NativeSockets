@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using winsock;
+using System.Security;
 
 #pragma warning disable CA1401
 #pragma warning disable CS1591
@@ -13,11 +13,20 @@ using winsock;
 
 // ReSharper disable ALL
 
-namespace unixsock
+namespace NativeSockets
 {
-    public static unsafe class UnixSock
+    [SuppressUnmanagedCodeSecurity]
+    internal static unsafe class UnixSocketPal
     {
         private const string NATIVE_LIBRARY = "libc";
+
+        public const short POLLNONE = 0;
+        public const short POLLIN = 1;
+        public const short POLLPRI = 2;
+        public const short POLLOUT = 4;
+        public const short POLLERR = 8;
+        public const short POLLHUP = 16;
+        public const short POLLNVAL = 32;
 
 #if !NET6_0_OR_GREATER
         private static readonly Dictionary<int, SocketError> SocketErrors = new Dictionary<int, SocketError>
@@ -86,7 +95,7 @@ namespace unixsock
             return (SocketError)Marshal.GetLastPInvokeError();
 #else
             int errno = Marshal.GetLastWin32Error();
-            return SocketErrors.TryGetValue(errno, out var error) ? (SocketError)error : (SocketError)errno;
+            return SocketErrors.TryGetValue(errno, out SocketError error) ? (SocketError)error : (SocketError)errno;
 #endif
         }
 
@@ -94,37 +103,37 @@ namespace unixsock
         public static extern int getpid();
 
         [DllImport(NATIVE_LIBRARY, CallingConvention = CallingConvention.Cdecl)]
-        public static extern SocketError bind(nint __socketHandle_native, sockaddr* __socketAddress_native, int __socketAddressSize_native);
+        public static extern SocketError bind(int __socketHandle_native, sockaddr* __socketAddress_native, int __socketAddressSize_native);
 
         [DllImport(NATIVE_LIBRARY, CallingConvention = CallingConvention.Cdecl)]
-        public static extern SocketError getsockname(nint __socketHandle_native, sockaddr* __socketAddress_native, int* __socketAddressSize_native);
+        public static extern SocketError getsockname(int __socketHandle_native, sockaddr* __socketAddress_native, int* __socketAddressSize_native);
 
         [DllImport(NATIVE_LIBRARY, CallingConvention = CallingConvention.Cdecl)]
-        public static extern nint socket(int af, int type, int protocol);
+        public static extern int socket(int af, int type, int protocol);
 
         [DllImport(NATIVE_LIBRARY, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int fcntl(nint fd, int cmd, int arg);
+        public static extern int fcntl(int fd, int cmd, int arg);
 
         [DllImport(NATIVE_LIBRARY, CallingConvention = CallingConvention.Cdecl)]
-        public static extern SocketError setsockopt(nint __socketHandle_native, SocketOptionLevel __optionLevel_native, SocketOptionName __optionName_native, int* __optionValue_native, int __optionLength_native);
+        public static extern SocketError setsockopt(int __socketHandle_native, SocketOptionLevel __optionLevel_native, SocketOptionName __optionName_native, int* __optionValue_native, int __optionLength_native);
 
         [DllImport(NATIVE_LIBRARY, CallingConvention = CallingConvention.Cdecl)]
-        public static extern SocketError getsockopt(nint s, int level, int optname, byte* optval, int* optlen);
+        public static extern SocketError getsockopt(int s, int level, int optname, byte* optval, int* optlen);
 
         [DllImport(NATIVE_LIBRARY, CallingConvention = CallingConvention.Cdecl)]
-        public static extern SocketError connect(nint s, sockaddr* name, int namelen);
+        public static extern SocketError connect(int s, sockaddr* name, int namelen);
 
         [DllImport(NATIVE_LIBRARY, CallingConvention = CallingConvention.Cdecl)]
-        public static extern SocketError close(nint __socketHandle_native);
+        public static extern SocketError close(int __socketHandle_native);
 
         [DllImport(NATIVE_LIBRARY, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int sendto(nint __socketHandle_native, byte* __pinnedBuffer_native, int __len_native, SocketFlags __socketFlags_native, byte* __socketAddress_native, int __socketAddressSize_native);
+        public static extern int sendto(int __socketHandle_native, byte* __pinnedBuffer_native, int __len_native, SocketFlags __socketFlags_native, byte* __socketAddress_native, int __socketAddressSize_native);
 
         [DllImport(NATIVE_LIBRARY, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int recvfrom(nint __socketHandle_native, byte* __pinnedBuffer_native, int __len_native, SocketFlags __socketFlags_native, byte* __socketAddress_native, int* __socketAddressSize_native);
+        public static extern int recvfrom(int __socketHandle_native, byte* __pinnedBuffer_native, int __len_native, SocketFlags __socketFlags_native, byte* __socketAddress_native, int* __socketAddressSize_native);
 
         [DllImport(NATIVE_LIBRARY, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int select(int __ignoredParameter_native, nint* __readfds_native, nint* __writefds_native, nint* __exceptfds_native, TimeValue* __timeout_native);
+        public static extern int select(int __ignoredParameter_native, int* __readfds_native, int* __writefds_native, int* __exceptfds_native, TimeValue* __timeout_native);
 
         [DllImport(NATIVE_LIBRARY, CallingConvention = CallingConvention.Cdecl)]
         public static extern int inet_pton(int Family, void* pszAddrString, void* pAddrBuf);
@@ -140,5 +149,13 @@ namespace unixsock
 
         [DllImport(NATIVE_LIBRARY, CallingConvention = CallingConvention.Cdecl)]
         public static extern int getnameinfo(sockaddr* pSockaddr, int SockaddrLength, ref byte pNodeBuffer, ulong NodeBufferSize, byte* pServiceBuffer, ulong ServiceBufferSize, int Flags);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void MicrosecondsToTimeValue(long microseconds, ref TimeValue socketTime)
+        {
+            const int microcnv = 1000000;
+            socketTime.Seconds = (nint)(microseconds / microcnv);
+            socketTime.Microseconds = (nint)(microseconds % microcnv);
+        }
     }
 }

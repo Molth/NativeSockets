@@ -5,7 +5,7 @@
 
 // ReSharper disable ALL
 
-namespace winsock
+namespace NativeSockets
 {
     [StructLayout(LayoutKind.Explicit, Size = 16)]
     public unsafe struct sockaddr

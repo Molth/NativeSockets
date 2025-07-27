@@ -10,12 +10,12 @@ using System.Runtime.InteropServices;
 
 namespace NativeSockets.Udp
 {
-    [StructLayout(LayoutKind.Explicit, Size = 8)]
+    [StructLayout(LayoutKind.Sequential)]
     public struct MnSocket : IDisposable, IEquatable<MnSocket>
     {
-        [FieldOffset(0)] public int Handle;
+        public nint Handle;
         public bool IsIPv4 => !IsIPv6;
-        [FieldOffset(4)] public bool IsIPv6;
+        public bool IsIPv6;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MnSocket Create(bool ipv6)
