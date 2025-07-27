@@ -12,9 +12,9 @@ namespace NativeSockets
     {
         public static ushort ADDRESS_FAMILY_INTER_NETWORK_V6 { get; }
 
-        public static bool IsWindows => ADDRESS_FAMILY_INTER_NETWORK_V6 == WindowsSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
-        public static bool IsLinux => ADDRESS_FAMILY_INTER_NETWORK_V6 == LinuxSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
-        public static bool IsBSD => ADDRESS_FAMILY_INTER_NETWORK_V6 == BSDSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
+        public static bool IsWindows => WindowsSocketPal.IsSupported;
+        public static bool IsLinux => LinuxSocketPal.IsSupported;
+        public static bool IsBSD => BSDSocketPal.IsSupported;
 
         private static readonly delegate* managed<SocketError> _GetLastSocketError;
         private static readonly delegate* managed<SocketError> _Initialize;
