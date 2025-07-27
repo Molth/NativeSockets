@@ -170,7 +170,7 @@ namespace NativeSockets
                 socketCount = select(0, mode == SelectMode.SelectRead ? fileDescriptorSet : null, mode == SelectMode.SelectWrite ? fileDescriptorSet : null, mode == SelectMode.SelectError ? fileDescriptorSet : null, null);
             }
 
-            if ((SocketError)socketCount == SocketError.SocketError)
+            if (socketCount == -1)
             {
                 status = false;
                 return GetLastSocketError();
