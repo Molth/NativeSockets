@@ -635,9 +635,11 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void MicrosecondsToTimeValue(long microseconds, ref TimeValue socketTime)
         {
-            const int microcnv = 1000000;
-            socketTime.Seconds = (int)(microseconds / microcnv);
-            socketTime.Microseconds = (int)(microseconds % microcnv);
+            const long microcnv = 1000000;
+            long quotient = microseconds / microcnv;
+            long remainder = microseconds - quotient * microcnv;
+            socketTime.Seconds = (int)quotient;
+            socketTime.Microseconds = (int)remainder;
         }
     }
 }
