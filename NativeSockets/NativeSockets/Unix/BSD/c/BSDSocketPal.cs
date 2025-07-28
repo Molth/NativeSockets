@@ -89,7 +89,7 @@ namespace NativeSockets
             if (isFreeBSD || !IsSupported)
                 goto label2;
 
-            if (isOSX || isIOS || RuntimeInformation.IsOSPlatform(OSPlatform.Create("IOS")))
+            if (isOSX || isIOS)
             {
                 ADDRESS_FAMILY_INTER_NETWORK_V6 = 30;
                 return;
