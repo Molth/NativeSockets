@@ -43,9 +43,9 @@ namespace NativeSockets
 
             if (socket != -1)
             {
-                byte* __inBuffer_native = stackalloc byte[1] { 0x0 };
+                byte bNewBehavior = 0;
                 int __bytesTransferred_native;
-                SocketError errorCode = WSAIoctl(socket, -1744830452, __inBuffer_native, 1, null, 0, &__bytesTransferred_native, 0, 0);
+                SocketError errorCode = WSAIoctl(socket, -1744830452, &bNewBehavior, 1, null, 0, &__bytesTransferred_native, 0, 0);
             }
 
             return socket;
