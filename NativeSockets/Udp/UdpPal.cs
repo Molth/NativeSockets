@@ -19,13 +19,12 @@ namespace NativeSockets.Udp
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int SendTo(Socket socket, ReadOnlySpan<byte> buffer, IPEndPoint ipEndPoint)
         {
-            Span<byte> socketAddress;
             ushort port = WinSock2.HOST_TO_NET_16((ushort)ipEndPoint.Port);
 
             if (socket.AddressFamily == AddressFamily.InterNetworkV6 && ipEndPoint.AddressFamily == AddressFamily.InterNetworkV6)
             {
-                socketAddress = stackalloc byte[28];
-                ref byte reference = ref MemoryMarshal.GetReference(socketAddress);
+                Unsafe.SkipInit(out sockaddr_in6 __socketAddress_native);
+                ref byte reference = ref Unsafe.As<sockaddr_in6, byte>(ref __socketAddress_native);
                 Unsafe.WriteUnaligned(ref reference, (sa_family_t)SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6);
                 Unsafe.WriteUnaligned(ref Unsafe.AddByteOffset(ref reference, (nint)2), port);
                 Unsafe.WriteUnaligned(ref Unsafe.AddByteOffset(ref reference, (nint)4), 0U);
@@ -34,17 +33,14 @@ namespace NativeSockets.Udp
 
                 fixed (byte* pinnedBuffer = &MemoryMarshal.GetReference(buffer))
                 {
-                    fixed (byte* __socketAddress_native = &MemoryMarshal.GetReference(socketAddress))
-                    {
-                        return SocketPal.SendTo6(socket.Handle, pinnedBuffer, buffer.Length, (sockaddr_in6*)__socketAddress_native);
-                    }
+                    return SocketPal.SendTo6(socket.Handle, pinnedBuffer, buffer.Length, &__socketAddress_native);
                 }
             }
 
             if (socket.AddressFamily == AddressFamily.InterNetwork && ipEndPoint.AddressFamily == AddressFamily.InterNetwork)
             {
-                socketAddress = stackalloc byte[16];
-                ref byte reference = ref MemoryMarshal.GetReference(socketAddress);
+                Unsafe.SkipInit(out sockaddr_in __socketAddress_native);
+                ref byte reference = ref Unsafe.As<sockaddr_in, byte>(ref __socketAddress_native);
                 Unsafe.WriteUnaligned(ref reference, (sa_family_t)(ushort)AddressFamily.InterNetwork);
                 Unsafe.WriteUnaligned(ref Unsafe.AddByteOffset(ref reference, (nint)2), port);
                 ipEndPoint.Address.TryWriteBytes(MemoryMarshal.CreateSpan(ref Unsafe.AddByteOffset(ref reference, (nint)4), 4), out _);
@@ -52,10 +48,7 @@ namespace NativeSockets.Udp
 
                 fixed (byte* pinnedBuffer = &MemoryMarshal.GetReference(buffer))
                 {
-                    fixed (byte* __socketAddress_native = &MemoryMarshal.GetReference(socketAddress))
-                    {
-                        return SocketPal.SendTo4(socket.Handle, pinnedBuffer, buffer.Length, (sockaddr_in*)__socketAddress_native);
-                    }
+                    return SocketPal.SendTo4(socket.Handle, pinnedBuffer, buffer.Length, &__socketAddress_native);
                 }
             }
 
