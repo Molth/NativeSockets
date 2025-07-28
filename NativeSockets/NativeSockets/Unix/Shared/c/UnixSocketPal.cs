@@ -92,9 +92,6 @@ namespace NativeSockets
         }
 
         [DllImport(NATIVE_LIBRARY, CallingConvention = CallingConvention.Cdecl)]
-        public static extern int getpid();
-
-        [DllImport(NATIVE_LIBRARY, CallingConvention = CallingConvention.Cdecl)]
         public static extern SocketError bind(int __socketHandle_native, sockaddr* __socketAddress_native, int __socketAddressSize_native);
 
         [DllImport(NATIVE_LIBRARY, CallingConvention = CallingConvention.Cdecl)]
