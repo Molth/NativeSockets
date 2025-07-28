@@ -25,10 +25,8 @@ namespace NativeSockets
         {
             bool isIOS;
 
-            bool isOSX = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
-            bool isFreeBSD = false;
-            if (!isOSX)
-                isFreeBSD = RuntimeInformation.IsOSPlatform(OSPlatform.Create("FREEBSD"));
+            bool isOSX = IsSupported && RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+            bool isFreeBSD = !isOSX && RuntimeInformation.IsOSPlatform(OSPlatform.Create("FREEBSD"));
 
             if (isOSX || isFreeBSD || !IsSupported)
             {
@@ -86,16 +84,13 @@ namespace NativeSockets
                 _getnameinfo = &iOSSocketPal.getnameinfo;
             }
 
-            if (isFreeBSD || !IsSupported)
-                goto label2;
-
             if (isOSX || isIOS)
             {
                 ADDRESS_FAMILY_INTER_NETWORK_V6 = 30;
                 return;
             }
 
-            if (!Socket.OSSupportsIPv6)
+            if (isFreeBSD || !IsSupported)
                 goto label2;
 
             ReadOnlySpan<char> hostName = "::1";
