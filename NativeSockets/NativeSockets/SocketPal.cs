@@ -49,7 +49,7 @@ namespace NativeSockets
 
         static SocketPal()
         {
-            if (WindowsSocketPal.IsSupported)
+            if (IsWindows)
             {
                 ADDRESS_FAMILY_INTER_NETWORK_V6 = WindowsSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
 
@@ -87,7 +87,7 @@ namespace NativeSockets
                 return;
             }
 
-            if (LinuxSocketPal.IsSupported)
+            if (IsLinux)
             {
                 ADDRESS_FAMILY_INTER_NETWORK_V6 = LinuxSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
 
