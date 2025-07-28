@@ -95,6 +95,9 @@ namespace NativeSockets
                 return;
             }
 
+            if (!Socket.OSSupportsIPv6)
+                goto label2;
+
             ReadOnlySpan<char> hostName = "::1";
 
             int byteCount = Encoding.ASCII.GetByteCount(hostName);
