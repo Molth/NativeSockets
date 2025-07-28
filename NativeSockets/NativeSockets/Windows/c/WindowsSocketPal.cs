@@ -44,7 +44,7 @@ namespace NativeSockets
             if (socket != -1)
             {
                 byte bNewBehavior = 0;
-                int __bytesTransferred_native;
+                int __bytesTransferred_native = 0;
                 SocketError errorCode = WSAIoctl(socket, -1744830452, &bNewBehavior, 1, null, 0, &__bytesTransferred_native, 0, 0);
             }
 
