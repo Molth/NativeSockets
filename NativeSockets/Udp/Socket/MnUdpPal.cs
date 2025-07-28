@@ -141,7 +141,7 @@ namespace NativeSockets.Udp
 
             ref byte reference = ref Unsafe.As<MnSocketAddress, byte>(ref socketAddress);
             Unsafe.InitBlockUnaligned(ref reference, 0, 8);
-            Unsafe.WriteUnaligned(ref Unsafe.AddByteOffset(ref reference, (nint)8), -0x10000);
+            Unsafe.WriteUnaligned(ref Unsafe.AddByteOffset(ref reference, (nint)8), WinSock2.ADDRESS_FAMILY_INTER_NETWORK_V4_MAPPED_V6);
 
             return UdpPal4.ReceiveFrom(new Socket4 { Handle = socket }, ref buffer, length, ref Unsafe.As<byte, SocketAddress4>(ref Unsafe.AddByteOffset(ref reference, (nint)12)));
         }

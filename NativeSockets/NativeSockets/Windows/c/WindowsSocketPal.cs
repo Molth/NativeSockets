@@ -244,7 +244,7 @@ namespace NativeSockets
                 {
                     sockaddr_in* __socketAddress_native = (sockaddr_in*)&addressStorage;
                     Unsafe.InitBlockUnaligned(socketAddress->sin6_addr, 0, 8);
-                    Unsafe.WriteUnaligned(socketAddress->sin6_addr + 8, -0x10000);
+                    Unsafe.WriteUnaligned(socketAddress->sin6_addr + 8, WinSock2.ADDRESS_FAMILY_INTER_NETWORK_V4_MAPPED_V6);
                     Unsafe.WriteUnaligned(socketAddress->sin6_addr + 12, __socketAddress_native->sin_addr);
                     socketAddress->sin6_port = WinSock2.NET_TO_HOST_16(__socketAddress_native->sin_port);
                 }
@@ -289,7 +289,7 @@ namespace NativeSockets
                 {
                     sockaddr_in* __socketAddress_native = (sockaddr_in*)&addressStorage;
                     Unsafe.InitBlockUnaligned(socketAddress->sin6_addr, 0, 8);
-                    Unsafe.WriteUnaligned(socketAddress->sin6_addr + 8, -0x10000);
+                    Unsafe.WriteUnaligned(socketAddress->sin6_addr + 8, WinSock2.ADDRESS_FAMILY_INTER_NETWORK_V4_MAPPED_V6);
                     Unsafe.WriteUnaligned(socketAddress->sin6_addr + 12, __socketAddress_native->sin_addr);
                     socketAddress->sin6_port = WinSock2.NET_TO_HOST_16(__socketAddress_native->sin_port);
                 }
@@ -344,7 +344,7 @@ namespace NativeSockets
             {
                 addressFamily = (int)AddressFamily.InterNetwork;
                 Unsafe.InitBlockUnaligned(pAddrBuf, 0, 8);
-                Unsafe.WriteUnaligned((byte*)pAddrBuf + 8, -0x10000);
+                Unsafe.WriteUnaligned((byte*)pAddrBuf + 8, WinSock2.ADDRESS_FAMILY_INTER_NETWORK_V4_MAPPED_V6);
                 pAddrBuf = (byte*)pAddrBuf + 12;
             }
 
@@ -378,7 +378,7 @@ namespace NativeSockets
             void* pAddrBuf = socketAddress->sin6_addr;
 
             ref int reference = ref Unsafe.AsRef<int>(pAddrBuf);
-            if (Unsafe.Add<int>(ref reference, 2) == -0x10000 && reference == 0 && Unsafe.Add(ref reference, 1) == 0)
+            if (Unsafe.Add<int>(ref reference, 2) == WinSock2.ADDRESS_FAMILY_INTER_NETWORK_V4_MAPPED_V6 && reference == 0 && Unsafe.Add(ref reference, 1) == 0)
             {
                 if (inet_ntop((int)AddressFamily.InterNetwork, (byte*)pAddrBuf + 12, ref MemoryMarshal.GetReference(buffer), (nuint)buffer.Length) == null)
                     return SocketError.Fault;
@@ -468,7 +468,7 @@ namespace NativeSockets
                         sockaddr_in* __socketAddress_native = (sockaddr_in*)hint->ai_addr;
 
                         Unsafe.InitBlockUnaligned(pAddrBuf, 0, 8);
-                        Unsafe.WriteUnaligned((byte*)pAddrBuf + 8, -0x10000);
+                        Unsafe.WriteUnaligned((byte*)pAddrBuf + 8, WinSock2.ADDRESS_FAMILY_INTER_NETWORK_V4_MAPPED_V6);
                         Unsafe.WriteUnaligned((byte*)pAddrBuf + 12, __socketAddress_native->sin_addr.S_addr);
 
                         freeaddrinfo(results);
@@ -497,7 +497,7 @@ namespace NativeSockets
             {
                 addressFamily = (int)AddressFamily.InterNetwork;
                 Unsafe.InitBlockUnaligned(pAddrBuf, 0, 8);
-                Unsafe.WriteUnaligned((byte*)pAddrBuf + 8, -0x10000);
+                Unsafe.WriteUnaligned((byte*)pAddrBuf + 8, WinSock2.ADDRESS_FAMILY_INTER_NETWORK_V4_MAPPED_V6);
                 pAddrBuf = (byte*)pAddrBuf + 12;
             }
 

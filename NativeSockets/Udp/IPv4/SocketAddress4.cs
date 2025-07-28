@@ -164,7 +164,7 @@ namespace NativeSockets.Udp
 
             ref byte reference = ref Unsafe.As<MnSocketAddress, byte>(ref address);
             Unsafe.InitBlockUnaligned(ref reference, 0, 8);
-            Unsafe.WriteUnaligned(ref Unsafe.AddByteOffset(ref reference, (nint)8), -0x10000);
+            Unsafe.WriteUnaligned(ref Unsafe.AddByteOffset(ref reference, (nint)8), WinSock2.ADDRESS_FAMILY_INTER_NETWORK_V4_MAPPED_V6);
 
             address.Address = socketAddress.Address;
             address.Port = socketAddress.Port;
@@ -178,7 +178,7 @@ namespace NativeSockets.Udp
 
             ref byte reference = ref Unsafe.As<SocketAddress6, byte>(ref address);
             Unsafe.InitBlockUnaligned(ref reference, 0, 8);
-            Unsafe.WriteUnaligned(ref Unsafe.AddByteOffset(ref reference, (nint)8), -0x10000);
+            Unsafe.WriteUnaligned(ref Unsafe.AddByteOffset(ref reference, (nint)8), WinSock2.ADDRESS_FAMILY_INTER_NETWORK_V4_MAPPED_V6);
 
             Unsafe.As<byte, uint>(ref Unsafe.AddByteOffset(ref Unsafe.As<SocketAddress6, byte>(ref address), (nint)12)) = socketAddress.Address;
             address.Port = socketAddress.Port;
