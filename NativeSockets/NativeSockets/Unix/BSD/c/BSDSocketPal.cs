@@ -167,6 +167,7 @@ namespace NativeSockets
             if (socketAddress == null)
             {
                 __socketAddress_native = new sockaddr_in();
+                __socketAddress_native.sin_family = (ushort)AddressFamily.InterNetwork;
                 SetIP4(&__socketAddress_native, "0.0.0.0");
             }
             else
@@ -186,6 +187,7 @@ namespace NativeSockets
             if (socketAddress == null)
             {
                 __socketAddress_native = new sockaddr_in6();
+                __socketAddress_native.sin6_family = ADDRESS_FAMILY_INTER_NETWORK_V6;
                 SetIP6(&__socketAddress_native, "::");
             }
             else
