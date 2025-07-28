@@ -25,7 +25,9 @@ namespace NativeSockets
         {
             bool isIOS;
 
-            if (!IsSupported)
+            bool isOSX = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+
+            if (isOSX || !IsSupported)
             {
                 isIOS = false;
                 goto label1;
@@ -84,7 +86,7 @@ namespace NativeSockets
             if (!IsSupported)
                 goto label2;
 
-            if (isIOS || RuntimeInformation.IsOSPlatform(OSPlatform.Create("IOS")) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            if (isOSX || isIOS || RuntimeInformation.IsOSPlatform(OSPlatform.Create("IOS")))
             {
                 ADDRESS_FAMILY_INTER_NETWORK_V6 = 30;
                 return;
