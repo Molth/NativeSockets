@@ -100,7 +100,7 @@ namespace NativeSockets.Udp
             int num;
             fixed (byte* pinnedBuffer = &buffer)
             {
-                num = SocketPal.SendTo4(socket, pinnedBuffer, length, (sockaddr_in*)null);
+                num = SocketPal.Send(socket, pinnedBuffer, length);
             }
 
             return num;
@@ -112,7 +112,7 @@ namespace NativeSockets.Udp
             int result;
             fixed (byte* pinnedBuffer = &buffer)
             {
-                result = SocketPal.ReceiveFrom4(socket, pinnedBuffer, length, (sockaddr_in*)null);
+                result = SocketPal.Receive(socket, pinnedBuffer, length);
             }
 
             return result;

@@ -55,7 +55,9 @@ namespace NativeSockets
                 _getsockopt = &UnixSocketPal.getsockopt;
                 _connect = &UnixSocketPal.connect;
                 _close = &UnixSocketPal.close;
+                _send = &UnixSocketPal.send;
                 _sendto = &UnixSocketPal.sendto;
+                _recv = &UnixSocketPal.recv;
                 _recvfrom = &UnixSocketPal.recvfrom;
                 _poll = &UnixSocketPal.poll;
                 _inet_pton = &UnixSocketPal.inet_pton;
@@ -74,7 +76,9 @@ namespace NativeSockets
                 _getsockopt = &iOSSocketPal.getsockopt;
                 _connect = &iOSSocketPal.connect;
                 _close = &iOSSocketPal.close;
+                _send = &iOSSocketPal.send;
                 _sendto = &iOSSocketPal.sendto;
+                _recv = &iOSSocketPal.recv;
                 _recvfrom = &iOSSocketPal.recvfrom;
                 _poll = &iOSSocketPal.poll;
                 _inet_pton = &iOSSocketPal.inet_pton;
@@ -304,6 +308,13 @@ namespace NativeSockets
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Send(nint socket, void* buffer, int length)
+        {
+            int num = send((int)socket, (byte*)buffer, length, SocketFlags.None);
+            return num;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int SendTo4(nint socket, void* buffer, int length, sockaddr_in* socketAddress)
         {
             if (socketAddress != null)
@@ -328,6 +339,13 @@ namespace NativeSockets
             }
 
             int num = sendto((int)socket, (byte*)buffer, length, SocketFlags.None, null, sizeof(sockaddr_in6));
+            return num;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Receive(nint socket, void* buffer, int length)
+        {
+            int num = recv((int)socket, (byte*)buffer, length, SocketFlags.None);
             return num;
         }
 
@@ -689,7 +707,9 @@ namespace NativeSockets
         private static readonly delegate* managed<int, int, int, byte*, int*, SocketError> _getsockopt;
         private static readonly delegate* managed<int, sockaddr*, int, SocketError> _connect;
         private static readonly delegate* managed<int, SocketError> _close;
+        private static readonly delegate* managed<int, byte*, int, SocketFlags, int> _send;
         private static readonly delegate* managed<int, byte*, int, SocketFlags, byte*, int, int> _sendto;
+        private static readonly delegate* managed<int, byte*, int, SocketFlags, int> _recv;
         private static readonly delegate* managed<int, byte*, int, SocketFlags, byte*, int*, int> _recvfrom;
         private static readonly delegate* managed<pollfd*, nuint, int, int> _poll;
         private static readonly delegate* managed<int, void*, void*, int> _inet_pton;
@@ -723,7 +743,13 @@ namespace NativeSockets
         private static SocketError close(int socketHandle) => _close(socketHandle);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int send(int socketHandle, byte* buffer, int length, SocketFlags flags) => _send(socketHandle, buffer, length, flags);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static int sendto(int socketHandle, byte* buffer, int length, SocketFlags flags, byte* socketAddress, int socketAddressSize) => _sendto(socketHandle, buffer, length, flags, socketAddress, socketAddressSize);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int recv(int socketHandle, byte* buffer, int length, SocketFlags flags) => _recv(socketHandle, buffer, length, flags);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static int recvfrom(int socketHandle, byte* buffer, int length, SocketFlags flags, byte* socketAddress, int* socketAddressSize) => _recvfrom(socketHandle, buffer, length, flags, socketAddress, socketAddressSize);

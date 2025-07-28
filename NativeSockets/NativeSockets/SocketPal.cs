@@ -30,8 +30,10 @@ namespace NativeSockets
         private static readonly delegate* managed<nint, SocketOptionLevel, SocketOptionName, int*, int*, SocketError> _GetOption;
         private static readonly delegate* managed<nint, bool, SocketError> _SetBlocking;
         private static readonly delegate* managed<nint, int, SelectMode, out bool, SocketError> _Poll;
+        private static readonly delegate* managed<nint, void*, int, int> _Send;
         private static readonly delegate* managed<nint, void*, int, sockaddr_in*, int> _SendTo4;
         private static readonly delegate* managed<nint, void*, int, sockaddr_in6*, int> _SendTo6;
+        private static readonly delegate* managed<nint, void*, int, int> _Receive;
         private static readonly delegate* managed<nint, void*, int, sockaddr_in*, int> _ReceiveFrom4;
         private static readonly delegate* managed<nint, void*, int, sockaddr_in6*, int> _ReceiveFrom6;
         private static readonly delegate* managed<nint, sockaddr_in*, SocketError> _GetName4;
@@ -65,8 +67,10 @@ namespace NativeSockets
                 _GetOption = &WindowsSocketPal.GetOption;
                 _SetBlocking = &WindowsSocketPal.SetBlocking;
                 _Poll = &WindowsSocketPal.Poll;
+                _Send = &WindowsSocketPal.Send;
                 _SendTo4 = &WindowsSocketPal.SendTo4;
                 _SendTo6 = &WindowsSocketPal.SendTo6;
+                _Receive = &WindowsSocketPal.Receive;
                 _ReceiveFrom4 = &WindowsSocketPal.ReceiveFrom4;
                 _ReceiveFrom6 = &WindowsSocketPal.ReceiveFrom6;
                 _GetName4 = &WindowsSocketPal.GetName4;
@@ -101,8 +105,10 @@ namespace NativeSockets
                 _GetOption = &LinuxSocketPal.GetOption;
                 _SetBlocking = &LinuxSocketPal.SetBlocking;
                 _Poll = &LinuxSocketPal.Poll;
+                _Send = &LinuxSocketPal.Send;
                 _SendTo4 = &LinuxSocketPal.SendTo4;
                 _SendTo6 = &LinuxSocketPal.SendTo6;
+                _Receive = &LinuxSocketPal.Receive;
                 _ReceiveFrom4 = &LinuxSocketPal.ReceiveFrom4;
                 _ReceiveFrom6 = &LinuxSocketPal.ReceiveFrom6;
                 _GetName4 = &LinuxSocketPal.GetName4;
@@ -135,8 +141,10 @@ namespace NativeSockets
             _GetOption = &BSDSocketPal.GetOption;
             _SetBlocking = &BSDSocketPal.SetBlocking;
             _Poll = &BSDSocketPal.Poll;
+            _Send = &BSDSocketPal.Send;
             _SendTo4 = &BSDSocketPal.SendTo4;
             _SendTo6 = &BSDSocketPal.SendTo6;
+            _Receive = &BSDSocketPal.Receive;
             _ReceiveFrom4 = &BSDSocketPal.ReceiveFrom4;
             _ReceiveFrom6 = &BSDSocketPal.ReceiveFrom6;
             _GetName4 = &BSDSocketPal.GetName4;
@@ -194,10 +202,16 @@ namespace NativeSockets
         public static SocketError Poll(nint socket, int microseconds, SelectMode mode, out bool status) => _Poll(socket, microseconds, mode, out status);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Send(nint socket, void* buffer, int length) => _Send(socket, buffer, length);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int SendTo4(nint socket, void* buffer, int length, sockaddr_in* socketAddress) => _SendTo4(socket, buffer, length, socketAddress);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int SendTo6(nint socket, void* buffer, int length, sockaddr_in6* socketAddress) => _SendTo6(socket, buffer, length, socketAddress);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Receive(nint socket, void* buffer, int length) => _Receive(socket, buffer, length);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveFrom4(nint socket, void* buffer, int length, sockaddr_in* socketAddress) => _ReceiveFrom4(socket, buffer, length, socketAddress);

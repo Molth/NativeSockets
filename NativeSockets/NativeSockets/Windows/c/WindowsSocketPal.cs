@@ -183,6 +183,13 @@ namespace NativeSockets
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Send(nint socket, void* buffer, int length)
+        {
+            int num = send(socket, (byte*)buffer, length, SocketFlags.None);
+            return num;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int SendTo4(nint socket, void* buffer, int length, sockaddr_in* socketAddress)
         {
             if (socketAddress != null)
@@ -207,6 +214,13 @@ namespace NativeSockets
             }
 
             int num = sendto(socket, (byte*)buffer, length, SocketFlags.None, null, sizeof(sockaddr_in6));
+            return num;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Receive(nint socket, void* buffer, int length)
+        {
+            int num = recv(socket, (byte*)buffer, length, SocketFlags.None);
             return num;
         }
 
@@ -591,6 +605,12 @@ namespace NativeSockets
 
         [DllImport(NATIVE_LIBRARY, CallingConvention = CallingConvention.StdCall)]
         private static extern SocketError closesocket(nint __socketHandle_native);
+
+        [DllImport(NATIVE_LIBRARY, CallingConvention = CallingConvention.StdCall)]
+        private static extern int send(nint __socketHandle_native, byte* __pinnedBuffer_native, int __len_native, SocketFlags __socketFlags_native);
+
+        [DllImport(NATIVE_LIBRARY, CallingConvention = CallingConvention.StdCall)]
+        private static extern int recv(nint __socketHandle_native, byte* __pinnedBuffer_native, int __len_native, SocketFlags __socketFlags_native);
 
         [DllImport(NATIVE_LIBRARY, CallingConvention = CallingConvention.StdCall)]
         private static extern int sendto(nint __socketHandle_native, byte* __pinnedBuffer_native, int __len_native, SocketFlags __socketFlags_native, byte* __socketAddress_native, int __socketAddressSize_native);

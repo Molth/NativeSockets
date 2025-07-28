@@ -115,6 +115,12 @@ namespace NativeSockets
         [DllImport(NATIVE_LIBRARY, CallingConvention = CallingConvention.Cdecl)]
         public static extern SocketError close(int __socketHandle_native);
 
+        [DllImport(NATIVE_LIBRARY, CallingConvention = CallingConvention.StdCall)]
+        public static extern int send(int __socketHandle_native, byte* __pinnedBuffer_native, int __len_native, SocketFlags __socketFlags_native);
+
+        [DllImport(NATIVE_LIBRARY, CallingConvention = CallingConvention.StdCall)]
+        public static extern int recv(int __socketHandle_native, byte* __pinnedBuffer_native, int __len_native, SocketFlags __socketFlags_native);
+
         [DllImport(NATIVE_LIBRARY, CallingConvention = CallingConvention.Cdecl)]
         public static extern int sendto(int __socketHandle_native, byte* __pinnedBuffer_native, int __len_native, SocketFlags __socketFlags_native, byte* __socketAddress_native, int __socketAddressSize_native);
 

@@ -198,6 +198,13 @@ namespace NativeSockets
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Send(nint socket, void* buffer, int length)
+        {
+            int num = send((int)socket, (byte*)buffer, length, SocketFlags.None);
+            return num;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int SendTo4(nint socket, void* buffer, int length, sockaddr_in* socketAddress)
         {
             if (socketAddress != null)
@@ -222,6 +229,13 @@ namespace NativeSockets
             }
 
             int num = sendto((int)socket, (byte*)buffer, length, SocketFlags.None, null, sizeof(sockaddr_in6));
+            return num;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int Receive(nint socket, void* buffer, int length)
+        {
+            int num = recv((int)socket, (byte*)buffer, length, SocketFlags.None);
             return num;
         }
 
