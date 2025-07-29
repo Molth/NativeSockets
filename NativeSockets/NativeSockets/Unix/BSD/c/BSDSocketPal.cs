@@ -114,7 +114,7 @@ namespace NativeSockets
             {
                 if (hint->ai_addr != null && hint->ai_addrlen >= (nuint)sizeof(sockaddr_in))
                 {
-                    if (hint->ai_family == 30 || hint->ai_family == 28)
+                    if (hint->ai_family != (int)AddressFamily.InterNetwork)
                     {
                         ADDRESS_FAMILY_INTER_NETWORK_V6 = (ushort)hint->ai_family;
 
