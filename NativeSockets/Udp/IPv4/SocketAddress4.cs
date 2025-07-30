@@ -21,12 +21,6 @@ namespace NativeSockets.Udp
         [FieldOffset(0)] public uint Address;
         [FieldOffset(4)] public ushort Port;
 
-        public bool IsCreated
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => Address != 0;
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ref byte GetPinnableReference() => ref Unsafe.As<SocketAddress4, byte>(ref Unsafe.AsRef(in this));
 
@@ -137,9 +131,9 @@ namespace NativeSockets.Udp
 
         public bool Equals(SocketAddress4 other)
         {
-            ref long left = ref Unsafe.As<SocketAddress4, long>(ref Unsafe.AsRef(in this));
-            ref long right = ref Unsafe.As<SocketAddress4, long>(ref other);
-            return left == right;
+            ref byte local1 = ref Unsafe.As<SocketAddress4, byte>(ref Unsafe.AsRef(in this));
+            ref byte local2 = ref Unsafe.As<SocketAddress4, byte>(ref other);
+            return SpanHelpers.Compare(ref local1, ref local2, (nuint)sizeof(SocketAddress4));
         }
 
         public override bool Equals(object? obj) => obj is SocketAddress4 socketAddress && Equals(socketAddress);

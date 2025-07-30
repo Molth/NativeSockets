@@ -33,23 +33,13 @@ namespace NativeSockets.Udp
         [FieldOffset(16)] public ushort Port;
         [FieldOffset(20)] public uint ScopeId;
 
-        public bool IsCreated
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                ref long reference = ref Unsafe.As<SocketAddress6, long>(ref Unsafe.AsRef(in this));
-                return reference != 0 || Unsafe.Add(ref reference, 1) != 0;
-            }
-        }
-
         public bool IsIPv4
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 ref int reference = ref Unsafe.As<SocketAddress6, int>(ref Unsafe.AsRef(in this));
-                return Unsafe.Add(ref reference, 2) == WinSock2.ADDRESS_FAMILY_INTER_NETWORK_V4_MAPPED_V6 && Unsafe.As<int, long>(ref reference) == 0;
+                return Unsafe.Add(ref reference, 2) == WinSock2.ADDRESS_FAMILY_INTER_NETWORK_V4_MAPPED_V6 && reference == 0 && Unsafe.Add(ref reference, 1) == 0;
             }
         }
 
