@@ -243,11 +243,7 @@ namespace NativeSockets.Udp
 
         public override int GetHashCode() => XxHash.Hash32(this);
 
-        public override string ToString()
-        {
-            Span<byte> buffer = stackalloc byte[1024];
-            return UdpPal6.GetIP(ref Unsafe.As<MnSocketAddress, SocketAddress6>(ref Unsafe.AsRef(in this)), buffer) == 0 ? Encoding.ASCII.GetString(buffer[..buffer.IndexOf((byte)'\0')]) + ":" + Port : "ERROR";
-        }
+        public override string ToString() => Unsafe.As<MnSocketAddress, SocketAddress6>(ref Unsafe.AsRef(in this)).ToString();
 
         public static bool operator ==(MnSocketAddress left, MnSocketAddress right) => left.Equals(right);
         public static bool operator !=(MnSocketAddress left, MnSocketAddress right) => !(left == right);

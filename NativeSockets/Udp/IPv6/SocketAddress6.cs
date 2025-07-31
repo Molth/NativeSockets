@@ -170,8 +170,51 @@ namespace NativeSockets.Udp
 
         public override string ToString()
         {
-            Span<byte> buffer = stackalloc byte[1024];
-            return UdpPal6.GetIP(ref Unsafe.AsRef(in this), buffer) == 0 ? Encoding.ASCII.GetString(buffer[..buffer.IndexOf((byte)'\0')]) + ":" + Port : "ERROR";
+            Span<byte> buffer = stackalloc byte[128];
+
+            SocketError error = UdpPal6.GetIP(ref Unsafe.AsRef(in this), buffer);
+            if (error != 0)
+                return "ERROR";
+
+            Span<char> destination = stackalloc char[256];
+
+            int chars = 0;
+            int charsWritten;
+
+            if (IsIPv6)
+            {
+                destination[chars] = '[';
+                ++chars;
+
+                chars += Encoding.ASCII.GetChars(buffer.Slice(0, buffer.IndexOf((byte)'\0')), destination.Slice(chars));
+
+                if (ScopeId != 0)
+                {
+                    destination[chars] = '%';
+                    ++chars;
+
+                    ScopeId.TryFormat(destination.Slice(chars), out charsWritten);
+                    chars += charsWritten;
+                }
+
+                destination[chars] = ']';
+                ++chars;
+            }
+            else
+            {
+                chars += Encoding.ASCII.GetChars(buffer.Slice(0, buffer.IndexOf((byte)'\0')), destination.Slice(chars));
+            }
+
+            destination[chars] = ':';
+            ++chars;
+
+            Port.TryFormat(destination.Slice(chars), out charsWritten);
+            chars += charsWritten;
+
+            destination[chars] = '\0';
+            ++chars;
+
+            return destination.Slice(0, chars).ToString();
         }
 
         public static bool operator ==(SocketAddress6 left, SocketAddress6 right) => left.Equals(right);
