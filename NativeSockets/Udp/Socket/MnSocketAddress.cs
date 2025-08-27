@@ -14,7 +14,7 @@ using System.Text;
 namespace NativeSockets.Udp
 {
     [StructLayout(LayoutKind.Explicit, Size = 24)]
-    public unsafe struct MnSocketAddress
+    public unsafe struct MnSocketAddress : IEquatable<MnSocketAddress>
     {
         public static ref MnSocketAddress NullRef => ref Unsafe.NullRef<MnSocketAddress>();
 
