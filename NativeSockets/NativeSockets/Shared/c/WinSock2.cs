@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 // ReSharper disable All
 
@@ -77,5 +78,25 @@ namespace NativeSockets
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsIpv4MappedToIpv6(ref byte sin6_addr) => Unsafe.ReadUnaligned<sockaddr_in4_map_in6>(ref sin6_addr).Equals(ADDRESS_FAMILY_INTER_NETWORK_V4_MAPPED_V6);
+
+        /// <summary>
+        ///     Converts the specified text to a null-terminated ASCII byte array,
+        ///     suitable for use with native APIs that expect null-terminated strings (e.g., <c>inet_pton</c>, <c>getaddrinfo</c>).
+        /// </summary>
+        /// <param name="buffer">
+        ///     A temporary span that can be used for storage;
+        ///     if the required size exceeds the span, a larger buffer may be allocated.
+        /// </param>
+        /// <param name="text">The text to convert to ASCII.</param>
+        /// <returns>A array that owns the null-terminated ASCII byte array. The caller should dispose it when done.</returns>
+        public static NativeScopedArray<byte> GetBytes(Span<byte> buffer, ReadOnlySpan<char> text)
+        {
+            int byteCount = Encoding.ASCII.GetByteCount(text);
+            NativeScopedArray<byte> array = new NativeScopedArray<byte>(buffer, byteCount);
+            Span<byte> bytes = array.AsSpan();
+            Encoding.ASCII.GetBytes(text, bytes);
+            bytes[byteCount] = 0;
+            return array;
+        }
     }
 }

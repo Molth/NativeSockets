@@ -94,6 +94,12 @@ namespace NativeSockets
         public override int GetHashCode() => NativeHashCode.GetHashCode(this);
 
         /// <summary>
+        ///     Returns information about the socket.
+        /// </summary>
+        /// <returns>A string that contains information about this.</returns>
+        public override string ToString() => $"NativeSocket[{Handle}]";
+
+        /// <summary>
         ///     Indicates whether the current object is equal to another object.
         /// </summary>
         public static bool operator ==(NativeSocket left, NativeSocket right) => left.Equals(right);

@@ -3,7 +3,6 @@ using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security;
-using System.Text;
 using static NativeSockets.UnixSocketPal;
 
 // ReSharper disable All
@@ -61,7 +60,7 @@ namespace NativeSockets
         public static nint Create(bool ipv6)
         {
             ushort family = ipv6 ? ADDRESS_FAMILY_INTER_NETWORK_V6 : ADDRESS_FAMILY_INTER_NETWORK_V4;
-            nint _socket = UnixSocketPal._socket((int)family, (int)SocketType.Dgram, (int)ProtocolType.Udp);
+            nint _socket = UnixSocketPal._socket(family, (int)SocketType.Dgram, (int)ProtocolType.Udp);
 
             return _socket;
         }
@@ -751,23 +750,29 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError SetIpIpv4(sockaddr_in4* socketAddress, ReadOnlySpan<char> ip)
         {
-            void* pAddrBuf = &socketAddress->sin4_addr;
+            sockaddr_in4 __socketAddress_native = *socketAddress;
 
-            int byteCount = Encoding.ASCII.GetByteCount(ip);
-            byte* buffer = stackalloc byte[byteCount + 1];
-            Encoding.ASCII.GetBytes(ip, MemoryMarshal.CreateSpan(ref Unsafe.AsRef<byte>(buffer), byteCount));
-            buffer[byteCount] = 0;
-
+            void* pAddrBuf = &__socketAddress_native.sin4_addr;
             const int addressFamily = ADDRESS_FAMILY_INTER_NETWORK_V4;
 
-            int error = _inet_pton(addressFamily, buffer, pAddrBuf);
+            int error;
+
+            using (NativeScopedArray<byte> array = WinSock2.GetBytes(stackalloc byte[256], ip))
+            {
+                byte* buffer = array.Buffer;
+
+                error = _inet_pton(addressFamily, buffer, pAddrBuf);
+            }
 
             switch (error)
             {
                 case 1:
+                    *socketAddress = __socketAddress_native;
                     return SocketError.Success;
+
                 case 0:
                     return SocketError.InvalidArgument;
+
                 default:
                     return SocketError.Fault;
             }
@@ -782,13 +787,9 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError SetIpIpv6(sockaddr_in6* socketAddress, ReadOnlySpan<char> ip)
         {
-            byte* pAddrBuf = socketAddress->sin6_addr;
+            sockaddr_in6 __socketAddress_native = *socketAddress;
 
-            int byteCount = Encoding.ASCII.GetByteCount(ip);
-            byte* buffer = stackalloc byte[byteCount + 1];
-            Encoding.ASCII.GetBytes(ip, MemoryMarshal.CreateSpan(ref Unsafe.AsRef<byte>(buffer), byteCount));
-            buffer[byteCount] = 0;
-
+            byte* pAddrBuf = __socketAddress_native.sin6_addr;
             ushort addressFamily = ADDRESS_FAMILY_INTER_NETWORK_V6;
             if (ip.IndexOf(':') < 0)
             {
@@ -797,14 +798,24 @@ namespace NativeSockets
                 pAddrBuf += 12;
             }
 
-            int error = _inet_pton(addressFamily, buffer, pAddrBuf);
+            int error;
+
+            using (NativeScopedArray<byte> array = WinSock2.GetBytes(stackalloc byte[256], ip))
+            {
+                byte* buffer = array.Buffer;
+
+                error = _inet_pton(addressFamily, buffer, pAddrBuf);
+            }
 
             switch (error)
             {
                 case 1:
+                    *socketAddress = __socketAddress_native;
                     return SocketError.Success;
+
                 case 0:
                     return SocketError.InvalidArgument;
+
                 default:
                     return SocketError.Fault;
             }
@@ -820,10 +831,11 @@ namespace NativeSockets
         public static SocketError GetIpIpv4(sockaddr_in4* socketAddress, Span<byte> ip)
         {
             void* pAddrBuf = &socketAddress->sin4_addr;
+            const int addressFamily = ADDRESS_FAMILY_INTER_NETWORK_V4;
 
             fixed (byte* pStringBuf = &MemoryMarshal.GetReference(ip))
             {
-                if (_inet_ntop(ADDRESS_FAMILY_INTER_NETWORK_V4, pAddrBuf, pStringBuf, (nuint)ip.Length) == null)
+                if (_inet_ntop(addressFamily, pAddrBuf, pStringBuf, (nuint)ip.Length) == null)
                     return SocketError.Fault;
             }
 
@@ -840,7 +852,6 @@ namespace NativeSockets
         public static SocketError GetIpIpv6(sockaddr_in6* socketAddress, Span<byte> ip)
         {
             byte* pAddrBuf = socketAddress->sin6_addr;
-
             ushort addressFamily = ADDRESS_FAMILY_INTER_NETWORK_V6;
             if (WinSock2.IsIpv4MappedToIpv6(ref Unsafe.AsRef<byte>(pAddrBuf)))
             {
@@ -868,19 +879,17 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError SetHostNameIpv4(sockaddr_in4* socketAddress, ReadOnlySpan<char> hostName)
         {
-            void* pAddrBuf = &socketAddress->sin4_addr;
-
-            int byteCount = Encoding.ASCII.GetByteCount(hostName);
-            byte* buffer = stackalloc byte[byteCount + 1];
-            Encoding.ASCII.GetBytes(hostName, MemoryMarshal.CreateSpan(ref Unsafe.AsRef<byte>(buffer), byteCount));
-            buffer[byteCount] = 0;
-
             addrinfo addressInfo = new addrinfo();
             addressInfo.ai_family = ADDRESS_FAMILY_INTER_NETWORK_V4;
             addrinfo* results = null;
 
-            if (_getaddrinfo(buffer, null, &addressInfo, &results) != 0)
-                return SocketError.Fault;
+            using (NativeScopedArray<byte> array = WinSock2.GetBytes(stackalloc byte[256], hostName))
+            {
+                byte* buffer = array.Buffer;
+
+                if (_getaddrinfo(buffer, null, &addressInfo, &results) != 0)
+                    return SocketError.Fault;
+            }
 
             for (addrinfo* hint = results; hint != null; hint = hint->ai_next)
             {
@@ -895,7 +904,7 @@ namespace NativeSockets
 
                         _freeaddrinfo(results);
 
-                        return 0;
+                        return SocketError.Success;
                     }
                 }
             }
@@ -903,19 +912,7 @@ namespace NativeSockets
             if (results != null)
                 _freeaddrinfo(results);
 
-            const int addressFamily = ADDRESS_FAMILY_INTER_NETWORK_V4;
-
-            int error = _inet_pton(addressFamily, buffer, pAddrBuf);
-
-            switch (error)
-            {
-                case 1:
-                    return SocketError.Success;
-                case 0:
-                    return SocketError.InvalidArgument;
-                default:
-                    return SocketError.Fault;
-            }
+            return SetIpIpv4(socketAddress, hostName);
         }
 
         /// <summary>
@@ -927,33 +924,31 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError SetHostNameIpv6(sockaddr_in6* socketAddress, ReadOnlySpan<char> hostName)
         {
-            byte* pAddrBuf = socketAddress->sin6_addr;
-
-            int byteCount = Encoding.ASCII.GetByteCount(hostName);
-            byte* buffer = stackalloc byte[byteCount + 1];
-            Encoding.ASCII.GetBytes(hostName, MemoryMarshal.CreateSpan(ref Unsafe.AsRef<byte>(buffer), byteCount));
-            buffer[byteCount] = 0;
-
             addrinfo addressInfo = new addrinfo();
             addressInfo.ai_family = ADDRESS_FAMILY_INTER_NETWORK_V6;
             addrinfo* results = null;
 
-            if (_getaddrinfo(buffer, null, &addressInfo, &results) != 0)
-                return SocketError.Fault;
+            using (NativeScopedArray<byte> array = WinSock2.GetBytes(stackalloc byte[256], hostName))
+            {
+                byte* buffer = array.Buffer;
+
+                if (_getaddrinfo(buffer, null, &addressInfo, &results) != 0)
+                    return SocketError.Fault;
+            }
 
             for (addrinfo* hint = results; hint != null; hint = hint->ai_next)
             {
-                if (hint->ai_addr != null && hint->ai_addrlen >= (nuint)sizeof(sockaddr_in4))
+                if (hint->ai_addr != null && hint->ai_addrlen >= (nuint)sizeof(sockaddr_in6))
                 {
                     if (hint->ai_family == ADDRESS_FAMILY_INTER_NETWORK_V6)
                     {
                         sockaddr_in6* __socketAddress_native = (sockaddr_in6*)hint->ai_addr;
 
-                        SpanHelpers.Copy(pAddrBuf, __socketAddress_native->sin6_addr, 16);
+                        SpanHelpers.Copy(socketAddress->sin6_addr, __socketAddress_native->sin6_addr, 16);
 
                         _freeaddrinfo(results);
 
-                        return 0;
+                        return SocketError.Success;
                     }
                 }
             }
@@ -961,25 +956,7 @@ namespace NativeSockets
             if (results != null)
                 _freeaddrinfo(results);
 
-            int addressFamily = ADDRESS_FAMILY_INTER_NETWORK_V6;
-            if (hostName.IndexOf(':') == -1)
-            {
-                addressFamily = ADDRESS_FAMILY_INTER_NETWORK_V4;
-                WinSock2.MapToIpv6(ref Unsafe.AsRef<byte>(pAddrBuf));
-                pAddrBuf = pAddrBuf + 12;
-            }
-
-            int error = _inet_pton(addressFamily, buffer, pAddrBuf);
-
-            switch (error)
-            {
-                case 1:
-                    return SocketError.Success;
-                case 0:
-                    return SocketError.InvalidArgument;
-                default:
-                    return SocketError.Fault;
-            }
+            return SetIpIpv6(socketAddress, hostName);
         }
 
         /// <summary>

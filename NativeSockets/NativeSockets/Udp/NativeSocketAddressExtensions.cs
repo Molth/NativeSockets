@@ -22,30 +22,7 @@ namespace NativeSockets
         ///     <see cref="SocketError.AddressFamilyNotSupported" /> if the address family is not Ipv4 or Ipv6.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetIp(ref this NativeSocketAddress socketAddress, IPEndPoint ipEndPoint)
-        {
-            if (ipEndPoint.AddressFamily == AddressFamily.InterNetwork || ipEndPoint.AddressFamily == AddressFamily.InterNetworkV6)
-            {
-                socketAddress = new NativeSocketAddress();
-                socketAddress.Family = ipEndPoint.AddressFamily;
-                socketAddress.Port = (ushort)ipEndPoint.Port;
-            }
-
-            switch (ipEndPoint.AddressFamily)
-            {
-                case AddressFamily.InterNetwork:
-                    ipEndPoint.Address.TryWriteBytes(socketAddress.AsSpan().Slice(4), out _);
-                    return SocketError.Success;
-
-                case AddressFamily.InterNetworkV6:
-                    ipEndPoint.Address.TryWriteBytes(socketAddress.AsSpan().Slice(8), out _);
-                    socketAddress.ScopeId = (uint)ipEndPoint.Address.ScopeId;
-                    return SocketError.Success;
-
-                default:
-                    return SocketError.AddressFamilyNotSupported;
-            }
-        }
+        public static SocketError SetIp(ref this NativeSocketAddress socketAddress, IPEndPoint ipEndPoint) => socketAddress.SetIp(ipEndPoint.Address, (ushort)ipEndPoint.Port, (uint)ipEndPoint.Address.ScopeId);
 
         /// <summary>
         ///     Populates a <see cref="NativeSocketAddress" /> from the specified <see cref="IPAddress" />, port, and scope id.
@@ -59,23 +36,22 @@ namespace NativeSockets
         ///     <see cref="SocketError.AddressFamilyNotSupported" /> if the address family is not Ipv4 or Ipv6.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetIp(ref this NativeSocketAddress socketAddress, IPAddress address, ushort port, uint scopeId)
+        public static SocketError SetIp(ref this NativeSocketAddress socketAddress, IPAddress address, ushort port, uint scopeId = 0)
         {
             if (address.AddressFamily == AddressFamily.InterNetwork || address.AddressFamily == AddressFamily.InterNetworkV6)
             {
                 socketAddress = new NativeSocketAddress();
                 socketAddress.Family = address.AddressFamily;
                 socketAddress.Port = port;
+                address.TryWriteBytes(socketAddress.Address, out _);
             }
 
             switch (address.AddressFamily)
             {
                 case AddressFamily.InterNetwork:
-                    address.TryWriteBytes(socketAddress.AsSpan().Slice(4), out _);
                     return SocketError.Success;
 
                 case AddressFamily.InterNetworkV6:
-                    address.TryWriteBytes(socketAddress.AsSpan().Slice(8), out _);
                     socketAddress.ScopeId = scopeId;
                     return SocketError.Success;
 
@@ -115,7 +91,7 @@ namespace NativeSockets
         /// <param name="scopeId">The scope id for the Ipv6 address.</param>
         /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetIpIpv6(ref this NativeSocketAddress socketAddress, ReadOnlySpan<char> ip, ushort port, uint scopeId)
+        public static SocketError SetIpIpv6(ref this NativeSocketAddress socketAddress, ReadOnlySpan<char> ip, ushort port, uint scopeId = 0)
         {
             Unsafe.SkipInit(out sockaddr_in6 __socketAddress_native);
             SocketError error = SocketPal.SetIpIpv6(&__socketAddress_native, ip);
@@ -142,7 +118,7 @@ namespace NativeSockets
             SocketError result = socketAddress.Family == AddressFamily.InterNetwork ? SocketPal.GetIpIpv4((sockaddr_in4*)&socketAddress, ip) : SocketPal.GetIpIpv6((sockaddr_in6*)&socketAddress, ip);
             if (result == SocketError.Success)
             {
-                int index = ip.IndexOf((byte)'0');
+                int index = ip.IndexOf((byte)'\0');
                 if (index <= 0)
                     return SocketError.Fault;
 
@@ -189,7 +165,7 @@ namespace NativeSockets
         ///     otherwise, an error code indicating the failure reason (e.g., host not found, invalid argument).
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetHostNameIpv6(ref this NativeSocketAddress socketAddress, ReadOnlySpan<char> hostName, ushort port, uint scopeId)
+        public static SocketError SetHostNameIpv6(ref this NativeSocketAddress socketAddress, ReadOnlySpan<char> hostName, ushort port, uint scopeId = 0)
         {
             Unsafe.SkipInit(out sockaddr_in6 __socketAddress_native);
             SocketError error = SocketPal.SetHostNameIpv6(&__socketAddress_native, hostName);
@@ -216,7 +192,7 @@ namespace NativeSockets
             SocketError result = socketAddress.Family == AddressFamily.InterNetwork ? SocketPal.GetHostNameIpv4((sockaddr_in4*)&socketAddress, hostName) : SocketPal.GetHostNameIpv6((sockaddr_in6*)&socketAddress, hostName);
             if (result == SocketError.Success)
             {
-                int index = hostName.IndexOf((byte)'0');
+                int index = hostName.IndexOf((byte)'\0');
                 if (index <= 0)
                     return SocketError.Fault;
 

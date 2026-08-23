@@ -15,7 +15,7 @@ namespace NativeSockets
         /// <summary>
         ///     Represents a contiguous region of arbitrary memory.
         /// </summary>
-        private readonly byte* _buffer;
+        private readonly void* _buffer;
 
         /// <summary>
         ///     Gets the total numbers of elements the internal data structure can hold.
@@ -65,7 +65,7 @@ namespace NativeSockets
         /// <param name="length">The number of elements in the buffer.</param>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="length" /> is negative.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public NativeIoSlice(byte* buffer, int length)
+        public NativeIoSlice(void* buffer, int length)
         {
             ThrowHelpers.ThrowIfNegative(length, ExceptionArgument.length);
             _buffer = buffer;
@@ -85,7 +85,7 @@ namespace NativeSockets
         /// <summary>
         ///     Represents a contiguous region of arbitrary memory.
         /// </summary>
-        public byte* Buffer => _buffer;
+        public void* Buffer => _buffer;
 
         /// <summary>
         ///     Gets the total number of elements in all the dimensions of the instance.
