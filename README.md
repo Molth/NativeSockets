@@ -1,3 +1,40 @@
-This project is a pure C# udp-sockets library with no binary dependencies.
+# NativeSockets
+
+**A pure C# UDP socket library with zero external dependencies.**
 
 [![NuGet](https://img.shields.io/nuget/v/NativeSockets.svg?style=flat-square)](https://www.nuget.org/packages/NativeSockets/)
+
+---
+
+## About
+
+NativeSockets is a lightweight, cross‑platform library for UDP networking. It is written entirely in managed C# and does not rely on any third‑party binaries or platform‑specific packages. The library provides a consistent API across all supported operating systems, with automatic runtime adaptation to the underlying environment.
+
+---
+
+## Supported Platforms
+
+- Windows
+- Linux
+- macOS
+- Android
+
+---
+
+## Key Features
+
+- **Zero garbage collection pressure**
+- **Pure managed code** – No external dependencies to deploy or manage.
+- **Complete UDP support** – Create, bind, connect, send, receive, and poll sockets.
+- **IPv4 and IPv6** with dual‑mode support.
+- **Allocation‑free extension methods** for `System.Net.Sockets.Socket`:
+    - `SendToNonAlloc` – send data without temporary allocations.
+    - `ReceiveFromNonAlloc` – receive data and capture the remote endpoint without allocations.
+- **Scatter/gather I/O** – Efficient vectored send and receive operations.
+- **Host name resolution and reverse lookups** – Resolve names to addresses and back, all without allocations.
+
+---
+
+## No External Dependencies
+
+The library works out‑of‑the‑box on any supported platform. There are no additional runtime libraries, native binaries, or platform‑specific packages to install – just add the NuGet package and start using it.

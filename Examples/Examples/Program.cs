@@ -1,77 +1,111 @@
 ﻿using System;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
 using System.Threading;
-using NativeSockets.Udp;
-
-// ReSharper disable ALL
+using NativeSockets;
 
 namespace Examples
 {
     internal sealed class Program
     {
-        private static void Main(string[] args)
+        private static void Main()
         {
-            new Thread(() => { Example4.StartServer(7777); }) { IsBackground = true }.Start();
+            Console.WriteLine("Server + Client");
+            Console.WriteLine();
 
-            Thread.Sleep(1000);
+            new Thread(ServerLoop) { IsBackground = true }.Start();
 
-            new Thread(() => { Example4.StartClient("127.0.0.1", 7777, 7778); }) { IsBackground = true }.Start();
+            new Thread(ClientLoop) { IsBackground = true }.Start();
 
-            Console.ReadLine();
+            while (true)
+            {
+                var str = Console.ReadKey();
+                if (str.Key == ConsoleKey.Backspace)
+                    break;
+            }
         }
 
-        private static void Test()
+        private static void ServerLoop()
         {
-            MnSocketAddress.CreateFromIP("127.0.0.1", out MnSocketAddress address);
-            address.Port = 9999;
-            Console.WriteLine(((SocketAddress6)address).CreateSocketAddress());
-            Console.WriteLine(((SocketAddress6)address).CreateIPEndPoint().Serialize());
-            Console.WriteLine(((SocketAddress6)address).CreateSocketAddress().Equals(((SocketAddress6)address).CreateIPEndPoint().Serialize()));
-            MnSocketAddress.CreateFromSocketAddress(((SocketAddress6)address).CreateIPEndPoint().Serialize(), out MnSocketAddress a);
-            Console.WriteLine(a.CreateIPEndPoint(true));
+            using var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            IPEndPoint serverEndpoint = new(IPAddress.Loopback, 12345);
+            socket.Bind(serverEndpoint);
+
+            Console.WriteLine($"[Server] Started: {serverEndpoint}");
+
+            var buffer = new byte[1024];
+
+            var socketAddress = new NativeSocketAddress();
+
+            try
+            {
+                while (true)
+                {
+                    var received = socket.ReceiveFromNonAlloc(buffer, ref socketAddress);
+                    var remoteEndPoint = socketAddress.ToIpEndPoint();
+                    var receivedText = Encoding.UTF8.GetString(buffer, 0, received);
+
+                    Console.WriteLine($"[Server] Receive from: [{remoteEndPoint}]: [{receivedText}]");
+
+                    var reply = $"[Server]: {receivedText}";
+                    var replyData = Encoding.UTF8.GetBytes(reply);
+                    socket.SendToNonAlloc(replyData, socketAddress);
+                }
+            }
+            catch (SocketException ex)
+            {
+                Console.WriteLine($"[Server]: {ex.Message}");
+            }
         }
 
-        private static void StartExample1()
+        private static void ClientLoop()
         {
-            new Thread(() => { Example1.StartServer(7777); }) { IsBackground = true }.Start();
+            using var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            socket.Bind(new IPEndPoint(IPAddress.Any, 0));
 
-            Thread.Sleep(1000);
+            var localEndPoint = (IPEndPoint)socket.LocalEndPoint!;
+            Console.WriteLine($"[Client] Started: {localEndPoint}");
+            Console.WriteLine();
 
-            new Thread(() => { Example1.StartClient("::1", 7777, 7778); }) { IsBackground = true }.Start();
+            var receiveBuffer = new byte[1024];
+            var serverEndPoint = new IPEndPoint(IPAddress.Loopback, 12345);
+            var counter = 1;
 
-            Console.ReadLine();
-        }
+            var socketAddress = new NativeSocketAddress();
+            var serverAddress = new NativeSocketAddress();
+            serverAddress.SetIp(serverEndPoint);
 
-        private static void StartExample2()
-        {
-            new Thread(() => { Example2.StartServer(7800); }) { IsBackground = true }.Start();
+            try
+            {
+                while (true)
+                {
+                    var sendBuffer = Encoding.UTF8.GetBytes($"Hello world! {counter++}");
 
-            Thread.Sleep(1000);
+                    socket.SendToNonAlloc(sendBuffer, serverAddress);
 
-            new Thread(() => { Example2.StartClient("127.0.0.1", 7800, 7801); }) { IsBackground = true }.Start();
+                    socket.ReceiveTimeout = 2000;
+                    try
+                    {
+                        var received = socket.ReceiveFromNonAlloc(receiveBuffer, ref socketAddress);
+                        var remoteEndPoint = socketAddress.ToIpEndPoint();
+                        var receivedText = Encoding.UTF8.GetString(receiveBuffer, 0, received);
 
-            Console.ReadLine();
-        }
+                        Console.WriteLine($"[Client] Receive from: [{remoteEndPoint}]: [{receivedText}]");
+                        Console.WriteLine();
+                    }
+                    catch (SocketException ex) when (ex.SocketErrorCode == SocketError.TimedOut)
+                    {
+                        Console.WriteLine("[Client]: Timeout.");
+                    }
 
-        private static void StartExample3()
-        {
-            new Thread(() => { Example2.StartServer(7777); }) { IsBackground = true }.Start();
-
-            Thread.Sleep(1000);
-
-            new Thread(() => { Example1.StartClient("127.0.0.1", 7777, 7778); }) { IsBackground = true }.Start();
-
-            Console.ReadLine();
-        }
-
-        private static void StartExample4()
-        {
-            new Thread(() => { Example1.StartServer(7777); }) { IsBackground = true }.Start();
-
-            Thread.Sleep(1000);
-
-            new Thread(() => { Example2.StartClient("127.0.0.1", 7777, 7778); }) { IsBackground = true }.Start();
-
-            Console.ReadLine();
+                    Thread.Sleep(3000);
+                }
+            }
+            catch (SocketException ex)
+            {
+                Console.WriteLine($"[Client]: {ex.Message}.");
+            }
         }
     }
 }
