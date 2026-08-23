@@ -22,7 +22,7 @@ namespace NativeSockets
         ///     <see cref="SocketError.AddressFamilyNotSupported" /> if the address family is not Ipv4 or Ipv6.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetIp(ref this NativeSocketAddress socketAddress, IPEndPoint ipEndPoint) => socketAddress.SetIp(ipEndPoint.Address, (ushort)ipEndPoint.Port, (uint)ipEndPoint.Address.ScopeId);
+        public static SocketError SetIp(ref this NativeSocketAddress socketAddress, IPEndPoint ipEndPoint) => socketAddress.SetIp(ipEndPoint.Address, (ushort)ipEndPoint.Port, ipEndPoint.AddressFamily == AddressFamily.InterNetworkV6 ? (uint)ipEndPoint.Address.ScopeId : 0);
 
         /// <summary>
         ///     Populates a <see cref="NativeSocketAddress" /> from the specified <see cref="IPAddress" />, port, and scope id.
@@ -76,7 +76,7 @@ namespace NativeSockets
                 return error;
 
             __socketAddress_native.sin4_family = SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V4;
-            __socketAddress_native.sin4_port = port;
+            __socketAddress_native.sin4_port = WinSock2.HOST_TO_NET_16(port);
             SpanHelpers.Copy(ref Unsafe.As<NativeSocketAddress, byte>(ref socketAddress), ref Unsafe.As<sockaddr_in4, byte>(ref __socketAddress_native), 8);
             SpanHelpers.Set(ref Unsafe.Add(ref Unsafe.As<NativeSocketAddress, byte>(ref socketAddress), 8), 0, 20);
             return SocketError.Success;
@@ -99,7 +99,7 @@ namespace NativeSockets
                 return error;
 
             __socketAddress_native.sin6_family = SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
-            __socketAddress_native.sin6_port = port;
+            __socketAddress_native.sin6_port = WinSock2.HOST_TO_NET_16(port);
             __socketAddress_native.sin6_flowinfo = 0;
             __socketAddress_native.sin6_scope_id = scopeId;
             SpanHelpers.Copy(ref Unsafe.As<NativeSocketAddress, byte>(ref socketAddress), ref Unsafe.As<sockaddr_in6, byte>(ref __socketAddress_native), 28);
@@ -147,7 +147,7 @@ namespace NativeSockets
                 return error;
 
             __socketAddress_native.sin4_family = SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V4;
-            __socketAddress_native.sin4_port = port;
+            __socketAddress_native.sin4_port = WinSock2.HOST_TO_NET_16(port);
             SpanHelpers.Copy(ref Unsafe.As<NativeSocketAddress, byte>(ref socketAddress), ref Unsafe.As<sockaddr_in4, byte>(ref __socketAddress_native), 8);
             SpanHelpers.Set(ref Unsafe.Add(ref Unsafe.As<NativeSocketAddress, byte>(ref socketAddress), 8), 0, 20);
             return SocketError.Success;
@@ -173,7 +173,7 @@ namespace NativeSockets
                 return error;
 
             __socketAddress_native.sin6_family = SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
-            __socketAddress_native.sin6_port = port;
+            __socketAddress_native.sin6_port = WinSock2.HOST_TO_NET_16(port);
             __socketAddress_native.sin6_flowinfo = 0;
             __socketAddress_native.sin6_scope_id = scopeId;
             SpanHelpers.Copy(ref Unsafe.As<NativeSocketAddress, byte>(ref socketAddress), ref Unsafe.As<sockaddr_in6, byte>(ref __socketAddress_native), 28);

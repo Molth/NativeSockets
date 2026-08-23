@@ -26,28 +26,12 @@ namespace NativeSockets
         public static ushort HOST_TO_NET_16(ushort host) => BitConverter.IsLittleEndian ? BinaryPrimitives.ReverseEndianness(host) : host;
 
         /// <summary>
-        ///     Converts a 32‑bit unsigned integer from host byte order to network byte order (big‑endian).
-        /// </summary>
-        /// <param name="host">The value in host byte order.</param>
-        /// <returns>The value in network byte order.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static uint HOST_TO_NET_32(uint host) => BitConverter.IsLittleEndian ? BinaryPrimitives.ReverseEndianness(host) : host;
-
-        /// <summary>
         ///     Converts a 16‑bit unsigned integer from network byte order (big‑endian) to host byte order.
         /// </summary>
         /// <param name="network">The value in network byte order.</param>
         /// <returns>The value in host byte order.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ushort NET_TO_HOST_16(ushort network) => BitConverter.IsLittleEndian ? BinaryPrimitives.ReverseEndianness(network) : network;
-
-        /// <summary>
-        ///     Converts a 32‑bit unsigned integer from network byte order (big‑endian) to host byte order.
-        /// </summary>
-        /// <param name="network">The value in network byte order.</param>
-        /// <returns>The value in host byte order.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static uint NET_TO_HOST_32(uint network) => BitConverter.IsLittleEndian ? BinaryPrimitives.ReverseEndianness(network) : network;
 
         /// <summary>
         ///     Maps the Ipv4 address to an Ipv6 address.

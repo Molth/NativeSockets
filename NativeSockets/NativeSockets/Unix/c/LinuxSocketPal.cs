@@ -105,15 +105,12 @@ namespace NativeSockets
             {
                 __socketAddress_native = new sockaddr_in4();
                 __socketAddress_native.sin4_family = ADDRESS_FAMILY_INTER_NETWORK_V4;
-                SetIpIpv4(&__socketAddress_native, "0.0.0.0");
-            }
-            else
-            {
-                __socketAddress_native = *socketAddress;
-                __socketAddress_native.sin4_port = WinSock2.HOST_TO_NET_16(socketAddress->sin4_port);
+
+                socketAddress = &__socketAddress_native;
+                SetIpIpv4(socketAddress, "0.0.0.0");
             }
 
-            SocketError error = _bind((int)socket, (sockaddr*)&__socketAddress_native, sizeof(sockaddr_in4));
+            SocketError error = _bind((int)socket, (sockaddr*)socketAddress, sizeof(sockaddr_in4));
             return error;
         }
 
@@ -131,15 +128,12 @@ namespace NativeSockets
             {
                 __socketAddress_native = new sockaddr_in6();
                 __socketAddress_native.sin6_family = ADDRESS_FAMILY_INTER_NETWORK_V6;
-                SetIpIpv6(&__socketAddress_native, "::");
-            }
-            else
-            {
-                __socketAddress_native = *socketAddress;
-                __socketAddress_native.sin6_port = WinSock2.HOST_TO_NET_16(socketAddress->sin6_port);
+
+                socketAddress = &__socketAddress_native;
+                SetIpIpv6(socketAddress, "::");
             }
 
-            SocketError error = _bind((int)socket, (sockaddr*)&__socketAddress_native, sizeof(sockaddr_in6));
+            SocketError error = _bind((int)socket, (sockaddr*)socketAddress, sizeof(sockaddr_in6));
             return error;
         }
 
@@ -152,10 +146,7 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError ConnectIpv4(nint socket, sockaddr_in4* socketAddress)
         {
-            sockaddr_in4 __socketAddress_native = *socketAddress;
-            __socketAddress_native.sin4_port = WinSock2.HOST_TO_NET_16(socketAddress->sin4_port);
-
-            SocketError error = _connect((int)socket, (sockaddr*)&__socketAddress_native, sizeof(sockaddr_in4));
+            SocketError error = _connect((int)socket, (sockaddr*)socketAddress, sizeof(sockaddr_in4));
             return error;
         }
 
@@ -168,10 +159,7 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError ConnectIpv6(nint socket, sockaddr_in6* socketAddress)
         {
-            sockaddr_in6 __socketAddress_native = *socketAddress;
-            __socketAddress_native.sin6_port = WinSock2.HOST_TO_NET_16(socketAddress->sin6_port);
-
-            SocketError error = _connect((int)socket, (sockaddr*)&__socketAddress_native, sizeof(sockaddr_in6));
+            SocketError error = _connect((int)socket, (sockaddr*)socketAddress, sizeof(sockaddr_in6));
             return error;
         }
 
@@ -317,11 +305,7 @@ namespace NativeSockets
         public static int SendToIpv4(nint socket, void* buffer, int length, sockaddr_in4* socketAddress)
         {
             if (socketAddress != null)
-            {
-                sockaddr_in4 __socketAddress_native = *socketAddress;
-                __socketAddress_native.sin4_port = WinSock2.HOST_TO_NET_16(socketAddress->sin4_port);
-                return _sendto((int)socket, (byte*)buffer, length, SocketFlags.None, (byte*)&__socketAddress_native, sizeof(sockaddr_in4));
-            }
+                return _sendto((int)socket, (byte*)buffer, length, SocketFlags.None, (byte*)socketAddress, sizeof(sockaddr_in4));
 
             int num = Send(socket, (byte*)buffer, length);
             return num;
@@ -339,11 +323,7 @@ namespace NativeSockets
         public static int SendToIpv6(nint socket, void* buffer, int length, sockaddr_in6* socketAddress)
         {
             if (socketAddress != null)
-            {
-                sockaddr_in6 __socketAddress_native = *socketAddress;
-                __socketAddress_native.sin6_port = WinSock2.HOST_TO_NET_16(socketAddress->sin6_port);
-                return _sendto((int)socket, (byte*)buffer, length, SocketFlags.None, (byte*)&__socketAddress_native, sizeof(sockaddr_in6));
-            }
+                return _sendto((int)socket, (byte*)buffer, length, SocketFlags.None, (byte*)socketAddress, sizeof(sockaddr_in6));
 
             int num = Send(socket, (byte*)buffer, length);
             return num;
@@ -383,7 +363,6 @@ namespace NativeSockets
             {
                 sockaddr_in4* __socketAddress_native = (sockaddr_in4*)&addressStorage;
                 *socketAddress = *__socketAddress_native;
-                socketAddress->sin4_port = WinSock2.NET_TO_HOST_16(__socketAddress_native->sin4_port);
             }
 
             return num;
@@ -407,20 +386,21 @@ namespace NativeSockets
 
             if (num >= 0 && socketAddress != null)
             {
-                socketAddress->sin6_family = ADDRESS_FAMILY_INTER_NETWORK_V6;
-                socketAddress->sin6_port = WinSock2.NET_TO_HOST_16(addressStorage.ss_port);
-                socketAddress->sin6_flowinfo = 0;
-
                 if (addressStorage.ss_family == ADDRESS_FAMILY_INTER_NETWORK_V4)
                 {
                     sockaddr_in4* __socketAddress_native = (sockaddr_in4*)&addressStorage;
+
+                    socketAddress->sin6_family = ADDRESS_FAMILY_INTER_NETWORK_V6;
+                    socketAddress->sin6_port = addressStorage.ss_port;
+                    socketAddress->sin6_flowinfo = 0;
                     WinSock2.MapToIpv6(ref Unsafe.AsRef<byte>(socketAddress->sin6_addr), __socketAddress_native->sin4_addr);
                     socketAddress->sin6_scope_id = 0;
                 }
                 else if (addressStorage.ss_family == ADDRESS_FAMILY_INTER_NETWORK_V6)
                 {
                     sockaddr_in6* __socketAddress_native = (sockaddr_in6*)&addressStorage;
-                    SpanHelpers.Copy(socketAddress->sin6_addr, __socketAddress_native->sin6_addr, 20);
+
+                    *socketAddress = *__socketAddress_native;
                 }
             }
 
@@ -471,26 +451,12 @@ namespace NativeSockets
         {
             msghdr msg;
 
+            msg.msg_name = socketAddress;
+            msg.msg_namelen = socketAddress != null ? 16 : (nuint)0;
             msg.msg_iovlen = bufferCount;
             msg.msg_control = null;
             msg.msg_controllen = 0;
             msg.msg_flags = 0;
-
-            sockaddr_in4 __socketAddress_native = new sockaddr_in4();
-
-            if (socketAddress != null)
-            {
-                __socketAddress_native = *socketAddress;
-                __socketAddress_native.sin4_port = WinSock2.HOST_TO_NET_16(socketAddress->sin4_port);
-
-                msg.msg_name = &__socketAddress_native;
-                msg.msg_namelen = 16;
-            }
-            else
-            {
-                msg.msg_name = null;
-                msg.msg_namelen = 0;
-            }
 
             int num;
 
@@ -516,26 +482,12 @@ namespace NativeSockets
         {
             msghdr msg;
 
+            msg.msg_name = socketAddress;
+            msg.msg_namelen = socketAddress != null ? 28 : (nuint)0;
             msg.msg_iovlen = bufferCount;
             msg.msg_control = null;
             msg.msg_controllen = 0;
             msg.msg_flags = 0;
-
-            sockaddr_in6 __socketAddress_native = new sockaddr_in6();
-
-            if (socketAddress != null)
-            {
-                __socketAddress_native = *socketAddress;
-                __socketAddress_native.sin6_port = WinSock2.HOST_TO_NET_16(socketAddress->sin6_port);
-
-                msg.msg_name = &__socketAddress_native;
-                msg.msg_namelen = 28;
-            }
-            else
-            {
-                msg.msg_name = null;
-                msg.msg_namelen = 0;
-            }
 
             int num;
             using (NativeScopedArray<iovec> __buffers_native = Build(stackalloc iovec[16], buffers, bufferCount))
@@ -619,7 +571,6 @@ namespace NativeSockets
             {
                 sockaddr_in4* __socketAddress_native = (sockaddr_in4*)&addressStorage;
                 *socketAddress = *__socketAddress_native;
-                socketAddress->sin4_port = WinSock2.NET_TO_HOST_16(__socketAddress_native->sin4_port);
             }
 
             return num;
@@ -661,20 +612,21 @@ namespace NativeSockets
 
             if (num >= 0 && socketAddress != null)
             {
-                socketAddress->sin6_family = ADDRESS_FAMILY_INTER_NETWORK_V6;
-                socketAddress->sin6_port = WinSock2.NET_TO_HOST_16(addressStorage.ss_port);
-                socketAddress->sin6_flowinfo = 0;
-
                 if (addressStorage.ss_family == ADDRESS_FAMILY_INTER_NETWORK_V4)
                 {
                     sockaddr_in4* __socketAddress_native = (sockaddr_in4*)&addressStorage;
+
+                    socketAddress->sin6_family = ADDRESS_FAMILY_INTER_NETWORK_V6;
+                    socketAddress->sin6_port = addressStorage.ss_port;
+                    socketAddress->sin6_flowinfo = 0;
                     WinSock2.MapToIpv6(ref Unsafe.AsRef<byte>(socketAddress->sin6_addr), __socketAddress_native->sin4_addr);
                     socketAddress->sin6_scope_id = 0;
                 }
                 else if (addressStorage.ss_family == ADDRESS_FAMILY_INTER_NETWORK_V6)
                 {
                     sockaddr_in6* __socketAddress_native = (sockaddr_in6*)&addressStorage;
-                    SpanHelpers.Copy(socketAddress->sin6_addr, __socketAddress_native->sin6_addr, 20);
+
+                    *socketAddress = *__socketAddress_native;
                 }
             }
 
@@ -699,7 +651,6 @@ namespace NativeSockets
             {
                 sockaddr_in4* __socketAddress_native = (sockaddr_in4*)&addressStorage;
                 *socketAddress = *__socketAddress_native;
-                socketAddress->sin4_port = WinSock2.NET_TO_HOST_16(__socketAddress_native->sin4_port);
             }
 
             return error;
@@ -721,20 +672,21 @@ namespace NativeSockets
 
             if (error == SocketError.Success && socketAddress != null)
             {
-                socketAddress->sin6_family = ADDRESS_FAMILY_INTER_NETWORK_V6;
-                socketAddress->sin6_port = WinSock2.NET_TO_HOST_16(addressStorage.ss_port);
-                socketAddress->sin6_flowinfo = 0;
-
                 if (addressStorage.ss_family == ADDRESS_FAMILY_INTER_NETWORK_V4)
                 {
                     sockaddr_in4* __socketAddress_native = (sockaddr_in4*)&addressStorage;
+
+                    socketAddress->sin6_family = ADDRESS_FAMILY_INTER_NETWORK_V6;
+                    socketAddress->sin6_port = addressStorage.ss_port;
+                    socketAddress->sin6_flowinfo = 0;
                     WinSock2.MapToIpv6(ref Unsafe.AsRef<byte>(socketAddress->sin6_addr), __socketAddress_native->sin4_addr);
                     socketAddress->sin6_scope_id = 0;
                 }
                 else if (addressStorage.ss_family == ADDRESS_FAMILY_INTER_NETWORK_V6)
                 {
                     sockaddr_in6* __socketAddress_native = (sockaddr_in6*)&addressStorage;
-                    SpanHelpers.Copy(socketAddress->sin6_addr, __socketAddress_native->sin6_addr, 20);
+
+                    *socketAddress = *__socketAddress_native;
                 }
             }
 
@@ -899,8 +851,7 @@ namespace NativeSockets
                     {
                         sockaddr_in4* __socketAddress_native = (sockaddr_in4*)hint->ai_addr;
 
-                        *socketAddress = *__socketAddress_native;
-                        socketAddress->sin4_port = WinSock2.NET_TO_HOST_16(__socketAddress_native->sin4_port);
+                        socketAddress->sin4_addr = __socketAddress_native->sin4_addr;
 
                         _freeaddrinfo(results);
 
@@ -968,14 +919,10 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetHostNameIpv4(sockaddr_in4* socketAddress, Span<byte> hostName)
         {
-            sockaddr_in4 __socketAddress_native = *socketAddress;
-
-            __socketAddress_native.sin4_port = WinSock2.HOST_TO_NET_16(socketAddress->sin4_port);
-
             int error;
             fixed (byte* pStringBuf = &MemoryMarshal.GetReference(hostName))
             {
-                error = _getnameinfo((sockaddr*)&__socketAddress_native, sizeof(sockaddr_in4), pStringBuf, (ulong)hostName.Length, null, 0, 0x4);
+                error = _getnameinfo((sockaddr*)socketAddress, sizeof(sockaddr_in4), pStringBuf, (ulong)hostName.Length, null, 0, 0x4);
             }
 
             if (error == 0)
@@ -1001,14 +948,10 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetHostNameIpv6(sockaddr_in6* socketAddress, Span<byte> hostName)
         {
-            sockaddr_in6 __socketAddress_native = *socketAddress;
-
-            __socketAddress_native.sin6_port = WinSock2.HOST_TO_NET_16(socketAddress->sin6_port);
-
             int error;
             fixed (byte* pStringBuf = &MemoryMarshal.GetReference(hostName))
             {
-                error = _getnameinfo((sockaddr*)&__socketAddress_native, sizeof(sockaddr_in6), pStringBuf, (ulong)hostName.Length, null, 0, 0x4);
+                error = _getnameinfo((sockaddr*)socketAddress, sizeof(sockaddr_in6), pStringBuf, (ulong)hostName.Length, null, 0, 0x4);
             }
 
             if (error == 0)

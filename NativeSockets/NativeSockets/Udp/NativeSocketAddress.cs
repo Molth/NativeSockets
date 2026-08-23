@@ -75,8 +75,8 @@ namespace NativeSockets
         /// <returns>An unsigned integer value indicating the port number of the socket address.</returns>
         public ushort Port
         {
-            readonly get => ss_port;
-            set => ss_port = value;
+            readonly get => WinSock2.HOST_TO_NET_16(ss_port);
+            set => ss_port = WinSock2.NET_TO_HOST_16(value);
         }
 
         /// <summary>
@@ -153,7 +153,7 @@ namespace NativeSockets
             NativeSocketAddress address = this;
             address.ss_family = SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V4;
             address.sin4.sin4_addr = address.sin6.sin4_addr;
-            SpanHelpers.Set(ref _buffer[8], 0, 20);
+            SpanHelpers.Set(ref address._buffer[8], 0, 20);
             return address;
         }
 
@@ -175,8 +175,9 @@ namespace NativeSockets
         public Span<byte> AsSpan() => MemoryMarshal.CreateSpan(ref _buffer[0], 28);
 
         /// <summary>
-        ///     Creates a new read-only span over a portion of a regular managed object.
+        ///     Returns a span that represents the raw byte buffer of the address.
         /// </summary>
+        /// <returns>A span of bytes.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly ReadOnlySpan<byte> AsReadOnlySpan() => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef(in _buffer[0]), 28);
 
@@ -227,6 +228,7 @@ namespace NativeSockets
         /// <summary>
         ///     Indicates whether the current object is equal to another object.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly bool Equals(NativeSocketAddress other) => SpanHelpers.Equals(ref Unsafe.AsRef(in this), ref other);
 
         /// <summary>
@@ -393,17 +395,15 @@ namespace NativeSockets
                 return default;
             }
 
-            NativeSocketAddress socketAddress = this;
-            socketAddress.Port = WinSock2.HOST_TO_NET_16(Port);
-            Span<byte> span = socketAddress.Buffer;
+            Span<byte> buffer = Buffer;
 
             SocketAddress result = new SocketAddress(Family);
 
 #if NET8_0_OR_GREATER
-            span.CopyTo(result.Buffer.Span);
+            buffer.CopyTo(result.Buffer.Span);
 #else
             for (int i = 0; i < Size; ++i)
-                result[i] = span[i];
+                result[i] = buffer[i];
 #endif
 
             return result;
