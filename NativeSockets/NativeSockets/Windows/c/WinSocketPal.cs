@@ -31,10 +31,10 @@ namespace NativeSockets
         /// <summary>
         ///     A dns error code indicating that a resolution attempt failed and may succeed if retried.
         /// </summary>
-        public const long DNS_TRY_AGAIN = 0x2AF9L;
+        public const int DNS_TRY_AGAIN = 0x2AF9;
 
         /// <summary>
-        ///     Initializes the Winsock library (WSAStartup).
+        ///     Starts up the Winsock library (WSAStartup).
         /// </summary>
         /// <param name="wVersionRequested">The highest version of Winsock that the caller can support (e.g., 0x0202 for 2.2).</param>
         /// <param name="lpWSAData">Pointer to a <see cref="WSAData" /> structure that receives the Winsock implementation details.</param>
@@ -362,7 +362,8 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     A dummy structure used for WSAStartup data. The actual content is not required for this implementation.
+        ///     A dummy structure used for WSAStartup data.
+        ///     The actual content is not required for this implementation.
         /// </summary>
         [StructLayout(LayoutKind.Sequential, Size = 408)]
         public struct WSAData

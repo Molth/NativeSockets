@@ -232,7 +232,7 @@ namespace NativeSockets
         /// <param name="flags">Flags for the send operation.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [DllImport(NATIVE_LIBRARY, EntryPoint = "sendmsg", CallingConvention = CALLING_CONVENTION)]
-        public static extern nint _sendmsg(int sockfd, msghdr* msg, int flags);
+        public static extern nint _sendmsg(int sockfd, msghdr* msg, SocketFlags flags);
 
         /// <summary>
         ///     Receives a message (scatter/gather) from a socket.
@@ -242,7 +242,7 @@ namespace NativeSockets
         /// <param name="flags">Flags for the receive operation.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [DllImport(NATIVE_LIBRARY, EntryPoint = "recvmsg", CallingConvention = CALLING_CONVENTION)]
-        public static extern nint _recvmsg(int sockfd, msghdr* msg, int flags);
+        public static extern nint _recvmsg(int sockfd, msghdr* msg, SocketFlags flags);
 
         /// <summary>
         ///     Builds a <see cref="NativeScopedArray{iovec}" /> from an array of <see cref="NativeIoSlice" /> structures.

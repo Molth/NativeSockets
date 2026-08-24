@@ -16,11 +16,12 @@ namespace Examples
 
             new Thread(ServerLoop) { IsBackground = true }.Start();
 
+            Thread.Sleep(1000);
             new Thread(ClientLoop) { IsBackground = true }.Start();
 
             while (true)
             {
-                ConsoleKeyInfo str = Console.ReadKey();
+                var str = Console.ReadKey();
                 if (str.Key == ConsoleKey.Backspace)
                     break;
             }
@@ -28,29 +29,29 @@ namespace Examples
 
         private static void ServerLoop()
         {
-            using Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            using var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             IPEndPoint serverEndpoint = new(IPAddress.Loopback, 12345);
             socket.Bind(serverEndpoint);
 
             Console.WriteLine($"[Server] Started: {serverEndpoint}");
 
-            byte[] buffer = new byte[1024];
+            var buffer = new byte[1024];
 
-            NativeSocketAddress socketAddress = new NativeSocketAddress();
+            var socketAddress = new NativeSocketAddress();
 
             try
             {
                 while (true)
                 {
-                    int received = socket.ReceiveFromNonAlloc(buffer, ref socketAddress);
-                    IPEndPoint remoteEndPoint = socketAddress.ToIpEndPoint();
-                    string receivedText = Encoding.UTF8.GetString(buffer, 0, received);
+                    var received = socket.ReceiveFromNonAlloc(buffer, SocketFlags.None, ref socketAddress);
+                    var remoteEndPoint = socketAddress.ToIpEndPoint();
+                    var receivedText = Encoding.UTF8.GetString(buffer, 0, received);
 
                     Console.WriteLine($"[Server] Receive from: [{remoteEndPoint}]: [{receivedText}]");
 
-                    string reply = $"[Server]: {receivedText}";
-                    byte[] replyData = Encoding.UTF8.GetBytes(reply);
-                    socket.SendToNonAlloc(replyData, socketAddress);
+                    var reply = $"[Server]: {receivedText}";
+                    var replyData = Encoding.UTF8.GetBytes(reply);
+                    socket.SendToNonAlloc(replyData, SocketFlags.None, socketAddress);
                 }
             }
             catch (SocketException ex)
@@ -61,35 +62,35 @@ namespace Examples
 
         private static void ClientLoop()
         {
-            using Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            using var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             socket.Bind(new IPEndPoint(IPAddress.Any, 0));
 
-            IPEndPoint localEndPoint = (IPEndPoint)socket.LocalEndPoint!;
+            var localEndPoint = (IPEndPoint)socket.LocalEndPoint!;
             Console.WriteLine($"[Client] Started: {localEndPoint}");
             Console.WriteLine();
 
-            byte[] receiveBuffer = new byte[1024];
-            IPEndPoint serverEndPoint = new IPEndPoint(IPAddress.Loopback, 12345);
-            int counter = 1;
+            var receiveBuffer = new byte[1024];
+            var serverEndPoint = new IPEndPoint(IPAddress.Loopback, 12345);
+            var counter = 1;
 
-            NativeSocketAddress socketAddress = new NativeSocketAddress();
-            NativeSocketAddress serverAddress = new NativeSocketAddress();
-            serverAddress.SetIp(serverEndPoint);
+            var socketAddress = new NativeSocketAddress();
+            var serverAddress = new NativeSocketAddress();
+            serverAddress.SetIpIpv4(serverEndPoint.Address.ToString(), 12345);
 
             try
             {
                 while (true)
                 {
-                    byte[] sendBuffer = Encoding.UTF8.GetBytes($"Hello world! {counter++}");
+                    var sendBuffer = Encoding.UTF8.GetBytes($"Hello world! {counter++}");
 
-                    socket.SendToNonAlloc(sendBuffer, serverAddress);
+                    socket.SendToNonAlloc(sendBuffer, SocketFlags.None, serverAddress);
 
                     socket.ReceiveTimeout = 2000;
                     try
                     {
-                        int received = socket.ReceiveFromNonAlloc(receiveBuffer, ref socketAddress);
-                        IPEndPoint remoteEndPoint = socketAddress.ToIpEndPoint();
-                        string receivedText = Encoding.UTF8.GetString(receiveBuffer, 0, received);
+                        var received = socket.ReceiveFromNonAlloc(receiveBuffer, SocketFlags.None, ref socketAddress);
+                        var remoteEndPoint = socketAddress.ToIpEndPoint();
+                        var receivedText = Encoding.UTF8.GetString(receiveBuffer, 0, received);
 
                         Console.WriteLine($"[Client] Receive from: [{remoteEndPoint}]: [{receivedText}]");
                         Console.WriteLine();

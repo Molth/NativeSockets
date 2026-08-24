@@ -1,4 +1,6 @@
-﻿#pragma warning disable CS8981
+﻿using System.Net.Sockets;
+
+#pragma warning disable CS8981
 
 // ReSharper disable All
 
@@ -43,6 +45,6 @@ namespace NativeSockets
         /// <summary>
         ///     Flags received or set for the message.
         /// </summary>
-        public int msg_flags;
+        public SocketFlags msg_flags;
     }
 }

@@ -13,6 +13,12 @@ namespace NativeSockets
     internal static class WinSock2
     {
         /// <summary>
+        ///     Maximum length of a host name string (including the null terminator)
+        ///     for use with <c>getnameinfo</c> and similar APIs.
+        /// </summary>
+        public const int NI_MAXHOST = 1025;
+
+        /// <summary>
         ///     Gets a pre‑computed Ipv4‑mapped Ipv6 address structure (::ffff:0:0).
         /// </summary>
         private static sockaddr_in4_map_in6 ADDRESS_FAMILY_INTER_NETWORK_V4_MAPPED_V6 { get; } = sockaddr_in4_map_in6.Create(stackalloc byte[12] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFF, 0xFF });
@@ -44,12 +50,12 @@ namespace NativeSockets
         ///     Maps the Ipv4 address to an Ipv6 address.
         /// </summary>
         /// <param name="sin6_addr">The 16‑byte span containing the Ipv4‑mapped Ipv6 address data.</param>
-        /// <param name="sin_addr">The 4‑byte span containing the Ipv4 address data.</param>
+        /// <param name="sin4_addr">The 4‑byte span containing the Ipv4 address data.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void MapToIpv6(ref byte sin6_addr, uint sin_addr)
+        public static void MapToIpv6(ref byte sin6_addr, uint sin4_addr)
         {
             MapToIpv6(ref sin6_addr);
-            Unsafe.WriteUnaligned(ref Unsafe.Add(ref sin6_addr, 12), sin_addr);
+            Unsafe.WriteUnaligned(ref Unsafe.Add(ref sin6_addr, 12), sin4_addr);
         }
 
         /// <summary>
@@ -76,10 +82,10 @@ namespace NativeSockets
         public static NativeScopedArray<byte> GetBytes(Span<byte> buffer, ReadOnlySpan<char> text)
         {
             int byteCount = Encoding.ASCII.GetByteCount(text);
-            NativeScopedArray<byte> array = new NativeScopedArray<byte>(buffer, byteCount);
+            NativeScopedArray<byte> array = new NativeScopedArray<byte>(buffer, byteCount + 1);
             Span<byte> bytes = array.AsSpan();
             Encoding.ASCII.GetBytes(text, bytes);
-            bytes[byteCount] = 0;
+            bytes[byteCount] = (byte)'\0';
             return array;
         }
     }

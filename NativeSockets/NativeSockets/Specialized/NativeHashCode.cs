@@ -9,7 +9,7 @@ namespace NativeSockets
     /// <summary>
     ///     Combines the hash code for multiple values into a single hash code.
     /// </summary>
-    internal static unsafe class NativeHashCode
+    internal static class NativeHashCode
     {
         /// <summary>
         ///     Default seed value used for hash code calculation.

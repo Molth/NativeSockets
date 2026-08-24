@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 // ReSharper disable ALL
 
@@ -107,22 +108,29 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Retrieves the Ipv4 address from a socket address structure.
+        ///     Retrieves the address from a socket address structure.
         /// </summary>
-        /// <param name="socketAddress">Pointer to the Ipv4 address structure.</param>
-        /// <param name="ip">A span to receive the address bytes.</param>
+        /// <param name="socketAddress">Pointer to the address structure.</param>
+        /// <param name="ip">A span to receive the address chars.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetIp(this NativeSocketAddress socketAddress, ref Span<byte> ip)
+        public static SocketError GetIp(this NativeSocketAddress socketAddress, ref Span<char> ip)
         {
-            SocketError result = socketAddress.Family == AddressFamily.InterNetwork ? SocketPal.GetIpIpv4((sockaddr_in4*)&socketAddress, ip) : SocketPal.GetIpIpv6((sockaddr_in6*)&socketAddress, ip);
+            Span<byte> bytes = stackalloc byte[WinSock2.NI_MAXHOST];
+            SocketError result = socketAddress.Family == AddressFamily.InterNetwork ? SocketPal.GetIpIpv4((sockaddr_in4*)&socketAddress, bytes) : SocketPal.GetIpIpv6((sockaddr_in6*)&socketAddress, bytes);
             if (result == SocketError.Success)
             {
-                int index = ip.IndexOf((byte)'\0');
+                int index = bytes.IndexOf((byte)'\0');
                 if (index <= 0)
                     return SocketError.Fault;
 
-                ip = ip.Slice(0, index);
+                bytes = bytes.Slice(0, index);
+                int charCount = Encoding.ASCII.GetCharCount(bytes);
+                if (ip.Length < charCount)
+                    return SocketError.NoBufferSpaceAvailable;
+
+                ip = ip.Slice(0, charCount);
+                Encoding.ASCII.GetChars(bytes, ip);
             }
 
             return result;
@@ -181,22 +189,29 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Gets the host name (reverse DNS) from an Ipv4 address.
+        ///     Gets the host name (reverse DNS) from an address.
         /// </summary>
-        /// <param name="socketAddress">Pointer to the Ipv4 address structure.</param>
-        /// <param name="hostName">A span to receive the host name bytes.</param>
+        /// <param name="socketAddress">Pointer to the address structure.</param>
+        /// <param name="hostName">A span to receive the host name chars.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetHostName(this NativeSocketAddress socketAddress, ref Span<byte> hostName)
+        public static SocketError GetHostName(this NativeSocketAddress socketAddress, ref Span<char> hostName)
         {
-            SocketError result = socketAddress.Family == AddressFamily.InterNetwork ? SocketPal.GetHostNameIpv4((sockaddr_in4*)&socketAddress, hostName) : SocketPal.GetHostNameIpv6((sockaddr_in6*)&socketAddress, hostName);
+            Span<byte> bytes = stackalloc byte[WinSock2.NI_MAXHOST];
+            SocketError result = socketAddress.Family == AddressFamily.InterNetwork ? SocketPal.GetHostNameIpv4((sockaddr_in4*)&socketAddress, bytes) : SocketPal.GetHostNameIpv6((sockaddr_in6*)&socketAddress, bytes);
             if (result == SocketError.Success)
             {
-                int index = hostName.IndexOf((byte)'\0');
+                int index = bytes.IndexOf((byte)'\0');
                 if (index <= 0)
                     return SocketError.Fault;
 
-                hostName = hostName.Slice(0, index);
+                bytes = bytes.Slice(0, index);
+                int charCount = Encoding.ASCII.GetCharCount(bytes);
+                if (hostName.Length < charCount)
+                    return SocketError.NoBufferSpaceAvailable;
+
+                hostName = hostName.Slice(0, charCount);
+                Encoding.ASCII.GetChars(bytes, hostName);
             }
 
             return result;

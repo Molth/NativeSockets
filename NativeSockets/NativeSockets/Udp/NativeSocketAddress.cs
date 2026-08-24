@@ -102,7 +102,7 @@ namespace NativeSockets
         ///     Gets the underlying buffer size of this.
         /// </summary>
         /// <returns>The underlying buffer size of this.</returns>
-        public int Size => IsIpv6 ? 28 : IsIpv4 ? 16 : 0;
+        public readonly int Size => IsIpv6 ? 28 : IsIpv4 ? 16 : 0;
 
         /// <summary>
         ///     Gets or sets the specified index element in the underlying buffer.
@@ -112,7 +112,7 @@ namespace NativeSockets
         /// <returns>The value of the specified index element in the underlying buffer.</returns>
         public byte this[int offset]
         {
-            get
+            readonly get
             {
                 ThrowHelpers.ThrowIfGreaterThan((uint)offset, (uint)Size, ExceptionArgument.offset);
                 return _buffer[offset];
@@ -128,7 +128,7 @@ namespace NativeSockets
         ///     Maps the socket address object to an Ipv6 address.
         /// </summary>
         /// <returns>Returns socket address. An Ipv6 address.</returns>
-        public NativeSocketAddress MapToIpv6()
+        public readonly NativeSocketAddress MapToIpv6()
         {
             if (IsIpv6)
                 return this;
@@ -145,7 +145,7 @@ namespace NativeSockets
         ///     Maps the socket address object to an Ipv4 address.
         /// </summary>
         /// <returns>Returns socket address. An Ipv4 address.</returns>
-        public NativeSocketAddress MapToIpv4()
+        public readonly NativeSocketAddress MapToIpv4()
         {
             if (IsIpv4)
                 return this;

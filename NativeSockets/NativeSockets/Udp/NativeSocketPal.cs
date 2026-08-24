@@ -27,11 +27,11 @@ namespace NativeSockets
         public static SocketError GetLastSocketError() => SocketPal.GetLastSocketError();
 
         /// <summary>
-        ///     Initializes the platform-specific socket subsystem.
+        ///     Starts up the platform-specific socket subsystem.
         /// </summary>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError Initialize() => SocketPal.Initialize();
+        public static SocketError Startup() => SocketPal.Startup();
 
         /// <summary>
         ///     Cleans up the platform-specific socket subsystem.
