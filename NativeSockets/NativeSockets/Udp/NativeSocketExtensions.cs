@@ -64,6 +64,23 @@ namespace NativeSockets
         /// <param name="level">The option level.</param>
         /// <param name="name">The option name.</param>
         /// <param name="value">Pointer to a buffer to receive the option value.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError GetOption(this NativeSocket socket, SocketOptionLevel level, SocketOptionName name, ref int value)
+        {
+            fixed (int* pValue = &value)
+            {
+                return SocketPal.GetOption(socket, level, name, pValue);
+            }
+        }
+
+        /// <summary>
+        ///     Gets a socket option.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="level">The option level.</param>
+        /// <param name="name">The option name.</param>
+        /// <param name="value">Pointer to a buffer to receive the option value.</param>
         /// <param name="length">Pointer to the length of the buffer; on output, the actual size of the option.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -75,23 +92,6 @@ namespace NativeSockets
                 {
                     return SocketPal.GetOption(socket, level, name, pValue, pLength);
                 }
-            }
-        }
-
-        /// <summary>
-        ///     Gets a socket option.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="level">The option level.</param>
-        /// <param name="name">The option name.</param>
-        /// <param name="value">Pointer to a buffer to receive the option value.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetOption(this NativeSocket socket, SocketOptionLevel level, SocketOptionName name, ref int value)
-        {
-            fixed (int* pValue = &value)
-            {
-                return SocketPal.GetOption(socket, level, name, pValue);
             }
         }
 

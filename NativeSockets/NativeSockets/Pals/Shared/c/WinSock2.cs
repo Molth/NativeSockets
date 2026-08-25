@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 
 // ReSharper disable All
@@ -21,7 +22,7 @@ namespace NativeSockets
         /// <summary>
         ///     Gets a pre‑computed Ipv4‑mapped Ipv6 address structure (::ffff:0:0).
         /// </summary>
-        private static sockaddr_in4_map_in6 ADDRESS_FAMILY_INTER_NETWORK_V4_MAPPED_V6 { get; } = sockaddr_in4_map_in6.Create(stackalloc byte[12] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFF, 0xFF });
+        private static ReadOnlySpan<byte> ADDRESS_FAMILY_INTER_NETWORK_V4_MAPPED_V6 => new byte[12] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFF, 0xFF };
 
         /// <summary>
         ///     Converts a 16‑bit unsigned integer from host byte order to network byte order (big‑endian).
@@ -44,7 +45,7 @@ namespace NativeSockets
         /// </summary>
         /// <param name="sin6_addr">The 12‑byte span containing the Ipv4‑mapped Ipv6 address data.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void MapToIpv6(ref byte sin6_addr) => Unsafe.WriteUnaligned(ref sin6_addr, ADDRESS_FAMILY_INTER_NETWORK_V4_MAPPED_V6);
+        public static void MapToIpv6(ref byte sin6_addr) => SpanHelpers.Copy(ref sin6_addr, ref MemoryMarshal.GetReference(ADDRESS_FAMILY_INTER_NETWORK_V4_MAPPED_V6), 12);
 
         /// <summary>
         ///     Maps the Ipv4 address to an Ipv6 address.
@@ -67,7 +68,7 @@ namespace NativeSockets
         ///     otherwise, false.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsIpv4MappedToIpv6(ref byte sin6_addr) => Unsafe.ReadUnaligned<sockaddr_in4_map_in6>(ref sin6_addr).Equals(ADDRESS_FAMILY_INTER_NETWORK_V4_MAPPED_V6);
+        public static bool IsIpv4MappedToIpv6(ref byte sin6_addr) => MemoryMarshal.CreateReadOnlySpan(ref sin6_addr, 12).SequenceEqual(ADDRESS_FAMILY_INTER_NETWORK_V4_MAPPED_V6);
 
         /// <summary>
         ///     Converts the specified text to a null-terminated ASCII byte array,

@@ -293,9 +293,9 @@ namespace NativeSockets
         ///     <see langword="true" /> if the formatting was successful;
         ///     otherwise, <see langword="false" />.
         /// </returns>
-        public bool TryFormat(Span<char> destination, out int charsWritten)
+        public readonly bool TryFormat(Span<char> destination, out int charsWritten)
         {
-            using (NativeScopedArray<char> array = Format(stackalloc char[256], ref this, out int chars))
+            using (NativeScopedArray<char> array = Format(stackalloc char[256], this, out int chars))
             {
                 Span<char> result = array.AsSpan().Slice(0, chars);
                 if (result.TryCopyTo(destination))
@@ -313,9 +313,9 @@ namespace NativeSockets
         ///     Returns information about the socket address.
         /// </summary>
         /// <returns>A string that contains information about this.</returns>
-        public override string ToString()
+        public readonly override string ToString()
         {
-            using (NativeScopedArray<char> array = Format(stackalloc char[256], ref this, out int chars))
+            using (NativeScopedArray<char> array = Format(stackalloc char[256], this, out int chars))
             {
                 Span<char> result = array.AsSpan().Slice(0, chars);
                 return result.ToString();
@@ -334,7 +334,7 @@ namespace NativeSockets
         /// <param name="socketAddress">A reference to the socket address to format.</param>
         /// <param name="chars">When this method returns, contains the number of characters written to the temporary buffer.</param>
         /// <returns>A <see cref="NativeScopedArray{Char}" /> that owns the formatted character span.</returns>
-        private static NativeScopedArray<char> Format(Span<char> span, ref NativeSocketAddress socketAddress, out int chars)
+        private static NativeScopedArray<char> Format(Span<char> span, in NativeSocketAddress socketAddress, out int chars)
         {
             ReadOnlySpan<char> family = socketAddress.Family.ToString();
             int maxLength = checked(family.Length + 1 + 10 + 2 + (socketAddress.Size - 2) * 4 + 1);
@@ -375,14 +375,14 @@ namespace NativeSockets
         /// </summary>
         /// <exception cref="ArgumentException">Address contains a bad ip address.</exception>
         /// <returns>A new instance of the <see cref="IPAddress" /> class.</returns>
-        public IPAddress ToIpAddress() => IsIpv6 ? new IPAddress(Address, ScopeId) : new IPAddress(Address);
+        public readonly IPAddress ToIpAddress() => IsIpv6 ? new IPAddress(Unsafe.AsRef(in this).Address, ScopeId) : new IPAddress(Unsafe.AsRef(in this).Address);
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="IPEndPoint" /> class with the specified address and port number.
         /// </summary>
         /// <exception cref="ArgumentException">Address contains a bad ip address.</exception>
         /// <returns>A new instance of the <see cref="IPEndPoint" /> class.</returns>
-        public IPEndPoint ToIpEndPoint() => new(ToIpAddress(), Port);
+        public readonly IPEndPoint ToIpEndPoint() => new(ToIpAddress(), Port);
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="SocketAddress" /> class with the specified address.
@@ -392,7 +392,7 @@ namespace NativeSockets
         ///     or <see cref="AddressFamily.InterNetworkV6" />.
         /// </exception>
         /// <returns>A new instance of the <see cref="SocketAddress" /> class.</returns>
-        public SocketAddress ToSocketAddress()
+        public readonly SocketAddress ToSocketAddress()
         {
             if (Family != AddressFamily.InterNetwork && Family != AddressFamily.InterNetworkV6)
             {
@@ -400,7 +400,7 @@ namespace NativeSockets
                 return default;
             }
 
-            Span<byte> buffer = Buffer;
+            ReadOnlySpan<byte> buffer = Unsafe.AsRef(in this).Buffer;
 
             SocketAddress result = new SocketAddress(Family);
 

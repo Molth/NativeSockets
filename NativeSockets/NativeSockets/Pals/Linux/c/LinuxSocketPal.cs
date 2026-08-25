@@ -4,8 +4,8 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security;
 using static NativeSockets.UnixNativeLib;
-using static NativeSockets.OsxNativeLib;
-using static NativeSockets.OsxSocketError;
+using static NativeSockets.LinuxNativeLib;
+using static NativeSockets.LinuxSocketError;
 
 // ReSharper disable All
 
@@ -15,17 +15,17 @@ namespace NativeSockets
     ///     Provides platform-abstracted socket operations for sending and receiving data.
     /// </summary>
     [SuppressUnmanagedCodeSecurity]
-    internal static unsafe class OsxSocketPal
+    internal static unsafe class LinuxSocketPal
     {
         /// <summary>
         ///     Gets the address family value for Ipv4 used by the current platform.
         /// </summary>
-        public const ushort ADDRESS_FAMILY_INTER_NETWORK_V4 = (AF_INET_4 << 8) | 16;
+        public const ushort ADDRESS_FAMILY_INTER_NETWORK_V4 = AF_INET_4;
 
         /// <summary>
         ///     Gets the address family value for Ipv6 used by the current platform.
         /// </summary>
-        public const ushort ADDRESS_FAMILY_INTER_NETWORK_V6 = (AF_INET_6 << 8) | 28;
+        public const ushort ADDRESS_FAMILY_INTER_NETWORK_V6 = AF_INET_6;
 
         /// <summary>
         ///     Gets the address family value for Ipv4 used by the current platform.
@@ -35,22 +35,18 @@ namespace NativeSockets
         /// <summary>
         ///     Gets the address family value for Ipv6 used by the current platform.
         /// </summary>
-        private const ushort AF_INET_6 = 30;
+        private const ushort AF_INET_6 = 10;
 
         /// <summary>
         ///     Gets a value indicating whether any platform-specific implementation is supported.
         /// </summary>
         public static bool IsSupported { get; } =
 #if NET5_0_OR_GREATER
-            OperatingSystem.IsMacOS() ||
-            OperatingSystem.IsIOS() ||
-            OperatingSystem.IsTvOS() ||
-            OperatingSystem.IsWatchOS();
+            OperatingSystem.IsLinux() ||
+            OperatingSystem.IsAndroid();
 #else
-            RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ||
-            RuntimeInformation.IsOSPlatform(OSPlatform.Create("IOS")) ||
-            RuntimeInformation.IsOSPlatform(OSPlatform.Create("TVOS")) ||
-            RuntimeInformation.IsOSPlatform(OSPlatform.Create("WATCHOS"));
+            RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ||
+            RuntimeInformation.IsOSPlatform(OSPlatform.Create("ANDROID"));
 #endif
 
         /// <summary>
@@ -526,10 +522,7 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
         /// <param name="bufferCount">The number of buffers.</param>
-        /// <param name="socketFlags">
-        ///     A pointer to the flags for the receive operation. On input, contains the desired flags; on
-        ///     output, contains the actual flags received.
-        /// </param>
+        /// <param name="socketFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveMessage(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* socketFlags)
@@ -567,10 +560,7 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
         /// <param name="bufferCount">The number of buffers.</param>
-        /// <param name="socketFlags">
-        ///     A pointer to the flags for the receive operation. On input, contains the desired flags; on
-        ///     output, contains the actual flags received.
-        /// </param>
+        /// <param name="socketFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -617,10 +607,7 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
         /// <param name="bufferCount">The number of buffers.</param>
-        /// <param name="socketFlags">
-        ///     A pointer to the flags for the receive operation. On input, contains the desired flags; on
-        ///     output, contains the actual flags received.
-        /// </param>
+        /// <param name="socketFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
