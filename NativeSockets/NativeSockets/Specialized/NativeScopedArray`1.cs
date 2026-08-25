@@ -10,7 +10,7 @@ namespace NativeSockets
     ///     Represents a contiguous region of arbitrary native memory.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    internal readonly unsafe struct NativeScopedArray<T> : IDisposable where T : unmanaged
+    internal readonly unsafe struct NativeScopedArray<T> : IIsCreated, IDisposable where T : unmanaged
     {
         /// <summary>
         ///     Represents a contiguous region of arbitrary memory.
@@ -52,6 +52,11 @@ namespace NativeSockets
             _length = length;
             _allocated = shouldAllocate;
         }
+
+        /// <summary>
+        ///     Gets a value that indicates whether this has been allocated or initialized.
+        /// </summary>
+        public bool IsCreated => _buffer != null;
 
         /// <summary>
         ///     Represents a contiguous region of arbitrary memory.

@@ -10,7 +10,7 @@ namespace NativeSockets
     ///     Represents a contiguous region of arbitrary native memory.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    public readonly unsafe struct NativeIoSlice : IDisposable
+    public readonly unsafe struct NativeIoSlice : IIsCreated, IDisposable
     {
         /// <summary>
         ///     Represents a contiguous region of arbitrary memory.

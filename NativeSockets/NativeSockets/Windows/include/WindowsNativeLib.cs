@@ -16,7 +16,7 @@ namespace NativeSockets
     ///     This class contains Windows-specific implementations using Winsock.
     /// </summary>
     [SuppressUnmanagedCodeSecurity]
-    internal static unsafe class WinSocketPal
+    internal static unsafe class WindowsNativeLib
     {
         /// <summary>
         ///     The name of the native library containing the socket functions (Winsock 2.2).
@@ -27,11 +27,6 @@ namespace NativeSockets
         ///     Indicates the calling convention of an entry point.
         /// </summary>
         private const CallingConvention CALLING_CONVENTION = CallingConvention.StdCall;
-
-        /// <summary>
-        ///     A dns error code indicating that a resolution attempt failed and may succeed if retried.
-        /// </summary>
-        public const int DNS_TRY_AGAIN = 0x2AF9;
 
         /// <summary>
         ///     Starts up the Winsock library (WSAStartup).
@@ -110,24 +105,24 @@ namespace NativeSockets
         /// <summary>
         ///     Gets a socket option.
         /// </summary>
-        /// <param name="s">The native socket handle.</param>
-        /// <param name="level">The option level.</param>
-        /// <param name="optname">The option name.</param>
-        /// <param name="optval">Pointer to a buffer that receives the option value.</param>
-        /// <param name="optlen">Pointer to the size of the buffer; on output, the actual size of the option.</param>
+        /// <param name="__socketHandle_native">The native socket handle.</param>
+        /// <param name="__optionLevel_native">The option level.</param>
+        /// <param name="__optionName_native">The option name.</param>
+        /// <param name="__optionValue_native">Pointer to a buffer that receives the option value.</param>
+        /// <param name="__optionLength_native">Pointer to the size of the buffer; on output, the actual size of the option.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [DllImport(NATIVE_LIBRARY, EntryPoint = "getsockopt", CallingConvention = CALLING_CONVENTION)]
-        public static extern SocketError _getsockopt(nint s, int level, int optname, byte* optval, int* optlen);
+        public static extern SocketError _getsockopt(nint __socketHandle_native, SocketOptionLevel __optionLevel_native, SocketOptionName __optionName_native, byte* __optionValue_native, int* __optionLength_native);
 
         /// <summary>
         ///     Connects a socket to a remote address.
         /// </summary>
-        /// <param name="s">The native socket handle.</param>
+        /// <param name="__socketHandle_native">The native socket handle.</param>
         /// <param name="name">Pointer to the socket address structure.</param>
         /// <param name="namelen">The size of the address structure.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [DllImport(NATIVE_LIBRARY, EntryPoint = "connect", CallingConvention = CALLING_CONVENTION)]
-        public static extern SocketError _connect(nint s, sockaddr* name, int namelen);
+        public static extern SocketError _connect(nint __socketHandle_native, sockaddr* name, int namelen);
 
         /// <summary>
         ///     Closes a socket (closesocket).

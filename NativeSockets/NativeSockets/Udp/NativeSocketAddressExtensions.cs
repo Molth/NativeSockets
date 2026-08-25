@@ -4,6 +4,8 @@ using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Text;
 
+#pragma warning disable CS9080 // Use of variable in this context may expose referenced variables outside of their declaration scope
+
 // ReSharper disable ALL
 
 namespace NativeSockets
@@ -76,10 +78,7 @@ namespace NativeSockets
             if (error != SocketError.Success)
                 return error;
 
-            __socketAddress_native.sin4_family = SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V4;
-            __socketAddress_native.sin4_port = WinSock2.HOST_TO_NET_16(port);
-            SpanHelpers.Copy(ref Unsafe.As<NativeSocketAddress, byte>(ref socketAddress), ref Unsafe.As<sockaddr_in4, byte>(ref __socketAddress_native), 8);
-            SpanHelpers.Set(ref Unsafe.Add(ref Unsafe.As<NativeSocketAddress, byte>(ref socketAddress), 8), 0, 20);
+            socketAddress.CopyFromIpv4(ref __socketAddress_native, port);
             return SocketError.Success;
         }
 
@@ -99,11 +98,7 @@ namespace NativeSockets
             if (error != SocketError.Success)
                 return error;
 
-            __socketAddress_native.sin6_family = SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
-            __socketAddress_native.sin6_port = WinSock2.HOST_TO_NET_16(port);
-            __socketAddress_native.sin6_flowinfo = 0;
-            __socketAddress_native.sin6_scope_id = scopeId;
-            SpanHelpers.Copy(ref Unsafe.As<NativeSocketAddress, byte>(ref socketAddress), ref Unsafe.As<sockaddr_in6, byte>(ref __socketAddress_native), 28);
+            socketAddress.CopyFromIpv6(ref __socketAddress_native, port, scopeId);
             return SocketError.Success;
         }
 
@@ -119,19 +114,7 @@ namespace NativeSockets
             Span<byte> bytes = stackalloc byte[WinSock2.NI_MAXHOST];
             SocketError result = socketAddress.Family == AddressFamily.InterNetwork ? SocketPal.GetIpIpv4((sockaddr_in4*)&socketAddress, bytes) : SocketPal.GetIpIpv6((sockaddr_in6*)&socketAddress, bytes);
             if (result == SocketError.Success)
-            {
-                int index = bytes.IndexOf((byte)'\0');
-                if (index <= 0)
-                    return SocketError.Fault;
-
-                bytes = bytes.Slice(0, index);
-                int charCount = Encoding.ASCII.GetCharCount(bytes);
-                if (ip.Length < charCount)
-                    return SocketError.NoBufferSpaceAvailable;
-
-                ip = ip.Slice(0, charCount);
-                Encoding.ASCII.GetChars(bytes, ip);
-            }
+                return CopyAsciiBytesToChars(bytes, ref ip);
 
             return result;
         }
@@ -154,10 +137,7 @@ namespace NativeSockets
             if (error != SocketError.Success)
                 return error;
 
-            __socketAddress_native.sin4_family = SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V4;
-            __socketAddress_native.sin4_port = WinSock2.HOST_TO_NET_16(port);
-            SpanHelpers.Copy(ref Unsafe.As<NativeSocketAddress, byte>(ref socketAddress), ref Unsafe.As<sockaddr_in4, byte>(ref __socketAddress_native), 8);
-            SpanHelpers.Set(ref Unsafe.Add(ref Unsafe.As<NativeSocketAddress, byte>(ref socketAddress), 8), 0, 20);
+            socketAddress.CopyFromIpv4(ref __socketAddress_native, port);
             return SocketError.Success;
         }
 
@@ -180,11 +160,7 @@ namespace NativeSockets
             if (error != SocketError.Success)
                 return error;
 
-            __socketAddress_native.sin6_family = SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
-            __socketAddress_native.sin6_port = WinSock2.HOST_TO_NET_16(port);
-            __socketAddress_native.sin6_flowinfo = 0;
-            __socketAddress_native.sin6_scope_id = scopeId;
-            SpanHelpers.Copy(ref Unsafe.As<NativeSocketAddress, byte>(ref socketAddress), ref Unsafe.As<sockaddr_in6, byte>(ref __socketAddress_native), 28);
+            socketAddress.CopyFromIpv6(ref __socketAddress_native, port, scopeId);
             return SocketError.Success;
         }
 
@@ -200,21 +176,73 @@ namespace NativeSockets
             Span<byte> bytes = stackalloc byte[WinSock2.NI_MAXHOST];
             SocketError result = socketAddress.Family == AddressFamily.InterNetwork ? SocketPal.GetHostNameIpv4((sockaddr_in4*)&socketAddress, bytes) : SocketPal.GetHostNameIpv6((sockaddr_in6*)&socketAddress, bytes);
             if (result == SocketError.Success)
-            {
-                int index = bytes.IndexOf((byte)'\0');
-                if (index <= 0)
-                    return SocketError.Fault;
-
-                bytes = bytes.Slice(0, index);
-                int charCount = Encoding.ASCII.GetCharCount(bytes);
-                if (hostName.Length < charCount)
-                    return SocketError.NoBufferSpaceAvailable;
-
-                hostName = hostName.Slice(0, charCount);
-                Encoding.ASCII.GetChars(bytes, hostName);
-            }
+                return CopyAsciiBytesToChars(bytes, ref hostName);
 
             return result;
+        }
+
+        /// <summary>
+        ///     Copies an Ipv4 socket address structure into a <see cref="NativeSocketAddress" />,
+        ///     converting the port to network byte order and zeroing the padding.
+        /// </summary>
+        /// <param name="socketAddress">The destination <see cref="NativeSocketAddress" /> to fill.</param>
+        /// <param name="__socketAddress_native">The source Ipv4 address structure.</param>
+        /// <param name="port">The port number in host byte order.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void CopyFromIpv4(ref this NativeSocketAddress socketAddress, ref sockaddr_in4 __socketAddress_native, ushort port)
+        {
+            __socketAddress_native.sin4_family = SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V4;
+            __socketAddress_native.sin4_port = WinSock2.HOST_TO_NET_16(port);
+            SpanHelpers.Copy(ref Unsafe.As<NativeSocketAddress, byte>(ref socketAddress), ref Unsafe.As<sockaddr_in4, byte>(ref __socketAddress_native), 8);
+            SpanHelpers.Set(ref Unsafe.Add(ref Unsafe.As<NativeSocketAddress, byte>(ref socketAddress), 8), 0, 20);
+        }
+
+        /// <summary>
+        ///     Copies an Ipv6 socket address structure into a <see cref="NativeSocketAddress" />,
+        ///     converting the port to network byte order and setting the flow info and scope id.
+        /// </summary>
+        /// <param name="socketAddress">The destination <see cref="NativeSocketAddress" /> to fill.</param>
+        /// <param name="__socketAddress_native">The source Ipv6 address structure.</param>
+        /// <param name="port">The port number in host byte order.</param>
+        /// <param name="scopeId">The Ipv6 scope identifier.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void CopyFromIpv6(ref this NativeSocketAddress socketAddress, ref sockaddr_in6 __socketAddress_native, ushort port, uint scopeId)
+        {
+            __socketAddress_native.sin6_family = SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
+            __socketAddress_native.sin6_port = WinSock2.HOST_TO_NET_16(port);
+            __socketAddress_native.sin6_flowinfo = 0;
+            __socketAddress_native.sin6_scope_id = scopeId;
+            SpanHelpers.Copy(ref Unsafe.As<NativeSocketAddress, byte>(ref socketAddress), ref Unsafe.As<sockaddr_in6, byte>(ref __socketAddress_native), 28);
+        }
+
+        /// <summary>
+        ///     Extracts the ASCII string from a null-terminated byte
+        ///     span and copies it into a character span.
+        /// </summary>
+        /// <param name="source">The null-terminated ASCII byte span (typically from native APIs).</param>
+        /// <param name="destination">
+        ///     The character span to receive the decoded string.
+        ///     On success, it is resized to the actual character count.
+        /// </param>
+        /// <returns>
+        ///     <see cref="SocketError.Success" /> if the extraction and conversion succeed;
+        ///     <see cref="SocketError.Fault" /> if the source does not contain a valid null terminator or is empty;
+        ///     <see cref="SocketError.NoBufferSpaceAvailable" /> if the destination span is too small.
+        /// </returns>
+        private static SocketError CopyAsciiBytesToChars(ReadOnlySpan<byte> source, ref Span<char> destination)
+        {
+            int index = source.IndexOf((byte)'\0');
+            if (index <= 0)
+                return SocketError.Fault;
+
+            source = source.Slice(0, index);
+            int charCount = Encoding.ASCII.GetCharCount(source);
+            if (destination.Length < charCount)
+                return SocketError.NoBufferSpaceAvailable;
+
+            destination = destination.Slice(0, charCount);
+            Encoding.ASCII.GetChars(source, destination);
+            return SocketError.Success;
         }
     }
 }

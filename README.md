@@ -26,7 +26,7 @@ NativeSockets is a lightweight, cross‑platform library for UDP networking. It 
 - **Zero garbage collection pressure**
 - **Pure managed code** – No external dependencies to deploy or manage.
 - **Complete UDP support** – Create, bind, connect, send, receive, and poll sockets.
-- **IPv4 and IPv6** with dual‑mode support.
+- **Ipv4 and Ipv6** with dual‑mode support.
 - **Allocation‑free extension methods** for `System.Net.Sockets.Socket`:
     - `SendToNonAlloc` – send data without temporary allocations.
     - `ReceiveFromNonAlloc` – receive data and capture the remote endpoint without allocations.

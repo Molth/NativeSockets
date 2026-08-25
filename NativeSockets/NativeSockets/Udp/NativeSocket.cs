@@ -11,7 +11,7 @@ namespace NativeSockets
     ///     Represents a native socket handle with its associated address family.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    public readonly struct NativeSocket : IDisposable, IEquatable<NativeSocket>
+    public readonly struct NativeSocket : IIsCreated, IDisposable, IEquatable<NativeSocket>
     {
         /// <summary>
         ///     The native socket handle.
@@ -22,6 +22,11 @@ namespace NativeSockets
         ///     The address family of the socket.
         /// </summary>
         private readonly AddressFamily _addressFamily;
+
+        /// <summary>
+        ///     Gets a value that indicates whether this has been allocated or initialized.
+        /// </summary>
+        public bool IsCreated => Handle != 0;
 
         /// <summary>
         ///     Gets the native socket handle.

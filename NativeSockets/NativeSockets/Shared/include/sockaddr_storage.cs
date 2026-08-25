@@ -21,11 +21,6 @@ namespace NativeSockets
         [FieldOffset(0)] public ushort ss_family;
 
         /// <summary>
-        ///     The port number in network byte order.
-        /// </summary>
-        [FieldOffset(2)] public ushort ss_port;
-
-        /// <summary>
         ///     Alignment padding to ensure the structure is properly aligned in memory.
         /// </summary>
         [FieldOffset(8)] public long __ss_align;

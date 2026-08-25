@@ -27,16 +27,16 @@ namespace NativeSockets
         /// <summary>
         ///     Indicates whether the current object is equal to another object.
         /// </summary>
-        public readonly bool Equals(sockaddr_in4_map_in6 other) => SpanHelpers.Equals(ref Unsafe.AsRef(in this), ref other);
+        public bool Equals(sockaddr_in4_map_in6 other) => SpanHelpers.Equals(ref Unsafe.AsRef(in this), ref other);
 
         /// <summary>
         ///     Indicates whether the current object is equal to another object.
         /// </summary>
-        public readonly override bool Equals(object? obj) => obj is sockaddr_in4_map_in6 other && other.Equals(this);
+        public override bool Equals(object? obj) => obj is sockaddr_in4_map_in6 other && other.Equals(this);
 
         /// <summary>
         ///     Returns the hash code for this instance.
         /// </summary>
-        public readonly override int GetHashCode() => NativeHashCode.GetHashCode(this);
+        public override int GetHashCode() => NativeHashCode.GetHashCode(this);
     }
 }

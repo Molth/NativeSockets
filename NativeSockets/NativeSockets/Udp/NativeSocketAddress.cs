@@ -19,7 +19,7 @@ namespace NativeSockets
     ///     This type is used for low‑level socket operations that require raw address handling without allocation.
     /// </remarks>
     [StructLayout(LayoutKind.Explicit, Size = 28)]
-    public unsafe struct NativeSocketAddress : IEquatable<NativeSocketAddress>, IComparable<NativeSocketAddress>
+    public unsafe struct NativeSocketAddress : IIsCreated, IEquatable<NativeSocketAddress>, IComparable<NativeSocketAddress>
     {
         /// <summary>
         ///     The raw buffer containing the socket address bytes.
@@ -45,6 +45,11 @@ namespace NativeSockets
         ///     Represents a native Ipv6 socket address structure (<c>sockaddr_in6</c>).
         /// </summary>
         [FieldOffset(0)] private sockaddr_in6 sin6;
+
+        /// <summary>
+        ///     Gets a value that indicates whether this has been allocated or initialized.
+        /// </summary>
+        public readonly bool IsCreated => IsIpv4 || IsIpv6;
 
         /// <summary>
         ///     Gets whether the address is an Ipv4 address.
@@ -75,8 +80,8 @@ namespace NativeSockets
         /// <returns>An unsigned integer value indicating the port number of the socket address.</returns>
         public ushort Port
         {
-            readonly get => WinSock2.HOST_TO_NET_16(ss_port);
-            set => ss_port = WinSock2.NET_TO_HOST_16(value);
+            readonly get => WinSock2.NET_TO_HOST_16(ss_port);
+            set => ss_port = WinSock2.HOST_TO_NET_16(value);
         }
 
         /// <summary>
@@ -96,7 +101,7 @@ namespace NativeSockets
         ///     Returns true if the socket address is an Ipv4-mapped Ipv6 address;
         ///     otherwise, false.
         /// </returns>
-        public bool IsIpv4MappedToIpv6 => IsIpv6 && WinSock2.IsIpv4MappedToIpv6(ref sin6.sin6_addr[0]);
+        public readonly bool IsIpv4MappedToIpv6 => IsIpv6 && WinSock2.IsIpv4MappedToIpv6(ref Unsafe.AsRef(in sin6.sin6_addr[0]));
 
         /// <summary>
         ///     Gets the underlying buffer size of this.

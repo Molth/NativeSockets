@@ -9,40 +9,35 @@ namespace NativeSockets
     /// <summary>
     ///     Provides platform-specific error handling for sockets.
     /// </summary>
-    internal static class OsxSocketErrorPal
+    internal static class OsxSocketError
     {
         /// <summary>
         ///     Retrieves the last socket error code from the underlying platform.
         /// </summary>
         /// <returns>The last socket error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetLastSocketError()
+        public static SocketError GetLastError()
         {
-#if NET6_0_OR_GREATER
-            return (SocketError)Marshal.GetLastPInvokeError();
-#else
             int errno = Marshal.GetLastWin32Error();
-            return GetSocketErrorForNativeError(errno);
-#endif
+            return FromNative(errno);
         }
 
-#if !NET6_0_OR_GREATER
         /// <summary>
         ///     Maps a native error number to the corresponding <see cref="SocketError" /> value.
         /// </summary>
         /// <param name="errno">The native error number (errno).</param>
         /// <returns>The corresponding <see cref="SocketError" /> value.</returns>
-        private static SocketError GetSocketErrorForNativeError(int errno) => errno switch
+        private static SocketError FromNative(int errno) => errno switch
         {
             0 => SocketError.Success,
             89 => SocketError.OperationAborted,
-            36 => SocketError.IOPending | SocketError.InProgress,
+            36 => SocketError.IOPending,
             4 => SocketError.Interrupted,
             13 => SocketError.AccessDenied,
             14 => SocketError.Fault,
             22 => SocketError.InvalidArgument,
             23 => SocketError.TooManyOpenSockets,
-            35 => SocketError.WouldBlock | SocketError.TryAgain,
+            35 => SocketError.WouldBlock,
             37 => SocketError.AlreadyInProgress,
             38 => SocketError.NotSocket,
             39 => SocketError.DestinationAddressRequired,
@@ -78,9 +73,7 @@ namespace NativeSockets
             -131073 => SocketError.HostNotFound,
             11003 => SocketError.NoRecovery,
             96 => SocketError.NoData,
-            -1 => SocketError.SocketError,
             _ => SocketError.SocketError
         };
-#endif
     }
 }
