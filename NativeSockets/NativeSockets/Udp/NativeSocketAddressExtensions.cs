@@ -116,7 +116,7 @@ namespace NativeSockets
 
             ReadOnlySpan<byte> buffer = socketAddress.Buffer;
             SocketAddress result = new SocketAddress(socketAddress.Family);
-            result.CopyFrom(buffer, socketAddress.Size);
+            result.CopyFrom(buffer, socketAddress.Family == AddressFamily.InterNetwork ? 8 : 28);
             return result;
         }
 
