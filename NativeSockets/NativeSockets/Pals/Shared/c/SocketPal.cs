@@ -329,7 +329,50 @@ namespace NativeSockets
                 _GetHostNameIpv6 = &OsxSocketPal.GetHostNameIpv6;
             }
 
-            IsSupported = IsWindows || IsLinux || IsOsx;
+            else if (IsFreeBsd)
+            {
+                ADDRESS_FAMILY_INTER_NETWORK_V4 = FreeBsdSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V4;
+                ADDRESS_FAMILY_INTER_NETWORK_V6 = FreeBsdSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
+
+                _GetLastSocketError = &FreeBsdSocketPal.GetLastSocketError;
+                _Startup = &FreeBsdSocketPal.Startup;
+                _Cleanup = &FreeBsdSocketPal.Cleanup;
+                _Create = &FreeBsdSocketPal.Create;
+                _Close = &FreeBsdSocketPal.Close;
+                _SetDualModeIpv6 = &FreeBsdSocketPal.SetDualModeIpv6;
+                _BindIpv4 = &FreeBsdSocketPal.BindIpv4;
+                _BindIpv6 = &FreeBsdSocketPal.BindIpv6;
+                _ConnectIpv4 = &FreeBsdSocketPal.ConnectIpv4;
+                _ConnectIpv6 = &FreeBsdSocketPal.ConnectIpv6;
+                _SetOption = &FreeBsdSocketPal.SetOption;
+                _GetOption = &FreeBsdSocketPal.GetOption;
+                _SetBlocking = &FreeBsdSocketPal.SetBlocking;
+                _Poll = &FreeBsdSocketPal.Poll;
+                _Send = &FreeBsdSocketPal.Send;
+                _SendToIpv4 = &FreeBsdSocketPal.SendToIpv4;
+                _SendToIpv6 = &FreeBsdSocketPal.SendToIpv6;
+                _Receive = &FreeBsdSocketPal.Receive;
+                _ReceiveFromIpv4 = &FreeBsdSocketPal.ReceiveFromIpv4;
+                _ReceiveFromIpv6 = &FreeBsdSocketPal.ReceiveFromIpv6;
+                _SendMessage = &FreeBsdSocketPal.SendMessage;
+                _SendMessageToIpv4 = &FreeBsdSocketPal.SendMessageToIpv4;
+                _SendMessageToIpv6 = &FreeBsdSocketPal.SendMessageToIpv6;
+                _ReceiveMessage = &FreeBsdSocketPal.ReceiveMessage;
+                _ReceiveMessageFromIpv4 = &FreeBsdSocketPal.ReceiveMessageFromIpv4;
+                _ReceiveMessageFromIpv6 = &FreeBsdSocketPal.ReceiveMessageFromIpv6;
+                _GetNameIpv4 = &FreeBsdSocketPal.GetNameIpv4;
+                _GetNameIpv6 = &FreeBsdSocketPal.GetNameIpv6;
+                _SetIpIpv4 = &FreeBsdSocketPal.SetIpIpv4;
+                _SetIpIpv6 = &FreeBsdSocketPal.SetIpIpv6;
+                _GetIpIpv4 = &FreeBsdSocketPal.GetIpIpv4;
+                _GetIpIpv6 = &FreeBsdSocketPal.GetIpIpv6;
+                _SetHostNameIpv4 = &FreeBsdSocketPal.SetHostNameIpv4;
+                _SetHostNameIpv6 = &FreeBsdSocketPal.SetHostNameIpv6;
+                _GetHostNameIpv4 = &FreeBsdSocketPal.GetHostNameIpv4;
+                _GetHostNameIpv6 = &FreeBsdSocketPal.GetHostNameIpv6;
+            }
+
+            IsSupported = IsWindows || IsLinux || IsOsx || IsFreeBsd;
         }
 
         /// <summary>
@@ -356,6 +399,11 @@ namespace NativeSockets
         ///     Determines whether the current platform is macOS.
         /// </summary>
         private static bool IsOsx => OsxSocketPal.IsSupported;
+
+        /// <summary>
+        ///     Determines whether the current platform is FreeBSD.
+        /// </summary>
+        private static bool IsFreeBsd => FreeBsdSocketPal.IsSupported;
 
         /// <summary>
         ///     Gets a value indicating whether any platform-specific implementation is supported.

@@ -29,8 +29,9 @@ namespace Examples
 
         private static void ServerLoop()
         {
-            using var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            IPEndPoint serverEndpoint = new(IPAddress.Loopback, 12345);
+            using var socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Dgram, ProtocolType.Udp);
+            socket.DualMode = true;
+            IPEndPoint serverEndpoint = new(IPAddress.IPv6Any, 12345);
             socket.Bind(serverEndpoint);
 
             Console.WriteLine($"[Server] Started: {serverEndpoint}");
@@ -44,14 +45,17 @@ namespace Examples
                 while (true)
                 {
                     var received = socket.ReceiveFromNonAlloc(buffer, SocketFlags.None, ref socketAddress);
-                    var remoteEndPoint = socketAddress.ToIpEndPoint();
-                    var receivedText = Encoding.UTF8.GetString(buffer, 0, received);
+                    if (received >= 0)
+                    {
+                        var remoteEndPoint = socketAddress.ToIpEndPoint();
+                        var receivedText = Encoding.UTF8.GetString(buffer, 0, received);
 
-                    Console.WriteLine($"[Server] Receive from: [{remoteEndPoint}]: [{receivedText}]");
+                        Console.WriteLine($"[Server] Receive from: [{remoteEndPoint}]: [{receivedText}]");
 
-                    var reply = $"[Server]: {receivedText}";
-                    var replyData = Encoding.UTF8.GetBytes(reply);
-                    socket.SendToNonAlloc(replyData, SocketFlags.None, socketAddress);
+                        var reply = $"[Server]: {receivedText}";
+                        var replyData = Encoding.UTF8.GetBytes(reply);
+                        socket.SendToNonAlloc(replyData, SocketFlags.None, socketAddress);
+                    }
                 }
             }
             catch (SocketException ex)
@@ -63,7 +67,7 @@ namespace Examples
         private static void ClientLoop()
         {
             using var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            socket.Bind(new IPEndPoint(IPAddress.Any, 0));
+            socket.Bind(new IPEndPoint(IPAddress.Loopback, 0));
 
             var localEndPoint = (IPEndPoint)socket.LocalEndPoint!;
             Console.WriteLine($"[Client] Started: {localEndPoint}");
@@ -75,7 +79,7 @@ namespace Examples
 
             var socketAddress = new NativeSocketAddress();
             var serverAddress = new NativeSocketAddress();
-            serverAddress.SetIpIpv4(serverEndPoint.Address.ToString(), 12345);
+            serverAddress.FromIpEndPoint(serverEndPoint);
 
             try
             {
@@ -89,18 +93,21 @@ namespace Examples
                     try
                     {
                         var received = socket.ReceiveFromNonAlloc(receiveBuffer, SocketFlags.None, ref socketAddress);
-                        var remoteEndPoint = socketAddress.ToIpEndPoint();
-                        var receivedText = Encoding.UTF8.GetString(receiveBuffer, 0, received);
+                        if (received >= 0)
+                        {
+                            var remoteEndPoint = socketAddress.ToIpEndPoint();
+                            var receivedText = Encoding.UTF8.GetString(receiveBuffer, 0, received);
 
-                        Console.WriteLine($"[Client] Receive from: [{remoteEndPoint}]: [{receivedText}]");
-                        Console.WriteLine();
+                            Console.WriteLine($"[Client] Receive from: [{remoteEndPoint}]: [{receivedText}]");
+                            Console.WriteLine();
+                        }
                     }
                     catch (SocketException ex) when (ex.SocketErrorCode == SocketError.TimedOut)
                     {
                         Console.WriteLine("[Client]: Timeout.");
                     }
 
-                    Thread.Sleep(3000);
+                    Thread.Sleep(1000);
                 }
             }
             catch (SocketException ex)

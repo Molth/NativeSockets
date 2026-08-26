@@ -6,23 +6,23 @@ using static NativeSockets.StdSocketOptionName;
 namespace NativeSockets
 {
     /// <summary>
-    ///     Provides conversion from managed socket option values to native macOS socket option values.
+    ///     Provides conversion from managed socket option values to native FreeBSD socket option values.
     /// </summary>
-    internal static class OsxSocketOption
+    internal static class FreeBsdSocketOption
     {
         /// <summary>
-        ///     Converts a managed <see cref="SocketOptionLevel" /> to the native macOS socket option level value.
+        ///     Converts a managed <see cref="SocketOptionLevel" /> to the native FreeBSD socket option level value.
         /// </summary>
         /// <param name="level">The managed socket option level.</param>
         /// <returns>
         ///     The native integer value for the socket option level.
-        ///     On macOS, <see cref="SocketOptionLevel.Socket" /> already equals SOL_SOCKET (0xffff),
+        ///     On FreeBSD, <see cref="SocketOptionLevel.Socket" /> already equals SOL_SOCKET (0xffff),
         ///     so no conversion is needed.
         /// </returns>
         public static int ToNative(SocketOptionLevel level) => (int)level;
 
         /// <summary>
-        ///     Converts a managed <see cref="SocketOptionName" /> to the native macOS socket option name value
+        ///     Converts a managed <see cref="SocketOptionName" /> to the native FreeBSD socket option name value
         ///     for the specified level, handling level‑specific mappings.
         /// </summary>
         /// <param name="level">The managed socket option level (must be the original managed enum value).</param>
@@ -34,8 +34,8 @@ namespace NativeSockets
             {
                 SocketOptionLevel.IP => name switch
                 {
-                    SocketOptionName.DontFragment => 28,
-                    SocketOptionName.PacketInformation => 26,
+                    SocketOptionName.DontFragment => 67,
+                    SocketOptionName.PacketInformation => 39,
                     SocketOptionName.AddSourceMembership => 70,
                     SocketOptionName.DropSourceMembership => 71,
                     SocketOptionName.BlockSource => 72,

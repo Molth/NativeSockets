@@ -50,13 +50,13 @@ namespace NativeSockets
         ///     Bitmask of all managed <see cref="SocketFlags" /> values that are supported for conversion to native Linux flags.
         /// </summary>
         private const int SUPPORTED_MANAGED_FLAGS_MASK = 0
-                                                         | SOCKET_FLAGS_MSG_ERRQUEUE
-                                                         | SOCKET_FLAGS_MSG_OOB
-                                                         | SOCKET_FLAGS_MSG_PEEK
-                                                         | SOCKET_FLAGS_MSG_DONTWAIT
-                                                         | SOCKET_FLAGS_MSG_DONTROUTE
-                                                         | SOCKET_FLAGS_MSG_TRUNC
-                                                         | SOCKET_FLAGS_MSG_CTRUNC;
+                                                         | SF_MSG_ERRQUEUE
+                                                         | SF_MSG_OOB
+                                                         | SF_MSG_PEEK
+                                                         | SF_MSG_DONTWAIT
+                                                         | SF_MSG_DONTROUTE
+                                                         | SF_MSG_TRUNC
+                                                         | SF_MSG_CTRUNC;
 
         /// <summary>
         ///     Bitmask of all native Linux socket flag values that are supported for conversion back to managed flags.
@@ -77,13 +77,13 @@ namespace NativeSockets
                 return 0;
 
             int platformFlags = 0
-                                | ((flags & SOCKET_FLAGS_MSG_ERRQUEUE) == 0 ? 0 : MSG_ERRQUEUE)
-                                | ((flags & SOCKET_FLAGS_MSG_OOB) == 0 ? 0 : MSG_OOB)
-                                | ((flags & SOCKET_FLAGS_MSG_PEEK) == 0 ? 0 : MSG_PEEK)
-                                | ((flags & SOCKET_FLAGS_MSG_DONTROUTE) == 0 ? 0 : MSG_DONTROUTE)
-                                | ((flags & SOCKET_FLAGS_MSG_DONTWAIT) == 0 ? 0 : MSG_DONTWAIT)
-                                | ((flags & SOCKET_FLAGS_MSG_TRUNC) == 0 ? 0 : MSG_TRUNC)
-                                | ((flags & SOCKET_FLAGS_MSG_CTRUNC) == 0 ? 0 : MSG_CTRUNC);
+                                | ((flags & SF_MSG_ERRQUEUE) == 0 ? 0 : MSG_ERRQUEUE)
+                                | ((flags & SF_MSG_OOB) == 0 ? 0 : MSG_OOB)
+                                | ((flags & SF_MSG_PEEK) == 0 ? 0 : MSG_PEEK)
+                                | ((flags & SF_MSG_DONTROUTE) == 0 ? 0 : MSG_DONTROUTE)
+                                | ((flags & SF_MSG_DONTWAIT) == 0 ? 0 : MSG_DONTWAIT)
+                                | ((flags & SF_MSG_TRUNC) == 0 ? 0 : MSG_TRUNC)
+                                | ((flags & SF_MSG_CTRUNC) == 0 ? 0 : MSG_CTRUNC);
 
             return platformFlags;
         }
@@ -98,10 +98,10 @@ namespace NativeSockets
         {
             platformFlags &= SUPPORTED_NATIVE_FLAGS_MASK;
 
-            int result = ((platformFlags & MSG_OOB) == 0 ? 0 : SOCKET_FLAGS_MSG_OOB) |
-                         ((platformFlags & MSG_DONTROUTE) == 0 ? 0 : SOCKET_FLAGS_MSG_DONTROUTE) |
-                         ((platformFlags & MSG_TRUNC) == 0 ? 0 : SOCKET_FLAGS_MSG_TRUNC) |
-                         ((platformFlags & MSG_CTRUNC) == 0 ? 0 : SOCKET_FLAGS_MSG_CTRUNC);
+            int result = ((platformFlags & MSG_OOB) == 0 ? 0 : SF_MSG_OOB) |
+                         ((platformFlags & MSG_DONTROUTE) == 0 ? 0 : SF_MSG_DONTROUTE) |
+                         ((platformFlags & MSG_TRUNC) == 0 ? 0 : SF_MSG_TRUNC) |
+                         ((platformFlags & MSG_CTRUNC) == 0 ? 0 : SF_MSG_CTRUNC);
 
             return (SocketFlags)result;
         }

@@ -9,7 +9,7 @@ namespace NativeSockets
     {
         public const string Argument_AlignmentMustBePow2 = "AlignmentMustBePow2";
 
-        public const string ArgumentOutOfRange_MustBeLessOrEqual = "MustBeLessOrEqual";
+        public const string ArgumentOutOfRange_MustBeLess = "MustBeLess";
         public const string ArgumentOutOfRange_MustBeNonNegative = "MustBeNonNegative";
     }
 }

@@ -3,7 +3,10 @@ using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security;
-using static NativeSockets.WindowsNativeLib;
+using static NativeSockets.UnixNativeLib;
+using static NativeSockets.BsdNativeLib;
+using static NativeSockets.FreeBsdNativeLib;
+using static NativeSockets.FreeBsdSocketError;
 
 // ReSharper disable All
 
@@ -13,17 +16,17 @@ namespace NativeSockets
     ///     Provides platform-abstracted socket operations for sending and receiving data.
     /// </summary>
     [SuppressUnmanagedCodeSecurity]
-    internal static unsafe class WindowsSocketPal
+    internal static unsafe class FreeBsdSocketPal
     {
         /// <summary>
         ///     Gets the address family value for Ipv4 used by the current platform.
         /// </summary>
-        public const ushort ADDRESS_FAMILY_INTER_NETWORK_V4 = AF_INET_4;
+        public const ushort ADDRESS_FAMILY_INTER_NETWORK_V4 = (AF_INET_4 << 8) | 16;
 
         /// <summary>
         ///     Gets the address family value for Ipv6 used by the current platform.
         /// </summary>
-        public const ushort ADDRESS_FAMILY_INTER_NETWORK_V6 = AF_INET_6;
+        public const ushort ADDRESS_FAMILY_INTER_NETWORK_V6 = (AF_INET_6 << 8) | 28;
 
         /// <summary>
         ///     Gets the address family value for Ipv4 used by the current platform.
@@ -33,16 +36,16 @@ namespace NativeSockets
         /// <summary>
         ///     Gets the address family value for Ipv6 used by the current platform.
         /// </summary>
-        private const ushort AF_INET_6 = 23;
+        private const ushort AF_INET_6 = 28;
 
         /// <summary>
         ///     Gets a value indicating whether any platform-specific implementation is supported.
         /// </summary>
         public static bool IsSupported { get; } =
 #if NET5_0_OR_GREATER
-            OperatingSystem.IsWindows();
+            OperatingSystem.IsFreeBSD();
 #else
-            RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+            RuntimeInformation.IsOSPlatform(OSPlatform.Create("FREEBSD"));
 #endif
 
         /// <summary>
@@ -50,26 +53,21 @@ namespace NativeSockets
         /// </summary>
         /// <returns>The last socket error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetLastSocketError() => (SocketError)_WSAGetLastError();
+        public static SocketError GetLastSocketError() => GetLastError();
 
         /// <summary>
         ///     Starts up the platform-specific socket subsystem.
         /// </summary>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError Startup()
-        {
-            WSAData wsaData;
-            SocketError error = _WSAStartup(514, &wsaData);
-            return error;
-        }
+        public static SocketError Startup() => SocketError.Success;
 
         /// <summary>
         ///     Cleans up the platform-specific socket subsystem.
         /// </summary>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError Cleanup() => _WSACleanup();
+        public static SocketError Cleanup() => SocketError.Success;
 
         /// <summary>
         ///     Creates a native socket handle.
@@ -80,17 +78,7 @@ namespace NativeSockets
         public static nint Create(bool ipv6)
         {
             ushort family = ipv6 ? AF_INET_6 : AF_INET_4;
-            nint socket = _WSASocketW((AddressFamily)family, SocketType.Dgram, ProtocolType.Udp, 0, 0, 1 | 128);
-
-            if (socket != -1)
-            {
-                const uint IOC_IN = 0x80000000;
-                const uint IOC_VENDOR = 0x18000000;
-                const uint SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 12;
-                byte bNewBehavior = 0;
-                int __bytesTransferred_native = 0;
-                _WSAIoctl(socket, unchecked((int)SIO_UDP_CONNRESET), &bNewBehavior, 1, null, 0, &__bytesTransferred_native, 0, 0);
-            }
+            nint socket = _socket(family, (int)SocketType.Dgram, (int)ProtocolType.Udp);
 
             return socket;
         }
@@ -103,8 +91,8 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Close(nint socket)
         {
-            SocketError error = _closesocket(socket);
-            return error;
+            int errno = _close((int)socket);
+            return (SocketError)errno;
         }
 
         /// <summary>
@@ -140,8 +128,8 @@ namespace NativeSockets
                 SetIpIpv4(socketAddress, "0.0.0.0");
             }
 
-            SocketError error = _bind(socket, (sockaddr*)socketAddress, sizeof(sockaddr_in4));
-            return error;
+            int errno = _bind((int)socket, (sockaddr*)socketAddress, (uint)sizeof(sockaddr_in4));
+            return (SocketError)errno;
         }
 
         /// <summary>
@@ -163,8 +151,8 @@ namespace NativeSockets
                 SetIpIpv6(socketAddress, "::");
             }
 
-            SocketError error = _bind(socket, (sockaddr*)socketAddress, sizeof(sockaddr_in6));
-            return error;
+            int errno = _bind((int)socket, (sockaddr*)socketAddress, (uint)sizeof(sockaddr_in6));
+            return (SocketError)errno;
         }
 
         /// <summary>
@@ -176,8 +164,8 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError ConnectIpv4(nint socket, sockaddr_in4* socketAddress)
         {
-            SocketError error = _connect(socket, (sockaddr*)socketAddress, sizeof(sockaddr_in4));
-            return error;
+            int errno = _connect((int)socket, (sockaddr*)socketAddress, (uint)sizeof(sockaddr_in4));
+            return (SocketError)errno;
         }
 
         /// <summary>
@@ -189,8 +177,8 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError ConnectIpv6(nint socket, sockaddr_in6* socketAddress)
         {
-            SocketError error = _connect(socket, (sockaddr*)socketAddress, sizeof(sockaddr_in6));
-            return error;
+            int errno = _connect((int)socket, (sockaddr*)socketAddress, (uint)sizeof(sockaddr_in6));
+            return (SocketError)errno;
         }
 
         /// <summary>
@@ -205,8 +193,8 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError SetOption(nint socket, SocketOptionLevel level, SocketOptionName name, int* value, int length = sizeof(int))
         {
-            SocketError error = _setsockopt(socket, level, name, value, length);
-            return error == 0 ? SocketError.Success : GetLastSocketError();
+            int errno = _setsockopt((int)socket, level, name, value, (uint)length);
+            return errno == 0 ? SocketError.Success : GetLastSocketError();
         }
 
         /// <summary>
@@ -225,8 +213,8 @@ namespace NativeSockets
             if (length == null)
                 length = &num;
 
-            SocketError error = _getsockopt(socket, level, name, (byte*)value, length);
-            return error == 0 ? SocketError.Success : GetLastSocketError();
+            int errno = _getsockopt((int)socket, level, name, (byte*)value, (uint*)length);
+            return errno == 0 ? SocketError.Success : GetLastSocketError();
         }
 
         /// <summary>
@@ -238,13 +226,15 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError SetBlocking(nint socket, bool blocking)
         {
-            int intBlocking = blocking ? 0 : -1;
-            SocketError error = _ioctlsocket(socket, unchecked((int)0x8004667E), &intBlocking);
+            int flags = _fcntl((int)socket, F_GETFL, 0);
+            if (flags == -1)
+                return GetLastSocketError();
 
-            if (error == SocketError.SocketError)
-                error = GetLastSocketError();
+            flags = blocking ? flags & ~O_NONBLOCK : flags | O_NONBLOCK;
+            if (_fcntl((int)socket, F_SETFL, flags) == -1)
+                return GetLastSocketError();
 
-            return error;
+            return SocketError.Success;
         }
 
         /// <summary>
@@ -258,27 +248,50 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Poll(nint socket, int microseconds, SelectMode mode, out bool status)
         {
-            nint* fileDescriptorSet = stackalloc nint[2] { 1, socket };
-
-            int socketCount;
-            if (microseconds != -1)
+            PollEvents inEvent = 0;
+            switch (mode)
             {
-                TimeValue timeout = new TimeValue();
-                MicrosecondsToTimeValue(microseconds, ref timeout);
-                socketCount = _select(0, mode == SelectMode.SelectRead ? fileDescriptorSet : null, mode == SelectMode.SelectWrite ? fileDescriptorSet : null, mode == SelectMode.SelectError ? fileDescriptorSet : null, &timeout);
-            }
-            else
-            {
-                socketCount = _select(0, mode == SelectMode.SelectRead ? fileDescriptorSet : null, mode == SelectMode.SelectWrite ? fileDescriptorSet : null, mode == SelectMode.SelectError ? fileDescriptorSet : null, null);
+                case SelectMode.SelectRead:
+                    inEvent = PollEvents.POLLIN;
+                    break;
+                case SelectMode.SelectWrite:
+                    inEvent = PollEvents.POLLOUT;
+                    break;
+                case SelectMode.SelectError:
+                    inEvent = PollEvents.POLLPRI;
+                    break;
             }
 
-            if (socketCount == -1)
+            int milliseconds = microseconds == -1 ? -1 : microseconds / 1000;
+
+            pollfd fd;
+            fd.fd = (int)socket;
+            fd.events = (short)inEvent;
+            fd.revents = 0;
+
+            int errno = _poll(&fd, 1, milliseconds);
+            if (errno == -1)
             {
                 status = false;
                 return GetLastSocketError();
             }
 
-            status = (int)fileDescriptorSet[0] != 0 && fileDescriptorSet[1] == socket;
+            PollEvents outEvents = (PollEvents)fd.revents;
+            switch (mode)
+            {
+                case SelectMode.SelectRead:
+                    status = (outEvents & (PollEvents.POLLIN | PollEvents.POLLHUP)) != 0;
+                    break;
+                case SelectMode.SelectWrite:
+                    status = (outEvents & PollEvents.POLLOUT) != 0;
+                    break;
+                case SelectMode.SelectError:
+                    status = (outEvents & (PollEvents.POLLERR | PollEvents.POLLPRI)) != 0;
+                    break;
+                default:
+                    status = false;
+                    break;
+            }
 
             return SocketError.Success;
         }
@@ -294,7 +307,7 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Send(nint socket, void* buffer, int length, SocketFlags socketFlags)
         {
-            int num = _send(socket, (byte*)buffer, length, socketFlags);
+            int num = (int)_send((int)socket, (byte*)buffer, (nuint)length, socketFlags);
             return num;
         }
 
@@ -311,7 +324,7 @@ namespace NativeSockets
         public static int SendToIpv4(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in4* socketAddress)
         {
             if (socketAddress != null)
-                return _sendto(socket, (byte*)buffer, length, socketFlags, (byte*)socketAddress, sizeof(sockaddr_in4));
+                return (int)_sendto((int)socket, (byte*)buffer, (nuint)length, socketFlags, (sockaddr*)socketAddress, (uint)sizeof(sockaddr_in4));
 
             int num = Send(socket, (byte*)buffer, length, socketFlags);
             return num;
@@ -330,7 +343,7 @@ namespace NativeSockets
         public static int SendToIpv6(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in6* socketAddress)
         {
             if (socketAddress != null)
-                return _sendto(socket, (byte*)buffer, length, socketFlags, (byte*)socketAddress, sizeof(sockaddr_in6));
+                return (int)_sendto((int)socket, (byte*)buffer, (nuint)length, socketFlags, (sockaddr*)socketAddress, (uint)sizeof(sockaddr_in6));
 
             int num = Send(socket, (byte*)buffer, length, socketFlags);
             return num;
@@ -347,7 +360,7 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Receive(nint socket, void* buffer, int length, SocketFlags socketFlags)
         {
-            int num = _recv(socket, (byte*)buffer, length, socketFlags);
+            int num = (int)_recv((int)socket, (byte*)buffer, (nuint)length, socketFlags);
             return num;
         }
 
@@ -364,9 +377,9 @@ namespace NativeSockets
         public static int ReceiveFromIpv4(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in4* socketAddress)
         {
             sockaddr_storage addressStorage = new sockaddr_storage();
-            int socketAddressSize = sizeof(sockaddr_storage);
+            uint socketAddressSize = (uint)sizeof(sockaddr_storage);
 
-            int num = _recvfrom(socket, (byte*)buffer, length, socketFlags, (byte*)&addressStorage, &socketAddressSize);
+            int num = (int)_recvfrom((int)socket, (byte*)buffer, (nuint)length, socketFlags, (sockaddr*)&addressStorage, &socketAddressSize);
 
             if (num >= 0 && socketAddress != null)
             {
@@ -390,9 +403,9 @@ namespace NativeSockets
         public static int ReceiveFromIpv6(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in6* socketAddress)
         {
             sockaddr_storage addressStorage = new sockaddr_storage();
-            int socketAddressSize = sizeof(sockaddr_storage);
+            uint socketAddressSize = (uint)sizeof(sockaddr_storage);
 
-            int num = _recvfrom(socket, (byte*)buffer, length, socketFlags, (byte*)&addressStorage, &socketAddressSize);
+            int num = (int)_recvfrom((int)socket, (byte*)buffer, (nuint)length, socketFlags, (sockaddr*)&addressStorage, &socketAddressSize);
 
             if (num >= 0 && socketAddress != null)
                 WinSock2.MapToIpv6(socketAddress, addressStorage, ADDRESS_FAMILY_INTER_NETWORK_V4, ADDRESS_FAMILY_INTER_NETWORK_V6);
@@ -411,15 +424,23 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int SendMessage(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags)
         {
-            uint bytesTransferred;
-            SocketError error;
+            msghdr msg;
+            msg.msg_name = null;
+            msg.msg_namelen = 0;
+            msg.msg_iovlen = _get_msg_iovlen(bufferCount);
+            msg.msg_control = null;
+            msg.msg_controllen = 0;
+            msg.msg_flags = 0;
 
-            using (NativeScopedArray<WSABuffer> __buffers_native = Build(stackalloc WSABuffer[16], buffers, bufferCount))
+            int num;
+
+            using (NativeScopedArray<iovec> __buffers_native = Build(stackalloc iovec[16], buffers, bufferCount))
             {
-                error = _WSASend(socket, __buffers_native.Buffer, (uint)bufferCount, &bytesTransferred, socketFlags, null, 0);
+                msg.msg_iov = __buffers_native.Buffer;
+                num = (int)_sendmsg((int)socket, &msg, socketFlags);
             }
 
-            return error == SocketError.Success ? (int)bytesTransferred : -1;
+            return num;
         }
 
         /// <summary>
@@ -436,15 +457,23 @@ namespace NativeSockets
         {
             if (socketAddress != null)
             {
-                uint bytesTransferred;
-                SocketError error;
+                msghdr msg;
+                msg.msg_name = socketAddress;
+                msg.msg_namelen = (uint)sizeof(sockaddr_in4);
+                msg.msg_iovlen = _get_msg_iovlen(bufferCount);
+                msg.msg_control = null;
+                msg.msg_controllen = 0;
+                msg.msg_flags = 0;
 
-                using (NativeScopedArray<WSABuffer> __buffers_native = Build(stackalloc WSABuffer[16], buffers, bufferCount))
+                int num;
+
+                using (NativeScopedArray<iovec> __buffers_native = Build(stackalloc iovec[16], buffers, bufferCount))
                 {
-                    error = _WSASendTo(socket, __buffers_native.Buffer, (uint)bufferCount, &bytesTransferred, socketFlags, (byte*)socketAddress, sizeof(sockaddr_in4), null, 0);
+                    msg.msg_iov = __buffers_native.Buffer;
+                    num = (int)_sendmsg((int)socket, &msg, socketFlags);
                 }
 
-                return error == SocketError.Success ? (int)bytesTransferred : -1;
+                return num;
             }
 
             return SendMessage(socket, buffers, bufferCount, socketFlags);
@@ -464,15 +493,23 @@ namespace NativeSockets
         {
             if (socketAddress != null)
             {
-                uint bytesTransferred;
-                SocketError error;
+                msghdr msg;
+                msg.msg_name = socketAddress;
+                msg.msg_namelen = (uint)sizeof(sockaddr_in6);
+                msg.msg_iovlen = _get_msg_iovlen(bufferCount);
+                msg.msg_control = null;
+                msg.msg_controllen = 0;
+                msg.msg_flags = 0;
 
-                using (NativeScopedArray<WSABuffer> __buffers_native = Build(stackalloc WSABuffer[16], buffers, bufferCount))
+                int num;
+
+                using (NativeScopedArray<iovec> __buffers_native = Build(stackalloc iovec[16], buffers, bufferCount))
                 {
-                    error = _WSASendTo(socket, __buffers_native.Buffer, (uint)bufferCount, &bytesTransferred, socketFlags, (byte*)socketAddress, sizeof(sockaddr_in6), null, 0);
+                    msg.msg_iov = __buffers_native.Buffer;
+                    num = (int)_sendmsg((int)socket, &msg, socketFlags);
                 }
 
-                return error == SocketError.Success ? (int)bytesTransferred : -1;
+                return num;
             }
 
             return SendMessage(socket, buffers, bufferCount, socketFlags);
@@ -489,22 +526,31 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveMessage(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* socketFlags)
         {
-            uint bytesTransferred;
-            SocketFlags flags;
-            SocketError error;
+            msghdr msg;
+            msg.msg_name = null;
+            msg.msg_namelen = 0;
+            msg.msg_iovlen = _get_msg_iovlen(bufferCount);
+            msg.msg_control = null;
+            msg.msg_controllen = 0;
+            msg.msg_flags = 0;
 
-            using (NativeScopedArray<WSABuffer> __buffers_native = Build(stackalloc WSABuffer[16], buffers, bufferCount))
+            SocketFlags flags = socketFlags != null ? *socketFlags : 0;
+
+            int num;
+
+            using (NativeScopedArray<iovec> __buffers_native = Build(stackalloc iovec[16], buffers, bufferCount))
             {
-                error = _WSARecv(socket, __buffers_native.Buffer, (uint)bufferCount, &bytesTransferred, &flags, null, 0);
+                msg.msg_iov = __buffers_native.Buffer;
+                num = (int)_recvmsg((int)socket, &msg, flags);
             }
 
             if (socketFlags != null)
-                *socketFlags = flags;
+                *socketFlags = (SocketFlags)msg.msg_flags;
 
-            if (flags != 0)
+            if (msg.msg_flags != 0)
                 return -1;
 
-            return error == SocketError.Success ? (int)bytesTransferred : -1;
+            return num;
         }
 
         /// <summary>
@@ -519,31 +565,39 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveMessageFromIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* socketFlags, sockaddr_in4* socketAddress)
         {
-            uint bytesTransferred;
-            SocketFlags flags;
-            SocketError error;
-
             sockaddr_storage addressStorage = new sockaddr_storage();
-            int socketAddressSize = sizeof(sockaddr_storage);
 
-            using (NativeScopedArray<WSABuffer> __buffers_native = Build(stackalloc WSABuffer[16], buffers, bufferCount))
+            msghdr msg;
+            msg.msg_name = &addressStorage;
+            msg.msg_namelen = (uint)sizeof(sockaddr_storage);
+            msg.msg_iovlen = _get_msg_iovlen(bufferCount);
+            msg.msg_control = null;
+            msg.msg_controllen = 0;
+            msg.msg_flags = 0;
+
+            SocketFlags flags = socketFlags != null ? *socketFlags : 0;
+
+            int num;
+
+            using (NativeScopedArray<iovec> __buffers_native = Build(stackalloc iovec[16], buffers, bufferCount))
             {
-                error = _WSARecvFrom(socket, __buffers_native.Buffer, (uint)bufferCount, &bytesTransferred, &flags, (byte*)&addressStorage, &socketAddressSize, null, 0);
+                msg.msg_iov = __buffers_native.Buffer;
+                num = (int)_recvmsg((int)socket, &msg, flags);
             }
 
             if (socketFlags != null)
-                *socketFlags = flags;
+                *socketFlags = (SocketFlags)msg.msg_flags;
 
-            if (flags != 0)
+            if (msg.msg_flags != 0)
                 return -1;
 
-            if (error == SocketError.Success && socketAddress != null)
+            if (num >= 0 && socketAddress != null)
             {
                 sockaddr_in4* __socketAddress_native = (sockaddr_in4*)&addressStorage;
                 *socketAddress = *__socketAddress_native;
             }
 
-            return error == SocketError.Success ? (int)bytesTransferred : -1;
+            return num;
         }
 
         /// <summary>
@@ -558,28 +612,36 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveMessageFromIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* socketFlags, sockaddr_in6* socketAddress)
         {
-            uint bytesTransferred;
-            SocketFlags flags;
-            SocketError error;
-
             sockaddr_storage addressStorage = new sockaddr_storage();
-            int socketAddressSize = sizeof(sockaddr_storage);
 
-            using (NativeScopedArray<WSABuffer> __buffers_native = Build(stackalloc WSABuffer[16], buffers, bufferCount))
+            msghdr msg;
+            msg.msg_name = &addressStorage;
+            msg.msg_namelen = (uint)sizeof(sockaddr_storage);
+            msg.msg_iovlen = _get_msg_iovlen(bufferCount);
+            msg.msg_control = null;
+            msg.msg_controllen = 0;
+            msg.msg_flags = 0;
+
+            SocketFlags flags = socketFlags != null ? *socketFlags : 0;
+
+            int num;
+
+            using (NativeScopedArray<iovec> __buffers_native = Build(stackalloc iovec[16], buffers, bufferCount))
             {
-                error = _WSARecvFrom(socket, __buffers_native.Buffer, (uint)bufferCount, &bytesTransferred, &flags, (byte*)&addressStorage, &socketAddressSize, null, 0);
+                msg.msg_iov = __buffers_native.Buffer;
+                num = (int)_recvmsg((int)socket, &msg, flags);
             }
 
             if (socketFlags != null)
-                *socketFlags = flags;
+                *socketFlags = (SocketFlags)msg.msg_flags;
 
-            if (flags != 0)
+            if (msg.msg_flags != 0)
                 return -1;
 
-            if (error == SocketError.Success && socketAddress != null)
+            if (num >= 0 && socketAddress != null)
                 WinSock2.MapToIpv6(socketAddress, addressStorage, ADDRESS_FAMILY_INTER_NETWORK_V4, ADDRESS_FAMILY_INTER_NETWORK_V6);
 
-            return error == SocketError.Success ? (int)bytesTransferred : -1;
+            return num;
         }
 
         /// <summary>
@@ -592,17 +654,17 @@ namespace NativeSockets
         public static SocketError GetNameIpv4(nint socket, sockaddr_in4* socketAddress)
         {
             sockaddr_storage addressStorage = new sockaddr_storage();
-            int socketAddressSize = sizeof(sockaddr_storage);
+            uint socketAddressSize = (uint)sizeof(sockaddr_storage);
 
-            SocketError error = _getsockname(socket, (sockaddr*)&addressStorage, &socketAddressSize);
+            int errno = _getsockname((int)socket, (sockaddr*)&addressStorage, &socketAddressSize);
 
-            if (error == SocketError.Success && socketAddress != null)
+            if (errno == 0 && socketAddress != null)
             {
                 sockaddr_in4* __socketAddress_native = (sockaddr_in4*)&addressStorage;
                 *socketAddress = *__socketAddress_native;
             }
 
-            return error;
+            return (SocketError)errno;
         }
 
         /// <summary>
@@ -615,14 +677,14 @@ namespace NativeSockets
         public static SocketError GetNameIpv6(nint socket, sockaddr_in6* socketAddress)
         {
             sockaddr_storage addressStorage = new sockaddr_storage();
-            int socketAddressSize = sizeof(sockaddr_storage);
+            uint socketAddressSize = (uint)sizeof(sockaddr_storage);
 
-            SocketError error = _getsockname(socket, (sockaddr*)&addressStorage, &socketAddressSize);
+            int errno = _getsockname((int)socket, (sockaddr*)&addressStorage, &socketAddressSize);
 
-            if (error == SocketError.Success && socketAddress != null)
+            if (errno == 0 && socketAddress != null)
                 WinSock2.MapToIpv6(socketAddress, addressStorage, ADDRESS_FAMILY_INTER_NETWORK_V4, ADDRESS_FAMILY_INTER_NETWORK_V6);
 
-            return error;
+            return (SocketError)errno;
         }
 
         /// <summary>
@@ -719,7 +781,7 @@ namespace NativeSockets
 
             fixed (byte* pStringBuf = &MemoryMarshal.GetReference(ip))
             {
-                if (_inet_ntop(addressFamily, pAddrBuf, pStringBuf, (nuint)ip.Length) == null)
+                if (_inet_ntop(addressFamily, pAddrBuf, pStringBuf, (uint)ip.Length) == null)
                     return SocketError.Fault;
             }
 
@@ -740,7 +802,7 @@ namespace NativeSockets
 
             fixed (byte* pStringBuf = &MemoryMarshal.GetReference(ip))
             {
-                if (_inet_ntop(addressFamily, pAddrBuf, pStringBuf, (nuint)ip.Length) == null)
+                if (_inet_ntop(addressFamily, pAddrBuf, pStringBuf, (uint)ip.Length) == null)
                 {
                     return SocketError.Fault;
                 }
@@ -849,7 +911,7 @@ namespace NativeSockets
             int error;
             fixed (byte* pStringBuf = &MemoryMarshal.GetReference(hostName))
             {
-                error = _getnameinfo((sockaddr*)socketAddress, sizeof(sockaddr_in4), pStringBuf, (ulong)hostName.Length, null, 0, 0);
+                error = _getnameinfo((sockaddr*)socketAddress, (uint)sizeof(sockaddr_in4), pStringBuf, (uint)hostName.Length, null, 0, 0);
             }
 
             return error == 0 ? SocketError.Success : SocketError.Fault;
@@ -867,7 +929,7 @@ namespace NativeSockets
             int error;
             fixed (byte* pStringBuf = &MemoryMarshal.GetReference(hostName))
             {
-                error = _getnameinfo((sockaddr*)socketAddress, sizeof(sockaddr_in6), pStringBuf, (ulong)hostName.Length, null, 0, 0);
+                error = _getnameinfo((sockaddr*)socketAddress, (uint)sizeof(sockaddr_in6), pStringBuf, (uint)hostName.Length, null, 0, 0);
             }
 
             return error == 0 ? SocketError.Success : SocketError.Fault;

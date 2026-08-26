@@ -409,7 +409,7 @@ namespace NativeSockets
             int num = (int)_recvfrom((int)socket, (byte*)buffer, (nuint)length, socketFlags, (sockaddr*)&addressStorage, &socketAddressSize);
 
             if (num >= 0 && socketAddress != null)
-                MapToIpv6(socketAddress, addressStorage);
+                WinSock2.MapToIpv6(socketAddress, addressStorage, ADDRESS_FAMILY_INTER_NETWORK_V4, ADDRESS_FAMILY_INTER_NETWORK_V6);
 
             return num;
         }
@@ -640,7 +640,7 @@ namespace NativeSockets
                 return -1;
 
             if (num >= 0 && socketAddress != null)
-                MapToIpv6(socketAddress, addressStorage);
+                WinSock2.MapToIpv6(socketAddress, addressStorage, ADDRESS_FAMILY_INTER_NETWORK_V4, ADDRESS_FAMILY_INTER_NETWORK_V6);
 
             return num;
         }
@@ -683,7 +683,7 @@ namespace NativeSockets
             int errno = _getsockname((int)socket, (sockaddr*)&addressStorage, &socketAddressSize);
 
             if (errno == 0 && socketAddress != null)
-                MapToIpv6(socketAddress, addressStorage);
+                WinSock2.MapToIpv6(socketAddress, addressStorage, ADDRESS_FAMILY_INTER_NETWORK_V4, ADDRESS_FAMILY_INTER_NETWORK_V6);
 
             return (SocketError)errno;
         }
@@ -934,31 +934,6 @@ namespace NativeSockets
             }
 
             return error == 0 ? SocketError.Success : SocketError.Fault;
-        }
-
-        /// <summary>
-        ///     Maps the Ipv4 address to an Ipv6 address.
-        /// </summary>
-        /// <param name="socketAddress">Pointer to the target Ipv6 socket address structure to fill.</param>
-        /// <param name="addressStorage">Reference to the source address storage, which may contain an Ipv4 or Ipv6 address.</param>
-        [MustBePinned(nameof(addressStorage))]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void MapToIpv6(sockaddr_in6* socketAddress, [MustBePinned] in sockaddr_storage addressStorage)
-        {
-            if (addressStorage.ss_family == ADDRESS_FAMILY_INTER_NETWORK_V4)
-            {
-                sockaddr_in4* __socketAddress_native = (sockaddr_in4*)Unsafe.AsPointer(ref Unsafe.AsRef(in addressStorage));
-                socketAddress->sin6_family = ADDRESS_FAMILY_INTER_NETWORK_V6;
-                socketAddress->sin6_port = __socketAddress_native->sin4_port;
-                socketAddress->sin6_flowinfo = 0;
-                WinSock2.MapToIpv6(ref Unsafe.AsRef<byte>(socketAddress->sin6_addr), __socketAddress_native->sin4_addr);
-                socketAddress->sin6_scope_id = 0;
-            }
-            else if (addressStorage.ss_family == ADDRESS_FAMILY_INTER_NETWORK_V6)
-            {
-                sockaddr_in6* __socketAddress_native = (sockaddr_in6*)Unsafe.AsPointer(ref Unsafe.AsRef(in addressStorage));
-                *socketAddress = *__socketAddress_native;
-            }
         }
     }
 }

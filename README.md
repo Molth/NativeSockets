@@ -1,6 +1,6 @@
 # NativeSockets
 
-**A pure C# UDP socket library with zero external dependencies.**
+**A pure C# udp socket library with zero external dependencies.**
 
 [![NuGet](https://img.shields.io/nuget/v/NativeSockets.svg?style=flat-square)](https://www.nuget.org/packages/NativeSockets/)
 
@@ -8,7 +8,9 @@
 
 ## About
 
-NativeSockets is a lightweight, cross‑platform library for UDP networking. It is written entirely in managed C# and does not rely on any third‑party binaries or platform‑specific packages. The library provides a consistent API across all supported operating systems, with automatic runtime adaptation to the underlying environment.
+- NativeSockets is a lightweight, cross‑platform library for udp networking. 
+- It is written entirely in managed C# and does not rely on any third‑party binaries or platform‑specific packages. 
+- The library provides a consistent API across all supported operating systems, with automatic runtime adaptation to the underlying environment.
 
 ---
 
@@ -17,7 +19,12 @@ NativeSockets is a lightweight, cross‑platform library for UDP networking. It 
 - Windows
 - Linux
 - macOS
+- iOS
 - Android
+- FreeBSD
+- tvOS
+- watchOS
+- visionOS
 
 ---
 
@@ -25,7 +32,7 @@ NativeSockets is a lightweight, cross‑platform library for UDP networking. It 
 
 - **Zero garbage collection pressure**
 - **Pure managed code** – No external dependencies to deploy or manage.
-- **Complete UDP support** – Create, bind, connect, send, receive, and poll sockets.
+- **Complete udp support** – create, bind, connect, send, receive, and poll sockets.
 - **Ipv4 and Ipv6** with dual‑mode support.
 - **Allocation‑free extension methods** for `System.Net.Sockets.Socket`:
     - `SendToNonAlloc` – send data without temporary allocations.
@@ -37,4 +44,5 @@ NativeSockets is a lightweight, cross‑platform library for UDP networking. It 
 
 ## No External Dependencies
 
-The library works out‑of‑the‑box on any supported platform. There are no additional runtime libraries, native binaries, or platform‑specific packages to install – just add the NuGet package and start using it.
+- The library works out‑of‑the‑box on any supported platform. 
+- There are no additional runtime libraries, native binaries, or platform‑specific packages to install – just add the NuGet package and start using it.

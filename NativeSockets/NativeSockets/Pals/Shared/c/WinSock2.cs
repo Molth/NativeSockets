@@ -11,7 +11,7 @@ namespace NativeSockets
     /// <summary>
     ///     Provides helper methods and structures for Windows Sockets (Winsock) operations.
     /// </summary>
-    internal static class WinSock2
+    internal static unsafe class WinSock2
     {
         /// <summary>
         ///     Maximum length of a host name string (including the null terminator)
@@ -41,6 +41,17 @@ namespace NativeSockets
         public static ushort NET_TO_HOST_16(ushort network) => BitConverter.IsLittleEndian ? BinaryPrimitives.ReverseEndianness(network) : network;
 
         /// <summary>
+        ///     Gets whether the ip address is an Ipv4-mapped Ipv6 address.
+        /// </summary>
+        /// <param name="sin6_addr">The 12‑byte span containing the Ipv4‑mapped Ipv6 address data.</param>
+        /// <returns>
+        ///     Returns true if the ip address is an Ipv4-mapped Ipv6 address;
+        ///     otherwise, false.
+        /// </returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsIpv4MappedToIpv6(ref byte sin6_addr) => MemoryMarshal.CreateReadOnlySpan(ref sin6_addr, 12).SequenceEqual(ADDRESS_FAMILY_INTER_NETWORK_V4_MAPPED_V6);
+
+        /// <summary>
         ///     Maps the Ipv4 address to an Ipv6 address.
         /// </summary>
         /// <param name="sin6_addr">The 12‑byte span containing the Ipv4‑mapped Ipv6 address data.</param>
@@ -60,15 +71,31 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Gets whether the ip address is an Ipv4-mapped Ipv6 address.
+        ///     Maps the Ipv4 address to an Ipv6 address.
         /// </summary>
-        /// <param name="sin6_addr">The 12‑byte span containing the Ipv4‑mapped Ipv6 address data.</param>
-        /// <returns>
-        ///     Returns true if the ip address is an Ipv4-mapped Ipv6 address;
-        ///     otherwise, false.
-        /// </returns>
+        /// <param name="socketAddress">Pointer to the target Ipv6 socket address structure to fill.</param>
+        /// <param name="addressStorage">Reference to the source address storage, which may contain an Ipv4 or Ipv6 address.</param>
+        /// <param name="ADDRESS_FAMILY_INTER_NETWORK_V4">The address family value for Ipv4 used by the current platform.</param>
+        /// <param name="ADDRESS_FAMILY_INTER_NETWORK_V6">The address family value for Ipv6 used by the current platform.</param>
+        [MustBePinned(nameof(addressStorage))]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsIpv4MappedToIpv6(ref byte sin6_addr) => MemoryMarshal.CreateReadOnlySpan(ref sin6_addr, 12).SequenceEqual(ADDRESS_FAMILY_INTER_NETWORK_V4_MAPPED_V6);
+        public static void MapToIpv6(sockaddr_in6* socketAddress, [MustBePinned] in sockaddr_storage addressStorage, ushort ADDRESS_FAMILY_INTER_NETWORK_V4, ushort ADDRESS_FAMILY_INTER_NETWORK_V6)
+        {
+            if (addressStorage.ss_family == ADDRESS_FAMILY_INTER_NETWORK_V4)
+            {
+                sockaddr_in4* __socketAddress_native = (sockaddr_in4*)Unsafe.AsPointer(ref Unsafe.AsRef(in addressStorage));
+                socketAddress->sin6_family = ADDRESS_FAMILY_INTER_NETWORK_V6;
+                socketAddress->sin6_port = __socketAddress_native->sin4_port;
+                socketAddress->sin6_flowinfo = 0;
+                MapToIpv6(ref Unsafe.AsRef<byte>(socketAddress->sin6_addr), __socketAddress_native->sin4_addr);
+                socketAddress->sin6_scope_id = 0;
+            }
+            else if (addressStorage.ss_family == ADDRESS_FAMILY_INTER_NETWORK_V6)
+            {
+                sockaddr_in6* __socketAddress_native = (sockaddr_in6*)Unsafe.AsPointer(ref Unsafe.AsRef(in addressStorage));
+                *socketAddress = *__socketAddress_native;
+            }
+        }
 
         /// <summary>
         ///     Converts the specified text to a null-terminated ASCII byte array,

@@ -1,4 +1,5 @@
 ﻿using System.Net.Sockets;
+using static NativeSockets.StdSocketOptionName;
 
 // ReSharper disable All
 
@@ -84,10 +85,10 @@ namespace NativeSockets
                 SocketOptionLevel.Tcp => name switch
                 {
                     SocketOptionName.NoDelay => 1,
-                    (SocketOptionName)16 => 6,
-                    (SocketOptionName)3 => 4,
-                    (SocketOptionName)17 => 5,
-                    (SocketOptionName)15 => 23,
+                    SO_TCP_KEEPALIVE_RETRYCOUNT => 6,
+                    SO_TCP_KEEPALIVE_TIME => 4,
+                    SO_TCP_KEEPALIVE_INTERVAL => 5,
+                    SO_TCP_FASTOPEN => 23,
                     _ => (int)name
                 },
                 SocketOptionLevel.Udp => name switch

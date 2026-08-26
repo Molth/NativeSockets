@@ -19,48 +19,105 @@ namespace NativeSockets
         ///     Populates a <see cref="NativeSocketAddress" /> from the specified <see cref="IPEndPoint" />.
         /// </summary>
         /// <param name="socketAddress">The destination <see cref="NativeSocketAddress" /> to fill.</param>
-        /// <param name="ipEndPoint">The <see cref="IPEndPoint" /> containing the ip address and port.</param>
+        /// <param name="source">The <see cref="IPEndPoint" /> containing the ip address and port.</param>
         /// <returns>
         ///     <see cref="SocketError.Success" /> if successful;
         ///     <see cref="SocketError.AddressFamilyNotSupported" /> if the address family is not Ipv4 or Ipv6.
         /// </returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetIp(ref this NativeSocketAddress socketAddress, IPEndPoint ipEndPoint) => socketAddress.SetIp(ipEndPoint.Address, (ushort)ipEndPoint.Port, ipEndPoint.AddressFamily == AddressFamily.InterNetworkV6 ? (uint)ipEndPoint.Address.ScopeId : 0);
+        public static SocketError FromIpEndPoint(ref this NativeSocketAddress socketAddress, IPEndPoint source) => socketAddress.FromIpAddress(source.Address, (ushort)source.Port);
 
         /// <summary>
-        ///     Populates a <see cref="NativeSocketAddress" /> from the specified <see cref="IPAddress" />, port, and scope id.
+        ///     Populates a <see cref="NativeSocketAddress" /> from the specified <see cref="IPAddress" />, port,
+        ///     and scope id (ignored for Ipv4).
         /// </summary>
         /// <param name="socketAddress">The destination <see cref="NativeSocketAddress" /> to fill.</param>
-        /// <param name="address">The <see cref="IPAddress" /> to set.</param>
+        /// <param name="source">The <see cref="IPAddress" /> to set.</param>
         /// <param name="port">The port number.</param>
-        /// <param name="scopeId">The Ipv6 scope identifier (ignored for Ipv4).</param>
         /// <returns>
         ///     <see cref="SocketError.Success" /> if successful;
         ///     <see cref="SocketError.AddressFamilyNotSupported" /> if the address family is not Ipv4 or Ipv6.
         /// </returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetIp(ref this NativeSocketAddress socketAddress, IPAddress address, ushort port, uint scopeId = 0)
+        public static SocketError FromIpAddress(ref this NativeSocketAddress socketAddress, IPAddress source, ushort port)
         {
-            if (address.AddressFamily == AddressFamily.InterNetwork || address.AddressFamily == AddressFamily.InterNetworkV6)
+            if (source.AddressFamily == AddressFamily.InterNetwork || source.AddressFamily == AddressFamily.InterNetworkV6)
             {
                 socketAddress = new NativeSocketAddress();
-                socketAddress.Family = address.AddressFamily;
+                socketAddress.Family = source.AddressFamily;
                 socketAddress.Port = port;
-                address.TryWriteBytes(socketAddress.Address, out _);
+                source.TryWriteBytes(socketAddress.Address, out _);
+
+                if (source.AddressFamily == AddressFamily.InterNetworkV6)
+                    socketAddress.ScopeId = (uint)source.ScopeId;
+
+                return SocketError.Success;
             }
 
-            switch (address.AddressFamily)
+            return SocketError.AddressFamilyNotSupported;
+        }
+
+        /// <summary>
+        ///     Populates a <see cref="NativeSocketAddress" /> from the specified <see cref="SocketAddress" />.
+        /// </summary>
+        /// <param name="socketAddress">The destination <see cref="NativeSocketAddress" /> to fill.</param>
+        /// <param name="source">The source <see cref="SocketAddress" /> to copy from.</param>
+        /// <returns>
+        ///     <see cref="SocketError.Success" /> if the address is valid and copied successfully;
+        ///     <see cref="SocketError.AddressFamilyNotSupported" /> if the address family is not Ipv4 or Ipv6,
+        ///     or the buffer size is insufficient.
+        /// </returns>
+        public static SocketError FromSocketAddress(ref this NativeSocketAddress socketAddress, SocketAddress source)
+        {
+            if ((source.Family == AddressFamily.InterNetwork && source.Size >= 16) || (source.Family == AddressFamily.InterNetworkV6 && source.Size >= 28))
             {
-                case AddressFamily.InterNetwork:
-                    return SocketError.Success;
+                socketAddress.Family = source.Family;
+                source.CopyTo(socketAddress.Buffer, source.Family == AddressFamily.InterNetwork ? 8 : 28);
 
-                case AddressFamily.InterNetworkV6:
-                    socketAddress.ScopeId = scopeId;
-                    return SocketError.Success;
+                if (source.Family == AddressFamily.InterNetwork)
+                    socketAddress.AsSpan().Slice(8).Clear();
 
-                default:
-                    return SocketError.AddressFamilyNotSupported;
+                return SocketError.Success;
             }
+
+            return SocketError.AddressFamilyNotSupported;
+        }
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="IPEndPoint" /> class with the specified address and port number.
+        /// </summary>
+        /// <param name="socketAddress">The socket address to convert.</param>
+        /// <exception cref="ArgumentException">Address contains a bad ip address.</exception>
+        /// <returns>A new instance of the <see cref="IPEndPoint" /> class.</returns>
+        public static IPEndPoint ToIpEndPoint(this NativeSocketAddress socketAddress) => new(socketAddress.ToIpAddress(), socketAddress.Port);
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="IPAddress" /> class with the specified address.
+        /// </summary>
+        /// <param name="socketAddress">The socket address to convert.</param>
+        /// <exception cref="ArgumentException">Address contains a bad ip address.</exception>
+        /// <returns>A new instance of the <see cref="IPAddress" /> class.</returns>
+        public static IPAddress ToIpAddress(this NativeSocketAddress socketAddress) => socketAddress.IsIpv6 ? new IPAddress(socketAddress.Address, socketAddress.ScopeId) : new IPAddress(socketAddress.Address);
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="SocketAddress" /> class with the specified address.
+        /// </summary>
+        /// <param name="socketAddress">The socket address to convert.</param>
+        /// <exception cref="NotSupportedException">
+        ///     Family != <see cref="AddressFamily.InterNetwork" />
+        ///     or <see cref="AddressFamily.InterNetworkV6" />.
+        /// </exception>
+        /// <returns>A new instance of the <see cref="SocketAddress" /> class.</returns>
+        public static SocketAddress ToSocketAddress(this NativeSocketAddress socketAddress)
+        {
+            if (socketAddress.Family != AddressFamily.InterNetwork && socketAddress.Family != AddressFamily.InterNetworkV6)
+            {
+                ThrowHelpers.ThrowNotSupportedException();
+                return default;
+            }
+
+            ReadOnlySpan<byte> buffer = socketAddress.Buffer;
+            SocketAddress result = new SocketAddress(socketAddress.Family);
+            result.CopyFrom(buffer, socketAddress.Size);
+            return result;
         }
 
         /// <summary>

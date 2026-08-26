@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -20,6 +19,9 @@ namespace NativeSockets
     /// </remarks>
     [StructLayout(LayoutKind.Explicit, Size = 28)]
     public unsafe struct NativeSocketAddress : IIsCreated, IEquatable<NativeSocketAddress>, IComparable<NativeSocketAddress>
+#if NET6_0_OR_GREATER
+        , ISpanFormattable
+#endif
     {
         /// <summary>
         ///     The raw buffer containing the socket address bytes.
@@ -64,10 +66,6 @@ namespace NativeSockets
         /// <summary>
         ///     Gets the address family of the socket address.
         /// </summary>
-        /// <exception cref="NotSupportedException">
-        ///     Family != <see cref="AddressFamily.InterNetwork" />
-        ///     or <see cref="AddressFamily.InterNetworkV6" />.
-        /// </exception>
         public AddressFamily Family
         {
             readonly get => GetAddressFamily();
@@ -119,12 +117,12 @@ namespace NativeSockets
         {
             readonly get
             {
-                ThrowHelpers.ThrowIfGreaterThan((uint)offset, (uint)Size, ExceptionArgument.offset);
+                ThrowHelpers.ThrowIfGreaterThanOrEqual((uint)offset, (uint)Size, ExceptionArgument.offset);
                 return _buffer[offset];
             }
             set
             {
-                ThrowHelpers.ThrowIfGreaterThan((uint)offset, (uint)Size, ExceptionArgument.offset);
+                ThrowHelpers.ThrowIfGreaterThanOrEqual((uint)offset, (uint)Size, ExceptionArgument.offset);
                 _buffer[offset] = value;
             }
         }
@@ -207,10 +205,6 @@ namespace NativeSockets
         /// <summary>
         ///     Sets the address family from a raw <see cref="AddressFamily" /> value.
         /// </summary>
-        /// <exception cref="NotSupportedException">
-        ///     Family != <see cref="AddressFamily.InterNetwork" />
-        ///     or <see cref="AddressFamily.InterNetworkV6" />.
-        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void SetAddressFamily(AddressFamily value)
         {
@@ -225,7 +219,7 @@ namespace NativeSockets
                     break;
 
                 default:
-                    ThrowHelpers.ThrowInvalidOperationException();
+                    ss_family = (ushort)value;
                     break;
             }
         }
@@ -285,6 +279,19 @@ namespace NativeSockets
         public static bool operator !=(NativeSocketAddress left, NativeSocketAddress right) => !left.Equals(right);
 
         /// <summary>
+        ///     Returns information about the socket address.
+        /// </summary>
+        /// <returns>A string that contains information about this.</returns>
+        public readonly override string ToString()
+        {
+            using (NativeScopedArray<char> array = Format(stackalloc char[256], this, out int chars))
+            {
+                Span<char> result = array.AsSpan().Slice(0, chars);
+                return result.ToString();
+            }
+        }
+
+        /// <summary>
         ///     Tries to format the current socket address into the provided span.
         /// </summary>
         /// <param name="destination">When this method returns, the socket address as a span of characters.</param>
@@ -310,17 +317,22 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Returns information about the socket address.
+        ///     Returns the string representation of the current socket address.
         /// </summary>
-        /// <returns>A string that contains information about this.</returns>
-        public readonly override string ToString()
-        {
-            using (NativeScopedArray<char> array = Format(stackalloc char[256], this, out int chars))
-            {
-                Span<char> result = array.AsSpan().Slice(0, chars);
-                return result.ToString();
-            }
-        }
+        /// <param name="_">The format specifier (ignored).</param>
+        /// <param name="__">The format provider (ignored).</param>
+        /// <returns>A string representation of the socket address.</returns>
+        public readonly string ToString(string? _, IFormatProvider? __) => ToString();
+
+        /// <summary>
+        ///     Tries to format the current socket address into the provided span.
+        /// </summary>
+        /// <param name="destination">The span to receive the formatted characters.</param>
+        /// <param name="charsWritten">When this method returns, the number of characters written.</param>
+        /// <param name="_">The format specifier (ignored).</param>
+        /// <param name="__">The format provider (ignored).</param>
+        /// <returns><see langword="true" /> if the formatting succeeded; otherwise, <see langword="false" />.</returns>
+        public readonly bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> _, IFormatProvider? __) => TryFormat(destination, out charsWritten);
 
         /// <summary>
         ///     Formats the socket address into a human-readable string representation.
@@ -368,50 +380,6 @@ namespace NativeSockets
             destination[length++] = '}';
             chars = length;
             return array;
-        }
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="IPAddress" /> class with the specified address.
-        /// </summary>
-        /// <exception cref="ArgumentException">Address contains a bad ip address.</exception>
-        /// <returns>A new instance of the <see cref="IPAddress" /> class.</returns>
-        public readonly IPAddress ToIpAddress() => IsIpv6 ? new IPAddress(Unsafe.AsRef(in this).Address, ScopeId) : new IPAddress(Unsafe.AsRef(in this).Address);
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="IPEndPoint" /> class with the specified address and port number.
-        /// </summary>
-        /// <exception cref="ArgumentException">Address contains a bad ip address.</exception>
-        /// <returns>A new instance of the <see cref="IPEndPoint" /> class.</returns>
-        public readonly IPEndPoint ToIpEndPoint() => new(ToIpAddress(), Port);
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="SocketAddress" /> class with the specified address.
-        /// </summary>
-        /// <exception cref="NotSupportedException">
-        ///     Family != <see cref="AddressFamily.InterNetwork" />
-        ///     or <see cref="AddressFamily.InterNetworkV6" />.
-        /// </exception>
-        /// <returns>A new instance of the <see cref="SocketAddress" /> class.</returns>
-        public readonly SocketAddress ToSocketAddress()
-        {
-            if (Family != AddressFamily.InterNetwork && Family != AddressFamily.InterNetworkV6)
-            {
-                ThrowHelpers.ThrowNotSupportedException();
-                return default;
-            }
-
-            ReadOnlySpan<byte> buffer = Unsafe.AsRef(in this).Buffer;
-
-            SocketAddress result = new SocketAddress(Family);
-
-#if NET8_0_OR_GREATER
-            buffer.CopyTo(result.Buffer.Span);
-#else
-            for (int i = 0; i < Size; ++i)
-                result[i] = buffer[i];
-#endif
-
-            return result;
         }
     }
 }

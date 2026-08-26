@@ -9,7 +9,7 @@ namespace NativeSockets
     /// <summary>
     ///     Provides platform-specific error handling for sockets.
     /// </summary>
-    internal static class OsxSocketError
+    internal static class FreeBsdSocketError
     {
         /// <summary>
         ///     Retrieves the last socket error code from the underlying platform.
@@ -64,9 +64,7 @@ namespace NativeSockets
             61 => SocketError.ConnectionRefused,
             64 => SocketError.HostDown,
             65 => SocketError.HostUnreachable,
-            89 => SocketError.OperationAborted,
-            96 => SocketError.NoData,
-            102 => SocketError.OperationNotSupported,
+            85 => SocketError.OperationAborted,
             _ => SocketError.SocketError
         };
     }
