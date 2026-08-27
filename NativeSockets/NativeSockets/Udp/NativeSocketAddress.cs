@@ -18,7 +18,7 @@ namespace NativeSockets
     ///     This type is used for low‑level socket operations that require raw address handling without allocation.
     /// </remarks>
     [StructLayout(LayoutKind.Explicit, Size = 28)]
-    public unsafe struct NativeSocketAddress : IIsCreated, IEquatable<NativeSocketAddress>, IComparable<NativeSocketAddress>
+    public unsafe struct NativeSocketAddress : IEquatable<NativeSocketAddress>, IComparable<NativeSocketAddress>
 #if NET6_0_OR_GREATER
         , ISpanFormattable
 #endif
@@ -47,11 +47,6 @@ namespace NativeSockets
         ///     Represents a native Ipv6 socket address structure (<c>sockaddr_in6</c>).
         /// </summary>
         [FieldOffset(0)] private sockaddr_in6 sin6;
-
-        /// <summary>
-        ///     Gets a value that indicates whether this has been allocated or initialized.
-        /// </summary>
-        public readonly bool IsCreated => IsIpv4 || IsIpv6;
 
         /// <summary>
         ///     Gets whether the address is an Ipv4 address.
