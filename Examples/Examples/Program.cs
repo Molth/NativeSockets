@@ -47,7 +47,7 @@ namespace Examples
                     var received = socket.ReceiveFromNonAlloc(buffer, SocketFlags.None, ref socketAddress);
                     if (received >= 0)
                     {
-                        var remoteEndPoint = socketAddress.ToIpEndPoint();
+                        socketAddress.ToIpEndPoint(out var remoteEndPoint);
                         var receivedText = Encoding.UTF8.GetString(buffer, 0, received);
 
                         Console.WriteLine($"[Server] Receive from: [{remoteEndPoint}]: [{receivedText}]");
@@ -95,7 +95,7 @@ namespace Examples
                         var received = socket.ReceiveFromNonAlloc(receiveBuffer, SocketFlags.None, ref socketAddress);
                         if (received >= 0)
                         {
-                            var remoteEndPoint = socketAddress.ToIpEndPoint();
+                            socketAddress.ToIpEndPoint(out var remoteEndPoint);
                             var receivedText = Encoding.UTF8.GetString(receiveBuffer, 0, received);
 
                             Console.WriteLine($"[Client] Receive from: [{remoteEndPoint}]: [{receivedText}]");

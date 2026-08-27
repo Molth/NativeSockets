@@ -73,7 +73,7 @@ namespace NativeSockets
         public static nint _recvfrom(int __socketHandle_native, byte* __pinnedBuffer_native, nuint __len_native, SocketFlags socketFlags, sockaddr* __socketAddress_native, uint* __socketAddressSize_native) => __recvfrom(__socketHandle_native, __pinnedBuffer_native, __len_native, ToNative(socketFlags), __socketAddress_native, __socketAddressSize_native);
 
         /// <summary>
-        ///     Sends a message (scatter/gather) using a socket.
+        ///     Sends a message using a socket.
         /// </summary>
         /// <param name="__socketHandle_native">The socket file descriptor.</param>
         /// <param name="__msg_native">Pointer to a <see cref="msghdr" /> structure describing the message.</param>
@@ -82,7 +82,7 @@ namespace NativeSockets
         public static nint _sendmsg(int __socketHandle_native, msghdr* __msg_native, SocketFlags socketFlags) => __sendmsg(__socketHandle_native, __msg_native, ToNative(socketFlags));
 
         /// <summary>
-        ///     Receives a message (scatter/gather) from a socket.
+        ///     Receives a message from a socket.
         /// </summary>
         /// <param name="__socketHandle_native">The socket file descriptor.</param>
         /// <param name="__msg_native">Pointer to a <see cref="msghdr" /> structure that will receive the message.</param>
@@ -99,7 +99,7 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Sends a message (scatter/gather) using a socket.
+        ///     Sends a message using a socket.
         /// </summary>
         /// <param name="__socketHandle_native">The socket file descriptor.</param>
         /// <param name="__msg_native">Pointer to a <see cref="msghdr" /> structure describing the message.</param>
@@ -109,7 +109,7 @@ namespace NativeSockets
         private static extern nint __sendmsg(int __socketHandle_native, msghdr* __msg_native, int __socketFlags_native);
 
         /// <summary>
-        ///     Receives a message (scatter/gather) from a socket.
+        ///     Receives a message from a socket.
         /// </summary>
         /// <param name="__socketHandle_native">The socket file descriptor.</param>
         /// <param name="__msg_native">Pointer to a <see cref="msghdr" /> structure that will receive the message.</param>

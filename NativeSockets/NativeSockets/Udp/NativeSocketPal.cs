@@ -22,7 +22,7 @@ namespace NativeSockets
         /// <summary>
         ///     Retrieves the last socket error code from the underlying platform.
         /// </summary>
-        /// <returns>The last socket error.</returns>
+        /// <returns>The last <see cref="SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetLastSocketError() => SocketPal.GetLastSocketError();
 
@@ -36,7 +36,7 @@ namespace NativeSockets
         /// <summary>
         ///     Cleans up the platform-specific socket subsystem.
         /// </summary>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Cleanup() => SocketPal.Cleanup();
 
@@ -44,15 +44,20 @@ namespace NativeSockets
         ///     Creates a native socket handle.
         /// </summary>
         /// <param name="ipv6">true to create an Ipv6 socket; false for Ipv4.</param>
-        /// <returns>The native socket handle, or -1 on error.</returns>
+        /// <param name="result">The native socket handle, or -1 on error.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static NativeSocket Create(bool ipv6) => new(SocketPal.Create(ipv6), ipv6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork);
+        public static SocketError Create(bool ipv6, out NativeSocket result)
+        {
+            result = new NativeSocket(SocketPal.Create(ipv6), ipv6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork);
+            return result.Handle != -1 ? SocketError.Success : SocketError.SocketError;
+        }
 
         /// <summary>
         ///     Closes a native socket handle.
         /// </summary>
-        /// <param name="socket">The socket handle to close.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <param name="socket">The native socket handle to close.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Close(NativeSocket socket) => SocketPal.Close(socket);
     }

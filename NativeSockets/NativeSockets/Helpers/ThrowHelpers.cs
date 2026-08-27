@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 #if NET7_0_OR_GREATER
 using System.Numerics;
@@ -61,20 +60,6 @@ namespace NativeSockets
             if (!BitOperationsHelpers.IsPow2(value))
                 throw new ArgumentException(SR.Argument_AlignmentMustBePow2, GetArgumentName(paramName));
         }
-
-        /// <summary>
-        ///     Throws a <see cref="InvalidOperationException" />.
-        /// </summary>
-        [DoesNotReturn]
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void ThrowInvalidOperationException() => throw new InvalidOperationException();
-
-        /// <summary>
-        ///     Throws a <see cref="NotSupportedException" />.
-        /// </summary>
-        [DoesNotReturn]
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void ThrowNotSupportedException() => throw new NotSupportedException();
 
         /// <summary>
         ///     Returns the argument name string associated with the specified <see cref="ExceptionArgument" /> value.

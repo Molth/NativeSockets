@@ -14,7 +14,7 @@ namespace NativeSockets
         /// <summary>
         ///     Retrieves the last socket error code from the underlying platform.
         /// </summary>
-        /// <returns>The last socket error.</returns>
+        /// <returns>The last <see cref="SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetLastError()
         {

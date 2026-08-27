@@ -26,7 +26,7 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="socketAddress">Pointer to the address structure.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Bind(this NativeSocket socket, NativeSocketAddress socketAddress) => socket.IsIpv4 ? SocketPal.BindIpv4(socket, (sockaddr_in4*)&socketAddress) : SocketPal.BindIpv6(socket, (sockaddr_in6*)&socketAddress);
 
@@ -35,7 +35,7 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="socketAddress">Pointer to the address structure.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Connect(this NativeSocket socket, NativeSocketAddress socketAddress) => socket.IsIpv4 ? SocketPal.ConnectIpv4(socket, (sockaddr_in4*)&socketAddress) : SocketPal.ConnectIpv6(socket, (sockaddr_in6*)&socketAddress);
 
@@ -214,7 +214,7 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Sends a message (scatter/gather) on a connected socket.
+        ///     Sends a message on a connected socket.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
@@ -331,7 +331,7 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="socketAddress">Pointer to the Ipv4 address structure to receive the name.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetName(this NativeSocket socket, ref NativeSocketAddress socketAddress)
         {

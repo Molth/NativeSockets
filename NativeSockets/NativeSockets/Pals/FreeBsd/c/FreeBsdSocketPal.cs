@@ -51,7 +51,7 @@ namespace NativeSockets
         /// <summary>
         ///     Retrieves the last socket error code from the underlying platform.
         /// </summary>
-        /// <returns>The last socket error.</returns>
+        /// <returns>The last <see cref="SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetLastSocketError() => GetLastError();
 
@@ -65,7 +65,7 @@ namespace NativeSockets
         /// <summary>
         ///     Cleans up the platform-specific socket subsystem.
         /// </summary>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Cleanup() => SocketError.Success;
 
@@ -86,8 +86,8 @@ namespace NativeSockets
         /// <summary>
         ///     Closes a native socket handle.
         /// </summary>
-        /// <param name="socket">The socket handle to close.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <param name="socket">The native socket handle to close.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Close(nint socket)
         {
@@ -114,7 +114,7 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="socketAddress">Pointer to the Ipv4 address structure.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError BindIpv4(nint socket, sockaddr_in4* socketAddress)
         {
@@ -137,7 +137,7 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="socketAddress">Pointer to the Ipv6 address structure.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError BindIpv6(nint socket, sockaddr_in6* socketAddress)
         {
@@ -160,7 +160,7 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="socketAddress">Pointer to the Ipv4 address structure.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError ConnectIpv4(nint socket, sockaddr_in4* socketAddress)
         {
@@ -173,7 +173,7 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="socketAddress">Pointer to the Ipv6 address structure.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError ConnectIpv6(nint socket, sockaddr_in6* socketAddress)
         {
@@ -414,7 +414,7 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Sends a message (scatter/gather) on a connected socket.
+        ///     Sends a message on a connected socket.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
@@ -649,7 +649,7 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="socketAddress">Pointer to the Ipv4 address structure to receive the name.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetNameIpv4(nint socket, sockaddr_in4* socketAddress)
         {
@@ -672,7 +672,7 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="socketAddress">Pointer to the Ipv6 address structure to receive the name.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetNameIpv6(nint socket, sockaddr_in6* socketAddress)
         {
@@ -772,7 +772,7 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socketAddress">Pointer to the Ipv4 address structure.</param>
         /// <param name="ip">A span to receive the address bytes.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.Fault" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetIpIpv4(sockaddr_in4* socketAddress, Span<byte> ip)
         {
@@ -793,7 +793,7 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socketAddress">Pointer to the Ipv6 address structure.</param>
         /// <param name="ip">A span to receive the address bytes.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.Fault" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetIpIpv6(sockaddr_in6* socketAddress, Span<byte> ip)
         {
@@ -904,7 +904,7 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socketAddress">Pointer to the Ipv4 address structure.</param>
         /// <param name="hostName">A span to receive the host name bytes.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.Fault" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetHostNameIpv4(sockaddr_in4* socketAddress, Span<byte> hostName)
         {
@@ -922,7 +922,7 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socketAddress">Pointer to the Ipv6 address structure.</param>
         /// <param name="hostName">A span to receive the host name bytes.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.Fault" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetHostNameIpv6(sockaddr_in6* socketAddress, Span<byte> hostName)
         {

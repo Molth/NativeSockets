@@ -36,12 +36,12 @@ namespace NativeSockets
         /// <summary>
         ///     Gets a value indicating whether the socket uses Ipv4.
         /// </summary>
-        public bool IsIpv4 => _addressFamily == AddressFamily.InterNetwork;
+        public bool IsIpv4 => Family == AddressFamily.InterNetwork;
 
         /// <summary>
         ///     Gets a value indicating whether the socket uses Ipv6.
         /// </summary>
-        public bool IsIpv6 => _addressFamily == AddressFamily.InterNetworkV6;
+        public bool IsIpv6 => Family == AddressFamily.InterNetworkV6;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="NativeSocket" /> structure.
