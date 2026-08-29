@@ -98,7 +98,9 @@ namespace NativeSockets
         [DllImport(NATIVE_LIBRARY, EntryPoint = "poll", CallingConvention = CALLING_CONVENTION, SetLastError = true)]
         public static extern int _poll(pollfd* fds, nuint nfds, int timeout);
 
-        /// <summary>Converts an Ipv4 or Ipv6 address string to its binary representation (inet_pton).</summary>
+        /// <summary>
+        ///     Converts an Ipv4 or Ipv6 address string to its binary representation (inet_pton).
+        /// </summary>
         /// <param name="Family">The address family (AF_INET or AF_INET6).</param>
         /// <param name="pszAddrString">Pointer to the null‑terminated string containing the address.</param>
         /// <param name="pAddrBuf">Pointer to the buffer where the binary address will be stored.</param>

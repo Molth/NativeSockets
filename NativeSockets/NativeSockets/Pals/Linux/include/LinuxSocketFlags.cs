@@ -69,7 +69,7 @@ namespace NativeSockets
         /// <param name="palFlags">The managed flags.</param>
         /// <returns>The native integer value.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ToNative(SocketFlags palFlags)
+        public static int ToNativeSocketFlags(SocketFlags palFlags)
         {
             int flags = (int)palFlags;
 
@@ -94,7 +94,7 @@ namespace NativeSockets
         /// <param name="platformFlags">The native integer value.</param>
         /// <returns>The managed <see cref="SocketFlags" /> value.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketFlags FromNative(int platformFlags)
+        public static SocketFlags FromNativeSocketFlags(int platformFlags)
         {
             platformFlags &= SUPPORTED_NATIVE_FLAGS_MASK;
 

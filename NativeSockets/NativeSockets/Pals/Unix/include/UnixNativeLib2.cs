@@ -25,7 +25,7 @@ namespace NativeSockets
         /// <param name="__optionLength_native">The length of the option value in bytes.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [DllImport(NATIVE_LIBRARY, EntryPoint = "setsockopt", CallingConvention = CALLING_CONVENTION, SetLastError = true)]
-        public static extern int __setsockopt(int __socketHandle_native, int __optionLevel_native, int __optionName_native, void* __optionValue_native, uint __optionLength_native);
+        public static extern int __setsockopt(int __socketHandle_native, int __optionLevel_native, int __optionName_native, byte* __optionValue_native, uint __optionLength_native);
 
         /// <summary>
         ///     Gets a socket option.
@@ -39,7 +39,9 @@ namespace NativeSockets
         [DllImport(NATIVE_LIBRARY, EntryPoint = "getsockopt", CallingConvention = CALLING_CONVENTION, SetLastError = true)]
         public static extern int __getsockopt(int __socketHandle_native, int __optionLevel_native, int __optionName_native, byte* __optionValue_native, uint* __optionLength_native);
 
-        /// <summary>Sends data on a connected socket.</summary>
+        /// <summary>
+        ///     Sends data on a connected socket.
+        /// </summary>
         /// <param name="__socketHandle_native">The native socket handle.</param>
         /// <param name="__pinnedBuffer_native">Pointer to the buffer containing the data to send.</param>
         /// <param name="__len_native">The length of the buffer in bytes.</param>
@@ -48,7 +50,9 @@ namespace NativeSockets
         [DllImport(NATIVE_LIBRARY, EntryPoint = "send", CallingConvention = CALLING_CONVENTION, SetLastError = true)]
         public static extern nint __send(int __socketHandle_native, byte* __pinnedBuffer_native, nuint __len_native, int __socketFlags_native);
 
-        /// <summary>Receives data on a connected socket.</summary>
+        /// <summary>
+        ///     Receives data on a connected socket.
+        /// </summary>
         /// <param name="__socketHandle_native">The native socket handle.</param>
         /// <param name="__pinnedBuffer_native">Pointer to the buffer where received data will be stored.</param>
         /// <param name="__len_native">The length of the buffer in bytes.</param>
@@ -57,7 +61,9 @@ namespace NativeSockets
         [DllImport(NATIVE_LIBRARY, EntryPoint = "recv", CallingConvention = CALLING_CONVENTION, SetLastError = true)]
         public static extern nint __recv(int __socketHandle_native, byte* __pinnedBuffer_native, nuint __len_native, int __socketFlags_native);
 
-        /// <summary>Sends data to a specified destination address.</summary>
+        /// <summary>
+        ///     Sends data to a specified destination address.
+        /// </summary>
         /// <param name="__socketHandle_native">The native socket handle.</param>
         /// <param name="__pinnedBuffer_native">Pointer to the buffer containing the data to send.</param>
         /// <param name="__len_native">The length of the buffer in bytes.</param>
@@ -68,7 +74,9 @@ namespace NativeSockets
         [DllImport(NATIVE_LIBRARY, EntryPoint = "sendto", CallingConvention = CALLING_CONVENTION, SetLastError = true)]
         public static extern nint __sendto(int __socketHandle_native, byte* __pinnedBuffer_native, nuint __len_native, int __socketFlags_native, sockaddr* __socketAddress_native, uint __socketAddressSize_native);
 
-        /// <summary>Receives data from a socket and captures the source address.</summary>
+        /// <summary>
+        ///     Receives data from a socket and captures the source address.
+        /// </summary>
         /// <param name="__socketHandle_native">The native socket handle.</param>
         /// <param name="__pinnedBuffer_native">Pointer to the buffer where received data will be stored.</param>
         /// <param name="__len_native">The maximum length of the buffer in bytes.</param>

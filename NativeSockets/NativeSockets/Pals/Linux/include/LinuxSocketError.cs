@@ -19,7 +19,7 @@ namespace NativeSockets
         public static SocketError GetLastError()
         {
             int errno = Marshal.GetLastWin32Error();
-            return FromNative(errno);
+            return FromNativeErrno(errno);
         }
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace NativeSockets
         /// </summary>
         /// <param name="errno">The native error number (errno).</param>
         /// <returns>The corresponding <see cref="SocketError" /> value.</returns>
-        private static SocketError FromNative(int errno) => errno switch
+        private static SocketError FromNativeErrno(int errno) => errno switch
         {
             0 => SocketError.Success,
             125 => SocketError.OperationAborted,

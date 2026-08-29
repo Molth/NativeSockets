@@ -10,7 +10,7 @@ namespace NativeSockets
     ///     Represents a contiguous region of arbitrary native memory.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    internal readonly unsafe struct NativeScopedArray<T> : IIsCreated, IDisposable where T : unmanaged
+    internal readonly unsafe struct NativeScopedArray<T> : IIsCreated, IDisposable, IEquatable<NativeScopedArray<T>> where T : unmanaged
     {
         /// <summary>
         ///     Represents a contiguous region of arbitrary memory.
@@ -86,5 +86,30 @@ namespace NativeSockets
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ReadOnlySpan<T> AsReadOnlySpan() => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<T>(_buffer), _length);
+
+        /// <summary>
+        ///     Indicates whether the current object is equal to another object.
+        /// </summary>
+        public bool Equals(NativeScopedArray<T> other) => SpanHelpers.Equals(ref Unsafe.AsRef(in this), ref other);
+
+        /// <summary>
+        ///     Indicates whether the current object is equal to another object.
+        /// </summary>
+        public override bool Equals(object? obj) => obj is NativeScopedArray<T> other && other.Equals(this);
+
+        /// <summary>
+        ///     Returns the hash code for this instance.
+        /// </summary>
+        public override int GetHashCode() => NativeHashCode.GetHashCode(this);
+
+        /// <summary>
+        ///     Indicates whether the current object is equal to another object.
+        /// </summary>
+        public static bool operator ==(NativeScopedArray<T> left, NativeScopedArray<T> right) => left.Equals(right);
+
+        /// <summary>
+        ///     Indicates whether the current object is not equal to another object.
+        /// </summary>
+        public static bool operator !=(NativeScopedArray<T> left, NativeScopedArray<T> right) => !left.Equals(right);
     }
 }

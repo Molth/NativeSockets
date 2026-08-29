@@ -19,7 +19,7 @@ namespace NativeSockets
         ///     On FreeBSD, <see cref="SocketOptionLevel.Socket" /> already equals SOL_SOCKET (0xffff),
         ///     so no conversion is needed.
         /// </returns>
-        public static int ToNative(SocketOptionLevel level) => (int)level;
+        public static int ToNativeSocketOptionLevel(SocketOptionLevel level) => (int)level;
 
         /// <summary>
         ///     Converts a managed <see cref="SocketOptionName" /> to the native FreeBSD socket option name value
@@ -28,7 +28,7 @@ namespace NativeSockets
         /// <param name="level">The managed socket option level (must be the original managed enum value).</param>
         /// <param name="name">The managed socket option name.</param>
         /// <returns>The native integer value for the socket option name.</returns>
-        public static int ToNative(SocketOptionLevel level, SocketOptionName name)
+        public static int ToNativeSocketOptionName(SocketOptionLevel level, SocketOptionName name)
         {
             int result = level switch
             {

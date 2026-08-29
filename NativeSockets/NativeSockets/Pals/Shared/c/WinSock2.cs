@@ -21,7 +21,7 @@ namespace NativeSockets
         /// <summary>
         ///     Gets a pre‑computed Ipv4‑mapped Ipv6 address structure (::ffff:0:0).
         /// </summary>
-        private static ReadOnlySpan<byte> ADDRESS_FAMILY_INTER_NETWORK_V4_MAPPED_V6 => new byte[12] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFF, 0xFF };
+        private static ReadOnlySpan<byte> AF_INET_4_MAPPED_AF_INET_6_PREFIX => new byte[12] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFF, 0xFF };
 
         /// <summary>
         ///     Converts a 16‑bit unsigned integer from host byte order to network byte order (big‑endian).
@@ -48,14 +48,14 @@ namespace NativeSockets
         ///     otherwise, false.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsIpv4MappedToIpv6(ref byte sin6_addr) => MemoryMarshal.CreateReadOnlySpan(ref sin6_addr, 12).SequenceEqual(ADDRESS_FAMILY_INTER_NETWORK_V4_MAPPED_V6);
+        public static bool IsIpv4MappedToIpv6(ref byte sin6_addr) => MemoryMarshal.CreateReadOnlySpan(ref sin6_addr, 12).SequenceEqual(AF_INET_4_MAPPED_AF_INET_6_PREFIX);
 
         /// <summary>
-        ///     Maps the Ipv4 address to an Ipv6 address.
+        ///     Writes the 12‑byte prefix to an Ipv6 address.
         /// </summary>
         /// <param name="sin6_addr">The 12‑byte span containing the Ipv4‑mapped Ipv6 address data.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void MapToIpv6(ref byte sin6_addr) => SpanHelpers.Copy(ref sin6_addr, ref MemoryMarshal.GetReference(ADDRESS_FAMILY_INTER_NETWORK_V4_MAPPED_V6), 12);
+        public static void WriteIpv6Prefix(ref byte sin6_addr) => SpanHelpers.Copy(ref sin6_addr, ref MemoryMarshal.GetReference(AF_INET_4_MAPPED_AF_INET_6_PREFIX), 12);
 
         /// <summary>
         ///     Maps the Ipv4 address to an Ipv6 address.
@@ -63,14 +63,14 @@ namespace NativeSockets
         /// <param name="sin6_addr">The 16‑byte span containing the Ipv4‑mapped Ipv6 address data.</param>
         /// <param name="sin4_addr">The 4‑byte span containing the Ipv4 address data.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void MapToIpv6(ref byte sin6_addr, uint sin4_addr)
+        public static void MapIpv4ToIpv6(ref byte sin6_addr, uint sin4_addr)
         {
-            MapToIpv6(ref sin6_addr);
+            WriteIpv6Prefix(ref sin6_addr);
             Unsafe.WriteUnaligned(ref Unsafe.Add(ref sin6_addr, 12), sin4_addr);
         }
 
         /// <summary>
-        ///     Maps the Ipv4 address to an Ipv6 address.
+        ///     Normalizes the address to an Ipv6 address.
         /// </summary>
         /// <param name="socketAddress">Pointer to the target Ipv6 socket address structure to fill.</param>
         /// <param name="addressStorage">Reference to the source address storage, which may contain an Ipv4 or Ipv6 address.</param>
@@ -78,7 +78,7 @@ namespace NativeSockets
         /// <param name="ADDRESS_FAMILY_INTER_NETWORK_V6">The address family value for Ipv6 used by the current platform.</param>
         [MustBePinned(nameof(addressStorage))]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void MapToIpv6(sockaddr_in6* socketAddress, [MustBePinned] in sockaddr_storage addressStorage, ushort ADDRESS_FAMILY_INTER_NETWORK_V4, ushort ADDRESS_FAMILY_INTER_NETWORK_V6)
+        public static void NormalizeToIpv6(sockaddr_in6* socketAddress, [MustBePinned] in sockaddr_storage addressStorage, [Constant] ushort ADDRESS_FAMILY_INTER_NETWORK_V4, [Constant] ushort ADDRESS_FAMILY_INTER_NETWORK_V6)
         {
             if (addressStorage.ss_family == ADDRESS_FAMILY_INTER_NETWORK_V4)
             {
@@ -86,7 +86,7 @@ namespace NativeSockets
                 socketAddress->sin6_family = ADDRESS_FAMILY_INTER_NETWORK_V6;
                 socketAddress->sin6_port = __socketAddress_native->sin4_port;
                 socketAddress->sin6_flowinfo = 0;
-                MapToIpv6(ref Unsafe.AsRef<byte>(socketAddress->sin6_addr), __socketAddress_native->sin4_addr);
+                MapIpv4ToIpv6(ref Unsafe.AsRef<byte>(socketAddress->sin6_addr), __socketAddress_native->sin4_addr);
                 socketAddress->sin6_scope_id = 0;
             }
             else if (addressStorage.ss_family == ADDRESS_FAMILY_INTER_NETWORK_V6)

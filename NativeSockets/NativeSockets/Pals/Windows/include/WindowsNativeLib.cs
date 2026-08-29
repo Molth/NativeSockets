@@ -149,7 +149,9 @@ namespace NativeSockets
         [DllImport(NATIVE_LIBRARY, EntryPoint = "closesocket", CallingConvention = CALLING_CONVENTION)]
         public static extern SocketError _closesocket(nint __socketHandle_native);
 
-        /// <summary>Sends data on a connected socket.</summary>
+        /// <summary>
+        ///     Sends data on a connected socket.
+        /// </summary>
         /// <param name="__socketHandle_native">The native socket handle.</param>
         /// <param name="__pinnedBuffer_native">Pointer to the buffer containing the data to send.</param>
         /// <param name="__len_native">The length of the buffer in bytes.</param>
@@ -158,7 +160,9 @@ namespace NativeSockets
         [DllImport(NATIVE_LIBRARY, EntryPoint = "send", CallingConvention = CALLING_CONVENTION)]
         public static extern int _send(nint __socketHandle_native, byte* __pinnedBuffer_native, int __len_native, SocketFlags __socketFlags_native);
 
-        /// <summary>Receives data on a connected socket.</summary>
+        /// <summary>
+        ///     Receives data on a connected socket.
+        /// </summary>
         /// <param name="__socketHandle_native">The native socket handle.</param>
         /// <param name="__pinnedBuffer_native">Pointer to the buffer where received data will be stored.</param>
         /// <param name="__len_native">The length of the buffer in bytes.</param>
@@ -167,7 +171,9 @@ namespace NativeSockets
         [DllImport(NATIVE_LIBRARY, EntryPoint = "recv", CallingConvention = CALLING_CONVENTION)]
         public static extern int _recv(nint __socketHandle_native, byte* __pinnedBuffer_native, int __len_native, SocketFlags __socketFlags_native);
 
-        /// <summary>Sends data to a specified destination address.</summary>
+        /// <summary>
+        ///     Sends data to a specified destination address.
+        /// </summary>
         /// <param name="__socketHandle_native">The native socket handle.</param>
         /// <param name="__pinnedBuffer_native">Pointer to the buffer containing the data to send.</param>
         /// <param name="__len_native">The length of the buffer in bytes.</param>
@@ -178,7 +184,9 @@ namespace NativeSockets
         [DllImport(NATIVE_LIBRARY, EntryPoint = "sendto", CallingConvention = CALLING_CONVENTION)]
         public static extern int _sendto(nint __socketHandle_native, byte* __pinnedBuffer_native, int __len_native, SocketFlags __socketFlags_native, byte* __socketAddress_native, int __socketAddressSize_native);
 
-        /// <summary>Receives data from a socket and captures the source address.</summary>
+        /// <summary>
+        ///     Receives data from a socket and captures the source address.
+        /// </summary>
         /// <param name="__socketHandle_native">The native socket handle.</param>
         /// <param name="__pinnedBuffer_native">Pointer to the buffer where received data will be stored.</param>
         /// <param name="__len_native">The maximum length of the buffer in bytes.</param>
@@ -229,7 +237,9 @@ namespace NativeSockets
         [DllImport(NATIVE_LIBRARY, EntryPoint = "freeaddrinfo", CallingConvention = CALLING_CONVENTION)]
         public static extern void _freeaddrinfo(addrinfo* pAddrInfo);
 
-        /// <summary>Converts an Ipv4 or Ipv6 address string to its binary representation (inet_pton).</summary>
+        /// <summary>
+        ///     Converts an Ipv4 or Ipv6 address string to its binary representation (inet_pton).
+        /// </summary>
         /// <param name="Family">The address family (AF_INET or AF_INET6).</param>
         /// <param name="pszAddrString">Pointer to the null‑terminated string containing the address.</param>
         /// <param name="pAddrBuf">Pointer to the buffer where the binary address will be stored.</param>

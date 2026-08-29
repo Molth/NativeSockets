@@ -133,7 +133,7 @@ namespace NativeSockets
 
             NativeSocketAddress address = this;
             address.ss_family = SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
-            WinSock2.MapToIpv6(ref address.sin6.sin6_addr[0], address.sin4.sin4_addr);
+            WinSock2.MapIpv4ToIpv6(ref address.sin6.sin6_addr[0], address.sin4.sin4_addr);
             address.sin6.sin6_flowinfo = 0;
             address.sin6.sin6_scope_id = 0;
             return address;

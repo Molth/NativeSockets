@@ -10,7 +10,7 @@ namespace NativeSockets
     ///     Represents a contiguous region of arbitrary native memory.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    public readonly unsafe struct NativeIoSlice : IIsCreated, IDisposable
+    public readonly unsafe struct NativeIoSlice : IIsCreated, IDisposable, IEquatable<NativeIoSlice>
     {
         /// <summary>
         ///     Represents a contiguous region of arbitrary memory.
@@ -110,5 +110,30 @@ namespace NativeSockets
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ReadOnlySpan<byte> AsReadOnlySpan() => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<byte>(_buffer), _length);
+
+        /// <summary>
+        ///     Indicates whether the current object is equal to another object.
+        /// </summary>
+        public bool Equals(NativeIoSlice other) => SpanHelpers.Equals(ref Unsafe.AsRef(in this), ref other);
+
+        /// <summary>
+        ///     Indicates whether the current object is equal to another object.
+        /// </summary>
+        public override bool Equals(object? obj) => obj is NativeIoSlice other && other.Equals(this);
+
+        /// <summary>
+        ///     Returns the hash code for this instance.
+        /// </summary>
+        public override int GetHashCode() => NativeHashCode.GetHashCode(this);
+
+        /// <summary>
+        ///     Indicates whether the current object is equal to another object.
+        /// </summary>
+        public static bool operator ==(NativeIoSlice left, NativeIoSlice right) => left.Equals(right);
+
+        /// <summary>
+        ///     Indicates whether the current object is not equal to another object.
+        /// </summary>
+        public static bool operator !=(NativeIoSlice left, NativeIoSlice right) => !left.Equals(right);
     }
 }

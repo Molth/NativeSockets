@@ -18,7 +18,7 @@ namespace NativeSockets
         ///     The native integer value for the socket option level.
         ///     For <see cref="SocketOptionLevel.Socket" />, returns 1 (SOL_SOCKET).
         /// </returns>
-        public static int ToNative(SocketOptionLevel level) => level == SocketOptionLevel.Socket ? 1 : (int)level;
+        public static int ToNativeSocketOptionLevel(SocketOptionLevel level) => level == SocketOptionLevel.Socket ? 1 : (int)level;
 
         /// <summary>
         ///     Converts a managed <see cref="SocketOptionName" /> to the native Linux socket option name value
@@ -27,7 +27,7 @@ namespace NativeSockets
         /// <param name="level">The socket option level, which determines the namespace of the option name.</param>
         /// <param name="name">The managed socket option name.</param>
         /// <returns>The native integer value for the socket option name.</returns>
-        public static int ToNative(SocketOptionLevel level, SocketOptionName name)
+        public static int ToNativeSocketOptionName(SocketOptionLevel level, SocketOptionName name)
         {
             int result = level switch
             {

@@ -6,7 +6,7 @@ namespace NativeSockets
     ///     Provides a property that indicates whether the current instance
     ///     has been successfully allocated or initialized.
     /// </summary>
-    public interface IIsCreated
+    internal interface IIsCreated
     {
         /// <summary>
         ///     Gets a value that indicates whether this has been allocated or initialized.

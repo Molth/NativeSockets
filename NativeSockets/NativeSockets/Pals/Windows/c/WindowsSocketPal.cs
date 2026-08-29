@@ -393,7 +393,7 @@ namespace NativeSockets
             int num = _recvfrom(socket, (byte*)buffer, length, socketFlags, (byte*)&addressStorage, &socketAddressSize);
 
             if (num >= 0 && socketAddress != null)
-                WinSock2.MapToIpv6(socketAddress, addressStorage, ADDRESS_FAMILY_INTER_NETWORK_V4, ADDRESS_FAMILY_INTER_NETWORK_V6);
+                WinSock2.NormalizeToIpv6(socketAddress, addressStorage, ADDRESS_FAMILY_INTER_NETWORK_V4, ADDRESS_FAMILY_INTER_NETWORK_V6);
 
             return num;
         }
@@ -575,7 +575,7 @@ namespace NativeSockets
                 return -1;
 
             if (error == SocketError.Success && socketAddress != null)
-                WinSock2.MapToIpv6(socketAddress, addressStorage, ADDRESS_FAMILY_INTER_NETWORK_V4, ADDRESS_FAMILY_INTER_NETWORK_V6);
+                WinSock2.NormalizeToIpv6(socketAddress, addressStorage, ADDRESS_FAMILY_INTER_NETWORK_V4, ADDRESS_FAMILY_INTER_NETWORK_V6);
 
             return error == SocketError.Success ? bytesTransferred : -1;
         }
@@ -618,7 +618,7 @@ namespace NativeSockets
             SocketError error = _getsockname(socket, (sockaddr*)&addressStorage, &socketAddressSize);
 
             if (error == SocketError.Success && socketAddress != null)
-                WinSock2.MapToIpv6(socketAddress, addressStorage, ADDRESS_FAMILY_INTER_NETWORK_V4, ADDRESS_FAMILY_INTER_NETWORK_V6);
+                WinSock2.NormalizeToIpv6(socketAddress, addressStorage, ADDRESS_FAMILY_INTER_NETWORK_V4, ADDRESS_FAMILY_INTER_NETWORK_V6);
 
             return error;
         }
@@ -674,7 +674,7 @@ namespace NativeSockets
             if (ip.IndexOf((byte)':') < 0)
             {
                 addressFamily = AF_INET_4;
-                WinSock2.MapToIpv6(ref Unsafe.AsRef<byte>(pAddrBuf));
+                WinSock2.WriteIpv6Prefix(ref Unsafe.AsRef<byte>(pAddrBuf));
                 pAddrBuf += 12;
             }
 
