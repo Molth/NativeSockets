@@ -58,6 +58,7 @@ namespace NativeSockets
         ///     Initializes a new instance of the <see cref="NativeSocket" /> structure.
         /// </summary>
         /// <param name="socket">The managed socket.</param>
+        /// <exception cref="NullReferenceException">Thrown if <paramref name="socket" /> is null.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public NativeSocket(Socket socket) : this(socket.Handle, socket.AddressFamily)
         {

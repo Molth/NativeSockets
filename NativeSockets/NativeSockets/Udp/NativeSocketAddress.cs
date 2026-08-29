@@ -80,7 +80,7 @@ namespace NativeSockets
         /// <summary>
         ///     Gets or sets the Ipv6 address scope identifier.
         /// </summary>
-        /// <returns>An unsigned integer that specifies the scope of the address.</returns>
+        /// <returns>An unsigned integer that specifies the scope identifier of the address.</returns>
         public uint ScopeId
         {
             readonly get => sin6.sin6_scope_id;
@@ -105,20 +105,20 @@ namespace NativeSockets
         /// <summary>
         ///     Gets or sets the specified index element in the underlying buffer.
         /// </summary>
-        /// <param name="offset">The array index element of the desired information.</param>
-        /// <exception cref="T:System.IndexOutOfRangeException">The specified index does not exist in the buffer.</exception>
+        /// <param name="index">The array index element of the desired information.</param>
+        /// <exception cref="T:System.ArgumentOutOfRangeException">The specified index does not exist in the buffer.</exception>
         /// <returns>The value of the specified index element in the underlying buffer.</returns>
-        public byte this[int offset]
+        public byte this[int index]
         {
             readonly get
             {
-                ThrowHelpers.ThrowIfGreaterThanOrEqual((uint)offset, (uint)Size, ExceptionArgument.offset);
-                return _buffer[offset];
+                ThrowHelpers.ThrowIfGreaterThanOrEqual((uint)index, (uint)Size, ExceptionArgument.offset);
+                return _buffer[index];
             }
             set
             {
-                ThrowHelpers.ThrowIfGreaterThanOrEqual((uint)offset, (uint)Size, ExceptionArgument.offset);
-                _buffer[offset] = value;
+                ThrowHelpers.ThrowIfGreaterThanOrEqual((uint)index, (uint)Size, ExceptionArgument.offset);
+                _buffer[index] = value;
             }
         }
 
