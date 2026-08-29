@@ -64,6 +64,15 @@ namespace NativeSockets
         }
 
         /// <summary>
+        ///     Creates a native socket handle.
+        /// </summary>
+        /// <param name="ipv6">true to create an Ipv6 socket; false for Ipv4.</param>
+        /// <param name="result">The native socket handle, or -1 on error.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError Create(bool ipv6, out NativeSocket result) => NativeSocketPal.Create(ipv6, out result);
+
+        /// <summary>
         ///     Performs application-defined tasks associated with freeing,
         ///     releasing, or resetting unmanaged resources.
         /// </summary>

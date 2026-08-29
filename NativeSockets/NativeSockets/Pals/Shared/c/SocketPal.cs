@@ -68,12 +68,12 @@ namespace NativeSockets
         /// <summary>
         ///     Sets a socket option.
         /// </summary>
-        private static readonly delegate* managed<nint, SocketOptionLevel, SocketOptionName, int*, int, SocketError> _SetOption;
+        private static readonly delegate* managed<nint, SocketOptionLevel, SocketOptionName, byte*, int, SocketError> _SetOption;
 
         /// <summary>
         ///     Gets a socket option.
         /// </summary>
-        private static readonly delegate* managed<nint, SocketOptionLevel, SocketOptionName, int*, int*, SocketError> _GetOption;
+        private static readonly delegate* managed<nint, SocketOptionLevel, SocketOptionName, byte*, int*, SocketError> _GetOption;
 
         /// <summary>
         ///     Sets a socket's blocking mode.
@@ -158,12 +158,12 @@ namespace NativeSockets
         /// <summary>
         ///     Sets the Ipv4 address in the given address structure.
         /// </summary>
-        private static readonly delegate* managed<sockaddr_in4*, ReadOnlySpan<char>, SocketError> _SetIpIpv4;
+        private static readonly delegate* managed<sockaddr_in4*, ReadOnlySpan<byte>, SocketError> _SetIpIpv4;
 
         /// <summary>
         ///     Sets the Ipv6 address in the given address structure.
         /// </summary>
-        private static readonly delegate* managed<sockaddr_in6*, ReadOnlySpan<char>, SocketError> _SetIpIpv6;
+        private static readonly delegate* managed<sockaddr_in6*, ReadOnlySpan<byte>, SocketError> _SetIpIpv6;
 
         /// <summary>
         ///     Retrieves the Ipv4 address from a socket address structure.
@@ -178,12 +178,12 @@ namespace NativeSockets
         /// <summary>
         ///     Sets the host name (reverse DNS) for an Ipv4 address.
         /// </summary>
-        private static readonly delegate* managed<sockaddr_in4*, ReadOnlySpan<char>, SocketError> _SetHostNameIpv4;
+        private static readonly delegate* managed<sockaddr_in4*, ReadOnlySpan<byte>, SocketError> _SetHostNameIpv4;
 
         /// <summary>
         ///     Sets the host name (reverse DNS) for an Ipv6 address.
         /// </summary>
-        private static readonly delegate* managed<sockaddr_in6*, ReadOnlySpan<char>, SocketError> _SetHostNameIpv6;
+        private static readonly delegate* managed<sockaddr_in6*, ReadOnlySpan<byte>, SocketError> _SetHostNameIpv6;
 
         /// <summary>
         ///     Gets the host name (reverse DNS) from an Ipv4 address.
@@ -502,7 +502,7 @@ namespace NativeSockets
         /// <param name="length">The length of the option value in bytes.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetOption(nint socket, SocketOptionLevel level, SocketOptionName name, int* value, int length = sizeof(int)) => _SetOption(socket, level, name, value, length);
+        public static SocketError SetOption(nint socket, SocketOptionLevel level, SocketOptionName name, byte* value, int length) => _SetOption(socket, level, name, value, length);
 
         /// <summary>
         ///     Gets a socket option.
@@ -514,7 +514,7 @@ namespace NativeSockets
         /// <param name="length">Pointer to the length of the buffer; on output, the actual size of the option.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetOption(nint socket, SocketOptionLevel level, SocketOptionName name, int* value, int* length = null) => _GetOption(socket, level, name, value, length);
+        public static SocketError GetOption(nint socket, SocketOptionLevel level, SocketOptionName name, byte* value, int* length) => _GetOption(socket, level, name, value, length);
 
         /// <summary>
         ///     Sets a socket's blocking mode.
@@ -698,19 +698,19 @@ namespace NativeSockets
         ///     Sets the Ipv4 address in the given address structure.
         /// </summary>
         /// <param name="socketAddress">Pointer to the Ipv4 address structure.</param>
-        /// <param name="ip">The ip address as a span of characters.</param>
+        /// <param name="ip">The ip address as a span of bytes.</param>
         /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetIpIpv4(sockaddr_in4* socketAddress, ReadOnlySpan<char> ip) => _SetIpIpv4(socketAddress, ip);
+        public static SocketError SetIpIpv4(sockaddr_in4* socketAddress, ReadOnlySpan<byte> ip) => _SetIpIpv4(socketAddress, ip);
 
         /// <summary>
         ///     Sets the Ipv6 address in the given address structure.
         /// </summary>
         /// <param name="socketAddress">Pointer to the Ipv6 address structure.</param>
-        /// <param name="ip">The ip address as a span of characters.</param>
+        /// <param name="ip">The ip address as a span of bytes.</param>
         /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetIpIpv6(sockaddr_in6* socketAddress, ReadOnlySpan<char> ip) => _SetIpIpv6(socketAddress, ip);
+        public static SocketError SetIpIpv6(sockaddr_in6* socketAddress, ReadOnlySpan<byte> ip) => _SetIpIpv6(socketAddress, ip);
 
         /// <summary>
         ///     Retrieves the Ipv4 address from a socket address structure.
@@ -734,19 +734,19 @@ namespace NativeSockets
         ///     Sets the host name (reverse DNS) for an Ipv4 address.
         /// </summary>
         /// <param name="socketAddress">Pointer to the Ipv4 address structure.</param>
-        /// <param name="hostName">The host name as a span of characters.</param>
+        /// <param name="hostName">The host name as a span of bytes.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetHostNameIpv4(sockaddr_in4* socketAddress, ReadOnlySpan<char> hostName) => _SetHostNameIpv4(socketAddress, hostName);
+        public static SocketError SetHostNameIpv4(sockaddr_in4* socketAddress, ReadOnlySpan<byte> hostName) => _SetHostNameIpv4(socketAddress, hostName);
 
         /// <summary>
         ///     Sets the host name (reverse DNS) for an Ipv6 address.
         /// </summary>
         /// <param name="socketAddress">Pointer to the Ipv6 address structure.</param>
-        /// <param name="hostName">The host name as a span of characters.</param>
+        /// <param name="hostName">The host name as a span of bytes.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetHostNameIpv6(sockaddr_in6* socketAddress, ReadOnlySpan<char> hostName) => _SetHostNameIpv6(socketAddress, hostName);
+        public static SocketError SetHostNameIpv6(sockaddr_in6* socketAddress, ReadOnlySpan<byte> hostName) => _SetHostNameIpv6(socketAddress, hostName);
 
         /// <summary>
         ///     Gets the host name (reverse DNS) from an Ipv4 address.

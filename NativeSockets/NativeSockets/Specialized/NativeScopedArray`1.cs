@@ -80,5 +80,11 @@ namespace NativeSockets
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Span<T> AsSpan() => MemoryMarshal.CreateSpan(ref Unsafe.AsRef<T>(_buffer), _length);
+
+        /// <summary>
+        ///     Creates a new read-only span over a portion of a regular managed object.
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ReadOnlySpan<T> AsReadOnlySpan() => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<T>(_buffer), _length);
     }
 }

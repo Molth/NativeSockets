@@ -78,7 +78,7 @@ namespace NativeSockets
         /// <param name="__flags_native">Socket flags (e.g., WSA_FLAG_OVERLAPPED).</param>
         /// <returns>The native socket handle on success; otherwise -1.</returns>
         [DllImport(NATIVE_LIBRARY, EntryPoint = "WSASocketW", CallingConvention = CALLING_CONVENTION)]
-        public static extern nint _WSASocketW(AddressFamily __addressFamily_native, SocketType __socketType_native, ProtocolType __protocolType_native, nint __protocolInfo_native, uint __group_native, int __flags_native);
+        public static extern nint _WSASocketW(AddressFamily __addressFamily_native, SocketType __socketType_native, ProtocolType __protocolType_native, nint __protocolInfo_native, int __group_native, int __flags_native);
 
         /// <summary>
         ///     Controls the I/O mode of a socket (ioctlsocket).
@@ -100,7 +100,7 @@ namespace NativeSockets
         /// <param name="__optionLength_native">The length of the option value in bytes.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [DllImport(NATIVE_LIBRARY, EntryPoint = "setsockopt", CallingConvention = CALLING_CONVENTION)]
-        public static extern SocketError _setsockopt(nint __socketHandle_native, SocketOptionLevel __optionLevel_native, SocketOptionName __optionName_native, int* __optionValue_native, int __optionLength_native);
+        public static extern SocketError _setsockopt(nint __socketHandle_native, SocketOptionLevel __optionLevel_native, SocketOptionName __optionName_native, byte* __optionValue_native, int __optionLength_native);
 
         /// <summary>
         ///     Gets a socket option.
@@ -115,14 +115,31 @@ namespace NativeSockets
         public static extern SocketError _getsockopt(nint __socketHandle_native, SocketOptionLevel __optionLevel_native, SocketOptionName __optionName_native, byte* __optionValue_native, int* __optionLength_native);
 
         /// <summary>
-        ///     Connects a socket to a remote address.
+        ///     Connects a socket to a remote address, with additional capabilities for sending and receiving connection data,
+        ///     and specifying quality of service parameters.
         /// </summary>
         /// <param name="__socketHandle_native">The native socket handle.</param>
-        /// <param name="name">Pointer to the socket address structure.</param>
-        /// <param name="namelen">The size of the address structure.</param>
+        /// <param name="__socketAddress_native">Pointer to the socket address structure of the remote endpoint.</param>
+        /// <param name="__socketAddressSize_native">The size of the address structure.</param>
+        /// <param name="__inBuffer_native">
+        ///     Pointer to a buffer containing connection data to send to the peer;
+        ///     can be <see langword="null" />.
+        /// </param>
+        /// <param name="__outBuffer_native">
+        ///     Pointer to a buffer to receive connection data from the peer;
+        ///     can be <see langword="null" />.
+        /// </param>
+        /// <param name="__sQOS_native">
+        ///     Pointer to a <c>WSABUF</c> structure specifying the sender's quality of service;
+        ///     can be <see langword="null" />.
+        /// </param>
+        /// <param name="__gQOS_native">
+        ///     Pointer to a <c>WSABUF</c> structure specifying the receiver's quality of service;
+        ///     can be <see langword="null" />.
+        /// </param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        [DllImport(NATIVE_LIBRARY, EntryPoint = "connect", CallingConvention = CALLING_CONVENTION)]
-        public static extern SocketError _connect(nint __socketHandle_native, sockaddr* name, int namelen);
+        [DllImport(NATIVE_LIBRARY, EntryPoint = "WSAConnect", CallingConvention = CALLING_CONVENTION)]
+        public static extern SocketError _WSAConnect(nint __socketHandle_native, sockaddr* __socketAddress_native, int __socketAddressSize_native, nint __inBuffer_native, nint __outBuffer_native, nint __sQOS_native, nint __gQOS_native);
 
         /// <summary>
         ///     Closes a socket (closesocket).
@@ -243,7 +260,7 @@ namespace NativeSockets
         /// <param name="Flags">Flags controlling the resolution (e.g., NI_NAMEREQD).</param>
         /// <returns>0 on success; otherwise an error code.</returns>
         [DllImport(NATIVE_LIBRARY, EntryPoint = "getnameinfo", CallingConvention = CALLING_CONVENTION)]
-        public static extern int _getnameinfo(sockaddr* pSockaddr, int SockaddrLength, byte* pNodeBuffer, ulong NodeBufferSize, byte* pServiceBuffer, ulong ServiceBufferSize, int Flags);
+        public static extern int _getnameinfo(sockaddr* pSockaddr, int SockaddrLength, byte* pNodeBuffer, uint NodeBufferSize, byte* pServiceBuffer, uint ServiceBufferSize, int Flags);
 
         /// <summary>
         ///     Performs a Winsock I/O control operation (WSAIoctl).
@@ -273,7 +290,7 @@ namespace NativeSockets
         /// <param name="__completionRoutine_native">A completion routine (can be <see langword="null" />).</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [DllImport(NATIVE_LIBRARY, EntryPoint = "WSASend", CallingConvention = CALLING_CONVENTION)]
-        public static extern SocketError _WSASend(nint __socketHandle_native, WSABuffer* __buffers_native, uint __bufferCount_native, uint* __bytesTransferred_native, SocketFlags __socketFlags_native, NativeOverlapped* __overlapped_native, nint __completionRoutine_native);
+        public static extern SocketError _WSASend(nint __socketHandle_native, WSABuffer* __buffers_native, int __bufferCount_native, int* __bytesTransferred_native, SocketFlags __socketFlags_native, NativeOverlapped* __overlapped_native, nint __completionRoutine_native);
 
         /// <summary>
         ///     Sends data to a specified destination using Winsock scatter/gather (WSASendTo).
@@ -289,7 +306,7 @@ namespace NativeSockets
         /// <param name="__completionRoutine_native">A completion routine (can be <see langword="null" />).</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [DllImport(NATIVE_LIBRARY, EntryPoint = "WSASendTo", CallingConvention = CALLING_CONVENTION)]
-        public static extern SocketError _WSASendTo(nint __socketHandle_native, WSABuffer* __buffers_native, uint __bufferCount_native, uint* __bytesTransferred_native, SocketFlags __socketFlags_native, byte* __socketAddress_native, int __socketAddressSize_native, NativeOverlapped* __overlapped_native, nint __completionRoutine_native);
+        public static extern SocketError _WSASendTo(nint __socketHandle_native, WSABuffer* __buffers_native, int __bufferCount_native, int* __bytesTransferred_native, SocketFlags __socketFlags_native, byte* __socketAddress_native, int __socketAddressSize_native, NativeOverlapped* __overlapped_native, nint __completionRoutine_native);
 
         /// <summary>
         ///     Receives data using Winsock scatter/gather (WSARecv).
@@ -303,7 +320,7 @@ namespace NativeSockets
         /// <param name="__completionRoutine_native">A completion routine (can be <see langword="null" />).</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [DllImport(NATIVE_LIBRARY, EntryPoint = "WSARecv", CallingConvention = CALLING_CONVENTION)]
-        public static extern SocketError _WSARecv(nint __socketHandle_native, WSABuffer* __buffer_native, uint __bufferCount_native, uint* __bytesTransferred_native, SocketFlags* __socketFlags_native, NativeOverlapped* __overlapped_native, nint __completionRoutine_native);
+        public static extern SocketError _WSARecv(nint __socketHandle_native, WSABuffer* __buffer_native, int __bufferCount_native, int* __bytesTransferred_native, SocketFlags* __socketFlags_native, NativeOverlapped* __overlapped_native, nint __completionRoutine_native);
 
         /// <summary>
         ///     Receives data from a source address using Winsock scatter/gather (WSARecvFrom).
@@ -322,7 +339,7 @@ namespace NativeSockets
         /// <param name="__completionRoutine_native">A completion routine (can be <see langword="null" />).</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [DllImport(NATIVE_LIBRARY, EntryPoint = "WSARecvFrom", CallingConvention = CALLING_CONVENTION)]
-        public static extern SocketError _WSARecvFrom(nint __socketHandle_native, WSABuffer* __buffers_native, uint __bufferCount_native, uint* __bytesTransferred_native, SocketFlags* __socketFlags_native, void* __socketAddressPointer_native, void* __socketAddressSizePointer_native, NativeOverlapped* __overlapped_native, nint __completionRoutine_native);
+        public static extern SocketError _WSARecvFrom(nint __socketHandle_native, WSABuffer* __buffers_native, int __bufferCount_native, int* __bytesTransferred_native, SocketFlags* __socketFlags_native, void* __socketAddressPointer_native, void* __socketAddressSizePointer_native, NativeOverlapped* __overlapped_native, nint __completionRoutine_native);
 
         /// <summary>
         ///     Converts a time duration in microseconds to a <see cref="TimeValue" /> structure.

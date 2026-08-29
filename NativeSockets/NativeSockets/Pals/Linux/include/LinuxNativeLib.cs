@@ -50,10 +50,10 @@ namespace NativeSockets
         /// <param name="__socketHandle_native">The native socket handle.</param>
         /// <param name="optionLevel">The option level.</param>
         /// <param name="optionName">The option name.</param>
-        /// <param name="optval">Pointer to a buffer that receives the option value.</param>
-        /// <param name="optlen">Pointer to the size of the buffer; on output, the actual size of the option.</param>
+        /// <param name="__optionValue_native">Pointer to a buffer that receives the option value.</param>
+        /// <param name="__optionLength_native">Pointer to the size of the buffer; on output, the actual size of the option.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        public static int _getsockopt(int __socketHandle_native, SocketOptionLevel optionLevel, SocketOptionName optionName, byte* optval, uint* optlen) => __getsockopt(__socketHandle_native, ToNative(optionLevel), ToNative(optionLevel, optionName), optval, optlen);
+        public static int _getsockopt(int __socketHandle_native, SocketOptionLevel optionLevel, SocketOptionName optionName, byte* __optionValue_native, uint* __optionLength_native) => __getsockopt(__socketHandle_native, ToNative(optionLevel), ToNative(optionLevel, optionName), __optionValue_native, __optionLength_native);
 
         /// <summary>Sends data on a connected socket.</summary>
         /// <param name="__socketHandle_native">The native socket handle.</param>

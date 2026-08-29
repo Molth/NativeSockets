@@ -173,9 +173,9 @@ namespace NativeSockets
         public Span<byte> AsSpan() => MemoryMarshal.CreateSpan(ref _buffer[0], 28);
 
         /// <summary>
-        ///     Returns a span that represents the raw byte buffer of the address.
+        ///     Returns a read-only span that represents the raw byte buffer of the address.
         /// </summary>
-        /// <returns>A span of bytes.</returns>
+        /// <returns>A read-only span of bytes.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly ReadOnlySpan<byte> AsReadOnlySpan() => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef(in _buffer[0]), 28);
 
@@ -281,7 +281,7 @@ namespace NativeSockets
         {
             using (NativeScopedArray<char> array = Format(stackalloc char[256], this, out int chars))
             {
-                Span<char> result = array.AsSpan().Slice(0, chars);
+                ReadOnlySpan<char> result = array.AsReadOnlySpan().Slice(0, chars);
                 return result.ToString();
             }
         }
@@ -299,7 +299,7 @@ namespace NativeSockets
         {
             using (NativeScopedArray<char> array = Format(stackalloc char[256], this, out int chars))
             {
-                Span<char> result = array.AsSpan().Slice(0, chars);
+                ReadOnlySpan<char> result = array.AsReadOnlySpan().Slice(0, chars);
                 if (result.TryCopyTo(destination))
                 {
                     charsWritten = result.Length;

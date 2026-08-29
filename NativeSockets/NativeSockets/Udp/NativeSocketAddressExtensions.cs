@@ -158,7 +158,12 @@ namespace NativeSockets
         public static SocketError SetIpIpv4(ref this NativeSocketAddress socketAddress, ReadOnlySpan<char> ip, ushort port)
         {
             Unsafe.SkipInit(out sockaddr_in4 __socketAddress_native);
-            SocketError error = SocketPal.SetIpIpv4(&__socketAddress_native, ip);
+            SocketError error;
+            using (NativeScopedArray<byte> array = GetAsciiBytesFromChars(stackalloc byte[256], ip))
+            {
+                error = SocketPal.SetIpIpv4(&__socketAddress_native, array.AsReadOnlySpan());
+            }
+
             if (error != SocketError.Success)
                 return error;
 
@@ -178,7 +183,12 @@ namespace NativeSockets
         public static SocketError SetIpIpv6(ref this NativeSocketAddress socketAddress, ReadOnlySpan<char> ip, ushort port, uint scopeId = 0)
         {
             Unsafe.SkipInit(out sockaddr_in6 __socketAddress_native);
-            SocketError error = SocketPal.SetIpIpv6(&__socketAddress_native, ip);
+            SocketError error;
+            using (NativeScopedArray<byte> array = GetAsciiBytesFromChars(stackalloc byte[256], ip))
+            {
+                error = SocketPal.SetIpIpv6(&__socketAddress_native, array.AsReadOnlySpan());
+            }
+
             if (error != SocketError.Success)
                 return error;
 
@@ -214,7 +224,12 @@ namespace NativeSockets
         public static SocketError SetHostNameIpv4(ref this NativeSocketAddress socketAddress, ReadOnlySpan<char> hostName, ushort port)
         {
             Unsafe.SkipInit(out sockaddr_in4 __socketAddress_native);
-            SocketError error = SocketPal.SetHostNameIpv4(&__socketAddress_native, hostName);
+            SocketError error;
+            using (NativeScopedArray<byte> array = GetAsciiBytesFromChars(stackalloc byte[256], hostName))
+            {
+                error = SocketPal.SetHostNameIpv4(&__socketAddress_native, array.AsReadOnlySpan());
+            }
+
             if (error != SocketError.Success)
                 return error;
 
@@ -234,7 +249,12 @@ namespace NativeSockets
         public static SocketError SetHostNameIpv6(ref this NativeSocketAddress socketAddress, ReadOnlySpan<char> hostName, ushort port, uint scopeId = 0)
         {
             Unsafe.SkipInit(out sockaddr_in6 __socketAddress_native);
-            SocketError error = SocketPal.SetHostNameIpv6(&__socketAddress_native, hostName);
+            SocketError error;
+            using (NativeScopedArray<byte> array = GetAsciiBytesFromChars(stackalloc byte[256], hostName))
+            {
+                error = SocketPal.SetHostNameIpv6(&__socketAddress_native, array.AsReadOnlySpan());
+            }
+
             if (error != SocketError.Success)
                 return error;
 
@@ -291,6 +311,26 @@ namespace NativeSockets
             __socketAddress_native.sin6_flowinfo = 0;
             __socketAddress_native.sin6_scope_id = scopeId;
             SpanHelpers.Copy(ref Unsafe.As<NativeSocketAddress, byte>(ref socketAddress), ref Unsafe.As<sockaddr_in6, byte>(ref __socketAddress_native), 28);
+        }
+
+        /// <summary>
+        ///     Converts the specified text to a null-terminated ASCII byte array,
+        ///     suitable for use with native APIs that expect null-terminated strings (e.g., <c>inet_pton</c>, <c>getaddrinfo</c>).
+        /// </summary>
+        /// <param name="buffer">
+        ///     A temporary span that can be used for storage;
+        ///     if the required size exceeds the span, a larger buffer may be allocated.
+        /// </param>
+        /// <param name="text">The text to convert to ASCII.</param>
+        /// <returns>A array that owns the null-terminated ASCII byte array. The caller should dispose it when done.</returns>
+        private static NativeScopedArray<byte> GetAsciiBytesFromChars(Span<byte> buffer, ReadOnlySpan<char> text)
+        {
+            int byteCount = Encoding.ASCII.GetByteCount(text);
+            NativeScopedArray<byte> array = new NativeScopedArray<byte>(buffer, byteCount + 1);
+            Span<byte> bytes = array.AsSpan();
+            Encoding.ASCII.GetBytes(text, bytes);
+            bytes[byteCount] = (byte)'\0';
+            return array;
         }
 
         /// <summary>

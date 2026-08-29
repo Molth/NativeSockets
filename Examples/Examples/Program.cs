@@ -31,10 +31,10 @@ namespace Examples
         {
             using var socket = new Socket(AddressFamily.InterNetworkV6, SocketType.Dgram, ProtocolType.Udp);
             socket.DualMode = true;
-            IPEndPoint serverEndpoint = new(IPAddress.IPv6Any, 12345);
-            socket.Bind(serverEndpoint);
+            IPEndPoint serverEndPoint = new(IPAddress.IPv6Any, 12345);
+            socket.Bind(serverEndPoint);
 
-            Console.WriteLine($"[Server] Started: {serverEndpoint}");
+            Console.WriteLine($"[Server] Started: {serverEndPoint}");
 
             var buffer = new byte[1024];
 

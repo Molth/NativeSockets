@@ -112,7 +112,7 @@ namespace NativeSockets
         public static SocketError SetDualModeIpv6(nint socket, bool dualMode)
         {
             int optionValue = dualMode ? 0 : 1;
-            SocketError error = SetOption(socket, SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, &optionValue);
+            SocketError error = SetOption(socket, SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, (byte*)&optionValue, 4);
             return error;
         }
 
@@ -132,7 +132,6 @@ namespace NativeSockets
                 __socketAddress_native.sin4_family = ADDRESS_FAMILY_INTER_NETWORK_V4;
 
                 socketAddress = &__socketAddress_native;
-                SetIpIpv4(socketAddress, "0.0.0.0");
             }
 
             int errno = _bind((int)socket, (sockaddr*)socketAddress, (uint)sizeof(sockaddr_in4));
@@ -155,7 +154,6 @@ namespace NativeSockets
                 __socketAddress_native.sin6_family = ADDRESS_FAMILY_INTER_NETWORK_V6;
 
                 socketAddress = &__socketAddress_native;
-                SetIpIpv6(socketAddress, "::");
             }
 
             int errno = _bind((int)socket, (sockaddr*)socketAddress, (uint)sizeof(sockaddr_in6));
@@ -198,7 +196,7 @@ namespace NativeSockets
         /// <param name="length">The length of the option value in bytes.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetOption(nint socket, SocketOptionLevel level, SocketOptionName name, int* value, int length = sizeof(int))
+        public static SocketError SetOption(nint socket, SocketOptionLevel level, SocketOptionName name, byte* value, int length)
         {
             int errno = _setsockopt((int)socket, level, name, value, (uint)length);
             return errno == 0 ? SocketError.Success : GetLastSocketError();
@@ -214,13 +212,13 @@ namespace NativeSockets
         /// <param name="length">Pointer to the length of the buffer; on output, the actual size of the option.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetOption(nint socket, SocketOptionLevel level, SocketOptionName name, int* value, int* length = null)
+        public static SocketError GetOption(nint socket, SocketOptionLevel level, SocketOptionName name, byte* value, int* length)
         {
             int num = sizeof(int);
             if (length == null)
                 length = &num;
 
-            int errno = _getsockopt((int)socket, level, name, (byte*)value, (uint*)length);
+            int errno = _getsockopt((int)socket, level, name, value, (uint*)length);
             return errno == 0 ? SocketError.Success : GetLastSocketError();
         }
 
@@ -698,10 +696,10 @@ namespace NativeSockets
         ///     Sets the Ipv4 address in the given address structure.
         /// </summary>
         /// <param name="socketAddress">Pointer to the Ipv4 address structure.</param>
-        /// <param name="ip">The ip address as a span of characters.</param>
+        /// <param name="ip">The ip address as a span of bytes.</param>
         /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetIpIpv4(sockaddr_in4* socketAddress, ReadOnlySpan<char> ip)
+        public static SocketError SetIpIpv4(sockaddr_in4* socketAddress, ReadOnlySpan<byte> ip)
         {
             sockaddr_in4 __socketAddress_native = *socketAddress;
 
@@ -710,11 +708,9 @@ namespace NativeSockets
 
             int error;
 
-            using (NativeScopedArray<byte> array = WinSock2.GetBytes(stackalloc byte[256], ip))
+            fixed (byte* pStringBuf = &MemoryMarshal.GetReference(ip))
             {
-                byte* buffer = array.Buffer;
-
-                error = _inet_pton(addressFamily, buffer, pAddrBuf);
+                error = _inet_pton(addressFamily, pStringBuf, pAddrBuf);
             }
 
             switch (error)
@@ -735,16 +731,16 @@ namespace NativeSockets
         ///     Sets the Ipv6 address in the given address structure.
         /// </summary>
         /// <param name="socketAddress">Pointer to the Ipv6 address structure.</param>
-        /// <param name="ip">The ip address as a span of characters.</param>
+        /// <param name="ip">The ip address as a span of bytes.</param>
         /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetIpIpv6(sockaddr_in6* socketAddress, ReadOnlySpan<char> ip)
+        public static SocketError SetIpIpv6(sockaddr_in6* socketAddress, ReadOnlySpan<byte> ip)
         {
             sockaddr_in6 __socketAddress_native = *socketAddress;
 
             byte* pAddrBuf = __socketAddress_native.sin6_addr;
             ushort addressFamily = AF_INET_6;
-            if (ip.IndexOf(':') < 0)
+            if (ip.IndexOf((byte)':') < 0)
             {
                 addressFamily = AF_INET_4;
                 WinSock2.MapToIpv6(ref Unsafe.AsRef<byte>(pAddrBuf));
@@ -753,11 +749,9 @@ namespace NativeSockets
 
             int error;
 
-            using (NativeScopedArray<byte> array = WinSock2.GetBytes(stackalloc byte[256], ip))
+            fixed (byte* pStringBuf = &MemoryMarshal.GetReference(ip))
             {
-                byte* buffer = array.Buffer;
-
-                error = _inet_pton(addressFamily, buffer, pAddrBuf);
+                error = _inet_pton(addressFamily, pStringBuf, pAddrBuf);
             }
 
             switch (error)
@@ -822,20 +816,18 @@ namespace NativeSockets
         ///     Sets the host name (reverse DNS) for an Ipv4 address.
         /// </summary>
         /// <param name="socketAddress">Pointer to the Ipv4 address structure.</param>
-        /// <param name="hostName">The host name as a span of characters.</param>
+        /// <param name="hostName">The host name as a span of bytes.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetHostNameIpv4(sockaddr_in4* socketAddress, ReadOnlySpan<char> hostName)
+        public static SocketError SetHostNameIpv4(sockaddr_in4* socketAddress, ReadOnlySpan<byte> hostName)
         {
             addrinfo hints = new addrinfo();
             hints.ai_family = AF_INET_4;
             addrinfo* results = null;
 
-            using (NativeScopedArray<byte> array = WinSock2.GetBytes(stackalloc byte[256], hostName))
+            fixed (byte* pStringBuf = &MemoryMarshal.GetReference(hostName))
             {
-                byte* buffer = array.Buffer;
-
-                if (_getaddrinfo(buffer, null, &hints, &results) != 0)
+                if (_getaddrinfo(pStringBuf, null, &hints, &results) != 0)
                     return SocketError.Fault;
             }
 
@@ -866,20 +858,18 @@ namespace NativeSockets
         ///     Sets the host name (reverse DNS) for an Ipv6 address.
         /// </summary>
         /// <param name="socketAddress">Pointer to the Ipv6 address structure.</param>
-        /// <param name="hostName">The host name as a span of characters.</param>
+        /// <param name="hostName">The host name as a span of bytes.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetHostNameIpv6(sockaddr_in6* socketAddress, ReadOnlySpan<char> hostName)
+        public static SocketError SetHostNameIpv6(sockaddr_in6* socketAddress, ReadOnlySpan<byte> hostName)
         {
             addrinfo hints = new addrinfo();
             hints.ai_family = AF_INET_6;
             addrinfo* results = null;
 
-            using (NativeScopedArray<byte> array = WinSock2.GetBytes(stackalloc byte[256], hostName))
+            fixed (byte* pStringBuf = &MemoryMarshal.GetReference(hostName))
             {
-                byte* buffer = array.Buffer;
-
-                if (_getaddrinfo(buffer, null, &hints, &results) != 0)
+                if (_getaddrinfo(pStringBuf, null, &hints, &results) != 0)
                     return SocketError.Fault;
             }
 
