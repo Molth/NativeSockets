@@ -214,10 +214,6 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetOption(nint socket, SocketOptionLevel level, SocketOptionName name, byte* value, int* length)
         {
-            int num = sizeof(int);
-            if (length == null)
-                length = &num;
-
             int errno = _getsockopt((int)socket, level, name, value, (uint*)length);
             return errno == 0 ? SocketError.Success : GetLastSocketError();
         }
