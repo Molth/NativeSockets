@@ -10,7 +10,7 @@ namespace NativeSockets
     /// <summary>
     ///     Provides helper methods and structures for Windows Sockets (Winsock) operations.
     /// </summary>
-    internal static unsafe class WinSock2
+    internal static class WinSock2
     {
         /// <summary>
         ///     Maximum length of a host name string (including the null terminator)
@@ -69,6 +69,7 @@ namespace NativeSockets
             Unsafe.WriteUnaligned(ref Unsafe.Add(ref sin6_addr, 12), sin4_addr);
         }
 
+#if !NATIVE_SOCKETS_USE_BRIDGE
         /// <summary>
         ///     Normalizes the address to an Ipv6 address.
         /// </summary>
@@ -78,7 +79,7 @@ namespace NativeSockets
         /// <param name="ADDRESS_FAMILY_INTER_NETWORK_V6">The address family value for Ipv6 used by the current platform.</param>
         [MustBePinned(nameof(addressStorage))]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void NormalizeToIpv6(sockaddr_in6* socketAddress, [MustBePinned] in sockaddr_storage addressStorage, [Constant] ushort ADDRESS_FAMILY_INTER_NETWORK_V4, [Constant] ushort ADDRESS_FAMILY_INTER_NETWORK_V6)
+        public static unsafe void NormalizeToIpv6(sockaddr_in6* socketAddress, [MustBePinned] in sockaddr_storage addressStorage, [Constant] ushort ADDRESS_FAMILY_INTER_NETWORK_V4, [Constant] ushort ADDRESS_FAMILY_INTER_NETWORK_V6)
         {
             if (addressStorage.ss_family == ADDRESS_FAMILY_INTER_NETWORK_V4)
             {
@@ -95,5 +96,6 @@ namespace NativeSockets
                 *socketAddress = *__socketAddress_native;
             }
         }
+#endif
     }
 }

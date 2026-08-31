@@ -8,11 +8,8 @@
 
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
-        <PackageId>NativeSockets</PackageId>
-        <Version>1.2.5</Version>
         <Authors>Molth Nevin</Authors>
         <Company>Hell</Company>
-        <Description>High performance pure c# udp-sockets library with no binary dependencies.</Description>
         <PackageProjectUrl>https://github.com/Molth/NativeSockets</PackageProjectUrl>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageTags>udp;sockets;performance;networking</PackageTags>
@@ -29,16 +26,122 @@
     </PropertyGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
-        <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
+        <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0"/>
     </ItemGroup>
 
-    <ItemGroup>
-        <None Include="$(SolutionRoot)README.md">
+    <PropertyGroup>
+        <NATIVE_SOCKETS_USE_BRIDGE>false</NATIVE_SOCKETS_USE_BRIDGE>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(NATIVE_SOCKETS_USE_BRIDGE)' != 'true'">
+        <PackageId>NativeSockets</PackageId>
+        <Version>1.2.6</Version>
+        <Description>High performance pure c# udp-sockets library with no binary dependencies.</Description>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(NATIVE_SOCKETS_USE_BRIDGE)' == 'true'">
+        <PackageId>NativeSockets2</PackageId>
+        <Version>1.0.2</Version>
+        <Description>High performance udp-sockets library.</Description>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'$(NATIVE_SOCKETS_USE_BRIDGE)' != 'true'">
+        <Compile Remove="Bridge\**\*"/>
+        <None Remove="Bridge\**\*"/>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(NATIVE_SOCKETS_USE_BRIDGE)' == 'true'">
+        <Compile Remove="Kernel\**\*"/>
+        <None Remove="Kernel\**\*"/>
+    </ItemGroup>
+
+    <PropertyGroup Condition="'$(NATIVE_SOCKETS_USE_BRIDGE)' == 'true'">
+        <DefineConstants>$(DefineConstants);NATIVE_SOCKETS_USE_BRIDGE</DefineConstants>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'$(NATIVE_SOCKETS_USE_BRIDGE)' == 'true'">
+        <Content Include="Bridge\runtimes\android-arm64\native\libnativesocketpal.so">
+            <Pack>true</Pack>
+            <PackagePath>runtimes\android-arm64\native\libnativesocketpal.so</PackagePath>
+            <Link>libnativesocketpal.so</Link>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <Visible>false</Visible>
+        </Content>
+
+        <Content Include="Bridge\runtimes\android-x64\native\libnativesocketpal.so">
+            <Pack>true</Pack>
+            <PackagePath>runtimes\android-x64\native\libnativesocketpal.so</PackagePath>
+            <Link>libnativesocketpal.so</Link>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <Visible>false</Visible>
+        </Content>
+
+        <Content Include="Bridge\runtimes\ios-arm64\native\libnativesocketpal.a">
+            <Pack>true</Pack>
+            <PackagePath>runtimes\ios-arm64\native\libnativesocketpal.a</PackagePath>
+            <Link>libnativesocketpal.a</Link>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <Visible>false</Visible>
+        </Content>
+
+        <Content Include="Bridge\runtimes\linux-arm64\native\libnativesocketpal.so">
+            <Pack>true</Pack>
+            <PackagePath>runtimes\linux-arm64\native\libnativesocketpal.so</PackagePath>
+            <Link>libnativesocketpal.so</Link>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <Visible>false</Visible>
+        </Content>
+
+        <Content Include="Bridge\runtimes\linux-x64\native\libnativesocketpal.so">
+            <Pack>true</Pack>
+            <PackagePath>runtimes\linux-x64\native\libnativesocketpal.so</PackagePath>
+            <Link>libnativesocketpal.so</Link>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <Visible>false</Visible>
+        </Content>
+
+        <Content Include="Bridge\runtimes\osx-x64\native\libnativesocketpal.dylib">
+            <Pack>true</Pack>
+            <PackagePath>runtimes\osx-x64\native\libnativesocketpal.dylib</PackagePath>
+            <Link>libnativesocketpal.dylib</Link>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <Visible>false</Visible>
+        </Content>
+
+        <Content Include="Bridge\runtimes\osx-arm64\native\libnativesocketpal.dylib">
+            <Pack>true</Pack>
+            <PackagePath>runtimes\osx-arm64\native\libnativesocketpal.dylib</PackagePath>
+            <Link>libnativesocketpal.dylib</Link>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <Visible>false</Visible>
+        </Content>
+
+        <Content Include="Bridge\runtimes\win-x64\native\nativesocketpal.dll">
+            <Pack>true</Pack>
+            <PackagePath>runtimes\win-x64\native\nativesocketpal.dll</PackagePath>
+            <Link>nativesocketpal.dll</Link>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <Visible>false</Visible>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(NATIVE_SOCKETS_USE_BRIDGE)' != 'true'">
+        <None Include="Kernel\README.md">
             <Pack>true</Pack>
             <PackagePath>\</PackagePath>
             <Link>README.md</Link>
         </None>
+    </ItemGroup>
 
+    <ItemGroup Condition="'$(NATIVE_SOCKETS_USE_BRIDGE)' == 'true'">
+        <None Include="Bridge\README.md">
+            <Pack>true</Pack>
+            <PackagePath>\</PackagePath>
+            <Link>README.md</Link>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
         <None Include="$(SolutionRoot)LICENSE">
             <Pack>true</Pack>
             <PackagePath>\</PackagePath>
@@ -55,8 +158,8 @@
     </PropertyGroup>
 
     <Target Name="CleanPackageOutputPath" BeforeTargets="GenerateNuspec">
-        <RemoveDir Directories="$(PackageOutputPath)" />
-        <MakeDir Directories="$(PackageOutputPath)" />
+        <RemoveDir Directories="$(PackageOutputPath)"/>
+        <MakeDir Directories="$(PackageOutputPath)"/>
     </Target>
 
 </Project>

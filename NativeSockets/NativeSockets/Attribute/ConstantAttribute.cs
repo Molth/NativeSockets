@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if !NATIVE_SOCKETS_USE_BRIDGE
+using System;
 
 // ReSharper disable All
 
@@ -12,3 +13,4 @@ namespace NativeSockets
     {
     }
 }
+#endif
