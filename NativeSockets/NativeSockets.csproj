@@ -30,7 +30,7 @@
     </ItemGroup>
 
     <PropertyGroup>
-        <NATIVE_SOCKETS_USE_BRIDGE>false</NATIVE_SOCKETS_USE_BRIDGE>
+        <NATIVE_SOCKETS_USE_BRIDGE>true</NATIVE_SOCKETS_USE_BRIDGE>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(NATIVE_SOCKETS_USE_BRIDGE)' != 'true'">
@@ -41,7 +41,7 @@
 
     <PropertyGroup Condition="'$(NATIVE_SOCKETS_USE_BRIDGE)' == 'true'">
         <PackageId>NativeSockets2</PackageId>
-        <Version>1.0.2</Version>
+        <Version>1.0.3</Version>
         <Description>High performance udp-sockets library.</Description>
     </PropertyGroup>
 

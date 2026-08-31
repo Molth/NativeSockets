@@ -1,6 +1,8 @@
 ﻿using System.Net.Sockets;
 using System.Runtime.InteropServices;
 
+#pragma warning disable SYSLIB1054
+
 // ReSharper disable All
 
 namespace NativeSockets
