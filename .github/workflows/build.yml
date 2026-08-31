@@ -1,0 +1,206 @@
+name: Build binaries
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "branch to build (e.g., main)"
+        required: true
+        default: "main"
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        architecture: [x64, arm64]
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.branch }}
+
+      - run: |
+          sudo apt update
+          if [ "${{ matrix.architecture }}" == "arm64" ]; then
+            sudo apt install -y cmake gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+          else
+            sudo apt install -y cmake build-essential
+          fi
+
+      - run: |
+          cd Native
+          mkdir -p build && cd build
+          if [ "${{ matrix.architecture }}" == "arm64" ]; then
+            cmake .. \
+              -DCMAKE_SYSTEM_NAME=Linux \
+              -DCMAKE_SYSTEM_PROCESSOR=aarch64 \
+              -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc \
+              -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ \
+              -DCMAKE_BUILD_TYPE=Release \
+              -DNATIVESOCKETPAL_SHARED=1
+          else
+            cmake .. \
+              -DCMAKE_BUILD_TYPE=Release \
+              -DNATIVESOCKETPAL_SHARED=1
+          fi
+          make
+          cp libnativesocketpal.so ../libnativesocketpal.so
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: nativesocketpal-linux-${{ matrix.architecture }}
+          path: Native/libnativesocketpal.so
+
+  build-osx:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        arch:
+          - x64
+          - arm64
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.branch }}
+
+      - run: |
+          cd Native
+          mkdir -p build && cd build
+          if [ "${{ matrix.arch }}" = "x64" ]; then
+            cmake .. -DCMAKE_OSX_ARCHITECTURES="x86_64" -DCMAKE_BUILD_TYPE=Release -DNATIVESOCKETPAL_SHARED=1
+          else
+            cmake .. -DCMAKE_OSX_ARCHITECTURES="arm64" -DCMAKE_BUILD_TYPE=Release -DNATIVESOCKETPAL_SHARED=1
+          fi
+          make
+          cp libnativesocketpal.dylib ../libnativesocketpal.dylib
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: nativesocketpal-osx-${{ matrix.arch }}
+          path: Native/libnativesocketpal.dylib
+
+  build-win-x64:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.branch }}
+
+      - uses: Source-Authors/msvc-dev-cmd@v2
+        with:
+          arch: x64
+
+      - run: |
+          cd Native
+          mkdir build
+          cd build
+          cmake .. -DNATIVESOCKETPAL_SHARED=1
+          cmake --build . --config Release
+          copy Release\nativesocketpal.dll ..\nativesocketpal.dll
+        shell: powershell
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: nativesocketpal-win-x64
+          path: Native\nativesocketpal.dll
+
+  build-android:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - abi: arm64-v8a
+            target_dir: android-arm64
+          - abi: x86_64
+            target_dir: android-x64
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.branch }}
+
+      - run: sudo apt update && sudo apt install -y cmake unzip
+
+      - uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r26d
+          add-to-path: false
+
+      - env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+        run: |
+          cd Native
+          mkdir -p build/${{ matrix.abi }}
+          cmake -S . -B build/${{ matrix.abi }} \
+                -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
+                -DANDROID_ABI=${{ matrix.abi }} \
+                -DANDROID_NATIVE_API_LEVEL=21 \
+                -DCMAKE_BUILD_TYPE=Release \
+                -DNATIVESOCKETPAL_SHARED=1
+          cmake --build build/${{ matrix.abi }}
+          mkdir -p ${{ matrix.target_dir }}
+          cp build/${{ matrix.abi }}/libnativesocketpal.so ${{ matrix.target_dir }}/
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: nativesocketpal-${{ matrix.target_dir }}
+          path: Native/${{ matrix.target_dir }}/
+
+  build-ios-arm64:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.branch }}
+
+      - run: brew install cmake --formula
+
+      - run: |
+          cd Native
+          mkdir -p build && cd build
+          cmake .. \
+            -G Xcode \
+            -DCMAKE_SYSTEM_NAME=iOS \
+            -DCMAKE_OSX_SYSROOT=iphoneos \
+            -DCMAKE_OSX_ARCHITECTURES=arm64 \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0 \
+            -DNATIVESOCKETPAL_STATIC=1 \
+            -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+          cmake --build . --config Release --target nativesocketpal_static
+          cp Release-iphoneos/libnativesocketpal.a ../libnativesocketpal.a
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: nativesocketpal-ios-arm64
+          path: Native/libnativesocketpal.a
+
+  package:
+    needs:
+      [build-linux, build-osx, build-win-x64, build-android, build-ios-arm64]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v7
+        with:
+          path: artifacts
+
+      - run: |
+          mkdir -p dist/{linux-x64/native,linux-arm64/native,osx-x64/native,osx-arm64/native,win-x64/native,android-arm64/native,android-x64/native,ios-arm64/native}
+
+          cp artifacts/nativesocketpal-linux-x64/libnativesocketpal.so dist/linux-x64/native/
+          cp artifacts/nativesocketpal-linux-arm64/libnativesocketpal.so dist/linux-arm64/native/
+
+          cp artifacts/nativesocketpal-osx-x64/libnativesocketpal.dylib dist/osx-x64/native/
+          cp artifacts/nativesocketpal-osx-arm64/libnativesocketpal.dylib dist/osx-arm64/native/
+
+          cp artifacts/nativesocketpal-win-x64/nativesocketpal.dll dist/win-x64/native/
+
+          cp artifacts/nativesocketpal-android-arm64/libnativesocketpal.so dist/android-arm64/native/
+          cp artifacts/nativesocketpal-android-x64/libnativesocketpal.so dist/android-x64/native/
+
+          cp artifacts/nativesocketpal-ios-arm64/libnativesocketpal.a dist/ios-arm64/native/
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: nativesocketpal-runtimes
+          path: dist
