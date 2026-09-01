@@ -2,7 +2,6 @@
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Security;
 using static NativeSockets.UnixNativeLib;
 using static NativeSockets.LinuxNativeLib;
 using static NativeSockets.LinuxSocketError;
@@ -14,7 +13,6 @@ namespace NativeSockets
     /// <summary>
     ///     Provides platform-abstracted socket operations for sending and receiving data.
     /// </summary>
-    [SuppressUnmanagedCodeSecurity]
     internal static unsafe class LinuxSocketPal
     {
         /// <summary>

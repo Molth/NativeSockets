@@ -1,7 +1,6 @@
 ﻿using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Security;
 using static NativeSockets.UnixNativeLibName;
 using static NativeSockets.UnixNativeLib2;
 using static NativeSockets.BsdSocketFlags;
@@ -16,7 +15,6 @@ namespace NativeSockets
     /// <summary>
     ///     Provides Unix-specific socket operations using libc functions.
     /// </summary>
-    [SuppressUnmanagedCodeSecurity]
     internal static unsafe class BsdNativeLib
     {
         /// <summary>

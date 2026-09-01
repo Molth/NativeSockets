@@ -2,7 +2,6 @@
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Security;
 using System.Threading;
 
 #pragma warning disable SYSLIB1054
@@ -15,7 +14,6 @@ namespace NativeSockets
     ///     Provides platform-abstracted socket operations for sending and receiving data.
     ///     This class contains Windows-specific implementations using Winsock.
     /// </summary>
-    [SuppressUnmanagedCodeSecurity]
     internal static unsafe class WindowsNativeLib
     {
         /// <summary>

@@ -1,5 +1,4 @@
 ﻿using System.Net.Sockets;
-using System.Security;
 using static NativeSockets.UnixNativeLib2;
 using static NativeSockets.FreeBsdSocketOption;
 
@@ -10,7 +9,6 @@ namespace NativeSockets
     /// <summary>
     ///     Provides Unix-specific socket operations using libc functions.
     /// </summary>
-    [SuppressUnmanagedCodeSecurity]
     internal static unsafe class FreeBsdNativeLib
     {
         /// <summary>

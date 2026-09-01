@@ -1,6 +1,5 @@
 ﻿using System.Net.Sockets;
 using System.Runtime.InteropServices;
-using System.Security;
 using static NativeSockets.UnixNativeLibName;
 
 #pragma warning disable SYSLIB1054
@@ -12,7 +11,6 @@ namespace NativeSockets
     /// <summary>
     ///     Provides Unix-specific socket operations using libc functions.
     /// </summary>
-    [SuppressUnmanagedCodeSecurity]
     internal static unsafe class UnixNativeLib2
     {
         /// <summary>

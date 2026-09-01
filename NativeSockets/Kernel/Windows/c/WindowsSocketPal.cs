@@ -2,7 +2,6 @@
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Security;
 using static NativeSockets.WindowsNativeLib;
 
 // ReSharper disable All
@@ -12,7 +11,6 @@ namespace NativeSockets
     /// <summary>
     ///     Provides platform-abstracted socket operations for sending and receiving data.
     /// </summary>
-    [SuppressUnmanagedCodeSecurity]
     internal static unsafe class WindowsSocketPal
     {
         /// <summary>

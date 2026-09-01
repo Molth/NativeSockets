@@ -11,7 +11,7 @@ namespace NativeSockets
     /// </summary>
     /// <remarks>
     ///     This class uses function pointers to delegate to the appropriate platform-specific implementation
-    ///     (Bridge, Linux, Android, macOS) at runtime.
+    ///     (Windows, Linux, Android, macOS) at runtime.
     /// </remarks>
     internal static unsafe class SharedSocketPal
     {
@@ -21,12 +21,12 @@ namespace NativeSockets
         private static readonly delegate* managed<SocketError> _GetLastSocketError;
 
         /// <summary>
-        ///     Starts up the platform-specific socket subsystem (e.g., WSAStartup on Bridge).
+        ///     Starts up the platform-specific socket subsystem (e.g., WSAStartup on Windows).
         /// </summary>
         private static readonly delegate* managed<SocketError> _Startup;
 
         /// <summary>
-        ///     Cleans up the platform-specific socket subsystem (e.g., WSACleanup on Bridge).
+        ///     Cleans up the platform-specific socket subsystem (e.g., WSACleanup on Windows).
         /// </summary>
         private static readonly delegate* managed<SocketError> _Cleanup;
 
