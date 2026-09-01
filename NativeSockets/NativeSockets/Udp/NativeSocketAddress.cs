@@ -106,8 +106,8 @@ namespace NativeSockets
         ///     Gets or sets the specified index element in the underlying buffer.
         /// </summary>
         /// <param name="index">The array index element of the desired information.</param>
-        /// <exception cref="T:System.ArgumentOutOfRangeException">The specified index does not exist in the buffer.</exception>
         /// <returns>The value of the specified index element in the underlying buffer.</returns>
+        /// <exception cref="T:System.ArgumentOutOfRangeException">The specified index does not exist in the buffer.</exception>
         public byte this[int index]
         {
             readonly get

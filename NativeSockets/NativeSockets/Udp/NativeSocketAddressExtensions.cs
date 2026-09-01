@@ -64,21 +64,26 @@ namespace NativeSockets
         /// <param name="source">The source <see cref="SocketAddress" /> to copy from.</param>
         /// <returns>
         ///     <see cref="SocketError.Success" /> if the address is valid and copied successfully;
-        ///     <see cref="SocketError.AddressFamilyNotSupported" /> if the address family is not Ipv4 or Ipv6,
-        ///     or the buffer size is insufficient.
+        ///     <see cref="SocketError.AddressFamilyNotSupported" /> if the address family is not Ipv4 or Ipv6;
+        ///     <see cref="SocketError.NoBufferSpaceAvailable" /> if the address size is insufficient.
         /// </returns>
         /// <exception cref="NullReferenceException">Thrown if <paramref name="source" /> is null.</exception>
         public static SocketError FromSocketAddress(ref this NativeSocketAddress socketAddress, SocketAddress source)
         {
-            if ((source.Family == AddressFamily.InterNetwork && source.Size >= 16) || (source.Family == AddressFamily.InterNetworkV6 && source.Size >= 28))
+            if (source.Family == AddressFamily.InterNetwork || source.Family == AddressFamily.InterNetworkV6)
             {
-                socketAddress.Family = source.Family;
-                source.CopyTo(socketAddress.Buffer, source.Family == AddressFamily.InterNetwork ? 8 : 28);
+                if ((source.Family == AddressFamily.InterNetwork && source.Size >= 16) || (source.Family == AddressFamily.InterNetworkV6 && source.Size >= 28))
+                {
+                    socketAddress.Family = source.Family;
+                    source.CopyTo(socketAddress.Buffer, source.Family == AddressFamily.InterNetwork ? 8 : 28);
 
-                if (source.Family == AddressFamily.InterNetwork)
-                    socketAddress.AsSpan().Slice(8).Clear();
+                    if (source.Family == AddressFamily.InterNetwork)
+                        socketAddress.AsSpan().Slice(8).Clear();
 
-                return SocketError.Success;
+                    return SocketError.Success;
+                }
+
+                return SocketError.NoBufferSpaceAvailable;
             }
 
             return SocketError.AddressFamilyNotSupported;
