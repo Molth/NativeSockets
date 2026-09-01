@@ -17,21 +17,17 @@ namespace NativeSockets
         /// </summary>
         static IosSocketPal()
         {
-            if (
+            if (!(
 #if NET5_0_OR_GREATER
-                OperatingSystem.IsFreeBSD() ||
-                OperatingSystem.IsLinux() ||
-                OperatingSystem.IsAndroid() ||
-                OperatingSystem.IsMacOS() ||
-                OperatingSystem.IsWindows()
+                    OperatingSystem.IsIOS() ||
+                    OperatingSystem.IsTvOS() ||
+                    OperatingSystem.IsWatchOS() ||
 #else
-                RuntimeInformation.IsOSPlatform(OSPlatform.Create("FREEBSD")) ||
-                RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ||
-                RuntimeInformation.IsOSPlatform(OSPlatform.Create("ANDROID")) ||
-                RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ||
-                RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                    RuntimeInformation.IsOSPlatform(OSPlatform.Create("IOS")) ||
+                    RuntimeInformation.IsOSPlatform(OSPlatform.Create("TVOS")) ||
+                    RuntimeInformation.IsOSPlatform(OSPlatform.Create("WATCHOS")) ||
 #endif
-            )
+                    RuntimeInformation.IsOSPlatform(OSPlatform.Create("VISIONOS"))))
                 return;
 
             try
