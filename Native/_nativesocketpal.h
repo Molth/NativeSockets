@@ -1,5 +1,5 @@
-#ifndef _SOCKETPAL_H
-#define _SOCKETPAL_H
+#ifndef _NATIVESOCKETPAL_H
+#define _NATIVESOCKETPAL_H
 
 #include <stdint.h>
 #include <stddef.h>
@@ -10,13 +10,13 @@ extern "C"
 #endif
 
 #ifdef _WIN32
-#ifdef _SOCKETPAL_BUILD_DLL
-#define _SOCKETPAL_API __declspec(dllexport)
+#ifdef _NATIVESOCKETPAL_BUILD_DLL
+#define _NATIVESOCKETPAL_API __declspec(dllexport)
 #else
-#define _SOCKETPAL_API __declspec(dllimport)
+#define _NATIVESOCKETPAL_API __declspec(dllimport)
 #endif
 #else
-#define _SOCKETPAL_API __attribute__((visibility("default")))
+#define _NATIVESOCKETPAL_API __attribute__((visibility("default")))
 #endif
 
     typedef uint16_t u16;
@@ -251,192 +251,192 @@ extern "C"
     /// <summary>
     ///     Gets the address family value for Ipv4 used by the current platform.
     /// </summary>
-    _SOCKETPAL_API u16 _GetAddressFamilyInterNetworkV4(void);
+    _NATIVESOCKETPAL_API u16 _GetAddressFamilyInterNetworkV4(void);
 
     /// <summary>
     ///     Gets the address family value for Ipv6 used by the current platform.
     /// </summary>
-    _SOCKETPAL_API u16 _GetAddressFamilyInterNetworkV6(void);
+    _NATIVESOCKETPAL_API u16 _GetAddressFamilyInterNetworkV6(void);
 
     /// <summary>
     ///     Retrieves the last socket error code from the underlying platform.
     /// </summary>
-    _SOCKETPAL_API i32 _GetLastSocketError(void);
+    _NATIVESOCKETPAL_API i32 _GetLastSocketError(void);
 
     /// <summary>
     ///     Starts up the platform-specific socket subsystem (e.g., WSAStartup on Windows).
     /// </summary>
-    _SOCKETPAL_API i32 _Startup(void);
+    _NATIVESOCKETPAL_API i32 _Startup(void);
 
     /// <summary>
     ///     Cleans up the platform-specific socket subsystem (e.g., WSACleanup on Windows).
     /// </summary>
-    _SOCKETPAL_API i32 _Cleanup(void);
+    _NATIVESOCKETPAL_API i32 _Cleanup(void);
 
     /// <summary>
     ///     Creates a native socket handle for the specified address family (Ipv4 or Ipv6).
     /// </summary>
-    _SOCKETPAL_API isize _Create(u8 ipv6);
+    _NATIVESOCKETPAL_API isize _Create(u8 ipv6);
 
     /// <summary>
     ///     Closes a native socket handle.
     /// </summary>
-    _SOCKETPAL_API i32 _Close(isize socket);
+    _NATIVESOCKETPAL_API i32 _Close(isize socket);
 
     /// <summary>
     ///     Enables or disables dual-mode (Ipv6/Ipv4) on an Ipv6 socket.
     /// </summary>
-    _SOCKETPAL_API i32 _SetDualModeIpv6(isize socket, u8 dualMode);
+    _NATIVESOCKETPAL_API i32 _SetDualModeIpv6(isize socket, u8 dualMode);
 
     /// <summary>
     ///     Binds a socket to an Ipv4 address.
     /// </summary>
-    _SOCKETPAL_API i32 _BindIpv4(isize socket, _sockaddr_in4 *socketAddress);
+    _NATIVESOCKETPAL_API i32 _BindIpv4(isize socket, _sockaddr_in4 *socketAddress);
 
     /// <summary>
     ///     Binds a socket to an Ipv6 address.
     /// </summary>
-    _SOCKETPAL_API i32 _BindIpv6(isize socket, _sockaddr_in6 *socketAddress);
+    _NATIVESOCKETPAL_API i32 _BindIpv6(isize socket, _sockaddr_in6 *socketAddress);
 
     /// <summary>
     ///     Connects a socket to an Ipv4 endpoint.
     /// </summary>
-    _SOCKETPAL_API i32 _ConnectIpv4(isize socket, _sockaddr_in4 *socketAddress);
+    _NATIVESOCKETPAL_API i32 _ConnectIpv4(isize socket, _sockaddr_in4 *socketAddress);
 
     /// <summary>
     ///     Connects a socket to an Ipv6 endpoint.
     /// </summary>
-    _SOCKETPAL_API i32 _ConnectIpv6(isize socket, _sockaddr_in6 *socketAddress);
+    _NATIVESOCKETPAL_API i32 _ConnectIpv6(isize socket, _sockaddr_in6 *socketAddress);
 
     /// <summary>
     ///     Sets a socket option.
     /// </summary>
-    _SOCKETPAL_API i32 _SetOption(isize socket, i32 level, i32 name, u8 *value, i32 length);
+    _NATIVESOCKETPAL_API i32 _SetOption(isize socket, i32 level, i32 name, u8 *value, i32 length);
 
     /// <summary>
     ///     Gets a socket option.
     /// </summary>
-    _SOCKETPAL_API i32 _GetOption(isize socket, i32 level, i32 name, u8 *value, i32 *length);
+    _NATIVESOCKETPAL_API i32 _GetOption(isize socket, i32 level, i32 name, u8 *value, i32 *length);
 
     /// <summary>
     ///     Sets a socket's blocking mode.
     /// </summary>
-    _SOCKETPAL_API i32 _SetBlocking(isize socket, i32 blocking);
+    _NATIVESOCKETPAL_API i32 _SetBlocking(isize socket, i32 blocking);
 
     /// <summary>
     ///     Polls a socket for pending events.
     /// </summary>
-    _SOCKETPAL_API i32 _Poll(isize socket, i32 microseconds, i32 mode, i32 *status);
+    _NATIVESOCKETPAL_API i32 _Poll(isize socket, i32 microseconds, i32 mode, i32 *status);
 
     /// <summary>
     ///     Sends data on a connected socket.
     /// </summary>
-    _SOCKETPAL_API i32 _Send(isize socket, void *buffer, i32 length, i32 socketFlags);
+    _NATIVESOCKETPAL_API i32 _Send(isize socket, void *buffer, i32 length, i32 socketFlags);
 
     /// <summary>
     ///     Sends data to an Ipv4 endpoint.
     /// </summary>
-    _SOCKETPAL_API i32 _SendToIpv4(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in4 *socketAddress);
+    _NATIVESOCKETPAL_API i32 _SendToIpv4(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in4 *socketAddress);
 
     /// <summary>
     ///     Sends data to an Ipv6 endpoint.
     /// </summary>
-    _SOCKETPAL_API i32 _SendToIpv6(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in6 *socketAddress);
+    _NATIVESOCKETPAL_API i32 _SendToIpv6(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in6 *socketAddress);
 
     /// <summary>
     ///     Receives data on a connected socket.
     /// </summary>
-    _SOCKETPAL_API i32 _Receive(isize socket, void *buffer, i32 length, i32 socketFlags);
+    _NATIVESOCKETPAL_API i32 _Receive(isize socket, void *buffer, i32 length, i32 socketFlags);
 
     /// <summary>
     ///     Receives data from an Ipv4 endpoint, filling the provided address structure.
     /// </summary>
-    _SOCKETPAL_API i32 _ReceiveFromIpv4(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in4 *socketAddress);
+    _NATIVESOCKETPAL_API i32 _ReceiveFromIpv4(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in4 *socketAddress);
 
     /// <summary>
     ///     Receives data from an Ipv6 endpoint, filling the provided address structure.
     /// </summary>
-    _SOCKETPAL_API i32 _ReceiveFromIpv6(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in6 *socketAddress);
+    _NATIVESOCKETPAL_API i32 _ReceiveFromIpv6(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in6 *socketAddress);
 
     /// <summary>
     ///     Sends a message on a connected socket.
     /// </summary>
-    _SOCKETPAL_API i32 _SendMessage(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags);
+    _NATIVESOCKETPAL_API i32 _SendMessage(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags);
 
     /// <summary>
     ///     Sends a message to an Ipv4 endpoint.
     /// </summary>
-    _SOCKETPAL_API i32 _SendMessageToIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags, _sockaddr_in4 *socketAddress);
+    _NATIVESOCKETPAL_API i32 _SendMessageToIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags, _sockaddr_in4 *socketAddress);
 
     /// <summary>
     ///     Sends a message to an Ipv6 endpoint.
     /// </summary>
-    _SOCKETPAL_API i32 _SendMessageToIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags, _sockaddr_in6 *socketAddress);
+    _NATIVESOCKETPAL_API i32 _SendMessageToIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags, _sockaddr_in6 *socketAddress);
 
     /// <summary>
     ///     Receives a message on a connected socket.
     /// </summary>
-    _SOCKETPAL_API i32 _ReceiveMessage(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *socketFlags);
+    _NATIVESOCKETPAL_API i32 _ReceiveMessage(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *socketFlags);
 
     /// <summary>
     ///     Receives a message from an Ipv4 endpoint.
     /// </summary>
-    _SOCKETPAL_API i32 _ReceiveMessageFromIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *socketFlags, _sockaddr_in4 *socketAddress);
+    _NATIVESOCKETPAL_API i32 _ReceiveMessageFromIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *socketFlags, _sockaddr_in4 *socketAddress);
 
     /// <summary>
     ///     Receives a message from an Ipv6 endpoint.
     /// </summary>
-    _SOCKETPAL_API i32 _ReceiveMessageFromIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *socketFlags, _sockaddr_in6 *socketAddress);
+    _NATIVESOCKETPAL_API i32 _ReceiveMessageFromIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *socketFlags, _sockaddr_in6 *socketAddress);
 
     /// <summary>
     ///     Gets the local name (address) of an Ipv4 socket.
     /// </summary>
-    _SOCKETPAL_API i32 _GetNameIpv4(isize socket, _sockaddr_in4 *socketAddress);
+    _NATIVESOCKETPAL_API i32 _GetNameIpv4(isize socket, _sockaddr_in4 *socketAddress);
 
     /// <summary>
     ///     Gets the local name (address) of an Ipv6 socket.
     /// </summary>
-    _SOCKETPAL_API i32 _GetNameIpv6(isize socket, _sockaddr_in6 *socketAddress);
+    _NATIVESOCKETPAL_API i32 _GetNameIpv6(isize socket, _sockaddr_in6 *socketAddress);
 
     /// <summary>
     ///     Sets the Ipv4 address in the given address structure.
     /// </summary>
-    _SOCKETPAL_API i32 _SetIpIpv4(_sockaddr_in4 *socketAddress, const u8 *ip, i32 ipLength);
+    _NATIVESOCKETPAL_API i32 _SetIpIpv4(_sockaddr_in4 *socketAddress, const u8 *ip, i32 ipLength);
 
     /// <summary>
     ///     Sets the Ipv6 address in the given address structure.
     /// </summary>
-    _SOCKETPAL_API i32 _SetIpIpv6(_sockaddr_in6 *socketAddress, const u8 *ip, i32 ipLength);
+    _NATIVESOCKETPAL_API i32 _SetIpIpv6(_sockaddr_in6 *socketAddress, const u8 *ip, i32 ipLength);
 
     /// <summary>
     ///     Retrieves the Ipv4 address from a socket address structure.
     /// </summary>
-    _SOCKETPAL_API i32 _GetIpIpv4(_sockaddr_in4 *socketAddress, u8 *ip, i32 ipLength);
+    _NATIVESOCKETPAL_API i32 _GetIpIpv4(_sockaddr_in4 *socketAddress, u8 *ip, i32 ipLength);
 
     /// <summary>
     ///     Retrieves the Ipv6 address from a socket address structure.
     /// </summary>
-    _SOCKETPAL_API i32 _GetIpIpv6(_sockaddr_in6 *socketAddress, u8 *ip, i32 ipLength);
+    _NATIVESOCKETPAL_API i32 _GetIpIpv6(_sockaddr_in6 *socketAddress, u8 *ip, i32 ipLength);
 
     /// <summary>
     ///     Sets the host name (reverse DNS) for an Ipv4 address.
     /// </summary>
-    _SOCKETPAL_API i32 _SetHostNameIpv4(_sockaddr_in4 *socketAddress, const u8 *hostName, i32 hostNameLength);
+    _NATIVESOCKETPAL_API i32 _SetHostNameIpv4(_sockaddr_in4 *socketAddress, const u8 *hostName, i32 hostNameLength);
 
     /// <summary>
     ///     Sets the host name (reverse DNS) for an Ipv6 address.
     /// </summary>
-    _SOCKETPAL_API i32 _SetHostNameIpv6(_sockaddr_in6 *socketAddress, const u8 *hostName, i32 hostNameLength);
+    _NATIVESOCKETPAL_API i32 _SetHostNameIpv6(_sockaddr_in6 *socketAddress, const u8 *hostName, i32 hostNameLength);
 
     /// <summary>
     ///     Gets the host name (reverse DNS) from an Ipv4 address.
     /// </summary>
-    _SOCKETPAL_API i32 _GetHostNameIpv4(_sockaddr_in4 *socketAddress, u8 *hostName, i32 hostNameLength);
+    _NATIVESOCKETPAL_API i32 _GetHostNameIpv4(_sockaddr_in4 *socketAddress, u8 *hostName, i32 hostNameLength);
 
     /// <summary>
     ///     Gets the host name (reverse DNS) from an Ipv6 address.
     /// </summary>
-    _SOCKETPAL_API i32 _GetHostNameIpv6(_sockaddr_in6 *socketAddress, u8 *hostName, i32 hostNameLength);
+    _NATIVESOCKETPAL_API i32 _GetHostNameIpv6(_sockaddr_in6 *socketAddress, u8 *hostName, i32 hostNameLength);
 
 #ifdef __cplusplus
 }

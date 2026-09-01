@@ -19,12 +19,17 @@ jobs:
         with:
           ref: ${{ inputs.branch }}
 
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: "4.x"
+
       - run: |
           sudo apt update
           if [ "${{ matrix.architecture }}" == "arm64" ]; then
-            sudo apt install -y cmake gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+            sudo apt install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
           else
-            sudo apt install -y cmake build-essential
+            sudo apt install -y build-essential
           fi
 
       - run: |
@@ -35,7 +40,6 @@ jobs:
               -DCMAKE_SYSTEM_NAME=Linux \
               -DCMAKE_SYSTEM_PROCESSOR=aarch64 \
               -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc \
-              -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ \
               -DCMAKE_BUILD_TYPE=Release \
               -DNATIVESOCKETPAL_SHARED=1
           else
@@ -63,6 +67,11 @@ jobs:
         with:
           ref: ${{ inputs.branch }}
 
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: "4.x"
+
       - run: |
           cd Native
           mkdir -p build && cd build
@@ -85,6 +94,11 @@ jobs:
       - uses: actions/checkout@v5
         with:
           ref: ${{ inputs.branch }}
+
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: "4.x"
 
       - uses: Source-Authors/msvc-dev-cmd@v2
         with:
@@ -119,12 +133,17 @@ jobs:
         with:
           ref: ${{ inputs.branch }}
 
-      - run: sudo apt update && sudo apt install -y cmake unzip
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: "4.x"
+
+      - run: sudo apt update && sudo apt install -y unzip
 
       - uses: nttld/setup-ndk@v1
         id: setup-ndk
         with:
-          ndk-version: r26d
+          ndk-version: r28
           add-to-path: false
 
       - env:
@@ -154,7 +173,10 @@ jobs:
         with:
           ref: ${{ inputs.branch }}
 
-      - run: brew install cmake --formula
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: "4.x"
 
       - run: |
           cd Native

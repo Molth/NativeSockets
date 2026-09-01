@@ -425,13 +425,8 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int SendMessage(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags)
         {
-            msghdr msg;
-            msg.msg_name = null;
-            msg.msg_namelen = 0;
+            msghdr msg = new msghdr();
             msg.msg_iovlen = _get_msg_iovlen(bufferCount);
-            msg.msg_control = null;
-            msg.msg_controllen = 0;
-            msg.msg_flags = 0;
 
             int num;
 
@@ -458,13 +453,10 @@ namespace NativeSockets
         {
             if (socketAddress != null)
             {
-                msghdr msg;
+                msghdr msg = new msghdr();
                 msg.msg_name = socketAddress;
                 msg.msg_namelen = (uint)sizeof(sockaddr_in4);
                 msg.msg_iovlen = _get_msg_iovlen(bufferCount);
-                msg.msg_control = null;
-                msg.msg_controllen = 0;
-                msg.msg_flags = 0;
 
                 int num;
 
@@ -494,13 +486,10 @@ namespace NativeSockets
         {
             if (socketAddress != null)
             {
-                msghdr msg;
+                msghdr msg = new msghdr();
                 msg.msg_name = socketAddress;
                 msg.msg_namelen = (uint)sizeof(sockaddr_in6);
                 msg.msg_iovlen = _get_msg_iovlen(bufferCount);
-                msg.msg_control = null;
-                msg.msg_controllen = 0;
-                msg.msg_flags = 0;
 
                 int num;
 
@@ -527,13 +516,8 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveMessage(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* socketFlags)
         {
-            msghdr msg;
-            msg.msg_name = null;
-            msg.msg_namelen = 0;
+            msghdr msg = new msghdr();
             msg.msg_iovlen = _get_msg_iovlen(bufferCount);
-            msg.msg_control = null;
-            msg.msg_controllen = 0;
-            msg.msg_flags = 0;
 
             SocketFlags flags = socketFlags != null ? *socketFlags : 0;
 
@@ -568,13 +552,10 @@ namespace NativeSockets
         {
             sockaddr_storage addressStorage = new sockaddr_storage();
 
-            msghdr msg;
+            msghdr msg = new msghdr();
             msg.msg_name = &addressStorage;
             msg.msg_namelen = (uint)sizeof(sockaddr_storage);
             msg.msg_iovlen = _get_msg_iovlen(bufferCount);
-            msg.msg_control = null;
-            msg.msg_controllen = 0;
-            msg.msg_flags = 0;
 
             SocketFlags flags = socketFlags != null ? *socketFlags : 0;
 
@@ -615,13 +596,10 @@ namespace NativeSockets
         {
             sockaddr_storage addressStorage = new sockaddr_storage();
 
-            msghdr msg;
+            msghdr msg = new msghdr();
             msg.msg_name = &addressStorage;
             msg.msg_namelen = (uint)sizeof(sockaddr_storage);
             msg.msg_iovlen = _get_msg_iovlen(bufferCount);
-            msg.msg_control = null;
-            msg.msg_controllen = 0;
-            msg.msg_flags = 0;
 
             SocketFlags flags = socketFlags != null ? *socketFlags : 0;
 
