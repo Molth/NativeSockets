@@ -166,14 +166,14 @@ namespace NativeSockets
         public Span<byte> Address => AsSpan().Slice(IsIpv6 ? 8 : IsIpv4 ? 4 : 0, IsIpv6 ? 16 : IsIpv4 ? 4 : 0);
 
         /// <summary>
-        ///     Returns a span that represents the raw byte buffer of the address.
+        ///     Returns a span that represents the raw (28 bytes) buffer of the address.
         /// </summary>
         /// <returns>A span of bytes.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Span<byte> AsSpan() => MemoryMarshal.CreateSpan(ref _buffer[0], 28);
 
         /// <summary>
-        ///     Returns a read-only span that represents the raw byte buffer of the address.
+        ///     Returns a read-only span that represents the raw (28 bytes) buffer of the address.
         /// </summary>
         /// <returns>A read-only span of bytes.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

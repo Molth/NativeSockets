@@ -24,6 +24,7 @@ namespace NativeSockets
         ///     <see cref="SocketError.Success" /> if successful;
         ///     <see cref="SocketError.AddressFamilyNotSupported" /> if the address family is not Ipv4 or Ipv6.
         /// </returns>
+        /// <exception cref="NullReferenceException">Thrown if <paramref name="source" /> is null.</exception>
         public static SocketError FromIpEndPoint(ref this NativeSocketAddress socketAddress, IPEndPoint source) => socketAddress.FromIpAddress(source.Address, (ushort)source.Port);
 
         /// <summary>
@@ -37,6 +38,7 @@ namespace NativeSockets
         ///     <see cref="SocketError.Success" /> if successful;
         ///     <see cref="SocketError.AddressFamilyNotSupported" /> if the address family is not Ipv4 or Ipv6.
         /// </returns>
+        /// <exception cref="NullReferenceException">Thrown if <paramref name="source" /> is null.</exception>
         public static SocketError FromIpAddress(ref this NativeSocketAddress socketAddress, IPAddress source, ushort port)
         {
             if (source.AddressFamily == AddressFamily.InterNetwork || source.AddressFamily == AddressFamily.InterNetworkV6)
@@ -65,6 +67,7 @@ namespace NativeSockets
         ///     <see cref="SocketError.AddressFamilyNotSupported" /> if the address family is not Ipv4 or Ipv6,
         ///     or the buffer size is insufficient.
         /// </returns>
+        /// <exception cref="NullReferenceException">Thrown if <paramref name="source" /> is null.</exception>
         public static SocketError FromSocketAddress(ref this NativeSocketAddress socketAddress, SocketAddress source)
         {
             if ((source.Family == AddressFamily.InterNetwork && source.Size >= 16) || (source.Family == AddressFamily.InterNetworkV6 && source.Size >= 28))

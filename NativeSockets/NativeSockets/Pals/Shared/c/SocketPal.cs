@@ -9,10 +9,6 @@ namespace NativeSockets
     /// <summary>
     ///     Provides platform-abstracted socket operations for sending and receiving data.
     /// </summary>
-    /// <remarks>
-    ///     This class uses function pointers to delegate to the appropriate platform-specific implementation
-    ///     (Windows, Linux, Android, macOS) at runtime.
-    /// </remarks>
     internal static unsafe class SocketPal
     {
         /// <summary>
