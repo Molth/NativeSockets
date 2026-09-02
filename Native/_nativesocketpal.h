@@ -291,7 +291,7 @@ extern "C"
     /// <summary>
     ///     Creates a native socket handle for the specified address family (Ipv4 or Ipv6).
     /// </summary>
-    _NATIVESOCKETPAL_API isize _Create(u8 ipv6);
+    _NATIVESOCKETPAL_API isize _Create(i32 ipv6);
 
     /// <summary>
     ///     Closes a native socket handle.
@@ -301,7 +301,7 @@ extern "C"
     /// <summary>
     ///     Enables or disables dual-mode (Ipv6/Ipv4) on an Ipv6 socket.
     /// </summary>
-    _NATIVESOCKETPAL_API i32 _SetDualModeIpv6(isize socket, u8 dualMode);
+    _NATIVESOCKETPAL_API i32 _SetDualModeIpv6(isize socket, i32 dualMode);
 
     /// <summary>
     ///     Binds a socket to an Ipv4 address.

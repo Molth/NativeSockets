@@ -87,7 +87,7 @@ namespace NativeSockets
         /// <param name="ipv6">true to create an Ipv6 socket; false for Ipv4.</param>
         /// <returns>The native socket handle, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static nint Create(bool ipv6) => IosNativeLib.Create(ipv6);
+        public static nint Create(bool ipv6) => IosNativeLib.Create(ipv6 ? 1 : 0);
 
         /// <summary>
         ///     Closes a native socket handle.
@@ -104,7 +104,7 @@ namespace NativeSockets
         /// <param name="dualMode">true to enable dual-mode; false to disable.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetDualModeIpv6(nint socket, bool dualMode) => IosNativeLib.SetDualModeIpv6(socket, dualMode);
+        public static SocketError SetDualModeIpv6(nint socket, bool dualMode) => IosNativeLib.SetDualModeIpv6(socket, dualMode ? 1 : 0);
 
         /// <summary>
         ///     Binds a socket to an Ipv4 address.
@@ -173,7 +173,7 @@ namespace NativeSockets
         /// <param name="blocking">true for blocking; false for non-blocking.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetBlocking(nint socket, bool blocking) => IosNativeLib.SetBlocking(socket, blocking);
+        public static SocketError SetBlocking(nint socket, bool blocking) => IosNativeLib.SetBlocking(socket, blocking ? 1 : 0);
 
         /// <summary>
         ///     Polls a socket for pending events.
@@ -184,7 +184,12 @@ namespace NativeSockets
         /// <param name="status">When this method returns, contains true if the socket is ready, false otherwise.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError Poll(nint socket, int microseconds, SelectMode mode, out bool status) => IosNativeLib.Poll(socket, microseconds, mode, out status);
+        public static SocketError Poll(nint socket, int microseconds, SelectMode mode, out bool status)
+        {
+            SocketError result = IosNativeLib.Poll(socket, microseconds, mode, out int statusI32);
+            status = statusI32 != 0;
+            return result;
+        }
 
         /// <summary>
         ///     Polls a socket for pending events.

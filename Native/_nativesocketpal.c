@@ -497,7 +497,7 @@ i32 _Cleanup(void)
 /// </summary>
 /// <param name="ipv6">true to create an Ipv6 socket; false for Ipv4.</param>
 /// <returns>The native socket handle, or -1 on error.</returns>
-isize _Create(u8 ipv6)
+isize _Create(i32 ipv6)
 {
     i32 family = ipv6 ? _AF_INET6 : _AF_INET4;
 #ifdef _WIN32
@@ -536,7 +536,7 @@ i32 _Close(isize socket)
 /// <param name="socket">The socket handle.</param>
 /// <param name="dualMode">true to enable dual-mode; false to disable.</param>
 /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-i32 _SetDualModeIpv6(isize socket, u8 dualMode)
+i32 _SetDualModeIpv6(isize socket, i32 dualMode)
 {
     i32 optionValue = dualMode ? 0 : 1;
     return _SetOption(socket, _SOCKET_OPTION_LEVEL_IPV6, _SOCKET_OPTION_NAME_IPV6_V6ONLY, (u8 *)&optionValue, sizeof(i32));

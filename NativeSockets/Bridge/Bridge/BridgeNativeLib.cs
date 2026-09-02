@@ -61,7 +61,7 @@ namespace NativeSockets
         /// <param name="ipv6">true to create an Ipv6 socket; false for Ipv4.</param>
         /// <returns>The native socket handle, or -1 on error.</returns>
         [DllImport(NATIVE_LIBRARY, EntryPoint = "_Create", CallingConvention = CALLING_CONVENTION)]
-        public static extern nint Create(bool ipv6);
+        public static extern nint Create(int ipv6);
 
         /// <summary>
         ///     Closes a native socket handle.
@@ -78,7 +78,7 @@ namespace NativeSockets
         /// <param name="dualMode">true to enable dual-mode; false to disable.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [DllImport(NATIVE_LIBRARY, EntryPoint = "_SetDualModeIpv6", CallingConvention = CALLING_CONVENTION)]
-        public static extern SocketError SetDualModeIpv6(nint socket, bool dualMode);
+        public static extern SocketError SetDualModeIpv6(nint socket, int dualMode);
 
         /// <summary>
         ///     Binds a socket to an Ipv4 address.
@@ -147,7 +147,7 @@ namespace NativeSockets
         /// <param name="blocking">true for blocking; false for non-blocking.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [DllImport(NATIVE_LIBRARY, EntryPoint = "_SetBlocking", CallingConvention = CALLING_CONVENTION)]
-        public static extern SocketError SetBlocking(nint socket, bool blocking);
+        public static extern SocketError SetBlocking(nint socket, int blocking);
 
         /// <summary>
         ///     Polls a socket for pending events.
@@ -158,7 +158,7 @@ namespace NativeSockets
         /// <param name="status">When this method returns, contains true if the socket is ready, false otherwise.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [DllImport(NATIVE_LIBRARY, EntryPoint = "_Poll", CallingConvention = CALLING_CONVENTION)]
-        public static extern SocketError Poll(nint socket, int microseconds, SelectMode mode, out bool status);
+        public static extern SocketError Poll(nint socket, int microseconds, SelectMode mode, out int status);
 
         /// <summary>
         ///     Polls a socket for pending events.
