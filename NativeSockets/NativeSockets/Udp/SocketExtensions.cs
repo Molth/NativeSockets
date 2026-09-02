@@ -12,6 +12,17 @@ namespace NativeSockets
     public static class SocketExtensions
     {
         /// <summary>
+        ///     Polls a socket for pending events.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="microseconds">The timeout in microseconds.</param>
+        /// <param name="mode">The select mode.</param>
+        /// <param name="status">When this method returns, contains true if the socket is ready, false otherwise.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError PollFlags(this Socket socket, int microseconds, SelectModeFlags mode, out SelectModeFlags status) => new NativeSocket(socket).PollFlags(microseconds, mode, out status);
+
+        /// <summary>
         ///     Sends data to an endpoint.
         /// </summary>
         /// <param name="socket">The socket handle.</param>

@@ -365,6 +365,26 @@ namespace NativeSockets
         }
 
         /// <summary>
+        ///     Checks whether a socket is present in the file descriptor set.
+        /// </summary>
+        /// <param name="socket">The socket handle to check for.</param>
+        /// <param name="fileDescriptorSet">
+        ///     A pointer to a file descriptor set in the format used by Winsock's <c>select</c> function.
+        ///     The first element is the count of sockets in the set, and subsequent elements are the socket handles.
+        /// </param>
+        /// <returns>
+        ///     <see langword="true" /> if <paramref name="socket" /> is in the set;
+        ///     otherwise, <see langword="false" />.
+        /// </returns>
+        /// <remarks>
+        ///     This method mimics the behavior of the Winsock <c>FD_ISSET</c> macro, which is used after a call to
+        ///     <c>select</c> to determine which sockets have pending events.
+        ///     In Winsock, <c>fd_set</c> is implemented as an array of sockets with a count, rather than a bitmask.
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool FD_ISSET(nint socket, nint* fileDescriptorSet) => (int)fileDescriptorSet[0] != 0 && fileDescriptorSet[1] == socket;
+
+        /// <summary>
         ///     Builds a <see cref="NativeScopedArray{WSABuffer}" /> from an array of <see cref="NativeIoSlice" /> structures.
         /// </summary>
         /// <param name="buffer">A span that can be used for temporary storage (e.g., stackalloc).</param>

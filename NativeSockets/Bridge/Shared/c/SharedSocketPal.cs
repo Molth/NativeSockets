@@ -86,6 +86,11 @@ namespace NativeSockets
         private static readonly delegate* managed<nint, int, SelectMode, out bool, SocketError> _Poll;
 
         /// <summary>
+        ///     Polls a socket for pending events.
+        /// </summary>
+        private static readonly delegate* managed<nint, int, SelectModeFlags, out SelectModeFlags, SocketError> _PollFlags;
+
+        /// <summary>
         ///     Sends data on a connected socket.
         /// </summary>
         private static readonly delegate* managed<nint, void*, int, SocketFlags, int> _Send;
@@ -219,6 +224,7 @@ namespace NativeSockets
                 _GetOption = &BridgeSocketPal.GetOption;
                 _SetBlocking = &BridgeSocketPal.SetBlocking;
                 _Poll = &BridgeSocketPal.Poll;
+                _PollFlags = &BridgeSocketPal.PollFlags;
                 _Send = &BridgeSocketPal.Send;
                 _SendToIpv4 = &BridgeSocketPal.SendToIpv4;
                 _SendToIpv6 = &BridgeSocketPal.SendToIpv6;
@@ -262,6 +268,7 @@ namespace NativeSockets
                 _GetOption = &IosSocketPal.GetOption;
                 _SetBlocking = &IosSocketPal.SetBlocking;
                 _Poll = &IosSocketPal.Poll;
+                _PollFlags = &IosSocketPal.PollFlags;
                 _Send = &IosSocketPal.Send;
                 _SendToIpv4 = &IosSocketPal.SendToIpv4;
                 _SendToIpv6 = &IosSocketPal.SendToIpv6;
@@ -434,6 +441,17 @@ namespace NativeSockets
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Poll(nint socket, int microseconds, SelectMode mode, out bool status) => _Poll(socket, microseconds, mode, out status);
+
+        /// <summary>
+        ///     Polls a socket for pending events.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="microseconds">The timeout in microseconds.</param>
+        /// <param name="mode">The select mode.</param>
+        /// <param name="status">When this method returns, contains true if the socket is ready, false otherwise.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError PollFlags(nint socket, int microseconds, SelectModeFlags mode, out SelectModeFlags status) => _PollFlags(socket, microseconds, mode, out status);
 
         /// <summary>
         ///     Sends data on a connected socket.

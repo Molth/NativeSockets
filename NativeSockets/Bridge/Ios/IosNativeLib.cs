@@ -161,6 +161,17 @@ namespace NativeSockets
         public static extern SocketError Poll(nint socket, int microseconds, SelectMode mode, out bool status);
 
         /// <summary>
+        ///     Polls a socket for pending events.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="microseconds">The timeout in microseconds.</param>
+        /// <param name="mode">The select mode.</param>
+        /// <param name="status">When this method returns, contains true if the socket is ready, false otherwise.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        [DllImport(NATIVE_LIBRARY, EntryPoint = "_PollFlags", CallingConvention = CALLING_CONVENTION)]
+        public static extern SocketError PollFlags(nint socket, int microseconds, SelectModeFlags mode, out SelectModeFlags status);
+
+        /// <summary>
         ///     Sends data on a connected socket.
         /// </summary>
         /// <param name="socket">The socket handle.</param>

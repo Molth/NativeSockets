@@ -86,6 +86,11 @@ namespace NativeSockets
         private static readonly delegate* managed<nint, int, SelectMode, out bool, SocketError> _Poll;
 
         /// <summary>
+        ///     Polls a socket for pending events.
+        /// </summary>
+        private static readonly delegate* managed<nint, int, SelectModeFlags, out SelectModeFlags, SocketError> _PollFlags;
+
+        /// <summary>
         ///     Sends data on a connected socket.
         /// </summary>
         private static readonly delegate* managed<nint, void*, int, SocketFlags, int> _Send;
@@ -219,6 +224,7 @@ namespace NativeSockets
                 _GetOption = &WindowsSocketPal.GetOption;
                 _SetBlocking = &WindowsSocketPal.SetBlocking;
                 _Poll = &WindowsSocketPal.Poll;
+                _PollFlags = &WindowsSocketPal.PollFlags;
                 _Send = &WindowsSocketPal.Send;
                 _SendToIpv4 = &WindowsSocketPal.SendToIpv4;
                 _SendToIpv6 = &WindowsSocketPal.SendToIpv6;
@@ -262,6 +268,7 @@ namespace NativeSockets
                 _GetOption = &LinuxSocketPal.GetOption;
                 _SetBlocking = &LinuxSocketPal.SetBlocking;
                 _Poll = &LinuxSocketPal.Poll;
+                _PollFlags = &LinuxSocketPal.PollFlags;
                 _Send = &LinuxSocketPal.Send;
                 _SendToIpv4 = &LinuxSocketPal.SendToIpv4;
                 _SendToIpv6 = &LinuxSocketPal.SendToIpv6;
@@ -305,6 +312,7 @@ namespace NativeSockets
                 _GetOption = &OsxSocketPal.GetOption;
                 _SetBlocking = &OsxSocketPal.SetBlocking;
                 _Poll = &OsxSocketPal.Poll;
+                _PollFlags = &OsxSocketPal.PollFlags;
                 _Send = &OsxSocketPal.Send;
                 _SendToIpv4 = &OsxSocketPal.SendToIpv4;
                 _SendToIpv6 = &OsxSocketPal.SendToIpv6;
@@ -348,6 +356,7 @@ namespace NativeSockets
                 _GetOption = &FreeBsdSocketPal.GetOption;
                 _SetBlocking = &FreeBsdSocketPal.SetBlocking;
                 _Poll = &FreeBsdSocketPal.Poll;
+                _PollFlags = &FreeBsdSocketPal.PollFlags;
                 _Send = &FreeBsdSocketPal.Send;
                 _SendToIpv4 = &FreeBsdSocketPal.SendToIpv4;
                 _SendToIpv6 = &FreeBsdSocketPal.SendToIpv6;
@@ -522,6 +531,17 @@ namespace NativeSockets
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Poll(nint socket, int microseconds, SelectMode mode, out bool status) => _Poll(socket, microseconds, mode, out status);
+
+        /// <summary>
+        ///     Polls a socket for pending events.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="microseconds">The timeout in microseconds.</param>
+        /// <param name="mode">The select mode.</param>
+        /// <param name="status">When this method returns, contains true if the socket is ready, false otherwise.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError PollFlags(nint socket, int microseconds, SelectModeFlags mode, out SelectModeFlags status) => _PollFlags(socket, microseconds, mode, out status);
 
         /// <summary>
         ///     Sends data on a connected socket.

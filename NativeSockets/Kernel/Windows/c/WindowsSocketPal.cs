@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using static NativeSockets.WindowsNativeLib;
 
-// ReSharper disable All
+// ReSharper disable ALL
 
 namespace NativeSockets
 {
@@ -270,7 +270,60 @@ namespace NativeSockets
                 return GetLastSocketError();
             }
 
-            status = (int)fileDescriptorSet[0] != 0 && fileDescriptorSet[1] == socket;
+            status = FD_ISSET(socket, fileDescriptorSet);
+
+            return SocketError.Success;
+        }
+
+        /// <summary>
+        ///     Polls a socket for pending events.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="microseconds">The timeout in microseconds.</param>
+        /// <param name="mode">The select mode.</param>
+        /// <param name="status">When this method returns, contains true if the socket is ready, false otherwise.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError PollFlags(nint socket, int microseconds, SelectModeFlags mode, out SelectModeFlags status)
+        {
+            nint* readFds = stackalloc nint[2] { 1, socket };
+            nint* writeFds = stackalloc nint[2] { 1, socket };
+            nint* errorFds = stackalloc nint[2] { 1, socket };
+
+            if ((mode & SelectModeFlags.SelectRead) == 0)
+                readFds = null;
+
+            if ((mode & SelectModeFlags.SelectWrite) == 0)
+                writeFds = null;
+
+            if ((mode & SelectModeFlags.SelectError) == 0)
+                errorFds = null;
+
+            int socketCount;
+            if (microseconds != -1)
+            {
+                TimeValue timeout = new TimeValue();
+                MicrosecondsToTimeValue(microseconds, ref timeout);
+                socketCount = _select(0, readFds, writeFds, errorFds, &timeout);
+            }
+            else
+            {
+                socketCount = _select(0, readFds, writeFds, errorFds, null);
+            }
+
+            status = 0;
+
+            if (socketCount == -1)
+                return GetLastSocketError();
+
+            if (readFds != null && FD_ISSET(socket, readFds))
+                status |= SelectModeFlags.SelectRead;
+
+            if (writeFds != null && FD_ISSET(socket, writeFds))
+                status |= SelectModeFlags.SelectWrite;
+
+            if (errorFds != null && FD_ISSET(socket, errorFds))
+                status |= SelectModeFlags.SelectError;
 
             return SocketError.Success;
         }

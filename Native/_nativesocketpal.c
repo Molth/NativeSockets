@@ -374,6 +374,23 @@ static i32 _ToNativeSocketOptionName(i32 level, i32 name)
 }
 #endif
 
+#ifdef _WIN32
+/// <summary>
+///     Converts a time duration in microseconds to a <see cref="TimeValue" /> structure.
+/// </summary>
+/// <param name="microseconds">The duration in microseconds.</param>
+/// <param name="socketTime">The <see cref="TimeValue" /> structure to fill.</param>
+static void _MicrosecondsToTimeValue(i64 microseconds, struct timeval *socketTime)
+{
+    const i64 microcnv = 1000000;
+    i64 quotient = microseconds / microcnv;
+    i64 remainder = microseconds - quotient * microcnv;
+    memset(socketTime, 0, sizeof(struct timeval));
+    socketTime->tv_sec = (i32)quotient;
+    socketTime->tv_usec = (i32)remainder;
+}
+#endif
+
 /// <summary>
 ///     Writes the 12‑byte prefix to an Ipv6 address.
 /// </summary>
@@ -677,33 +694,31 @@ i32 _Poll(isize socket, i32 microseconds, i32 mode, i32 *status)
     isize fdset[2];
     fdset[0] = 1;
     fdset[1] = socket;
-    struct timeval *ptv = NULL;
-    struct timeval tv;
+    i32 result;
     if (microseconds != -1)
     {
-        tv.tv_sec = microseconds / 1000000;
-        tv.tv_usec = microseconds % 1000000;
-        ptv = &tv;
-    }
-    i32 result;
-    if (mode == _SELECT_MODE_SELECT_READ)
-    {
-        result = select(0, (fd_set *)fdset, NULL, NULL, ptv);
-    }
-    else if (mode == _SELECT_MODE_SELECT_WRITE)
-    {
-        result = select(0, NULL, (fd_set *)fdset, NULL, ptv);
+        struct timeval tv;
+        _MicrosecondsToTimeValue(microseconds, &tv);
+        result = select(0,
+                        (mode == _SELECT_MODE_SELECT_READ) ? (fd_set *)fdset : NULL,
+                        (mode == _SELECT_MODE_SELECT_WRITE) ? (fd_set *)fdset : NULL,
+                        (mode == _SELECT_MODE_SELECT_ERROR) ? (fd_set *)fdset : NULL,
+                        &tv);
     }
     else
     {
-        result = select(0, NULL, NULL, (fd_set *)fdset, ptv);
+        result = select(0,
+                        (mode == _SELECT_MODE_SELECT_READ) ? (fd_set *)fdset : NULL,
+                        (mode == _SELECT_MODE_SELECT_WRITE) ? (fd_set *)fdset : NULL,
+                        (mode == _SELECT_MODE_SELECT_ERROR) ? (fd_set *)fdset : NULL,
+                        NULL);
     }
     if (result == SOCKET_ERROR)
     {
         *status = 0;
         return _GetLastSocketError();
     }
-    *status = fdset[0] != 0 && fdset[1] == socket;
+    *status = FD_ISSET(socket, (fd_set *)fdset);
     return _SOCKET_ERROR_SUCCESS;
 #else
     short events = 0;
@@ -718,9 +733,6 @@ i32 _Poll(isize socket, i32 microseconds, i32 mode, i32 *status)
     case _SELECT_MODE_SELECT_ERROR:
         events = POLLPRI;
         break;
-    default:
-        *status = 0;
-        return _SOCKET_ERROR_INVALID_ARGUMENT;
     }
     struct pollfd pfd;
     pfd.fd = (i32)socket;
@@ -747,6 +759,119 @@ i32 _Poll(isize socket, i32 microseconds, i32 mode, i32 *status)
     default:
         *status = 0;
         break;
+    }
+    return _SOCKET_ERROR_SUCCESS;
+#endif
+}
+
+/// <summary>
+///     Polls a socket for pending events.
+/// </summary>
+/// <param name="socket">The socket handle.</param>
+/// <param name="microseconds">The timeout in microseconds.</param>
+/// <param name="mode">The select mode.</param>
+/// <param name="status">When this method returns, contains true if the socket is ready, false otherwise.</param>
+/// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+i32 _PollFlags(isize socket, i32 microseconds, i32 mode, i32 *status)
+{
+#ifdef _WIN32
+    isize _readFds[2];
+    _readFds[0] = 1;
+    _readFds[1] = socket;
+    isize *readFds = _readFds;
+    isize _writeFds[2];
+    _writeFds[0] = 1;
+    _writeFds[1] = socket;
+    isize *writeFds = _writeFds;
+    isize _errorFds[2];
+    _errorFds[0] = 1;
+    _errorFds[1] = socket;
+    isize *errorFds = _errorFds;
+    if ((mode & _SELECT_MODE_FLAGS_READ) == 0)
+    {
+        readFds = NULL;
+    }
+    if ((mode & _SELECT_MODE_FLAGS_WRITE) == 0)
+    {
+        writeFds = NULL;
+    }
+    if ((mode & _SELECT_MODE_FLAGS_ERROR) == 0)
+    {
+        errorFds = NULL;
+    }
+    i32 result;
+    if (microseconds != -1)
+    {
+        struct timeval tv;
+        _MicrosecondsToTimeValue(microseconds, &tv);
+        result = select(0,
+                        (fd_set *)readFds,
+                        (fd_set *)writeFds,
+                        (fd_set *)errorFds,
+                        &tv);
+    }
+    else
+    {
+        result = select(0,
+                        (fd_set *)readFds,
+                        (fd_set *)writeFds,
+                        (fd_set *)errorFds,
+                        NULL);
+    }
+    *status = 0;
+    if (result == SOCKET_ERROR)
+    {
+        return _GetLastSocketError();
+    }
+    if (readFds != NULL && FD_ISSET(socket, (fd_set *)readFds))
+    {
+        *status |= _SELECT_MODE_FLAGS_READ;
+    }
+    if (writeFds != NULL && FD_ISSET(socket, (fd_set *)writeFds))
+    {
+        *status |= _SELECT_MODE_FLAGS_WRITE;
+    }
+    if (errorFds != NULL && FD_ISSET(socket, (fd_set *)errorFds))
+    {
+        *status |= _SELECT_MODE_FLAGS_ERROR;
+    }
+    return _SOCKET_ERROR_SUCCESS;
+#else
+    short events = 0;
+    if ((mode & _SELECT_MODE_FLAGS_READ) != 0)
+    {
+        events |= POLLIN;
+    }
+    if ((mode & _SELECT_MODE_FLAGS_WRITE) != 0)
+    {
+        events |= POLLOUT;
+    }
+    if ((mode & _SELECT_MODE_FLAGS_ERROR) != 0)
+    {
+        events |= POLLPRI;
+    }
+    struct pollfd pfd;
+    pfd.fd = (i32)socket;
+    pfd.events = events;
+    pfd.revents = 0;
+    i32 timeout = (microseconds == -1) ? -1 : (microseconds / 1000);
+    *status = 0;
+    i32 result = poll(&pfd, 1, timeout);
+    if (result == -1)
+    {
+        return _GetLastSocketError();
+    }
+    if ((pfd.revents & (POLLIN | POLLHUP)) != 0)
+    {
+        *status |= _SELECT_MODE_FLAGS_READ;
+    }
+    if ((pfd.revents & POLLOUT) != 0)
+    {
+        *status |= _SELECT_MODE_FLAGS_WRITE;
+    }
+    if ((pfd.revents & (POLLERR | POLLPRI)) != 0)
+    {
+        *status |= _SELECT_MODE_FLAGS_ERROR;
     }
     return _SOCKET_ERROR_SUCCESS;
 #endif

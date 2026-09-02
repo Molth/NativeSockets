@@ -248,6 +248,21 @@ extern "C"
         i32 _length;
     } _NativeIoSlice;
 
+/// <summary>
+///     Read status mode.
+/// </summary>
+#define _SELECT_MODE_FLAGS_READ (1 << 0)
+
+/// <summary>
+///     Write status mode.
+/// </summary>
+#define _SELECT_MODE_FLAGS_WRITE (1 << 1)
+
+/// <summary>
+///     Error status mode.
+/// </summary>
+#define _SELECT_MODE_FLAGS_ERROR (1 << 2)
+
     /// <summary>
     ///     Gets the address family value for Ipv4 used by the current platform.
     /// </summary>
@@ -327,6 +342,11 @@ extern "C"
     ///     Polls a socket for pending events.
     /// </summary>
     _NATIVESOCKETPAL_API i32 _Poll(isize socket, i32 microseconds, i32 mode, i32 *status);
+
+    /// <summary>
+    ///     Polls a socket for pending events.
+    /// </summary>
+    _NATIVESOCKETPAL_API i32 _PollFlags(isize socket, i32 microseconds, i32 mode, i32 *status);
 
     /// <summary>
     ///     Sends data on a connected socket.
