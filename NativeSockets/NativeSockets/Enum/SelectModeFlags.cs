@@ -11,18 +11,23 @@ namespace NativeSockets
     public enum SelectModeFlags
     {
         /// <summary>
+        ///     Use no flags for this call.
+        /// </summary>
+        None = 0,
+
+        /// <summary>
         ///     Read status mode.
         /// </summary>
-        SelectRead = 1 << 0,
+        SelectRead = 1,
 
         /// <summary>
         ///     Write status mode.
         /// </summary>
-        SelectWrite = 1 << 1,
+        SelectWrite = 2,
 
         /// <summary>
         ///     Error status mode.
         /// </summary>
-        SelectError = 1 << 2
+        SelectError = 4
     }
 }

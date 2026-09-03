@@ -249,19 +249,24 @@ extern "C"
     } _NativeIoSlice;
 
 /// <summary>
+///     Use no flags for this call.
+/// </summary>
+#define _SELECT_MODE_FLAGS_NONE 0
+
+/// <summary>
 ///     Read status mode.
 /// </summary>
-#define _SELECT_MODE_FLAGS_READ (1 << 0)
+#define _SELECT_MODE_FLAGS_READ 1
 
 /// <summary>
 ///     Write status mode.
 /// </summary>
-#define _SELECT_MODE_FLAGS_WRITE (1 << 1)
+#define _SELECT_MODE_FLAGS_WRITE 2
 
 /// <summary>
 ///     Error status mode.
 /// </summary>
-#define _SELECT_MODE_FLAGS_ERROR (1 << 2)
+#define _SELECT_MODE_FLAGS_ERROR 4
 
     /// <summary>
     ///     Gets the address family value for Ipv4 used by the current platform.
