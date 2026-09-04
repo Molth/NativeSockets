@@ -9,14 +9,16 @@ namespace NativeSockets
     /// <summary>
     ///     Provides low-level memory manipulation utilities for spans.
     /// </summary>
-    internal static unsafe class SpanHelpers
+    internal static class SpanHelpers
     {
+#if !NATIVE_SOCKETS_USE_BRIDGE
         /// <summary>
         ///     Copies bytes from the source address to the destination address
         ///     without assuming architecture dependent alignment of the addresses.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Copy(void* destination, void* source, uint byteCount) => Copy(ref Unsafe.AsRef<byte>(destination), ref Unsafe.AsRef<byte>(source), byteCount);
+        public static unsafe void Copy(void* destination, void* source, uint byteCount) => Copy(ref Unsafe.AsRef<byte>(destination), ref Unsafe.AsRef<byte>(source), byteCount);
+#endif
 
         /// <summary>
         ///     Copies bytes from the source address to the destination address
@@ -54,7 +56,7 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Compare(ref byte left, ref byte right, uint byteCount)
         {
-            int comparison = 0;
+            var comparison = 0;
             for (uint count; byteCount > 0 && comparison == 0; byteCount -= count, left = ref Unsafe.AddByteOffset(ref left, (nint)count), right = ref Unsafe.AddByteOffset(ref right, (nint)count))
             {
                 count = byteCount > int.MaxValue ? int.MaxValue : byteCount;

@@ -351,7 +351,7 @@ extern "C"
     /// <summary>
     ///     Polls a socket for pending events.
     /// </summary>
-    _NATIVESOCKETPAL_API i32 _PollFlags(isize socket, i32 microseconds, i32 mode, i32 *status);
+    _NATIVESOCKETPAL_API i32 _PollFlags(isize socket, i32 microseconds, i32 inFlags, i32 *outFlags);
 
     /// <summary>
     ///     Sends data on a connected socket.

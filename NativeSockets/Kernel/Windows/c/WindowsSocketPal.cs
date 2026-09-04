@@ -280,23 +280,23 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="microseconds">The timeout in microseconds.</param>
-        /// <param name="mode">The select mode.</param>
-        /// <param name="status">When this method returns, contains true if the socket is ready, false otherwise.</param>
+        /// <param name="inFlags">The select mode.</param>
+        /// <param name="outFlags">When this method returns, contains true if the socket is ready, false otherwise.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError PollFlags(nint socket, int microseconds, SelectModeFlags mode, out SelectModeFlags status)
+        public static SocketError PollFlags(nint socket, int microseconds, SelectModeFlags inFlags, out SelectModeFlags outFlags)
         {
             nint* readFds = stackalloc nint[2] { 1, socket };
             nint* writeFds = stackalloc nint[2] { 1, socket };
             nint* errorFds = stackalloc nint[2] { 1, socket };
 
-            if ((mode & SelectModeFlags.SelectRead) == 0)
+            if ((inFlags & SelectModeFlags.SelectRead) == 0)
                 readFds = null;
 
-            if ((mode & SelectModeFlags.SelectWrite) == 0)
+            if ((inFlags & SelectModeFlags.SelectWrite) == 0)
                 writeFds = null;
 
-            if ((mode & SelectModeFlags.SelectError) == 0)
+            if ((inFlags & SelectModeFlags.SelectError) == 0)
                 errorFds = null;
 
             int socketCount;
@@ -311,19 +311,19 @@ namespace NativeSockets
                 socketCount = _select(0, readFds, writeFds, errorFds, null);
             }
 
-            status = 0;
+            outFlags = 0;
 
             if (socketCount == -1)
                 return GetLastSocketError();
 
             if (readFds != null && FD_ISSET(socket, readFds))
-                status |= SelectModeFlags.SelectRead;
+                outFlags |= SelectModeFlags.SelectRead;
 
             if (writeFds != null && FD_ISSET(socket, writeFds))
-                status |= SelectModeFlags.SelectWrite;
+                outFlags |= SelectModeFlags.SelectWrite;
 
             if (errorFds != null && FD_ISSET(socket, errorFds))
-                status |= SelectModeFlags.SelectError;
+                outFlags |= SelectModeFlags.SelectError;
 
             return SocketError.Success;
         }

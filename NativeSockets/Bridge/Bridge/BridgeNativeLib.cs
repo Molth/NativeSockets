@@ -165,11 +165,11 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="microseconds">The timeout in microseconds.</param>
-        /// <param name="mode">The select mode.</param>
-        /// <param name="status">When this method returns, contains true if the socket is ready, false otherwise.</param>
+        /// <param name="inFlags">The select mode.</param>
+        /// <param name="outFlags">When this method returns, contains true if the socket is ready, false otherwise.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [DllImport(NATIVE_LIBRARY, EntryPoint = "_PollFlags", CallingConvention = CALLING_CONVENTION)]
-        public static extern SocketError PollFlags(nint socket, int microseconds, SelectModeFlags mode, out SelectModeFlags status);
+        public static extern SocketError PollFlags(nint socket, int microseconds, SelectModeFlags inFlags, out SelectModeFlags outFlags);
 
         /// <summary>
         ///     Sends data on a connected socket.

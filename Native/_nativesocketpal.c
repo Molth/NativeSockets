@@ -769,10 +769,10 @@ i32 _Poll(isize socket, i32 microseconds, i32 mode, i32 *status)
 /// </summary>
 /// <param name="socket">The socket handle.</param>
 /// <param name="microseconds">The timeout in microseconds.</param>
-/// <param name="mode">The select mode.</param>
-/// <param name="status">When this method returns, contains true if the socket is ready, false otherwise.</param>
+/// <param name="inFlags">The select inFlags.</param>
+/// <param name="outFlags">When this method returns, contains true if the socket is ready, false otherwise.</param>
 /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-i32 _PollFlags(isize socket, i32 microseconds, i32 mode, i32 *status)
+i32 _PollFlags(isize socket, i32 microseconds, i32 inFlags, i32 *outFlags)
 {
 #ifdef _WIN32
     isize _readFds[2];
@@ -787,15 +787,15 @@ i32 _PollFlags(isize socket, i32 microseconds, i32 mode, i32 *status)
     _errorFds[0] = 1;
     _errorFds[1] = socket;
     isize *errorFds = _errorFds;
-    if ((mode & _SELECT_MODE_FLAGS_READ) == 0)
+    if ((inFlags & _SELECT_MODE_FLAGS_READ) == 0)
     {
         readFds = NULL;
     }
-    if ((mode & _SELECT_MODE_FLAGS_WRITE) == 0)
+    if ((inFlags & _SELECT_MODE_FLAGS_WRITE) == 0)
     {
         writeFds = NULL;
     }
-    if ((mode & _SELECT_MODE_FLAGS_ERROR) == 0)
+    if ((inFlags & _SELECT_MODE_FLAGS_ERROR) == 0)
     {
         errorFds = NULL;
     }
@@ -818,35 +818,35 @@ i32 _PollFlags(isize socket, i32 microseconds, i32 mode, i32 *status)
                         (fd_set *)errorFds,
                         NULL);
     }
-    *status = 0;
+    *outFlags = 0;
     if (result == SOCKET_ERROR)
     {
         return _GetLastSocketError();
     }
     if (readFds != NULL && FD_ISSET(socket, (fd_set *)readFds))
     {
-        *status |= _SELECT_MODE_FLAGS_READ;
+        *outFlags |= _SELECT_MODE_FLAGS_READ;
     }
     if (writeFds != NULL && FD_ISSET(socket, (fd_set *)writeFds))
     {
-        *status |= _SELECT_MODE_FLAGS_WRITE;
+        *outFlags |= _SELECT_MODE_FLAGS_WRITE;
     }
     if (errorFds != NULL && FD_ISSET(socket, (fd_set *)errorFds))
     {
-        *status |= _SELECT_MODE_FLAGS_ERROR;
+        *outFlags |= _SELECT_MODE_FLAGS_ERROR;
     }
     return _SOCKET_ERROR_SUCCESS;
 #else
     short events = 0;
-    if ((mode & _SELECT_MODE_FLAGS_READ) != 0)
+    if ((inFlags & _SELECT_MODE_FLAGS_READ) != 0)
     {
         events |= POLLIN;
     }
-    if ((mode & _SELECT_MODE_FLAGS_WRITE) != 0)
+    if ((inFlags & _SELECT_MODE_FLAGS_WRITE) != 0)
     {
         events |= POLLOUT;
     }
-    if ((mode & _SELECT_MODE_FLAGS_ERROR) != 0)
+    if ((inFlags & _SELECT_MODE_FLAGS_ERROR) != 0)
     {
         events |= POLLPRI;
     }
@@ -855,7 +855,7 @@ i32 _PollFlags(isize socket, i32 microseconds, i32 mode, i32 *status)
     pfd.events = events;
     pfd.revents = 0;
     i32 timeout = (microseconds == -1) ? -1 : (microseconds / 1000);
-    *status = 0;
+    *outFlags = 0;
     i32 result = poll(&pfd, 1, timeout);
     if (result == -1)
     {
@@ -863,15 +863,15 @@ i32 _PollFlags(isize socket, i32 microseconds, i32 mode, i32 *status)
     }
     if ((pfd.revents & (POLLIN | POLLHUP)) != 0)
     {
-        *status |= _SELECT_MODE_FLAGS_READ;
+        *outFlags |= _SELECT_MODE_FLAGS_READ;
     }
     if ((pfd.revents & POLLOUT) != 0)
     {
-        *status |= _SELECT_MODE_FLAGS_WRITE;
+        *outFlags |= _SELECT_MODE_FLAGS_WRITE;
     }
     if ((pfd.revents & (POLLERR | POLLPRI)) != 0)
     {
-        *status |= _SELECT_MODE_FLAGS_ERROR;
+        *outFlags |= _SELECT_MODE_FLAGS_ERROR;
     }
     return _SOCKET_ERROR_SUCCESS;
 #endif

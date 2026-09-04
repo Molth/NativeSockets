@@ -33,28 +33,31 @@ namespace Examples
             socket.DualMode = true;
             IPEndPoint serverEndPoint = new(IPAddress.IPv6Any, 12345);
             socket.Bind(serverEndPoint);
-
             Console.WriteLine($"[Server] Started: {serverEndPoint}");
+            socket.Blocking = false;
 
             var buffer = new byte[1024];
-
             var socketAddress = new NativeSocketAddress();
 
             try
             {
                 while (true)
                 {
-                    var received = socket.ReceiveFromNonAlloc(buffer, SocketFlags.None, ref socketAddress);
-                    if (received >= 0)
+                    var error = socket.PollFlags(0, SelectModeFlags.SelectRead, out var outFlags);
+                    if (error == SocketError.Success && (outFlags & SelectModeFlags.SelectRead) != 0)
                     {
-                        socketAddress.ToIpEndPoint(out var remoteEndPoint);
-                        var receivedText = Encoding.UTF8.GetString(buffer, 0, received);
+                        var received = socket.ReceiveFromNonAlloc(buffer, SocketFlags.None, ref socketAddress);
+                        if (received >= 0)
+                        {
+                            socketAddress.ToIpEndPoint(out var remoteEndPoint);
+                            var receivedText = Encoding.UTF8.GetString(buffer, 0, received);
 
-                        Console.WriteLine($"[Server] Receive from: [{remoteEndPoint}]: [{receivedText}]");
+                            Console.WriteLine($"[Server] Receive from: [{remoteEndPoint}]: [{receivedText}]");
 
-                        var reply = $"[Server]: {receivedText}";
-                        var replyData = Encoding.UTF8.GetBytes(reply);
-                        socket.SendToNonAlloc(replyData, SocketFlags.None, socketAddress);
+                            var reply = $"[Server]: {receivedText}";
+                            var replyData = Encoding.UTF8.GetBytes(reply);
+                            socket.SendToNonAlloc(replyData, SocketFlags.None, socketAddress);
+                        }
                     }
                 }
             }
@@ -72,6 +75,7 @@ namespace Examples
             var localEndPoint = (IPEndPoint)socket.LocalEndPoint!;
             Console.WriteLine($"[Client] Started: {localEndPoint}");
             Console.WriteLine();
+            socket.Blocking = false;
 
             var receiveBuffer = new byte[1024];
             var serverEndPoint = new IPEndPoint(IPAddress.Loopback, 12345);
@@ -86,20 +90,20 @@ namespace Examples
                 while (true)
                 {
                     var sendBuffer = Encoding.UTF8.GetBytes($"Hello world! {counter++}");
-
                     socket.SendToNonAlloc(sendBuffer, SocketFlags.None, serverAddress);
-
-                    socket.ReceiveTimeout = 2000;
                     try
                     {
-                        var received = socket.ReceiveFromNonAlloc(receiveBuffer, SocketFlags.None, ref socketAddress);
-                        if (received >= 0)
+                        if (new NativeSocket(socket).Poll(0, SelectMode.SelectRead, out var status) == SocketError.Success && status)
                         {
-                            socketAddress.ToIpEndPoint(out var remoteEndPoint);
-                            var receivedText = Encoding.UTF8.GetString(receiveBuffer, 0, received);
+                            var received = socket.ReceiveFromNonAlloc(receiveBuffer, SocketFlags.None, ref socketAddress);
+                            if (received >= 0)
+                            {
+                                socketAddress.ToIpEndPoint(out var remoteEndPoint);
+                                var receivedText = Encoding.UTF8.GetString(receiveBuffer, 0, received);
 
-                            Console.WriteLine($"[Client] Receive from: [{remoteEndPoint}]: [{receivedText}]");
-                            Console.WriteLine();
+                                Console.WriteLine($"[Client] Receive from: [{remoteEndPoint}]: [{receivedText}]");
+                                Console.WriteLine();
+                            }
                         }
                     }
                     catch (SocketException ex) when (ex.SocketErrorCode == SocketError.TimedOut)

@@ -300,21 +300,21 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="microseconds">The timeout in microseconds.</param>
-        /// <param name="mode">The select mode.</param>
-        /// <param name="status">When this method returns, contains true if the socket is ready, false otherwise.</param>
+        /// <param name="inFlags">The select mode.</param>
+        /// <param name="outFlags">When this method returns, contains true if the socket is ready, false otherwise.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError PollFlags(nint socket, int microseconds, SelectModeFlags mode, out SelectModeFlags status)
+        public static SocketError PollFlags(nint socket, int microseconds, SelectModeFlags inFlags, out SelectModeFlags outFlags)
         {
             PollEvents inEvent = 0;
 
-            if ((mode & SelectModeFlags.SelectRead) != 0)
+            if ((inFlags & SelectModeFlags.SelectRead) != 0)
                 inEvent |= PollEvents.POLLIN;
 
-            if ((mode & SelectModeFlags.SelectWrite) != 0)
+            if ((inFlags & SelectModeFlags.SelectWrite) != 0)
                 inEvent |= PollEvents.POLLOUT;
 
-            if ((mode & SelectModeFlags.SelectError) != 0)
+            if ((inFlags & SelectModeFlags.SelectError) != 0)
                 inEvent |= PollEvents.POLLPRI;
 
             int milliseconds = microseconds == -1 ? -1 : microseconds / 1000;
@@ -324,7 +324,7 @@ namespace NativeSockets
             fd.events = (short)inEvent;
             fd.revents = 0;
 
-            status = 0;
+            outFlags = 0;
 
             int errno = _poll(&fd, 1, milliseconds);
             if (errno == -1)
@@ -333,13 +333,13 @@ namespace NativeSockets
             PollEvents outEvents = (PollEvents)fd.revents;
 
             if ((outEvents & (PollEvents.POLLIN | PollEvents.POLLHUP)) != 0)
-                status |= SelectModeFlags.SelectRead;
+                outFlags |= SelectModeFlags.SelectRead;
 
             if ((outEvents & PollEvents.POLLOUT) != 0)
-                status |= SelectModeFlags.SelectWrite;
+                outFlags |= SelectModeFlags.SelectWrite;
 
             if ((outEvents & (PollEvents.POLLERR | PollEvents.POLLPRI)) != 0)
-                status |= SelectModeFlags.SelectError;
+                outFlags |= SelectModeFlags.SelectError;
 
             return SocketError.Success;
         }

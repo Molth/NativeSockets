@@ -16,11 +16,11 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="microseconds">The timeout in microseconds.</param>
-        /// <param name="mode">The select mode.</param>
-        /// <param name="status">When this method returns, contains true if the socket is ready, false otherwise.</param>
+        /// <param name="inFlags">The select mode.</param>
+        /// <param name="outFlags">When this method returns, contains true if the socket is ready, false otherwise.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError PollFlags(this Socket socket, int microseconds, SelectModeFlags mode, out SelectModeFlags status) => new NativeSocket(socket).PollFlags(microseconds, mode, out status);
+        public static SocketError PollFlags(this Socket socket, int microseconds, SelectModeFlags inFlags, out SelectModeFlags outFlags) => new NativeSocket(socket).PollFlags(microseconds, inFlags, out outFlags);
 
         /// <summary>
         ///     Sends data to an endpoint.

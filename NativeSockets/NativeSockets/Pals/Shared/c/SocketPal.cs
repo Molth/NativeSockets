@@ -12,6 +12,11 @@ namespace NativeSockets
     internal static unsafe class SocketPal
     {
         /// <summary>
+        ///     Initializes a new instance of this class.
+        /// </summary>
+        static SocketPal() => IsSupported = (Socket.OSSupportsIPv4 || Socket.OSSupportsIPv6) && SharedSocketPal.IsSupported;
+
+        /// <summary>
         ///     Gets the address family value for Ipv4 used by the current platform.
         /// </summary>
         public static ushort ADDRESS_FAMILY_INTER_NETWORK_V4 => SharedSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V4;
@@ -24,7 +29,7 @@ namespace NativeSockets
         /// <summary>
         ///     Gets a value indicating whether any platform-specific implementation is supported.
         /// </summary>
-        public static bool IsSupported => SharedSocketPal.IsSupported;
+        public static bool IsSupported { get; }
 
         /// <summary>
         ///     Retrieves the last socket error code from the underlying platform.
@@ -157,11 +162,11 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="microseconds">The timeout in microseconds.</param>
-        /// <param name="mode">The select mode.</param>
-        /// <param name="status">When this method returns, contains true if the socket is ready, false otherwise.</param>
+        /// <param name="inFlags">The select mode.</param>
+        /// <param name="outFlags">When this method returns, contains true if the socket is ready, false otherwise.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError PollFlags(nint socket, int microseconds, SelectModeFlags mode, out SelectModeFlags status) => SharedSocketPal.PollFlags(socket, microseconds, mode, out status);
+        public static SocketError PollFlags(nint socket, int microseconds, SelectModeFlags inFlags, out SelectModeFlags outFlags) => SharedSocketPal.PollFlags(socket, microseconds, inFlags, out outFlags);
 
         /// <summary>
         ///     Sends data on a connected socket.
