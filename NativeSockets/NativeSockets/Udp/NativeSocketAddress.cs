@@ -21,6 +21,8 @@ namespace NativeSockets
     public unsafe struct NativeSocketAddress : IEquatable<NativeSocketAddress>, IComparable<NativeSocketAddress>
 #if NET6_0_OR_GREATER
         , ISpanFormattable
+#else
+        , IFormattable
 #endif
     {
         /// <summary>
@@ -31,32 +33,32 @@ namespace NativeSockets
         /// <summary>
         ///     The address family.
         /// </summary>
-        [FieldOffset(0)] private ushort ss_family;
+        [FieldOffset(0)] private ushort _ss_family;
 
         /// <summary>
         ///     The port number in network byte order.
         /// </summary>
-        [FieldOffset(2)] private ushort ss_port;
+        [FieldOffset(2)] private ushort _ss_port;
 
         /// <summary>
         ///     Represents a native Ipv4 socket address structure (<c>sockaddr_in</c>).
         /// </summary>
-        [FieldOffset(0)] private sockaddr_in4 sin4;
+        [FieldOffset(0)] private sockaddr_in4 _sin4;
 
         /// <summary>
         ///     Represents a native Ipv6 socket address structure (<c>sockaddr_in6</c>).
         /// </summary>
-        [FieldOffset(0)] private sockaddr_in6 sin6;
+        [FieldOffset(0)] private sockaddr_in6 _sin6;
 
         /// <summary>
         ///     Gets whether the address is an Ipv4 address.
         /// </summary>
-        public readonly bool IsIpv4 => ss_family == SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V4;
+        public readonly bool IsIpv4 => _ss_family == SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V4;
 
         /// <summary>
         ///     Gets whether the address is an Ipv6 address.
         /// </summary>
-        public readonly bool IsIpv6 => ss_family == SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
+        public readonly bool IsIpv6 => _ss_family == SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
 
         /// <summary>
         ///     Gets the address family of the socket address.
@@ -73,8 +75,8 @@ namespace NativeSockets
         /// <returns>An unsigned integer value indicating the port number of the socket address.</returns>
         public ushort Port
         {
-            readonly get => WinSock2.NET_TO_HOST_16(ss_port);
-            set => ss_port = WinSock2.HOST_TO_NET_16(value);
+            readonly get => WinSock2.NET_TO_HOST_16(_ss_port);
+            set => _ss_port = WinSock2.HOST_TO_NET_16(value);
         }
 
         /// <summary>
@@ -83,8 +85,8 @@ namespace NativeSockets
         /// <returns>An unsigned integer that specifies the scope identifier of the address.</returns>
         public uint ScopeId
         {
-            readonly get => sin6.sin6_scope_id;
-            set => sin6.sin6_scope_id = value;
+            readonly get => _sin6.sin6_scope_id;
+            set => _sin6.sin6_scope_id = value;
         }
 
         /// <summary>
@@ -94,7 +96,7 @@ namespace NativeSockets
         ///     Returns true if the socket address is an Ipv4-mapped Ipv6 address;
         ///     otherwise, false.
         /// </returns>
-        public readonly bool IsIpv4MappedToIpv6 => IsIpv6 && WinSock2.IsIpv4MappedToIpv6(ref Unsafe.AsRef(in sin6.sin6_addr[0]));
+        public readonly bool IsIpv4MappedToIpv6 => IsIpv6 && WinSock2.IsIpv4MappedToIpv6(ref Unsafe.AsRef(in _sin6.sin6_addr[0]));
 
         /// <summary>
         ///     Gets the underlying buffer size of this.
@@ -132,10 +134,10 @@ namespace NativeSockets
                 return this;
 
             NativeSocketAddress address = this;
-            address.ss_family = SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
-            WinSock2.MapIpv4ToIpv6(ref address.sin6.sin6_addr[0], address.sin4.sin4_addr);
-            address.sin6.sin6_flowinfo = 0;
-            address.sin6.sin6_scope_id = 0;
+            address._ss_family = SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
+            WinSock2.MapIpv4ToIpv6(ref address._sin6.sin6_addr[0], address._sin4.sin4_addr);
+            address._sin6.sin6_flowinfo = 0;
+            address._sin6.sin6_scope_id = 0;
             return address;
         }
 
@@ -149,8 +151,8 @@ namespace NativeSockets
                 return this;
 
             NativeSocketAddress address = this;
-            address.ss_family = SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V4;
-            address.sin4.sin4_addr = address.sin6.sin4_addr;
+            address._ss_family = SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V4;
+            address._sin4.sin4_addr = address._sin6.sin4_addr;
             SpanHelpers.Set(ref address._buffer[8], 0, 20);
             return address;
         }
@@ -186,7 +188,7 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private readonly AddressFamily GetAddressFamily()
         {
-            ushort result = ss_family;
+            ushort result = _ss_family;
 
             if (result == SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V4)
                 return AddressFamily.InterNetwork;
@@ -206,15 +208,15 @@ namespace NativeSockets
             switch (value)
             {
                 case AddressFamily.InterNetwork:
-                    ss_family = SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V4;
+                    _ss_family = SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V4;
                     break;
 
                 case AddressFamily.InterNetworkV6:
-                    ss_family = SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
+                    _ss_family = SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
                     break;
 
                 default:
-                    ss_family = (ushort)value;
+                    _ss_family = (ushort)value;
                     break;
             }
         }

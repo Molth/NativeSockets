@@ -56,7 +56,7 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Compare(ref byte left, ref byte right, uint byteCount)
         {
-            var comparison = 0;
+            int comparison = 0;
             for (uint count; byteCount > 0 && comparison == 0; byteCount -= count, left = ref Unsafe.AddByteOffset(ref left, (nint)count), right = ref Unsafe.AddByteOffset(ref right, (nint)count))
             {
                 count = byteCount > int.MaxValue ? int.MaxValue : byteCount;
