@@ -1015,10 +1015,6 @@ i32 _ReceiveFromIpv6(isize socket, void *buffer, i32 length, i32 socketFlags, _s
     return result;
 }
 
-/* ========================================================================= */
-/* SendVectored / ReceiveVectored (scatter/gather I/O)                         */
-/* ========================================================================= */
-
 #ifdef _WIN32
 
 /// <summary>
