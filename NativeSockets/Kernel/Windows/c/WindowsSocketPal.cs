@@ -529,13 +529,13 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
         /// <param name="bufferCount">The number of buffers.</param>
-        /// <param name="socketFlags">When this method returns, contains the flags returned by the receive operation.</param>
+        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* socketFlags)
+        public static int ReceiveVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags)
         {
             int bytesTransferred;
-            SocketFlags flags;
+            SocketFlags flags = inOutFlags != null ? *inOutFlags : 0;
             SocketError error;
 
             using (NativeScopedArray<WSABuffer> __buffers_native = Build(stackalloc WSABuffer[16], buffers, bufferCount))
@@ -543,8 +543,8 @@ namespace NativeSockets
                 error = _WSARecv(socket, __buffers_native.Buffer, bufferCount, &bytesTransferred, &flags, null, 0);
             }
 
-            if (socketFlags != null)
-                *socketFlags = flags;
+            if (inOutFlags != null)
+                *inOutFlags = flags;
 
             if (flags != 0)
                 return -1;
@@ -558,14 +558,14 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
         /// <param name="bufferCount">The number of buffers.</param>
-        /// <param name="socketFlags">When this method returns, contains the flags returned by the receive operation.</param>
+        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveFromVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* socketFlags, sockaddr_in4* socketAddress)
+        public static int ReceiveFromVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in4* socketAddress)
         {
             int bytesTransferred;
-            SocketFlags flags;
+            SocketFlags flags = inOutFlags != null ? *inOutFlags : 0;
             SocketError error;
 
             sockaddr_storage addressStorage = new sockaddr_storage();
@@ -576,8 +576,8 @@ namespace NativeSockets
                 error = _WSARecvFrom(socket, __buffers_native.Buffer, bufferCount, &bytesTransferred, &flags, (byte*)&addressStorage, &socketAddressSize, null, 0);
             }
 
-            if (socketFlags != null)
-                *socketFlags = flags;
+            if (inOutFlags != null)
+                *inOutFlags = flags;
 
             if (flags != 0)
                 return -1;
@@ -597,14 +597,14 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
         /// <param name="bufferCount">The number of buffers.</param>
-        /// <param name="socketFlags">When this method returns, contains the flags returned by the receive operation.</param>
+        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveFromVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* socketFlags, sockaddr_in6* socketAddress)
+        public static int ReceiveFromVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in6* socketAddress)
         {
             int bytesTransferred;
-            SocketFlags flags;
+            SocketFlags flags = inOutFlags != null ? *inOutFlags : 0;
             SocketError error;
 
             sockaddr_storage addressStorage = new sockaddr_storage();
@@ -615,8 +615,8 @@ namespace NativeSockets
                 error = _WSARecvFrom(socket, __buffers_native.Buffer, bufferCount, &bytesTransferred, &flags, (byte*)&addressStorage, &socketAddressSize, null, 0);
             }
 
-            if (socketFlags != null)
-                *socketFlags = flags;
+            if (inOutFlags != null)
+                *inOutFlags = flags;
 
             if (flags != 0)
                 return -1;

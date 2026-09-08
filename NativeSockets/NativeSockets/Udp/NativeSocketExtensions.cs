@@ -269,14 +269,14 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
-        /// <param name="socketFlags">When this method returns, contains the flags returned by the receive operation.</param>
+        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveVectored(this NativeSocket socket, Span<NativeIoSlice> buffers, ref SocketFlags socketFlags)
+        public static int ReceiveVectored(this NativeSocket socket, Span<NativeIoSlice> buffers, ref SocketFlags inOutFlags)
         {
             fixed (NativeIoSlice* pBuffer = &MemoryMarshal.GetReference(buffers))
             {
-                fixed (SocketFlags* pFlags = &socketFlags)
+                fixed (SocketFlags* pFlags = &inOutFlags)
                 {
                     return SocketPal.ReceiveVectored(socket.Handle, pBuffer, buffers.Length, pFlags);
                 }
@@ -298,18 +298,18 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
-        /// <param name="socketFlags">When this method returns, contains the flags returned by the receive operation.</param>
+        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <param name="socketAddress">Pointer to the sender's socket address.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveFromVectored(this NativeSocket socket, Span<NativeIoSlice> buffers, ref SocketFlags socketFlags, ref NativeSocketAddress socketAddress)
+        public static int ReceiveFromVectored(this NativeSocket socket, Span<NativeIoSlice> buffers, ref SocketFlags inOutFlags, ref NativeSocketAddress socketAddress)
         {
             int result;
             fixed (NativeIoSlice* pBuffer = &MemoryMarshal.GetReference(buffers))
             {
                 fixed (void* pAddress = &socketAddress)
                 {
-                    fixed (SocketFlags* pFlags = &socketFlags)
+                    fixed (SocketFlags* pFlags = &inOutFlags)
                     {
                         result = socket.IsIpv4 ? SocketPal.ReceiveFromVectoredIpv4(socket.Handle, pBuffer, buffers.Length, pFlags, (sockaddr_in4*)pAddress) : SocketPal.ReceiveFromVectoredIpv6(socket.Handle, pBuffer, buffers.Length, pFlags, (sockaddr_in6*)pAddress);
                     }

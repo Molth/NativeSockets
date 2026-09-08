@@ -1216,9 +1216,9 @@ i32 _SendToVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCount, 
 /// <param name="socket">The socket handle.</param>
 /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
 /// <param name="bufferCount">The number of buffers.</param>
-/// <param name="socketFlags">When this method returns, contains the flags returned by the receive operation.</param>
+/// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
 /// <returns>The number of bytes received, or -1 on error.</returns>
-i32 _ReceiveVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *socketFlags)
+i32 _ReceiveVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *inOutFlags)
 {
 #ifdef _WIN32
     WSABUF wsabufs[16];
@@ -1229,15 +1229,15 @@ i32 _ReceiveVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32
     }
     _Build(buffers, bufferCount, pwsabufs);
     i32 bytesRecv = 0;
-    DWORD flags = (socketFlags != NULL) ? *socketFlags : 0;
+    DWORD flags = (inOutFlags != NULL) ? *inOutFlags : 0;
     i32 result = WSARecv((SOCKET)socket, (LPWSABUF)pwsabufs, bufferCount, &bytesRecv, &flags, NULL, NULL);
     if (pwsabufs != wsabufs)
     {
         free(pwsabufs);
     }
-    if (socketFlags != NULL)
+    if (inOutFlags != NULL)
     {
-        *socketFlags = (i32)flags;
+        *inOutFlags = (i32)flags;
     }
     if (result != 0)
     {
@@ -1245,7 +1245,7 @@ i32 _ReceiveVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32
     }
     return bytesRecv;
 #else
-    i32 native_flags = (socketFlags != NULL) ? _ToNativeSocketFlags(*socketFlags) : 0;
+    i32 native_flags = (inOutFlags != NULL) ? _ToNativeSocketFlags(*inOutFlags) : 0;
     struct iovec iovecs[16];
     struct iovec *piovecs = (bufferCount <= 16) ? iovecs : (struct iovec *)malloc(sizeof(struct iovec) * bufferCount);
     if (!piovecs)
@@ -1258,9 +1258,9 @@ i32 _ReceiveVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32
     msg.msg_iov = (struct iovec *)piovecs;
     msg.msg_iovlen = bufferCount;
     i32 result = (i32)recvmsg((i32)socket, &msg, native_flags);
-    if (socketFlags != NULL)
+    if (inOutFlags != NULL)
     {
-        *socketFlags = _FromNativeSocketFlags(msg.msg_flags);
+        *inOutFlags = _FromNativeSocketFlags(msg.msg_flags);
     }
     if (piovecs != iovecs)
     {
@@ -1276,10 +1276,10 @@ i32 _ReceiveVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32
 /// <param name="socket">The socket handle.</param>
 /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
 /// <param name="bufferCount">The number of buffers.</param>
-/// <param name="socketFlags">When this method returns, contains the flags returned by the receive operation.</param>
+/// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
 /// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
 /// <returns>The number of bytes received, or -1 on error.</returns>
-i32 _ReceiveFromVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *socketFlags, _sockaddr_in4 *socketAddress)
+i32 _ReceiveFromVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *inOutFlags, _sockaddr_in4 *socketAddress)
 {
     _sockaddr_storage storage;
     memset(&storage, 0, sizeof(_sockaddr_storage));
@@ -1292,16 +1292,16 @@ i32 _ReceiveFromVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCo
     }
     _Build(buffers, bufferCount, pwsabufs);
     i32 bytesRecv = 0;
-    DWORD flags = (socketFlags != NULL) ? *socketFlags : 0;
+    DWORD flags = (inOutFlags != NULL) ? *inOutFlags : 0;
     INT addr_len = sizeof(_sockaddr_storage);
     i32 result = WSARecvFrom((SOCKET)socket, (LPWSABUF)pwsabufs, bufferCount, &bytesRecv, &flags, (struct sockaddr *)&storage, &addr_len, NULL, NULL);
     if (pwsabufs != wsabufs)
     {
         free(pwsabufs);
     }
-    if (socketFlags != NULL)
+    if (inOutFlags != NULL)
     {
-        *socketFlags = (i32)flags;
+        *inOutFlags = (i32)flags;
     }
     if (result != 0)
     {
@@ -1313,7 +1313,7 @@ i32 _ReceiveFromVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCo
     }
     return bytesRecv;
 #else
-    i32 native_flags = (socketFlags != NULL) ? _ToNativeSocketFlags(*socketFlags) : 0;
+    i32 native_flags = (inOutFlags != NULL) ? _ToNativeSocketFlags(*inOutFlags) : 0;
     struct iovec iovecs[16];
     struct iovec *piovecs = (bufferCount <= 16) ? iovecs : (struct iovec *)malloc(sizeof(struct iovec) * bufferCount);
     if (!piovecs)
@@ -1328,9 +1328,9 @@ i32 _ReceiveFromVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCo
     msg.msg_iov = (struct iovec *)piovecs;
     msg.msg_iovlen = bufferCount;
     i32 result = (i32)recvmsg((i32)socket, &msg, native_flags);
-    if (socketFlags != NULL)
+    if (inOutFlags != NULL)
     {
-        *socketFlags = _FromNativeSocketFlags(msg.msg_flags);
+        *inOutFlags = _FromNativeSocketFlags(msg.msg_flags);
     }
     if (result >= 0 && socketAddress != NULL)
     {
@@ -1344,7 +1344,7 @@ i32 _ReceiveFromVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCo
 #endif
 }
 
-i32 _ReceiveFromVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *socketFlags, _sockaddr_in6 *socketAddress)
+i32 _ReceiveFromVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *inOutFlags, _sockaddr_in6 *socketAddress)
 {
     _sockaddr_storage storage;
     memset(&storage, 0, sizeof(_sockaddr_storage));
@@ -1357,16 +1357,16 @@ i32 _ReceiveFromVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCo
     }
     _Build(buffers, bufferCount, pwsabufs);
     i32 bytesRecv = 0;
-    DWORD flags = (socketFlags != NULL) ? *socketFlags : 0;
+    DWORD flags = (inOutFlags != NULL) ? *inOutFlags : 0;
     INT addr_len = sizeof(_sockaddr_storage);
     i32 result = WSARecvFrom((SOCKET)socket, (LPWSABUF)pwsabufs, bufferCount, &bytesRecv, &flags, (struct sockaddr *)&storage, &addr_len, NULL, NULL);
     if (pwsabufs != wsabufs)
     {
         free(pwsabufs);
     }
-    if (socketFlags != NULL)
+    if (inOutFlags != NULL)
     {
-        *socketFlags = (i32)flags;
+        *inOutFlags = (i32)flags;
     }
     if (result != 0)
     {
@@ -1378,7 +1378,7 @@ i32 _ReceiveFromVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCo
     }
     return bytesRecv;
 #else
-    i32 native_flags = (socketFlags != NULL) ? _ToNativeSocketFlags(*socketFlags) : 0;
+    i32 native_flags = (inOutFlags != NULL) ? _ToNativeSocketFlags(*inOutFlags) : 0;
     struct iovec iovecs[16];
     struct iovec *piovecs = (bufferCount <= 16) ? iovecs : (struct iovec *)malloc(sizeof(struct iovec) * bufferCount);
     if (!piovecs)
@@ -1393,9 +1393,9 @@ i32 _ReceiveFromVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCo
     msg.msg_iov = (struct iovec *)piovecs;
     msg.msg_iovlen = bufferCount;
     i32 result = (i32)recvmsg((i32)socket, &msg, native_flags);
-    if (socketFlags != NULL)
+    if (inOutFlags != NULL)
     {
-        *socketFlags = _FromNativeSocketFlags(msg.msg_flags);
+        *inOutFlags = _FromNativeSocketFlags(msg.msg_flags);
     }
     if (result >= 0 && socketAddress != NULL)
     {

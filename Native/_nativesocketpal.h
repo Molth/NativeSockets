@@ -401,17 +401,17 @@ extern "C"
     /// <summary>
     ///     Receives data into multiple buffers on a connected socket.
     /// </summary>
-    _NATIVESOCKETPAL_API i32 _ReceiveVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *socketFlags);
+    _NATIVESOCKETPAL_API i32 _ReceiveVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *inOutFlags);
 
     /// <summary>
     ///     Receives data into multiple buffers from an Ipv4 endpoint.
     /// </summary>
-    _NATIVESOCKETPAL_API i32 _ReceiveFromVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *socketFlags, _sockaddr_in4 *socketAddress);
+    _NATIVESOCKETPAL_API i32 _ReceiveFromVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *inOutFlags, _sockaddr_in4 *socketAddress);
 
     /// <summary>
     ///     Receives data into multiple buffers from an Ipv6 endpoint.
     /// </summary>
-    _NATIVESOCKETPAL_API i32 _ReceiveFromVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *socketFlags, _sockaddr_in6 *socketAddress);
+    _NATIVESOCKETPAL_API i32 _ReceiveFromVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *inOutFlags, _sockaddr_in6 *socketAddress);
 
     /// <summary>
     ///     Gets the local name (address) of an Ipv4 socket.

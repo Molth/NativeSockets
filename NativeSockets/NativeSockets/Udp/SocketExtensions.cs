@@ -109,10 +109,10 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
-        /// <param name="socketFlags">When this method returns, contains the flags returned by the receive operation.</param>
+        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveVectored(this Socket socket, Span<NativeIoSlice> buffers, ref SocketFlags socketFlags) => new NativeSocket(socket).ReceiveVectored(buffers, ref socketFlags);
+        public static int ReceiveVectored(this Socket socket, Span<NativeIoSlice> buffers, ref SocketFlags inOutFlags) => new NativeSocket(socket).ReceiveVectored(buffers, ref inOutFlags);
 
         /// <summary>
         ///     Receives data into multiple buffers from an endpoint.
@@ -129,10 +129,10 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
-        /// <param name="socketFlags">When this method returns, contains the flags returned by the receive operation.</param>
+        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <param name="socketAddress">Pointer to the sender's socket address.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveFromVectored(this Socket socket, Span<NativeIoSlice> buffers, ref SocketFlags socketFlags, ref NativeSocketAddress socketAddress) => new NativeSocket(socket).ReceiveFromVectored(buffers, ref socketFlags, ref socketAddress);
+        public static int ReceiveFromVectored(this Socket socket, Span<NativeIoSlice> buffers, ref SocketFlags inOutFlags, ref NativeSocketAddress socketAddress) => new NativeSocket(socket).ReceiveFromVectored(buffers, ref inOutFlags, ref socketAddress);
     }
 }

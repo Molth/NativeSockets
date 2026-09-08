@@ -654,10 +654,10 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
         /// <param name="bufferCount">The number of buffers.</param>
-        /// <param name="socketFlags">When this method returns, contains the flags returned by the receive operation.</param>
+        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* socketFlags) => _ReceiveVectored(socket, buffers, bufferCount, socketFlags);
+        public static int ReceiveVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags) => _ReceiveVectored(socket, buffers, bufferCount, inOutFlags);
 
         /// <summary>
         ///     Receives data into multiple buffers from an Ipv4 endpoint.
@@ -665,11 +665,11 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
         /// <param name="bufferCount">The number of buffers.</param>
-        /// <param name="socketFlags">When this method returns, contains the flags returned by the receive operation.</param>
+        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveFromVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* socketFlags, sockaddr_in4* socketAddress) => _ReceiveFromVectoredIpv4(socket, buffers, bufferCount, socketFlags, socketAddress);
+        public static int ReceiveFromVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in4* socketAddress) => _ReceiveFromVectoredIpv4(socket, buffers, bufferCount, inOutFlags, socketAddress);
 
         /// <summary>
         ///     Receives data into multiple buffers from an Ipv6 endpoint.
@@ -677,11 +677,11 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
         /// <param name="bufferCount">The number of buffers.</param>
-        /// <param name="socketFlags">When this method returns, contains the flags returned by the receive operation.</param>
+        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveFromVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* socketFlags, sockaddr_in6* socketAddress) => _ReceiveFromVectoredIpv6(socket, buffers, bufferCount, socketFlags, socketAddress);
+        public static int ReceiveFromVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in6* socketAddress) => _ReceiveFromVectoredIpv6(socket, buffers, bufferCount, inOutFlags, socketAddress);
 
         /// <summary>
         ///     Gets the local name (address) of an Ipv4 socket.
