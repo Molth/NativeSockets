@@ -242,18 +242,18 @@ namespace NativeSockets
         public static extern int ReceiveFromIpv6(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in6* socketAddress);
 
         /// <summary>
-        ///     Sends a message on a connected socket.
+        ///     Sends data from multiple buffers on a connected socket.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
         /// <param name="bufferCount">The number of buffers.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
-        [DllImport(NATIVE_LIBRARY, EntryPoint = "_SendMessage", CallingConvention = CALLING_CONVENTION)]
-        public static extern int SendMessage(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags);
+        [DllImport(NATIVE_LIBRARY, EntryPoint = "_SendVectored", CallingConvention = CALLING_CONVENTION)]
+        public static extern int SendVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags);
 
         /// <summary>
-        ///     Sends a message to an Ipv4 endpoint.
+        ///     Sends data from multiple buffers to an Ipv4 endpoint.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
@@ -261,11 +261,11 @@ namespace NativeSockets
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">Pointer to the destination Ipv4 socket address.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
-        [DllImport(NATIVE_LIBRARY, EntryPoint = "_SendMessageToIpv4", CallingConvention = CALLING_CONVENTION)]
-        public static extern int SendMessageToIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in4* socketAddress);
+        [DllImport(NATIVE_LIBRARY, EntryPoint = "_SendToVectoredIpv4", CallingConvention = CALLING_CONVENTION)]
+        public static extern int SendToVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in4* socketAddress);
 
         /// <summary>
-        ///     Sends a message to an Ipv6 endpoint.
+        ///     Sends data from multiple buffers to an Ipv6 endpoint.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
@@ -273,22 +273,22 @@ namespace NativeSockets
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">Pointer to the destination Ipv6 socket address.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
-        [DllImport(NATIVE_LIBRARY, EntryPoint = "_SendMessageToIpv6", CallingConvention = CALLING_CONVENTION)]
-        public static extern int SendMessageToIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in6* socketAddress);
+        [DllImport(NATIVE_LIBRARY, EntryPoint = "_SendToVectoredIpv6", CallingConvention = CALLING_CONVENTION)]
+        public static extern int SendToVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in6* socketAddress);
 
         /// <summary>
-        ///     Receives a message on a connected socket.
+        ///     Receives data into multiple buffers on a connected socket.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
         /// <param name="bufferCount">The number of buffers.</param>
         /// <param name="socketFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
-        [DllImport(NATIVE_LIBRARY, EntryPoint = "_ReceiveMessage", CallingConvention = CALLING_CONVENTION)]
-        public static extern int ReceiveMessage(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* socketFlags);
+        [DllImport(NATIVE_LIBRARY, EntryPoint = "_ReceiveVectored", CallingConvention = CALLING_CONVENTION)]
+        public static extern int ReceiveVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* socketFlags);
 
         /// <summary>
-        ///     Receives a message from an Ipv4 endpoint.
+        ///     Receives data into multiple buffers from an Ipv4 endpoint.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
@@ -296,11 +296,11 @@ namespace NativeSockets
         /// <param name="socketFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
-        [DllImport(NATIVE_LIBRARY, EntryPoint = "_ReceiveMessageFromIpv4", CallingConvention = CALLING_CONVENTION)]
-        public static extern int ReceiveMessageFromIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* socketFlags, sockaddr_in4* socketAddress);
+        [DllImport(NATIVE_LIBRARY, EntryPoint = "_ReceiveFromVectoredIpv4", CallingConvention = CALLING_CONVENTION)]
+        public static extern int ReceiveFromVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* socketFlags, sockaddr_in4* socketAddress);
 
         /// <summary>
-        ///     Receives a message from an Ipv6 endpoint.
+        ///     Receives data into multiple buffers from an Ipv6 endpoint.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
@@ -308,8 +308,8 @@ namespace NativeSockets
         /// <param name="socketFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
-        [DllImport(NATIVE_LIBRARY, EntryPoint = "_ReceiveMessageFromIpv6", CallingConvention = CALLING_CONVENTION)]
-        public static extern int ReceiveMessageFromIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* socketFlags, sockaddr_in6* socketAddress);
+        [DllImport(NATIVE_LIBRARY, EntryPoint = "_ReceiveFromVectoredIpv6", CallingConvention = CALLING_CONVENTION)]
+        public static extern int ReceiveFromVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* socketFlags, sockaddr_in6* socketAddress);
 
         /// <summary>
         ///     Gets the local name (address) of an Ipv4 socket.

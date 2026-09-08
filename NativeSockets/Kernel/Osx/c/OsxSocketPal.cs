@@ -462,7 +462,7 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Sends a message on a connected socket.
+        ///     Sends data from multiple buffers on a connected socket.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
@@ -470,7 +470,7 @@ namespace NativeSockets
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendMessage(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags)
+        public static int SendVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags)
         {
             msghdr msg = new msghdr();
             msg.msg_iovlen = _get_msg_iovlen(bufferCount);
@@ -487,7 +487,7 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Sends a message to an Ipv4 endpoint.
+        ///     Sends data from multiple buffers to an Ipv4 endpoint.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
@@ -496,7 +496,7 @@ namespace NativeSockets
         /// <param name="socketAddress">Pointer to the destination Ipv4 socket address.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendMessageToIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in4* socketAddress)
+        public static int SendToVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in4* socketAddress)
         {
             if (socketAddress != null)
             {
@@ -516,11 +516,11 @@ namespace NativeSockets
                 return num;
             }
 
-            return SendMessage(socket, buffers, bufferCount, socketFlags);
+            return SendVectored(socket, buffers, bufferCount, socketFlags);
         }
 
         /// <summary>
-        ///     Sends a message to an Ipv6 endpoint.
+        ///     Sends data from multiple buffers to an Ipv6 endpoint.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
@@ -529,7 +529,7 @@ namespace NativeSockets
         /// <param name="socketAddress">Pointer to the destination Ipv6 socket address.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendMessageToIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in6* socketAddress)
+        public static int SendToVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in6* socketAddress)
         {
             if (socketAddress != null)
             {
@@ -549,11 +549,11 @@ namespace NativeSockets
                 return num;
             }
 
-            return SendMessage(socket, buffers, bufferCount, socketFlags);
+            return SendVectored(socket, buffers, bufferCount, socketFlags);
         }
 
         /// <summary>
-        ///     Receives a message on a connected socket.
+        ///     Receives data into multiple buffers on a connected socket.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
@@ -561,7 +561,7 @@ namespace NativeSockets
         /// <param name="socketFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveMessage(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* socketFlags)
+        public static int ReceiveVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* socketFlags)
         {
             msghdr msg = new msghdr();
             msg.msg_iovlen = _get_msg_iovlen(bufferCount);
@@ -586,7 +586,7 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Receives a message from an Ipv4 endpoint.
+        ///     Receives data into multiple buffers from an Ipv4 endpoint.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
@@ -595,7 +595,7 @@ namespace NativeSockets
         /// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveMessageFromIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* socketFlags, sockaddr_in4* socketAddress)
+        public static int ReceiveFromVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* socketFlags, sockaddr_in4* socketAddress)
         {
             sockaddr_storage addressStorage = new sockaddr_storage();
 
@@ -630,7 +630,7 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Receives a message from an Ipv6 endpoint.
+        ///     Receives data into multiple buffers from an Ipv6 endpoint.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
@@ -639,7 +639,7 @@ namespace NativeSockets
         /// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveMessageFromIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* socketFlags, sockaddr_in6* socketAddress)
+        public static int ReceiveFromVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* socketFlags, sockaddr_in6* socketAddress)
         {
             sockaddr_storage addressStorage = new sockaddr_storage();
 

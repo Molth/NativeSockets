@@ -1016,7 +1016,7 @@ i32 _ReceiveFromIpv6(isize socket, void *buffer, i32 length, i32 socketFlags, _s
 }
 
 /* ========================================================================= */
-/* SendMessage / ReceiveMessage (scatter/gather I/O)                         */
+/* SendVectored / ReceiveVectored (scatter/gather I/O)                         */
 /* ========================================================================= */
 
 #ifdef _WIN32
@@ -1062,14 +1062,14 @@ static i32 _Build(_NativeIoSlice *buffers, i32 bufferCount, struct iovec *out_ve
 #endif
 
 /// <summary>
-///     Sends a message on a connected socket.
+///     Sends data from multiple buffers on a connected socket.
 /// </summary>
 /// <param name="socket">The socket handle.</param>
 /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
 /// <param name="bufferCount">The number of buffers.</param>
 /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
 /// <returns>The number of bytes sent, or -1 on error.</returns>
-i32 _SendMessage(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags)
+i32 _SendVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags)
 {
 #ifdef _WIN32
     WSABUF wsabufs[16];
@@ -1107,7 +1107,7 @@ i32 _SendMessage(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 soc
 }
 
 /// <summary>
-///     Sends a message to an Ipv4 endpoint.
+///     Sends data from multiple buffers to an Ipv4 endpoint.
 /// </summary>
 /// <param name="socket">The socket handle.</param>
 /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
@@ -1115,11 +1115,11 @@ i32 _SendMessage(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 soc
 /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
 /// <param name="socketAddress">Pointer to the destination Ipv4 socket address.</param>
 /// <returns>The number of bytes sent, or -1 on error.</returns>
-i32 _SendMessageToIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags, _sockaddr_in4 *socketAddress)
+i32 _SendToVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags, _sockaddr_in4 *socketAddress)
 {
     if (socketAddress == NULL)
     {
-        return _SendMessage(socket, buffers, bufferCount, socketFlags);
+        return _SendVectored(socket, buffers, bufferCount, socketFlags);
     }
 #ifdef _WIN32
     WSABUF wsabufs[16];
@@ -1161,7 +1161,7 @@ i32 _SendMessageToIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i
 }
 
 /// <summary>
-///     Sends a message to an Ipv6 endpoint.
+///     Sends data from multiple buffers to an Ipv6 endpoint.
 /// </summary>
 /// <param name="socket">The socket handle.</param>
 /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
@@ -1169,11 +1169,11 @@ i32 _SendMessageToIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i
 /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
 /// <param name="socketAddress">Pointer to the destination Ipv6 socket address.</param>
 /// <returns>The number of bytes sent, or -1 on error.</returns>
-i32 _SendMessageToIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags, _sockaddr_in6 *socketAddress)
+i32 _SendToVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags, _sockaddr_in6 *socketAddress)
 {
     if (socketAddress == NULL)
     {
-        return _SendMessage(socket, buffers, bufferCount, socketFlags);
+        return _SendVectored(socket, buffers, bufferCount, socketFlags);
     }
 #ifdef _WIN32
     WSABUF wsabufs[16];
@@ -1215,14 +1215,14 @@ i32 _SendMessageToIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i
 }
 
 /// <summary>
-///     Receives a message on a connected socket.
+///     Receives data into multiple buffers on a connected socket.
 /// </summary>
 /// <param name="socket">The socket handle.</param>
 /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
 /// <param name="bufferCount">The number of buffers.</param>
 /// <param name="socketFlags">When this method returns, contains the flags returned by the receive operation.</param>
 /// <returns>The number of bytes received, or -1 on error.</returns>
-i32 _ReceiveMessage(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *socketFlags)
+i32 _ReceiveVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *socketFlags)
 {
 #ifdef _WIN32
     WSABUF wsabufs[16];
@@ -1275,7 +1275,7 @@ i32 _ReceiveMessage(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 
 }
 
 /// <summary>
-///     Receives a message from an Ipv4 endpoint.
+///     Receives data into multiple buffers from an Ipv4 endpoint.
 /// </summary>
 /// <param name="socket">The socket handle.</param>
 /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
@@ -1283,7 +1283,7 @@ i32 _ReceiveMessage(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 
 /// <param name="socketFlags">When this method returns, contains the flags returned by the receive operation.</param>
 /// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
 /// <returns>The number of bytes received, or -1 on error.</returns>
-i32 _ReceiveMessageFromIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *socketFlags, _sockaddr_in4 *socketAddress)
+i32 _ReceiveFromVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *socketFlags, _sockaddr_in4 *socketAddress)
 {
     _sockaddr_storage storage;
     memset(&storage, 0, sizeof(_sockaddr_storage));
@@ -1348,7 +1348,7 @@ i32 _ReceiveMessageFromIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCou
 #endif
 }
 
-i32 _ReceiveMessageFromIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *socketFlags, _sockaddr_in6 *socketAddress)
+i32 _ReceiveFromVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *socketFlags, _sockaddr_in6 *socketAddress)
 {
     _sockaddr_storage storage;
     memset(&storage, 0, sizeof(_sockaddr_storage));

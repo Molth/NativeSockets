@@ -36,8 +36,10 @@
 - **Complete UDP support** – create, bind, connect, send, receive, and poll sockets.
 - **Ipv4 and Ipv6** with dual‑mode support.
 - **Allocation‑free extension methods** for `System.Net.Sockets.Socket`:
-  - `SendToNonAlloc` – send data without temporary allocations.
-  - `ReceiveFromNonAlloc` – receive data and capture the remote endpoint without allocations.
+    - `SendTo` – send data without temporary allocations.
+    - `ReceiveFrom` – receive data and capture the remote endpoint without allocations.
+    - `SendToVectored` – send data from multiple buffers without temporary allocations.
+    - `ReceiveFromVectored` – receive data into multiple buffers and capture the remote endpoint without allocations.
 - **Scatter/gather I/O** – Efficient vectored send and receive operations.
 - **Host name resolution and reverse lookups** – Resolve names to addresses and back, all without allocations.
 

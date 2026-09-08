@@ -30,7 +30,7 @@ namespace NativeSockets
         /// <param name="socketAddress">Pointer to the destination socket address structure.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendToNonAlloc(this Socket socket, ReadOnlySpan<byte> buffer, in NativeSocketAddress socketAddress) => new NativeSocket(socket).SendTo(buffer, socketAddress);
+        public static int SendTo(this Socket socket, ReadOnlySpan<byte> buffer, in NativeSocketAddress socketAddress) => new NativeSocket(socket).SendTo(buffer, socketAddress);
 
         /// <summary>
         ///     Sends data to an endpoint.
@@ -41,7 +41,7 @@ namespace NativeSockets
         /// <param name="socketAddress">Pointer to the destination socket address structure.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendToNonAlloc(this Socket socket, ReadOnlySpan<byte> buffer, SocketFlags socketFlags, in NativeSocketAddress socketAddress) => new NativeSocket(socket).SendTo(buffer, socketFlags, socketAddress);
+        public static int SendTo(this Socket socket, ReadOnlySpan<byte> buffer, SocketFlags socketFlags, in NativeSocketAddress socketAddress) => new NativeSocket(socket).SendTo(buffer, socketFlags, socketAddress);
 
         /// <summary>
         ///     Receives data from an endpoint, filling the provided address structure.
@@ -51,7 +51,7 @@ namespace NativeSockets
         /// <param name="socketAddress">Pointer to the sender's address structure.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveFromNonAlloc(this Socket socket, Span<byte> buffer, ref NativeSocketAddress socketAddress) => new NativeSocket(socket).ReceiveFrom(buffer, ref socketAddress);
+        public static int ReceiveFrom(this Socket socket, Span<byte> buffer, ref NativeSocketAddress socketAddress) => new NativeSocket(socket).ReceiveFrom(buffer, ref socketAddress);
 
         /// <summary>
         ///     Receives data from an endpoint, filling the provided address structure.
@@ -62,30 +62,30 @@ namespace NativeSockets
         /// <param name="socketAddress">Pointer to the sender's address structure.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveFromNonAlloc(this Socket socket, Span<byte> buffer, SocketFlags socketFlags, ref NativeSocketAddress socketAddress) => new NativeSocket(socket).ReceiveFrom(buffer, socketFlags, ref socketAddress);
+        public static int ReceiveFrom(this Socket socket, Span<byte> buffer, SocketFlags socketFlags, ref NativeSocketAddress socketAddress) => new NativeSocket(socket).ReceiveFrom(buffer, socketFlags, ref socketAddress);
 
         /// <summary>
-        ///     Sends a message on a connected socket.
+        ///     Sends data from multiple buffers on a connected socket.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendMessageNonAlloc(this Socket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags = SocketFlags.None) => new NativeSocket(socket).SendMessage(buffers, socketFlags);
+        public static int SendVectored(this Socket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags = SocketFlags.None) => new NativeSocket(socket).SendVectored(buffers, socketFlags);
 
         /// <summary>
-        ///     Sends a message to an endpoint.
+        ///     Sends data from multiple buffers to an endpoint.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
         /// <param name="socketAddress">Pointer to the destination socket address.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendMessageToNonAlloc(this Socket socket, ReadOnlySpan<NativeIoSlice> buffers, in NativeSocketAddress socketAddress) => new NativeSocket(socket).SendMessageTo(buffers, socketAddress);
+        public static int SendToVectored(this Socket socket, ReadOnlySpan<NativeIoSlice> buffers, in NativeSocketAddress socketAddress) => new NativeSocket(socket).SendToVectored(buffers, socketAddress);
 
         /// <summary>
-        ///     Sends a message to an endpoint.
+        ///     Sends data from multiple buffers to an endpoint.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
@@ -93,39 +93,39 @@ namespace NativeSockets
         /// <param name="socketAddress">Pointer to the destination socket address.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendMessageToNonAlloc(this Socket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags, in NativeSocketAddress socketAddress) => new NativeSocket(socket).SendMessageTo(buffers, socketFlags, socketAddress);
+        public static int SendToVectored(this Socket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags, in NativeSocketAddress socketAddress) => new NativeSocket(socket).SendToVectored(buffers, socketFlags, socketAddress);
 
         /// <summary>
-        ///     Receives a message on a connected socket.
+        ///     Receives data into multiple buffers on a connected socket.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveMessageNonAlloc(this Socket socket, Span<NativeIoSlice> buffers) => new NativeSocket(socket).ReceiveMessage(buffers);
+        public static int ReceiveVectored(this Socket socket, Span<NativeIoSlice> buffers) => new NativeSocket(socket).ReceiveVectored(buffers);
 
         /// <summary>
-        ///     Receives a message on a connected socket.
+        ///     Receives data into multiple buffers on a connected socket.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
         /// <param name="socketFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveMessageNonAlloc(this Socket socket, Span<NativeIoSlice> buffers, ref SocketFlags socketFlags) => new NativeSocket(socket).ReceiveMessage(buffers, ref socketFlags);
+        public static int ReceiveVectored(this Socket socket, Span<NativeIoSlice> buffers, ref SocketFlags socketFlags) => new NativeSocket(socket).ReceiveVectored(buffers, ref socketFlags);
 
         /// <summary>
-        ///     Receives a message from an endpoint.
+        ///     Receives data into multiple buffers from an endpoint.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
         /// <param name="socketAddress">Pointer to the sender's socket address.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveMessageFromNonAlloc(this Socket socket, Span<NativeIoSlice> buffers, ref NativeSocketAddress socketAddress) => new NativeSocket(socket).ReceiveMessageFrom(buffers, ref socketAddress);
+        public static int ReceiveFromVectored(this Socket socket, Span<NativeIoSlice> buffers, ref NativeSocketAddress socketAddress) => new NativeSocket(socket).ReceiveFromVectored(buffers, ref socketAddress);
 
         /// <summary>
-        ///     Receives a message from an endpoint.
+        ///     Receives data into multiple buffers from an endpoint.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
@@ -133,6 +133,6 @@ namespace NativeSockets
         /// <param name="socketAddress">Pointer to the sender's socket address.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveMessageFromNonAlloc(this Socket socket, Span<NativeIoSlice> buffers, ref SocketFlags socketFlags, ref NativeSocketAddress socketAddress) => new NativeSocket(socket).ReceiveMessageFrom(buffers, ref socketFlags, ref socketAddress);
+        public static int ReceiveFromVectored(this Socket socket, Span<NativeIoSlice> buffers, ref SocketFlags socketFlags, ref NativeSocketAddress socketAddress) => new NativeSocket(socket).ReceiveFromVectored(buffers, ref socketFlags, ref socketAddress);
     }
 }

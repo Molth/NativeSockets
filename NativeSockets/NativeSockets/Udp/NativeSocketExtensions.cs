@@ -210,33 +210,33 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Sends a message on a connected socket.
+        ///     Sends data from multiple buffers on a connected socket.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendMessage(this NativeSocket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags = SocketFlags.None)
+        public static int SendVectored(this NativeSocket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags = SocketFlags.None)
         {
             fixed (NativeIoSlice* pBuffer = &MemoryMarshal.GetReference(buffers))
             {
-                return SocketPal.SendMessage(socket.Handle, pBuffer, buffers.Length, socketFlags);
+                return SocketPal.SendVectored(socket.Handle, pBuffer, buffers.Length, socketFlags);
             }
         }
 
         /// <summary>
-        ///     Sends a message to an endpoint.
+        ///     Sends data from multiple buffers to an endpoint.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
         /// <param name="socketAddress">Pointer to the destination socket address.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendMessageTo(this NativeSocket socket, ReadOnlySpan<NativeIoSlice> buffers, in NativeSocketAddress socketAddress) => socket.SendMessageTo(buffers, SocketFlags.None, socketAddress);
+        public static int SendToVectored(this NativeSocket socket, ReadOnlySpan<NativeIoSlice> buffers, in NativeSocketAddress socketAddress) => socket.SendToVectored(buffers, SocketFlags.None, socketAddress);
 
         /// <summary>
-        ///     Sends a message to an endpoint.
+        ///     Sends data from multiple buffers to an endpoint.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
@@ -244,57 +244,57 @@ namespace NativeSockets
         /// <param name="socketAddress">Pointer to the destination socket address.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendMessageTo(this NativeSocket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags, in NativeSocketAddress socketAddress)
+        public static int SendToVectored(this NativeSocket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags, in NativeSocketAddress socketAddress)
         {
             fixed (NativeIoSlice* pBuffer = &MemoryMarshal.GetReference(buffers))
             {
                 fixed (void* pAddress = &socketAddress)
                 {
-                    return socket.IsIpv4 ? SocketPal.SendMessageToIpv4(socket.Handle, pBuffer, buffers.Length, socketFlags, (sockaddr_in4*)pAddress) : SocketPal.SendMessageToIpv6(socket.Handle, pBuffer, buffers.Length, socketFlags, (sockaddr_in6*)pAddress);
+                    return socket.IsIpv4 ? SocketPal.SendToVectoredIpv4(socket.Handle, pBuffer, buffers.Length, socketFlags, (sockaddr_in4*)pAddress) : SocketPal.SendToVectoredIpv6(socket.Handle, pBuffer, buffers.Length, socketFlags, (sockaddr_in6*)pAddress);
                 }
             }
         }
 
         /// <summary>
-        ///     Receives a message on a connected socket.
+        ///     Receives data into multiple buffers on a connected socket.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveMessage(this NativeSocket socket, Span<NativeIoSlice> buffers) => socket.ReceiveMessage(buffers, ref Unsafe.NullRef<SocketFlags>());
+        public static int ReceiveVectored(this NativeSocket socket, Span<NativeIoSlice> buffers) => socket.ReceiveVectored(buffers, ref Unsafe.NullRef<SocketFlags>());
 
         /// <summary>
-        ///     Receives a message on a connected socket.
+        ///     Receives data into multiple buffers on a connected socket.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
         /// <param name="socketFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveMessage(this NativeSocket socket, Span<NativeIoSlice> buffers, ref SocketFlags socketFlags)
+        public static int ReceiveVectored(this NativeSocket socket, Span<NativeIoSlice> buffers, ref SocketFlags socketFlags)
         {
             fixed (NativeIoSlice* pBuffer = &MemoryMarshal.GetReference(buffers))
             {
                 fixed (SocketFlags* pFlags = &socketFlags)
                 {
-                    return SocketPal.ReceiveMessage(socket.Handle, pBuffer, buffers.Length, pFlags);
+                    return SocketPal.ReceiveVectored(socket.Handle, pBuffer, buffers.Length, pFlags);
                 }
             }
         }
 
         /// <summary>
-        ///     Receives a message from an endpoint.
+        ///     Receives data into multiple buffers from an endpoint.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
         /// <param name="socketAddress">Pointer to the sender's socket address.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveMessageFrom(this NativeSocket socket, Span<NativeIoSlice> buffers, ref NativeSocketAddress socketAddress) => socket.ReceiveMessageFrom(buffers, ref Unsafe.NullRef<SocketFlags>(), ref socketAddress);
+        public static int ReceiveFromVectored(this NativeSocket socket, Span<NativeIoSlice> buffers, ref NativeSocketAddress socketAddress) => socket.ReceiveFromVectored(buffers, ref Unsafe.NullRef<SocketFlags>(), ref socketAddress);
 
         /// <summary>
-        ///     Receives a message from an endpoint.
+        ///     Receives data into multiple buffers from an endpoint.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
@@ -302,7 +302,7 @@ namespace NativeSockets
         /// <param name="socketAddress">Pointer to the sender's socket address.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveMessageFrom(this NativeSocket socket, Span<NativeIoSlice> buffers, ref SocketFlags socketFlags, ref NativeSocketAddress socketAddress)
+        public static int ReceiveFromVectored(this NativeSocket socket, Span<NativeIoSlice> buffers, ref SocketFlags socketFlags, ref NativeSocketAddress socketAddress)
         {
             int result;
             fixed (NativeIoSlice* pBuffer = &MemoryMarshal.GetReference(buffers))
@@ -311,7 +311,7 @@ namespace NativeSockets
                 {
                     fixed (SocketFlags* pFlags = &socketFlags)
                     {
-                        result = socket.IsIpv4 ? SocketPal.ReceiveMessageFromIpv4(socket.Handle, pBuffer, buffers.Length, pFlags, (sockaddr_in4*)pAddress) : SocketPal.ReceiveMessageFromIpv6(socket.Handle, pBuffer, buffers.Length, pFlags, (sockaddr_in6*)pAddress);
+                        result = socket.IsIpv4 ? SocketPal.ReceiveFromVectoredIpv4(socket.Handle, pBuffer, buffers.Length, pFlags, (sockaddr_in4*)pAddress) : SocketPal.ReceiveFromVectoredIpv6(socket.Handle, pBuffer, buffers.Length, pFlags, (sockaddr_in6*)pAddress);
                     }
                 }
             }
