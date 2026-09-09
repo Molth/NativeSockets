@@ -15,6 +15,8 @@
 
 typedef i32 _socklen_t;
 
+#define SIO_UDP_CONNRESET (IOC_IN | IOC_VENDOR | 12)
+
 #else
 
 #include <sys/types.h>
@@ -506,8 +508,7 @@ isize _Create(i32 ipv6)
     {
         DWORD dwBytesReturned = 0;
         BOOL bNewBehavior = FALSE;
-        DWORD ioctl = IOC_IN | IOC_VENDOR | 12; /* SIO_UDP_CONNRESET */
-        WSAIoctl(s, ioctl, &bNewBehavior, sizeof(BOOL), NULL, 0, &dwBytesReturned, NULL, NULL);
+        WSAIoctl(s, SIO_UDP_CONNRESET, &bNewBehavior, sizeof(BOOL), NULL, 0, &dwBytesReturned, NULL, NULL);
     }
     return (isize)s;
 #else
@@ -699,19 +700,11 @@ i32 _Poll(isize socket, i32 microseconds, i32 mode, i32 *status)
     {
         struct timeval tv;
         _MicrosecondsToTimeValue(microseconds, &tv);
-        result = select(0,
-                        (mode == _SELECT_MODE_SELECT_READ) ? (fd_set *)fdset : NULL,
-                        (mode == _SELECT_MODE_SELECT_WRITE) ? (fd_set *)fdset : NULL,
-                        (mode == _SELECT_MODE_SELECT_ERROR) ? (fd_set *)fdset : NULL,
-                        &tv);
+        result = select(0, (mode == _SELECT_MODE_SELECT_READ) ? (fd_set *)fdset : NULL, (mode == _SELECT_MODE_SELECT_WRITE) ? (fd_set *)fdset : NULL, (mode == _SELECT_MODE_SELECT_ERROR) ? (fd_set *)fdset : NULL, &tv);
     }
     else
     {
-        result = select(0,
-                        (mode == _SELECT_MODE_SELECT_READ) ? (fd_set *)fdset : NULL,
-                        (mode == _SELECT_MODE_SELECT_WRITE) ? (fd_set *)fdset : NULL,
-                        (mode == _SELECT_MODE_SELECT_ERROR) ? (fd_set *)fdset : NULL,
-                        NULL);
+        result = select(0, (mode == _SELECT_MODE_SELECT_READ) ? (fd_set *)fdset : NULL, (mode == _SELECT_MODE_SELECT_WRITE) ? (fd_set *)fdset : NULL, (mode == _SELECT_MODE_SELECT_ERROR) ? (fd_set *)fdset : NULL, NULL);
     }
     if (result == SOCKET_ERROR)
     {
@@ -804,19 +797,11 @@ i32 _PollFlags(isize socket, i32 microseconds, i32 inFlags, i32 *outFlags)
     {
         struct timeval tv;
         _MicrosecondsToTimeValue(microseconds, &tv);
-        result = select(0,
-                        (fd_set *)readFds,
-                        (fd_set *)writeFds,
-                        (fd_set *)errorFds,
-                        &tv);
+        result = select(0, (fd_set *)readFds, (fd_set *)writeFds, (fd_set *)errorFds, &tv);
     }
     else
     {
-        result = select(0,
-                        (fd_set *)readFds,
-                        (fd_set *)writeFds,
-                        (fd_set *)errorFds,
-                        NULL);
+        result = select(0, (fd_set *)readFds, (fd_set *)writeFds, (fd_set *)errorFds, NULL);
     }
     *outFlags = 0;
     if (result == SOCKET_ERROR)
@@ -1078,7 +1063,9 @@ i32 _SendVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 so
     i32 bytesSent = 0;
     i32 result = WSASend((SOCKET)socket, (LPWSABUF)pwsabufs, bufferCount, &bytesSent, socketFlags, NULL, NULL);
     if (pwsabufs != wsabufs)
+    {
         free(pwsabufs);
+    }
     return (result == 0) ? bytesSent : -1;
 #else
     i32 native_flags = _ToNativeSocketFlags(socketFlags);

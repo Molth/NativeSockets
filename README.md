@@ -75,10 +75,6 @@
 - macOS
 - iOS
 - Android
-- FreeBSD
-- tvOS
-- watchOS
-- visionOS
 
 ---
 
