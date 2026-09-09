@@ -44,36 +44,36 @@ typedef socklen_t _socklen_t;
 /// <summary>
 ///     Gets the address family value for Ipv4 used by the current platform.
 /// </summary>
-#define _AF_INET4 AF_INET
+#define _AF_INET_4 AF_INET
 
 /// <summary>
 ///     Gets the address family value for Ipv6 used by the current platform.
 /// </summary>
-#define _AF_INET6 AF_INET6
+#define _AF_INET_6 AF_INET6
 
 #if defined(__APPLE__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__DragonFly__)
 
 /// <summary>
 ///     Gets the address family value for Ipv4 used by the current platform.
 /// </summary>
-const u16 _ADDRESS_FAMILY_INTER_NETWORK_V4 = (_AF_INET4 << 8) | 16;
+const u16 _ADDRESS_FAMILY_INTER_NETWORK_V4 = (_AF_INET_4 << 8) | 16;
 
 /// <summary>
 ///     Gets the address family value for Ipv6 used by the current platform.
 /// </summary>
-const u16 _ADDRESS_FAMILY_INTER_NETWORK_V6 = (_AF_INET6 << 8) | 28;
+const u16 _ADDRESS_FAMILY_INTER_NETWORK_V6 = (_AF_INET_6 << 8) | 28;
 
 #else
 
 /// <summary>
 ///     Gets the address family value for Ipv4 used by the current platform.
 /// </summary>
-const u16 _ADDRESS_FAMILY_INTER_NETWORK_V4 = _AF_INET4;
+const u16 _ADDRESS_FAMILY_INTER_NETWORK_V4 = _AF_INET_4;
 
 /// <summary>
 ///     Gets the address family value for Ipv6 used by the current platform.
 /// </summary>
-const u16 _ADDRESS_FAMILY_INTER_NETWORK_V6 = _AF_INET6;
+const u16 _ADDRESS_FAMILY_INTER_NETWORK_V6 = _AF_INET_6;
 
 #endif
 
@@ -499,9 +499,9 @@ i32 _Cleanup(void)
 /// <returns>The native socket handle, or -1 on error.</returns>
 isize _Create(i32 ipv6)
 {
-    i32 family = ipv6 ? _AF_INET6 : _AF_INET4;
+    i32 family = ipv6 ? _AF_INET_6 : _AF_INET_4;
 #ifdef _WIN32
-    SOCKET s = WSASocketW(family, SOCK_DGRAM, IPPROTO_UDP, NULL, 0, WSA_FLAG_OVERLAPPED);
+    SOCKET s = WSASocketW(family, SOCK_DGRAM, IPPROTO_UDP, NULL, 0, 1 | 128);
     if (s != -1)
     {
         DWORD dwBytesReturned = 0;
@@ -1468,7 +1468,7 @@ i32 _SetIpIpv4(_sockaddr_in4 *socketAddress, const u8 *ip, i32 ipLength)
         return _SOCKET_ERROR_INVALID_ARGUMENT;
     }
     _sockaddr_in4 __socketAddress_native = *socketAddress;
-    i32 result = inet_pton(_AF_INET4, (char *)ip, &__socketAddress_native.sin4_addr);
+    i32 result = inet_pton(_AF_INET_4, (char *)ip, &__socketAddress_native.sin4_addr);
     if (result == 1)
     {
         *socketAddress = __socketAddress_native;
@@ -1491,10 +1491,10 @@ i32 _SetIpIpv6(_sockaddr_in6 *socketAddress, const u8 *ip, i32 ipLength)
     }
     _sockaddr_in6 __socketAddress_native = *socketAddress;
     u8 *addr = __socketAddress_native.sin6_addr;
-    i32 addressFamily = _AF_INET6;
+    i32 addressFamily = _AF_INET_6;
     if (strchr((char *)ip, ':') == NULL)
     {
-        addressFamily = _AF_INET4;
+        addressFamily = _AF_INET_4;
         _WriteIpv6Prefix(addr);
         addr += 12;
     }
@@ -1515,7 +1515,7 @@ i32 _SetIpIpv6(_sockaddr_in6 *socketAddress, const u8 *ip, i32 ipLength)
 /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.Fault" />.</returns>
 i32 _GetIpIpv4(_sockaddr_in4 *socketAddress, u8 *ip, i32 ipLength)
 {
-    if (inet_ntop(_AF_INET4, &socketAddress->sin4_addr, (char *)ip, (socklen_t)ipLength) == NULL)
+    if (inet_ntop(_AF_INET_4, &socketAddress->sin4_addr, (char *)ip, (socklen_t)ipLength) == NULL)
     {
         return _SOCKET_ERROR_FAULT;
     }
@@ -1530,7 +1530,7 @@ i32 _GetIpIpv4(_sockaddr_in4 *socketAddress, u8 *ip, i32 ipLength)
 /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.Fault" />.</returns>
 i32 _GetIpIpv6(_sockaddr_in6 *socketAddress, u8 *ip, i32 ipLength)
 {
-    if (inet_ntop(_AF_INET6, socketAddress->sin6_addr, (char *)ip, (socklen_t)ipLength) == NULL)
+    if (inet_ntop(_AF_INET_6, socketAddress->sin6_addr, (char *)ip, (socklen_t)ipLength) == NULL)
     {
         return _SOCKET_ERROR_FAULT;
     }
@@ -1552,7 +1552,7 @@ i32 _SetHostNameIpv4(_sockaddr_in4 *socketAddress, const u8 *hostName, i32 hostN
     struct addrinfo hints;
     memset(&hints, 0, sizeof(struct addrinfo));
     struct addrinfo *results = NULL;
-    hints.ai_family = _AF_INET4;
+    hints.ai_family = _AF_INET_4;
     if (getaddrinfo((char *)hostName, NULL, &hints, &results) != 0)
     {
         return _SOCKET_ERROR_FAULT;
@@ -1560,7 +1560,7 @@ i32 _SetHostNameIpv4(_sockaddr_in4 *socketAddress, const u8 *hostName, i32 hostN
     struct addrinfo *p;
     for (p = results; p != NULL; p = p->ai_next)
     {
-        if (p->ai_addr != NULL && p->ai_addrlen >= sizeof(struct sockaddr_in) && p->ai_family == _AF_INET4)
+        if (p->ai_addr != NULL && p->ai_addrlen >= sizeof(struct sockaddr_in) && p->ai_family == _AF_INET_4)
         {
             struct sockaddr_in *sin = (struct sockaddr_in *)p->ai_addr;
             socketAddress->sin4_addr = sin->sin_addr.s_addr;
@@ -1587,7 +1587,7 @@ i32 _SetHostNameIpv6(_sockaddr_in6 *socketAddress, const u8 *hostName, i32 hostN
     struct addrinfo hints;
     memset(&hints, 0, sizeof(struct addrinfo));
     struct addrinfo *results = NULL;
-    hints.ai_family = _AF_INET6;
+    hints.ai_family = _AF_INET_6;
     if (getaddrinfo((char *)hostName, NULL, &hints, &results) != 0)
     {
         return _SOCKET_ERROR_FAULT;
@@ -1595,7 +1595,7 @@ i32 _SetHostNameIpv6(_sockaddr_in6 *socketAddress, const u8 *hostName, i32 hostN
     struct addrinfo *p;
     for (p = results; p != NULL; p = p->ai_next)
     {
-        if (p->ai_addr != NULL && p->ai_addrlen >= sizeof(struct sockaddr_in6) && p->ai_family == _AF_INET6)
+        if (p->ai_addr != NULL && p->ai_addrlen >= sizeof(struct sockaddr_in6) && p->ai_family == _AF_INET_6)
         {
             struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *)p->ai_addr;
             memcpy(socketAddress->sin6_addr, &sin6->sin6_addr, 16);
