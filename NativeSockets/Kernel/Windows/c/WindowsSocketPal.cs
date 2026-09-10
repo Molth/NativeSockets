@@ -230,13 +230,9 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError SetBlocking(nint socket, bool blocking)
         {
-            int intBlocking = blocking ? 0 : -1;
+            int intBlocking = blocking ? 0 : 1;
             SocketError error = _ioctlsocket(socket, unchecked((int)0x8004667E), &intBlocking);
-
-            if (error == SocketError.SocketError)
-                error = GetLastSocketError();
-
-            return error;
+            return error == 0 ? SocketError.Success : GetLastSocketError();
         }
 
         /// <summary>
@@ -408,14 +404,14 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveFromIpv4(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in4* socketAddress)
         {
-            sockaddr_storage addressStorage = new sockaddr_storage();
+            sockaddr_storage storage = new sockaddr_storage();
             int socketAddressSize = sizeof(sockaddr_storage);
 
-            int num = _recvfrom(socket, (byte*)buffer, length, socketFlags, (byte*)&addressStorage, &socketAddressSize);
+            int num = _recvfrom(socket, (byte*)buffer, length, socketFlags, (byte*)&storage, &socketAddressSize);
 
             if (num >= 0 && socketAddress != null)
             {
-                sockaddr_in4* __socketAddress_native = (sockaddr_in4*)&addressStorage;
+                sockaddr_in4* __socketAddress_native = (sockaddr_in4*)&storage;
                 *socketAddress = *__socketAddress_native;
             }
 
@@ -434,13 +430,13 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveFromIpv6(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in6* socketAddress)
         {
-            sockaddr_storage addressStorage = new sockaddr_storage();
+            sockaddr_storage storage = new sockaddr_storage();
             int socketAddressSize = sizeof(sockaddr_storage);
 
-            int num = _recvfrom(socket, (byte*)buffer, length, socketFlags, (byte*)&addressStorage, &socketAddressSize);
+            int num = _recvfrom(socket, (byte*)buffer, length, socketFlags, (byte*)&storage, &socketAddressSize);
 
             if (num >= 0 && socketAddress != null)
-                WinSock2.NormalizeToIpv6(socketAddress, addressStorage, ADDRESS_FAMILY_INTER_NETWORK_V4, ADDRESS_FAMILY_INTER_NETWORK_V6);
+                WinSock2.NormalizeToIpv6(socketAddress, storage, ADDRESS_FAMILY_INTER_NETWORK_V4, ADDRESS_FAMILY_INTER_NETWORK_V6);
 
             return num;
         }
@@ -568,12 +564,12 @@ namespace NativeSockets
             SocketFlags flags = inOutFlags != null ? *inOutFlags : 0;
             SocketError error;
 
-            sockaddr_storage addressStorage = new sockaddr_storage();
+            sockaddr_storage storage = new sockaddr_storage();
             int socketAddressSize = sizeof(sockaddr_storage);
 
             using (NativeScopedArray<WSABuffer> __buffers_native = Build(stackalloc WSABuffer[16], buffers, bufferCount))
             {
-                error = _WSARecvFrom(socket, __buffers_native.Buffer, bufferCount, &bytesTransferred, &flags, (byte*)&addressStorage, &socketAddressSize, null, 0);
+                error = _WSARecvFrom(socket, __buffers_native.Buffer, bufferCount, &bytesTransferred, &flags, (byte*)&storage, &socketAddressSize, null, 0);
             }
 
             if (inOutFlags != null)
@@ -584,7 +580,7 @@ namespace NativeSockets
 
             if (error == SocketError.Success && socketAddress != null)
             {
-                sockaddr_in4* __socketAddress_native = (sockaddr_in4*)&addressStorage;
+                sockaddr_in4* __socketAddress_native = (sockaddr_in4*)&storage;
                 *socketAddress = *__socketAddress_native;
             }
 
@@ -607,12 +603,12 @@ namespace NativeSockets
             SocketFlags flags = inOutFlags != null ? *inOutFlags : 0;
             SocketError error;
 
-            sockaddr_storage addressStorage = new sockaddr_storage();
+            sockaddr_storage storage = new sockaddr_storage();
             int socketAddressSize = sizeof(sockaddr_storage);
 
             using (NativeScopedArray<WSABuffer> __buffers_native = Build(stackalloc WSABuffer[16], buffers, bufferCount))
             {
-                error = _WSARecvFrom(socket, __buffers_native.Buffer, bufferCount, &bytesTransferred, &flags, (byte*)&addressStorage, &socketAddressSize, null, 0);
+                error = _WSARecvFrom(socket, __buffers_native.Buffer, bufferCount, &bytesTransferred, &flags, (byte*)&storage, &socketAddressSize, null, 0);
             }
 
             if (inOutFlags != null)
@@ -622,7 +618,7 @@ namespace NativeSockets
                 return -1;
 
             if (error == SocketError.Success && socketAddress != null)
-                WinSock2.NormalizeToIpv6(socketAddress, addressStorage, ADDRESS_FAMILY_INTER_NETWORK_V4, ADDRESS_FAMILY_INTER_NETWORK_V6);
+                WinSock2.NormalizeToIpv6(socketAddress, storage, ADDRESS_FAMILY_INTER_NETWORK_V4, ADDRESS_FAMILY_INTER_NETWORK_V6);
 
             return error == SocketError.Success ? bytesTransferred : -1;
         }
@@ -636,14 +632,14 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetNameIpv4(nint socket, sockaddr_in4* socketAddress)
         {
-            sockaddr_storage addressStorage = new sockaddr_storage();
+            sockaddr_storage storage = new sockaddr_storage();
             int socketAddressSize = sizeof(sockaddr_storage);
 
-            SocketError error = _getsockname(socket, (sockaddr*)&addressStorage, &socketAddressSize);
+            SocketError error = _getsockname(socket, (sockaddr*)&storage, &socketAddressSize);
 
             if (error == SocketError.Success && socketAddress != null)
             {
-                sockaddr_in4* __socketAddress_native = (sockaddr_in4*)&addressStorage;
+                sockaddr_in4* __socketAddress_native = (sockaddr_in4*)&storage;
                 *socketAddress = *__socketAddress_native;
             }
 
@@ -659,13 +655,13 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetNameIpv6(nint socket, sockaddr_in6* socketAddress)
         {
-            sockaddr_storage addressStorage = new sockaddr_storage();
+            sockaddr_storage storage = new sockaddr_storage();
             int socketAddressSize = sizeof(sockaddr_storage);
 
-            SocketError error = _getsockname(socket, (sockaddr*)&addressStorage, &socketAddressSize);
+            SocketError error = _getsockname(socket, (sockaddr*)&storage, &socketAddressSize);
 
             if (error == SocketError.Success && socketAddress != null)
-                WinSock2.NormalizeToIpv6(socketAddress, addressStorage, ADDRESS_FAMILY_INTER_NETWORK_V4, ADDRESS_FAMILY_INTER_NETWORK_V6);
+                WinSock2.NormalizeToIpv6(socketAddress, storage, ADDRESS_FAMILY_INTER_NETWORK_V4, ADDRESS_FAMILY_INTER_NETWORK_V6);
 
             return error;
         }
@@ -801,33 +797,33 @@ namespace NativeSockets
         {
             addrinfo hints = new addrinfo();
             hints.ai_family = AF_INET_4;
-            addrinfo* results = null;
+            addrinfo* result = null;
 
             fixed (byte* pStringBuf = &MemoryMarshal.GetReference(hostName))
             {
-                if (_getaddrinfo(pStringBuf, null, &hints, &results) != 0)
+                if (_getaddrinfo(pStringBuf, null, &hints, &result) != 0)
                     return SocketError.Fault;
             }
 
-            for (addrinfo* hint = results; hint != null; hint = hint->ai_next)
+            for (addrinfo* ai = result; ai != null; ai = ai->ai_next)
             {
-                if (hint->ai_addr != null && hint->ai_addrlen >= (nuint)sizeof(sockaddr_in4))
+                if (ai->ai_addr != null && ai->ai_addrlen >= (nuint)sizeof(sockaddr_in4))
                 {
-                    if (hint->ai_family == AF_INET_4)
+                    if (ai->ai_family == AF_INET_4)
                     {
-                        sockaddr_in4* __socketAddress_native = (sockaddr_in4*)hint->ai_addr;
+                        sockaddr_in4* __socketAddress_native = (sockaddr_in4*)ai->ai_addr;
 
                         socketAddress->sin4_addr = __socketAddress_native->sin4_addr;
 
-                        _freeaddrinfo(results);
+                        _freeaddrinfo(result);
 
                         return SocketError.Success;
                     }
                 }
             }
 
-            if (results != null)
-                _freeaddrinfo(results);
+            if (result != null)
+                _freeaddrinfo(result);
 
             return SocketError.HostNotFound;
         }
@@ -843,33 +839,33 @@ namespace NativeSockets
         {
             addrinfo hints = new addrinfo();
             hints.ai_family = AF_INET_6;
-            addrinfo* results = null;
+            addrinfo* result = null;
 
             fixed (byte* pStringBuf = &MemoryMarshal.GetReference(hostName))
             {
-                if (_getaddrinfo(pStringBuf, null, &hints, &results) != 0)
+                if (_getaddrinfo(pStringBuf, null, &hints, &result) != 0)
                     return SocketError.Fault;
             }
 
-            for (addrinfo* hint = results; hint != null; hint = hint->ai_next)
+            for (addrinfo* ai = result; ai != null; ai = ai->ai_next)
             {
-                if (hint->ai_addr != null && hint->ai_addrlen >= (nuint)sizeof(sockaddr_in6))
+                if (ai->ai_addr != null && ai->ai_addrlen >= (nuint)sizeof(sockaddr_in6))
                 {
-                    if (hint->ai_family == AF_INET_6)
+                    if (ai->ai_family == AF_INET_6)
                     {
-                        sockaddr_in6* __socketAddress_native = (sockaddr_in6*)hint->ai_addr;
+                        sockaddr_in6* __socketAddress_native = (sockaddr_in6*)ai->ai_addr;
 
                         SpanHelpers.Copy(socketAddress->sin6_addr, __socketAddress_native->sin6_addr, 16);
 
-                        _freeaddrinfo(results);
+                        _freeaddrinfo(result);
 
                         return SocketError.Success;
                     }
                 }
             }
 
-            if (results != null)
-                _freeaddrinfo(results);
+            if (result != null)
+                _freeaddrinfo(result);
 
             return SocketError.HostNotFound;
         }

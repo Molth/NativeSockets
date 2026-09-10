@@ -19,9 +19,10 @@ namespace NativeSockets
     internal static unsafe class LinuxNativeLib
     {
         /// <summary>
-        ///     Flag value for <c>fcntl</c> to set non‑blocking I/O mode on a socket.
+        ///     ioctl request that sets or clears the non-blocking flag on a file descriptor (FIONBIO).
+        ///     Linux-specific request code.
         /// </summary>
-        public const int O_NONBLOCK = 2048;
+        public const nuint FIONBIO = 0x5421;
 
         /// <summary>
         ///     Converts an integer value to the <c>msg_iovlen</c> field of a <see cref="msghdr" /> structure.
@@ -125,6 +126,16 @@ namespace NativeSockets
 
             return result;
         }
+
+        /// <summary>
+        ///     Polls a set of sockets for I/O activity.
+        /// </summary>
+        /// <param name="fds">Pointer to an array of <see cref="pollfd" /> structures.</param>
+        /// <param name="nfds">The number of structures in the array.</param>
+        /// <param name="timeout">The timeout in milliseconds; -1 for infinite.</param>
+        /// <returns>The number of events occurred, 0 on timeout, or -1 on error.</returns>
+        [DllImport(NATIVE_LIBRARY, EntryPoint = "poll", CallingConvention = CALLING_CONVENTION, SetLastError = true)]
+        public static extern int _poll(pollfd* fds, nuint nfds, int timeout);
 
         /// <summary>
         ///     Sends data from multiple buffers using a socket.

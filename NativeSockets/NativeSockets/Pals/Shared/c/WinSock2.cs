@@ -74,25 +74,25 @@ namespace NativeSockets
         ///     Normalizes the address to an Ipv6 address.
         /// </summary>
         /// <param name="socketAddress">Pointer to the target Ipv6 socket address structure to fill.</param>
-        /// <param name="addressStorage">Reference to the source address storage, which may contain an Ipv4 or Ipv6 address.</param>
+        /// <param name="storage">Reference to the source address storage, which may contain an Ipv4 or Ipv6 address.</param>
         /// <param name="ADDRESS_FAMILY_INTER_NETWORK_V4">The address family value for Ipv4 used by the current platform.</param>
         /// <param name="ADDRESS_FAMILY_INTER_NETWORK_V6">The address family value for Ipv6 used by the current platform.</param>
-        [MustBePinned(nameof(addressStorage))]
+        [MustBePinned(nameof(storage))]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static unsafe void NormalizeToIpv6(sockaddr_in6* socketAddress, [MustBePinned] in sockaddr_storage addressStorage, [Constant] ushort ADDRESS_FAMILY_INTER_NETWORK_V4, [Constant] ushort ADDRESS_FAMILY_INTER_NETWORK_V6)
+        public static unsafe void NormalizeToIpv6(sockaddr_in6* socketAddress, [MustBePinned] in sockaddr_storage storage, [Constant] ushort ADDRESS_FAMILY_INTER_NETWORK_V4, [Constant] ushort ADDRESS_FAMILY_INTER_NETWORK_V6)
         {
-            if (addressStorage.ss_family == ADDRESS_FAMILY_INTER_NETWORK_V4)
+            if (storage.ss_family == ADDRESS_FAMILY_INTER_NETWORK_V4)
             {
-                sockaddr_in4* __socketAddress_native = (sockaddr_in4*)Unsafe.AsPointer(ref Unsafe.AsRef(in addressStorage));
+                sockaddr_in4* __socketAddress_native = (sockaddr_in4*)Unsafe.AsPointer(ref Unsafe.AsRef(in storage));
                 socketAddress->sin6_family = ADDRESS_FAMILY_INTER_NETWORK_V6;
                 socketAddress->sin6_port = __socketAddress_native->sin4_port;
                 socketAddress->sin6_flowinfo = 0;
                 MapIpv4ToIpv6(ref Unsafe.AsRef<byte>(socketAddress->sin6_addr), __socketAddress_native->sin4_addr);
                 socketAddress->sin6_scope_id = 0;
             }
-            else if (addressStorage.ss_family == ADDRESS_FAMILY_INTER_NETWORK_V6)
+            else if (storage.ss_family == ADDRESS_FAMILY_INTER_NETWORK_V6)
             {
-                sockaddr_in6* __socketAddress_native = (sockaddr_in6*)Unsafe.AsPointer(ref Unsafe.AsRef(in addressStorage));
+                sockaddr_in6* __socketAddress_native = (sockaddr_in6*)Unsafe.AsPointer(ref Unsafe.AsRef(in storage));
                 *socketAddress = *__socketAddress_native;
             }
         }

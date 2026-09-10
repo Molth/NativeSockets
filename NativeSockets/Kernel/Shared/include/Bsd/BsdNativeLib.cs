@@ -18,9 +18,10 @@ namespace NativeSockets
     internal static unsafe class BsdNativeLib
     {
         /// <summary>
-        ///     Flag value for <c>fcntl</c> to set non‑blocking I/O mode on a socket.
+        ///     ioctl request that sets or clears the non-blocking flag on a file descriptor (FIONBIO).
+        ///     Equals _IOW('f', 126, int) on BSD and macOS.
         /// </summary>
-        public const int O_NONBLOCK = 4;
+        public const nuint FIONBIO = 0x8004667E;
 
         /// <summary>
         ///     Converts an integer value to the <c>msg_iovlen</c> field of a <see cref="msghdr" /> structure.
@@ -103,6 +104,16 @@ namespace NativeSockets
 
             return result;
         }
+
+        /// <summary>
+        ///     Polls a set of sockets for I/O activity.
+        /// </summary>
+        /// <param name="fds">Pointer to an array of <see cref="pollfd" /> structures.</param>
+        /// <param name="nfds">The number of structures in the array.</param>
+        /// <param name="timeout">The timeout in milliseconds; -1 for infinite.</param>
+        /// <returns>The number of events occurred, 0 on timeout, or -1 on error.</returns>
+        [DllImport(NATIVE_LIBRARY, EntryPoint = "poll", CallingConvention = CALLING_CONVENTION, SetLastError = true)]
+        public static extern int _poll(pollfd* fds, uint nfds, int timeout);
 
         /// <summary>
         ///     Sends data from multiple buffers using a socket.

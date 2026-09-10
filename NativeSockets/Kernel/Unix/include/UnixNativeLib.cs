@@ -16,16 +16,6 @@ namespace NativeSockets
     internal static unsafe class UnixNativeLib
     {
         /// <summary>
-        ///     Command for <c>fcntl</c> to get the file status flags.
-        /// </summary>
-        public const int F_GETFL = 3;
-
-        /// <summary>
-        ///     Command for <c>fcntl</c> to set the file status flags.
-        /// </summary>
-        public const int F_SETFL = 4;
-
-        /// <summary>
         ///     Binds a socket to a local address.
         /// </summary>
         /// <param name="__socketHandle_native">The native socket handle (file descriptor).</param>
@@ -59,14 +49,14 @@ namespace NativeSockets
         public static extern int _socket(int af, int type, int protocol);
 
         /// <summary>
-        ///     Performs file control operations on a socket (e.g., setting non-blocking mode).
+        ///     Performs device I/O control operations (ioctl) on a file descriptor.
         /// </summary>
         /// <param name="fd">The socket file descriptor.</param>
-        /// <param name="cmd">The command to perform (e.g., F_GETFL, F_SETFL).</param>
-        /// <param name="arg">The argument for the command.</param>
-        /// <returns>The result of the operation; -1 on error.</returns>
-        [DllImport(NATIVE_LIBRARY, EntryPoint = "fcntl", CallingConvention = CALLING_CONVENTION, SetLastError = true)]
-        public static extern int _fcntl(int fd, int cmd, int arg);
+        /// <param name="request">The ioctl request code (e.g., FIONBIO).</param>
+        /// <param name="arg">Pointer to the request argument; null when the request takes none.</param>
+        /// <returns>0 on success; otherwise -1.</returns>
+        [DllImport(NATIVE_LIBRARY, EntryPoint = "ioctl", CallingConvention = CALLING_CONVENTION, SetLastError = true)]
+        public static extern int _ioctl(int fd, nuint request, void* arg);
 
         /// <summary>
         ///     Connects a socket to a remote address.
@@ -85,16 +75,6 @@ namespace NativeSockets
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [DllImport(NATIVE_LIBRARY, EntryPoint = "close", CallingConvention = CALLING_CONVENTION, SetLastError = true)]
         public static extern int _close(int __socketHandle_native);
-
-        /// <summary>
-        ///     Polls a set of sockets for I/O activity.
-        /// </summary>
-        /// <param name="fds">Pointer to an array of <see cref="pollfd" /> structures.</param>
-        /// <param name="nfds">The number of structures in the array.</param>
-        /// <param name="timeout">The timeout in milliseconds; -1 for infinite.</param>
-        /// <returns>The number of events occurred, 0 on timeout, or -1 on error.</returns>
-        [DllImport(NATIVE_LIBRARY, EntryPoint = "poll", CallingConvention = CALLING_CONVENTION, SetLastError = true)]
-        public static extern int _poll(pollfd* fds, nuint nfds, int timeout);
 
         /// <summary>
         ///     Converts an Ipv4 or Ipv6 address string to its binary representation (inet_pton).

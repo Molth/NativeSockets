@@ -1,4 +1,4 @@
-#include "_nativesocketpal.h"
+﻿#include "_nativesocketpal.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -28,6 +28,7 @@ typedef i32 _socklen_t;
 #include <netdb.h>
 #include <fcntl.h>
 #include <poll.h>
+#include <sys/ioctl.h>
 #include <unistd.h>
 #include <errno.h>
 
@@ -670,13 +671,8 @@ i32 _SetBlocking(isize socket, i32 blocking)
     u_long nonBlocking = blocking ? 0 : 1;
     i32 result = ioctlsocket((SOCKET)socket, FIONBIO, &nonBlocking);
 #else
-    i32 flags = fcntl((i32)socket, F_GETFL, 0);
-    if (flags == -1)
-    {
-        return _GetLastSocketError();
-    }
-    flags = blocking ? (flags & ~O_NONBLOCK) : (flags | O_NONBLOCK);
-    i32 result = fcntl((i32)socket, F_SETFL, flags);
+    i32 nonBlocking = blocking ? 0 : 1;
+    i32 result = ioctl((i32)socket, FIONBIO, &nonBlocking);
 #endif
     return (result == 0) ? _SOCKET_ERROR_SUCCESS : _GetLastSocketError();
 }
@@ -1538,24 +1534,24 @@ i32 _SetHostNameIpv4(_sockaddr_in4 *socketAddress, const u8 *hostName, i32 hostN
     }
     struct addrinfo hints;
     memset(&hints, 0, sizeof(struct addrinfo));
-    struct addrinfo *results = NULL;
+    struct addrinfo *result = NULL;
     hints.ai_family = _AF_INET_4;
-    if (getaddrinfo((char *)hostName, NULL, &hints, &results) != 0)
+    if (getaddrinfo((char *)hostName, NULL, &hints, &result) != 0)
     {
         return _SOCKET_ERROR_FAULT;
     }
     struct addrinfo *p;
-    for (p = results; p != NULL; p = p->ai_next)
+    for (p = result; p != NULL; p = p->ai_next)
     {
         if (p->ai_addr != NULL && p->ai_addrlen >= sizeof(struct sockaddr_in) && p->ai_family == _AF_INET_4)
         {
             struct sockaddr_in *sin = (struct sockaddr_in *)p->ai_addr;
             socketAddress->sin4_addr = sin->sin_addr.s_addr;
-            freeaddrinfo(results);
+            freeaddrinfo(result);
             return _SOCKET_ERROR_SUCCESS;
         }
     }
-    freeaddrinfo(results);
+    freeaddrinfo(result);
     return _SOCKET_ERROR_HOST_NOT_FOUND;
 }
 
@@ -1573,24 +1569,24 @@ i32 _SetHostNameIpv6(_sockaddr_in6 *socketAddress, const u8 *hostName, i32 hostN
     }
     struct addrinfo hints;
     memset(&hints, 0, sizeof(struct addrinfo));
-    struct addrinfo *results = NULL;
+    struct addrinfo *result = NULL;
     hints.ai_family = _AF_INET_6;
-    if (getaddrinfo((char *)hostName, NULL, &hints, &results) != 0)
+    if (getaddrinfo((char *)hostName, NULL, &hints, &result) != 0)
     {
         return _SOCKET_ERROR_FAULT;
     }
     struct addrinfo *p;
-    for (p = results; p != NULL; p = p->ai_next)
+    for (p = result; p != NULL; p = p->ai_next)
     {
         if (p->ai_addr != NULL && p->ai_addrlen >= sizeof(struct sockaddr_in6) && p->ai_family == _AF_INET_6)
         {
             struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *)p->ai_addr;
             memcpy(socketAddress->sin6_addr, &sin6->sin6_addr, 16);
-            freeaddrinfo(results);
+            freeaddrinfo(result);
             return _SOCKET_ERROR_SUCCESS;
         }
     }
-    freeaddrinfo(results);
+    freeaddrinfo(result);
     return _SOCKET_ERROR_HOST_NOT_FOUND;
 }
 

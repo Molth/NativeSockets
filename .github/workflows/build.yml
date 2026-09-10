@@ -33,7 +33,7 @@ jobs:
           fi
 
       - run: |
-          cd Native
+          cd c_nativesocketpal
           mkdir -p build && cd build
           if [ "${{ matrix.architecture }}" == "arm64" ]; then
             cmake .. \
@@ -53,7 +53,7 @@ jobs:
       - uses: actions/upload-artifact@v6
         with:
           name: nativesocketpal-linux-${{ matrix.architecture }}
-          path: Native/libnativesocketpal.so
+          path: c_nativesocketpal/libnativesocketpal.so
 
   build-osx:
     runs-on: macos-latest
@@ -73,7 +73,7 @@ jobs:
           cmake-version: "4.x"
 
       - run: |
-          cd Native
+          cd c_nativesocketpal
           mkdir -p build && cd build
           if [ "${{ matrix.arch }}" = "x64" ]; then
             cmake .. -DCMAKE_OSX_ARCHITECTURES="x86_64" -DCMAKE_BUILD_TYPE=Release -DNATIVESOCKETPAL_SHARED=1
@@ -86,7 +86,7 @@ jobs:
       - uses: actions/upload-artifact@v6
         with:
           name: nativesocketpal-osx-${{ matrix.arch }}
-          path: Native/libnativesocketpal.dylib
+          path: c_nativesocketpal/libnativesocketpal.dylib
 
   build-win-x64:
     runs-on: windows-latest
@@ -105,7 +105,7 @@ jobs:
           arch: x64
 
       - run: |
-          cd Native
+          cd c_nativesocketpal
           mkdir build
           cd build
           cmake .. -DNATIVESOCKETPAL_SHARED=1
@@ -116,7 +116,7 @@ jobs:
       - uses: actions/upload-artifact@v6
         with:
           name: nativesocketpal-win-x64
-          path: Native\nativesocketpal.dll
+          path: c_nativesocketpal\nativesocketpal.dll
 
   build-android:
     runs-on: ubuntu-latest
@@ -149,7 +149,7 @@ jobs:
       - env:
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
         run: |
-          cd Native
+          cd c_nativesocketpal
           mkdir -p build/${{ matrix.abi }}
           cmake -S . -B build/${{ matrix.abi }} \
                 -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake \
@@ -164,7 +164,7 @@ jobs:
       - uses: actions/upload-artifact@v6
         with:
           name: nativesocketpal-${{ matrix.target_dir }}
-          path: Native/${{ matrix.target_dir }}/
+          path: c_nativesocketpal/${{ matrix.target_dir }}/
 
   build-ios-arm64:
     runs-on: macos-latest
@@ -179,7 +179,7 @@ jobs:
           cmake-version: "4.x"
 
       - run: |
-          cd Native
+          cd c_nativesocketpal
           mkdir -p build && cd build
           cmake .. \
             -G Xcode \
@@ -195,7 +195,7 @@ jobs:
       - uses: actions/upload-artifact@v6
         with:
           name: nativesocketpal-ios-arm64
-          path: Native/libnativesocketpal.a
+          path: c_nativesocketpal/libnativesocketpal.a
 
   package:
     needs:
