@@ -418,16 +418,13 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveFromIpv4(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in4* socketAddress)
         {
-            sockaddr_storage storage = new sockaddr_storage();
-            uint socketAddressSize = (uint)sizeof(sockaddr_storage);
+            Unsafe.SkipInit(out sockaddr_in4 storage);
+            uint socketAddressSize = (uint)sizeof(sockaddr_in4);
 
             int num = (int)_recvfrom((int)socket, (byte*)buffer, (nuint)length, socketFlags, (sockaddr*)&storage, &socketAddressSize);
 
             if (num >= 0 && socketAddress != null)
-            {
-                sockaddr_in4* __socketAddress_native = (sockaddr_in4*)&storage;
-                *socketAddress = *__socketAddress_native;
-            }
+                *socketAddress = storage;
 
             return num;
         }
@@ -444,13 +441,13 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveFromIpv6(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in6* socketAddress)
         {
-            sockaddr_storage storage = new sockaddr_storage();
-            uint socketAddressSize = (uint)sizeof(sockaddr_storage);
+            Unsafe.SkipInit(out sockaddr_in6 storage);
+            uint socketAddressSize = (uint)sizeof(sockaddr_in6);
 
             int num = (int)_recvfrom((int)socket, (byte*)buffer, (nuint)length, socketFlags, (sockaddr*)&storage, &socketAddressSize);
 
             if (num >= 0 && socketAddress != null)
-                WinSock2.NormalizeToIpv6(socketAddress, storage, ADDRESS_FAMILY_INTER_NETWORK_V4, ADDRESS_FAMILY_INTER_NETWORK_V6);
+                *socketAddress = storage;
 
             return num;
         }
@@ -591,11 +588,11 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveFromVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in4* socketAddress)
         {
-            sockaddr_storage storage = new sockaddr_storage();
+            Unsafe.SkipInit(out sockaddr_in4 storage);
 
             msghdr msg = new msghdr();
             msg.msg_name = &storage;
-            msg.msg_namelen = (uint)sizeof(sockaddr_storage);
+            msg.msg_namelen = (uint)sizeof(sockaddr_in4);
             msg.msg_iovlen = _get_msg_iovlen(bufferCount);
 
             SocketFlags flags = inOutFlags != null ? *inOutFlags : 0;
@@ -615,10 +612,7 @@ namespace NativeSockets
                 return -1;
 
             if (num >= 0 && socketAddress != null)
-            {
-                sockaddr_in4* __socketAddress_native = (sockaddr_in4*)&storage;
-                *socketAddress = *__socketAddress_native;
-            }
+                *socketAddress = storage;
 
             return num;
         }
@@ -635,11 +629,11 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveFromVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in6* socketAddress)
         {
-            sockaddr_storage storage = new sockaddr_storage();
+            Unsafe.SkipInit(out sockaddr_in6 storage);
 
             msghdr msg = new msghdr();
             msg.msg_name = &storage;
-            msg.msg_namelen = (uint)sizeof(sockaddr_storage);
+            msg.msg_namelen = (uint)sizeof(sockaddr_in6);
             msg.msg_iovlen = _get_msg_iovlen(bufferCount);
 
             SocketFlags flags = inOutFlags != null ? *inOutFlags : 0;
@@ -659,7 +653,7 @@ namespace NativeSockets
                 return -1;
 
             if (num >= 0 && socketAddress != null)
-                WinSock2.NormalizeToIpv6(socketAddress, storage, ADDRESS_FAMILY_INTER_NETWORK_V4, ADDRESS_FAMILY_INTER_NETWORK_V6);
+                *socketAddress = storage;
 
             return num;
         }
@@ -673,16 +667,13 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetNameIpv4(nint socket, sockaddr_in4* socketAddress)
         {
-            sockaddr_storage storage = new sockaddr_storage();
-            uint socketAddressSize = (uint)sizeof(sockaddr_storage);
+            Unsafe.SkipInit(out sockaddr_in4 storage);
+            uint socketAddressSize = (uint)sizeof(sockaddr_in4);
 
             int errno = _getsockname((int)socket, (sockaddr*)&storage, &socketAddressSize);
 
             if (errno == 0 && socketAddress != null)
-            {
-                sockaddr_in4* __socketAddress_native = (sockaddr_in4*)&storage;
-                *socketAddress = *__socketAddress_native;
-            }
+                *socketAddress = storage;
 
             return (SocketError)errno;
         }
@@ -696,13 +687,13 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetNameIpv6(nint socket, sockaddr_in6* socketAddress)
         {
-            sockaddr_storage storage = new sockaddr_storage();
-            uint socketAddressSize = (uint)sizeof(sockaddr_storage);
+            Unsafe.SkipInit(out sockaddr_in6 storage);
+            uint socketAddressSize = (uint)sizeof(sockaddr_in6);
 
             int errno = _getsockname((int)socket, (sockaddr*)&storage, &socketAddressSize);
 
             if (errno == 0 && socketAddress != null)
-                WinSock2.NormalizeToIpv6(socketAddress, storage, ADDRESS_FAMILY_INTER_NETWORK_V4, ADDRESS_FAMILY_INTER_NETWORK_V6);
+                *socketAddress = storage;
 
             return (SocketError)errno;
         }
@@ -838,6 +829,8 @@ namespace NativeSockets
         {
             addrinfo hints = new addrinfo();
             hints.ai_family = AF_INET_4;
+            hints.ai_socktype = (int)SocketType.Dgram;
+            hints.ai_protocol = (int)ProtocolType.Udp;
             addrinfo* result = null;
 
             fixed (byte* pStringBuf = &MemoryMarshal.GetReference(hostName))
@@ -880,6 +873,8 @@ namespace NativeSockets
         {
             addrinfo hints = new addrinfo();
             hints.ai_family = AF_INET_6;
+            hints.ai_socktype = (int)SocketType.Dgram;
+            hints.ai_protocol = (int)ProtocolType.Udp;
             addrinfo* result = null;
 
             fixed (byte* pStringBuf = &MemoryMarshal.GetReference(hostName))

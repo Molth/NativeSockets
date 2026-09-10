@@ -417,29 +417,6 @@ static void _MapIpv4ToIpv6(u8 *sin6_addr, u32 sin4_addr)
 }
 
 /// <summary>
-///     Normalizes the address to an Ipv6 address.
-/// </summary>
-/// <param name="out_addr">Pointer to the target Ipv6 socket address structure to fill.</param>
-/// <param name="storage">Reference to the source address storage, which may contain an Ipv4 or Ipv6 address.</param>
-static void _NormalizeToIpv6(_sockaddr_in6 *out_addr, const _sockaddr_storage *storage)
-{
-    if (storage->ss_family == _ADDRESS_FAMILY_INTER_NETWORK_V4)
-    {
-        const _sockaddr_in4 *in4 = (const _sockaddr_in4 *)storage;
-        out_addr->sin6_family = _ADDRESS_FAMILY_INTER_NETWORK_V6;
-        out_addr->sin6_port = in4->sin4_port;
-        out_addr->sin6_flowinfo = 0;
-        _MapIpv4ToIpv6(out_addr->sin6_addr, in4->sin4_addr);
-        out_addr->sin6_scope_id = 0;
-    }
-    else if (storage->ss_family == _ADDRESS_FAMILY_INTER_NETWORK_V6)
-    {
-        const _sockaddr_in6 *in6 = (const _sockaddr_in6 *)storage;
-        *out_addr = *in6;
-    }
-}
-
-/// <summary>
 ///     Gets the address family value for Ipv4 used by the current platform.
 /// </summary>
 u16 _GetAddressFamilyInterNetworkV4(void)
@@ -951,9 +928,8 @@ i32 _Receive(isize socket, void *buffer, i32 length, i32 socketFlags)
 /// <returns>The number of bytes received, or -1 on error.</returns>
 i32 _ReceiveFromIpv4(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in4 *socketAddress)
 {
-    _sockaddr_storage storage;
-    memset(&storage, 0, sizeof(_sockaddr_storage));
-    _socklen_t addr_len = sizeof(_sockaddr_storage);
+    _sockaddr_in4 storage;
+    _socklen_t addr_len = sizeof(_sockaddr_in4);
     i32 result;
 #ifdef _WIN32
     result = (i32)recvfrom((SOCKET)socket, (u8 *)buffer, length, socketFlags, (struct sockaddr *)&storage, &addr_len);
@@ -979,9 +955,8 @@ i32 _ReceiveFromIpv4(isize socket, void *buffer, i32 length, i32 socketFlags, _s
 /// <returns>The number of bytes received, or -1 on error.</returns>
 i32 _ReceiveFromIpv6(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in6 *socketAddress)
 {
-    _sockaddr_storage storage;
-    memset(&storage, 0, sizeof(_sockaddr_storage));
-    _socklen_t addr_len = sizeof(_sockaddr_storage);
+    _sockaddr_in6 storage;
+    _socklen_t addr_len = sizeof(_sockaddr_in6);
     i32 result;
 #ifdef _WIN32
     result = (i32)recvfrom((SOCKET)socket, (u8 *)buffer, length, socketFlags, (struct sockaddr *)&storage, &addr_len);
@@ -991,7 +966,7 @@ i32 _ReceiveFromIpv6(isize socket, void *buffer, i32 length, i32 socketFlags, _s
 #endif
     if (result >= 0 && socketAddress != NULL)
     {
-        _NormalizeToIpv6(socketAddress, &storage);
+        *socketAddress = storage;
     }
     return result;
 }
@@ -1264,8 +1239,7 @@ i32 _ReceiveVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32
 /// <returns>The number of bytes received, or -1 on error.</returns>
 i32 _ReceiveFromVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *inOutFlags, _sockaddr_in4 *socketAddress)
 {
-    _sockaddr_storage storage;
-    memset(&storage, 0, sizeof(_sockaddr_storage));
+    _sockaddr_in4 storage;
 #ifdef _WIN32
     WSABUF wsabufs[16];
     WSABUF *pwsabufs = (bufferCount <= 16) ? wsabufs : (WSABUF *)malloc(sizeof(WSABUF) * bufferCount);
@@ -1276,7 +1250,7 @@ i32 _ReceiveFromVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCo
     _Build(buffers, bufferCount, pwsabufs);
     i32 bytesRecv = 0;
     DWORD flags = (inOutFlags != NULL) ? *inOutFlags : 0;
-    INT addr_len = sizeof(_sockaddr_storage);
+    INT addr_len = sizeof(_sockaddr_in4);
     i32 result = WSARecvFrom((SOCKET)socket, (LPWSABUF)pwsabufs, bufferCount, &bytesRecv, &flags, (struct sockaddr *)&storage, &addr_len, NULL, NULL);
     if (pwsabufs != wsabufs)
     {
@@ -1307,7 +1281,7 @@ i32 _ReceiveFromVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCo
     struct msghdr msg;
     memset(&msg, 0, sizeof(struct msghdr));
     msg.msg_name = &storage;
-    msg.msg_namelen = sizeof(_sockaddr_storage);
+    msg.msg_namelen = sizeof(_sockaddr_in4);
     msg.msg_iov = (struct iovec *)piovecs;
     msg.msg_iovlen = bufferCount;
     i32 result = (i32)recvmsg((i32)socket, &msg, native_flags);
@@ -1329,8 +1303,7 @@ i32 _ReceiveFromVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCo
 
 i32 _ReceiveFromVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *inOutFlags, _sockaddr_in6 *socketAddress)
 {
-    _sockaddr_storage storage;
-    memset(&storage, 0, sizeof(_sockaddr_storage));
+    _sockaddr_in6 storage;
 #ifdef _WIN32
     WSABUF wsabufs[16];
     WSABUF *pwsabufs = (bufferCount <= 16) ? wsabufs : (WSABUF *)malloc(sizeof(WSABUF) * bufferCount);
@@ -1341,7 +1314,7 @@ i32 _ReceiveFromVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCo
     _Build(buffers, bufferCount, pwsabufs);
     i32 bytesRecv = 0;
     DWORD flags = (inOutFlags != NULL) ? *inOutFlags : 0;
-    INT addr_len = sizeof(_sockaddr_storage);
+    INT addr_len = sizeof(_sockaddr_in6);
     i32 result = WSARecvFrom((SOCKET)socket, (LPWSABUF)pwsabufs, bufferCount, &bytesRecv, &flags, (struct sockaddr *)&storage, &addr_len, NULL, NULL);
     if (pwsabufs != wsabufs)
     {
@@ -1357,7 +1330,7 @@ i32 _ReceiveFromVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCo
     }
     if (socketAddress != NULL)
     {
-        _NormalizeToIpv6(socketAddress, &storage);
+        *socketAddress = storage;
     }
     return bytesRecv;
 #else
@@ -1372,7 +1345,7 @@ i32 _ReceiveFromVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCo
     struct msghdr msg;
     memset(&msg, 0, sizeof(struct msghdr));
     msg.msg_name = &storage;
-    msg.msg_namelen = sizeof(_sockaddr_storage);
+    msg.msg_namelen = sizeof(_sockaddr_in6);
     msg.msg_iov = (struct iovec *)piovecs;
     msg.msg_iovlen = bufferCount;
     i32 result = (i32)recvmsg((i32)socket, &msg, native_flags);
@@ -1382,7 +1355,7 @@ i32 _ReceiveFromVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCo
     }
     if (result >= 0 && socketAddress != NULL)
     {
-        _NormalizeToIpv6(socketAddress, &storage);
+        *socketAddress = storage;
     }
     if (piovecs != iovecs)
     {
@@ -1400,9 +1373,8 @@ i32 _ReceiveFromVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCo
 /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
 i32 _GetNameIpv4(isize socket, _sockaddr_in4 *socketAddress)
 {
-    _sockaddr_storage storage;
-    _socklen_t addr_len = sizeof(_sockaddr_storage);
-    memset(&storage, 0, sizeof(_sockaddr_storage));
+    _sockaddr_in4 storage;
+    _socklen_t addr_len = sizeof(_sockaddr_in4);
 #ifdef _WIN32
     i32 result = getsockname((SOCKET)socket, (struct sockaddr *)&storage, &addr_len);
 #else
@@ -1423,9 +1395,8 @@ i32 _GetNameIpv4(isize socket, _sockaddr_in4 *socketAddress)
 /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
 i32 _GetNameIpv6(isize socket, _sockaddr_in6 *socketAddress)
 {
-    _sockaddr_storage storage;
-    _socklen_t addr_len = sizeof(_sockaddr_storage);
-    memset(&storage, 0, sizeof(_sockaddr_storage));
+    _sockaddr_in6 storage;
+    _socklen_t addr_len = sizeof(_sockaddr_in6);
 #ifdef _WIN32
     i32 result = getsockname((SOCKET)socket, (struct sockaddr *)&storage, &addr_len);
 #else
@@ -1433,7 +1404,7 @@ i32 _GetNameIpv6(isize socket, _sockaddr_in6 *socketAddress)
 #endif
     if (result == 0 && socketAddress != NULL)
     {
-        _NormalizeToIpv6(socketAddress, &storage);
+        *socketAddress = storage;
     }
     return result;
 }
@@ -1536,6 +1507,8 @@ i32 _SetHostNameIpv4(_sockaddr_in4 *socketAddress, const u8 *hostName, i32 hostN
     memset(&hints, 0, sizeof(struct addrinfo));
     struct addrinfo *result = NULL;
     hints.ai_family = _AF_INET_4;
+    hints.ai_socktype = SOCK_DGRAM;
+    hints.ai_protocol = IPPROTO_UDP;
     if (getaddrinfo((char *)hostName, NULL, &hints, &result) != 0)
     {
         return _SOCKET_ERROR_FAULT;
@@ -1571,6 +1544,8 @@ i32 _SetHostNameIpv6(_sockaddr_in6 *socketAddress, const u8 *hostName, i32 hostN
     memset(&hints, 0, sizeof(struct addrinfo));
     struct addrinfo *result = NULL;
     hints.ai_family = _AF_INET_6;
+    hints.ai_socktype = SOCK_DGRAM;
+    hints.ai_protocol = IPPROTO_UDP;
     if (getaddrinfo((char *)hostName, NULL, &hints, &result) != 0)
     {
         return _SOCKET_ERROR_FAULT;
