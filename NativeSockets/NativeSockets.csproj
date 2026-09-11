@@ -30,12 +30,12 @@
     </ItemGroup>
 
     <PropertyGroup>
-        <NATIVE_SOCKETS_USE_BRIDGE>true</NATIVE_SOCKETS_USE_BRIDGE>
+        <NATIVE_SOCKETS_USE_BRIDGE>false</NATIVE_SOCKETS_USE_BRIDGE>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(NATIVE_SOCKETS_USE_BRIDGE)' != 'true'">
         <PackageId>NativeSockets</PackageId>
-        <Version>1.3.9</Version>
+        <Version>1.4.0</Version>
         <Description>High performance pure c# udp-sockets library with no binary dependencies.</Description>
     </PropertyGroup>
 

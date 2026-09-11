@@ -30,11 +30,16 @@ namespace NativeSockets
         private static SocketError FromNativeErrno(int errno) => errno switch
         {
             0 => SocketError.Success,
+            1 => SocketError.AccessDenied,
+            2 => SocketError.AddressNotAvailable,
             4 => SocketError.Interrupted,
+            6 => SocketError.HostNotFound,
+            9 => SocketError.OperationAborted,
             13 => SocketError.AccessDenied,
             14 => SocketError.Fault,
             22 => SocketError.InvalidArgument,
             23 => SocketError.TooManyOpenSockets,
+            24 => SocketError.TooManyOpenSockets,
             32 => SocketError.Shutdown,
             35 => SocketError.WouldBlock,
             36 => SocketError.InProgress,
