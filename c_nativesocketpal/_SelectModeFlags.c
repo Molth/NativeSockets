@@ -1,0 +1,4 @@
+#ifndef _SELECTMODEFLAGS_C
+#define _SELECTMODEFLAGS_C
+
+#endif

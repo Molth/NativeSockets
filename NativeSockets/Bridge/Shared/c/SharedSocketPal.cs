@@ -205,100 +205,100 @@ namespace NativeSockets
         /// </summary>
         static SharedSocketPal()
         {
-            if (IsBridge())
+            if (IsDynamic())
             {
-                ADDRESS_FAMILY_INTER_NETWORK_V4 = BridgeSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V4;
-                ADDRESS_FAMILY_INTER_NETWORK_V6 = BridgeSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
+                ADDRESS_FAMILY_INTER_NETWORK_V4 = DynamicSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V4;
+                ADDRESS_FAMILY_INTER_NETWORK_V6 = DynamicSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
 
-                _GetLastSocketError = &BridgeSocketPal.GetLastSocketError;
-                _Startup = &BridgeSocketPal.Startup;
-                _Cleanup = &BridgeSocketPal.Cleanup;
-                _Create = &BridgeSocketPal.Create;
-                _Close = &BridgeSocketPal.Close;
-                _SetDualModeIpv6 = &BridgeSocketPal.SetDualModeIpv6;
-                _BindIpv4 = &BridgeSocketPal.BindIpv4;
-                _BindIpv6 = &BridgeSocketPal.BindIpv6;
-                _ConnectIpv4 = &BridgeSocketPal.ConnectIpv4;
-                _ConnectIpv6 = &BridgeSocketPal.ConnectIpv6;
-                _SetOption = &BridgeSocketPal.SetOption;
-                _GetOption = &BridgeSocketPal.GetOption;
-                _SetBlocking = &BridgeSocketPal.SetBlocking;
-                _Poll = &BridgeSocketPal.Poll;
-                _PollFlags = &BridgeSocketPal.PollFlags;
-                _Send = &BridgeSocketPal.Send;
-                _SendToIpv4 = &BridgeSocketPal.SendToIpv4;
-                _SendToIpv6 = &BridgeSocketPal.SendToIpv6;
-                _Receive = &BridgeSocketPal.Receive;
-                _ReceiveFromIpv4 = &BridgeSocketPal.ReceiveFromIpv4;
-                _ReceiveFromIpv6 = &BridgeSocketPal.ReceiveFromIpv6;
-                _SendVectored = &BridgeSocketPal.SendVectored;
-                _SendToVectoredIpv4 = &BridgeSocketPal.SendToVectoredIpv4;
-                _SendToVectoredIpv6 = &BridgeSocketPal.SendToVectoredIpv6;
-                _ReceiveVectored = &BridgeSocketPal.ReceiveVectored;
-                _ReceiveFromVectoredIpv4 = &BridgeSocketPal.ReceiveFromVectoredIpv4;
-                _ReceiveFromVectoredIpv6 = &BridgeSocketPal.ReceiveFromVectoredIpv6;
-                _GetNameIpv4 = &BridgeSocketPal.GetNameIpv4;
-                _GetNameIpv6 = &BridgeSocketPal.GetNameIpv6;
-                _SetIpIpv4 = &BridgeSocketPal.SetIpIpv4;
-                _SetIpIpv6 = &BridgeSocketPal.SetIpIpv6;
-                _GetIpIpv4 = &BridgeSocketPal.GetIpIpv4;
-                _GetIpIpv6 = &BridgeSocketPal.GetIpIpv6;
-                _SetHostNameIpv4 = &BridgeSocketPal.SetHostNameIpv4;
-                _SetHostNameIpv6 = &BridgeSocketPal.SetHostNameIpv6;
-                _GetHostNameIpv4 = &BridgeSocketPal.GetHostNameIpv4;
-                _GetHostNameIpv6 = &BridgeSocketPal.GetHostNameIpv6;
+                _GetLastSocketError = &DynamicSocketPal.GetLastSocketError;
+                _Startup = &DynamicSocketPal.Startup;
+                _Cleanup = &DynamicSocketPal.Cleanup;
+                _Create = &DynamicSocketPal.Create;
+                _Close = &DynamicSocketPal.Close;
+                _SetDualModeIpv6 = &DynamicSocketPal.SetDualModeIpv6;
+                _BindIpv4 = &DynamicSocketPal.BindIpv4;
+                _BindIpv6 = &DynamicSocketPal.BindIpv6;
+                _ConnectIpv4 = &DynamicSocketPal.ConnectIpv4;
+                _ConnectIpv6 = &DynamicSocketPal.ConnectIpv6;
+                _SetOption = &DynamicSocketPal.SetOption;
+                _GetOption = &DynamicSocketPal.GetOption;
+                _SetBlocking = &DynamicSocketPal.SetBlocking;
+                _Poll = &DynamicSocketPal.Poll;
+                _PollFlags = &DynamicSocketPal.PollFlags;
+                _Send = &DynamicSocketPal.Send;
+                _SendToIpv4 = &DynamicSocketPal.SendToIpv4;
+                _SendToIpv6 = &DynamicSocketPal.SendToIpv6;
+                _Receive = &DynamicSocketPal.Receive;
+                _ReceiveFromIpv4 = &DynamicSocketPal.ReceiveFromIpv4;
+                _ReceiveFromIpv6 = &DynamicSocketPal.ReceiveFromIpv6;
+                _SendVectored = &DynamicSocketPal.SendVectored;
+                _SendToVectoredIpv4 = &DynamicSocketPal.SendToVectoredIpv4;
+                _SendToVectoredIpv6 = &DynamicSocketPal.SendToVectoredIpv6;
+                _ReceiveVectored = &DynamicSocketPal.ReceiveVectored;
+                _ReceiveFromVectoredIpv4 = &DynamicSocketPal.ReceiveFromVectoredIpv4;
+                _ReceiveFromVectoredIpv6 = &DynamicSocketPal.ReceiveFromVectoredIpv6;
+                _GetNameIpv4 = &DynamicSocketPal.GetNameIpv4;
+                _GetNameIpv6 = &DynamicSocketPal.GetNameIpv6;
+                _SetIpIpv4 = &DynamicSocketPal.SetIpIpv4;
+                _SetIpIpv6 = &DynamicSocketPal.SetIpIpv6;
+                _GetIpIpv4 = &DynamicSocketPal.GetIpIpv4;
+                _GetIpIpv6 = &DynamicSocketPal.GetIpIpv6;
+                _SetHostNameIpv4 = &DynamicSocketPal.SetHostNameIpv4;
+                _SetHostNameIpv6 = &DynamicSocketPal.SetHostNameIpv6;
+                _GetHostNameIpv4 = &DynamicSocketPal.GetHostNameIpv4;
+                _GetHostNameIpv6 = &DynamicSocketPal.GetHostNameIpv6;
             }
 
-            else if (IsIos())
+            else if (IsStatic())
             {
-                ADDRESS_FAMILY_INTER_NETWORK_V4 = IosSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V4;
-                ADDRESS_FAMILY_INTER_NETWORK_V6 = IosSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
+                ADDRESS_FAMILY_INTER_NETWORK_V4 = StaticSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V4;
+                ADDRESS_FAMILY_INTER_NETWORK_V6 = StaticSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
 
-                _GetLastSocketError = &IosSocketPal.GetLastSocketError;
-                _Startup = &IosSocketPal.Startup;
-                _Cleanup = &IosSocketPal.Cleanup;
-                _Create = &IosSocketPal.Create;
-                _Close = &IosSocketPal.Close;
-                _SetDualModeIpv6 = &IosSocketPal.SetDualModeIpv6;
-                _BindIpv4 = &IosSocketPal.BindIpv4;
-                _BindIpv6 = &IosSocketPal.BindIpv6;
-                _ConnectIpv4 = &IosSocketPal.ConnectIpv4;
-                _ConnectIpv6 = &IosSocketPal.ConnectIpv6;
-                _SetOption = &IosSocketPal.SetOption;
-                _GetOption = &IosSocketPal.GetOption;
-                _SetBlocking = &IosSocketPal.SetBlocking;
-                _Poll = &IosSocketPal.Poll;
-                _PollFlags = &IosSocketPal.PollFlags;
-                _Send = &IosSocketPal.Send;
-                _SendToIpv4 = &IosSocketPal.SendToIpv4;
-                _SendToIpv6 = &IosSocketPal.SendToIpv6;
-                _Receive = &IosSocketPal.Receive;
-                _ReceiveFromIpv4 = &IosSocketPal.ReceiveFromIpv4;
-                _ReceiveFromIpv6 = &IosSocketPal.ReceiveFromIpv6;
-                _SendVectored = &IosSocketPal.SendVectored;
-                _SendToVectoredIpv4 = &IosSocketPal.SendToVectoredIpv4;
-                _SendToVectoredIpv6 = &IosSocketPal.SendToVectoredIpv6;
-                _ReceiveVectored = &IosSocketPal.ReceiveVectored;
-                _ReceiveFromVectoredIpv4 = &IosSocketPal.ReceiveFromVectoredIpv4;
-                _ReceiveFromVectoredIpv6 = &IosSocketPal.ReceiveFromVectoredIpv6;
-                _GetNameIpv4 = &IosSocketPal.GetNameIpv4;
-                _GetNameIpv6 = &IosSocketPal.GetNameIpv6;
-                _SetIpIpv4 = &IosSocketPal.SetIpIpv4;
-                _SetIpIpv6 = &IosSocketPal.SetIpIpv6;
-                _GetIpIpv4 = &IosSocketPal.GetIpIpv4;
-                _GetIpIpv6 = &IosSocketPal.GetIpIpv6;
-                _SetHostNameIpv4 = &IosSocketPal.SetHostNameIpv4;
-                _SetHostNameIpv6 = &IosSocketPal.SetHostNameIpv6;
-                _GetHostNameIpv4 = &IosSocketPal.GetHostNameIpv4;
-                _GetHostNameIpv6 = &IosSocketPal.GetHostNameIpv6;
+                _GetLastSocketError = &StaticSocketPal.GetLastSocketError;
+                _Startup = &StaticSocketPal.Startup;
+                _Cleanup = &StaticSocketPal.Cleanup;
+                _Create = &StaticSocketPal.Create;
+                _Close = &StaticSocketPal.Close;
+                _SetDualModeIpv6 = &StaticSocketPal.SetDualModeIpv6;
+                _BindIpv4 = &StaticSocketPal.BindIpv4;
+                _BindIpv6 = &StaticSocketPal.BindIpv6;
+                _ConnectIpv4 = &StaticSocketPal.ConnectIpv4;
+                _ConnectIpv6 = &StaticSocketPal.ConnectIpv6;
+                _SetOption = &StaticSocketPal.SetOption;
+                _GetOption = &StaticSocketPal.GetOption;
+                _SetBlocking = &StaticSocketPal.SetBlocking;
+                _Poll = &StaticSocketPal.Poll;
+                _PollFlags = &StaticSocketPal.PollFlags;
+                _Send = &StaticSocketPal.Send;
+                _SendToIpv4 = &StaticSocketPal.SendToIpv4;
+                _SendToIpv6 = &StaticSocketPal.SendToIpv6;
+                _Receive = &StaticSocketPal.Receive;
+                _ReceiveFromIpv4 = &StaticSocketPal.ReceiveFromIpv4;
+                _ReceiveFromIpv6 = &StaticSocketPal.ReceiveFromIpv6;
+                _SendVectored = &StaticSocketPal.SendVectored;
+                _SendToVectoredIpv4 = &StaticSocketPal.SendToVectoredIpv4;
+                _SendToVectoredIpv6 = &StaticSocketPal.SendToVectoredIpv6;
+                _ReceiveVectored = &StaticSocketPal.ReceiveVectored;
+                _ReceiveFromVectoredIpv4 = &StaticSocketPal.ReceiveFromVectoredIpv4;
+                _ReceiveFromVectoredIpv6 = &StaticSocketPal.ReceiveFromVectoredIpv6;
+                _GetNameIpv4 = &StaticSocketPal.GetNameIpv4;
+                _GetNameIpv6 = &StaticSocketPal.GetNameIpv6;
+                _SetIpIpv4 = &StaticSocketPal.SetIpIpv4;
+                _SetIpIpv6 = &StaticSocketPal.SetIpIpv6;
+                _GetIpIpv4 = &StaticSocketPal.GetIpIpv4;
+                _GetIpIpv6 = &StaticSocketPal.GetIpIpv6;
+                _SetHostNameIpv4 = &StaticSocketPal.SetHostNameIpv4;
+                _SetHostNameIpv6 = &StaticSocketPal.SetHostNameIpv6;
+                _GetHostNameIpv4 = &StaticSocketPal.GetHostNameIpv4;
+                _GetHostNameIpv6 = &StaticSocketPal.GetHostNameIpv6;
             }
 
-            IsSupported = IsBridge() || IsIos();
+            IsSupported = IsDynamic() || IsStatic();
 
             return;
 
-            static bool IsBridge() => BridgeSocketPal.IsSupported;
-            static bool IsIos() => IosSocketPal.IsSupported;
+            static bool IsDynamic() => DynamicSocketPal.IsSupported;
+            static bool IsStatic() => StaticSocketPal.IsSupported;
         }
 
         /// <summary>

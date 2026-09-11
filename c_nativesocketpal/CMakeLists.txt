@@ -7,7 +7,16 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 set(SOURCES
     _nativesocketpal.c
-    _nativesocketpal.h
+    include/_Types.h
+    include/_nativesocketpal.h
+    include/_SocketError.h
+    include/_SelectMode.h
+    include/_SelectModeFlags.h
+    include/_SocketFlags.h
+    include/_SocketOptionLevel.h
+    include/_SocketOptionName.h
+    include/_win32.h
+    include/_unix.h
 )
 
 set(NATIVESOCKETPAL_STATIC "0" CACHE BOOL "Create a static library")
@@ -26,7 +35,7 @@ endif()
 if (NATIVESOCKETPAL_STATIC)
     add_library(nativesocketpal_static STATIC ${SOURCES})
     target_include_directories(nativesocketpal_static PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
     )
 
@@ -45,7 +54,7 @@ if (NATIVESOCKETPAL_SHARED)
     target_compile_definitions(nativesocketpal PRIVATE _NATIVESOCKETPAL_BUILD_DLL)
 
     target_include_directories(nativesocketpal PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
     )
 
@@ -72,4 +81,4 @@ if (NATIVESOCKETPAL_STATIC)
     )
 endif()
 
-install(FILES _nativesocketpal.h DESTINATION include)
+install(FILES include/_nativesocketpal.h include/_Types.h DESTINATION include)
