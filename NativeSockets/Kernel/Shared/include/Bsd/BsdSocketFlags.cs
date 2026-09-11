@@ -12,21 +12,6 @@ namespace NativeSockets
     internal static class BsdSocketFlags
     {
         /// <summary>
-        ///     Native flag indicating out-of-band data is requested.
-        /// </summary>
-        private const int MSG_OOB = 0x0001;
-
-        /// <summary>
-        ///     Native flag indicating the message should be peeked (not removed from the socket buffer).
-        /// </summary>
-        private const int MSG_PEEK = 0x0002;
-
-        /// <summary>
-        ///     Native flag indicating the message should not be routed (force local delivery).
-        /// </summary>
-        private const int MSG_DONTROUTE = 0x0004;
-
-        /// <summary>
         ///     Native flag indicating the message was truncated.
         /// </summary>
         private const int MSG_TRUNC = 0x0010;
@@ -49,7 +34,7 @@ namespace NativeSockets
         /// <summary>
         ///     Bitmask of all native bsd socket flag values that are supported for conversion back to managed flags.
         /// </summary>
-        private const int SUPPORTED_NATIVE_FLAGS_MASK = MSG_OOB | MSG_DONTROUTE | MSG_TRUNC | MSG_CTRUNC;
+        private const int SUPPORTED_NATIVE_FLAGS_MASK = SF_MSG_OOB | SF_MSG_DONTROUTE | MSG_TRUNC | MSG_CTRUNC;
 
         /// <summary>
         ///     Converts a managed <see cref="SocketFlags" /> value to its native bsd integer representation.
@@ -64,10 +49,9 @@ namespace NativeSockets
             if ((flags & ~SUPPORTED_MANAGED_FLAGS_MASK) != 0)
                 return 0;
 
-            int platformFlags = 0
-                                | ((flags & SF_MSG_OOB) == 0 ? 0 : MSG_OOB)
-                                | ((flags & SF_MSG_PEEK) == 0 ? 0 : MSG_PEEK)
-                                | ((flags & SF_MSG_DONTROUTE) == 0 ? 0 : MSG_DONTROUTE)
+            int platformFlags = (flags & SF_MSG_OOB)
+                                | (flags & SF_MSG_PEEK)
+                                | (flags & SF_MSG_DONTROUTE)
                                 | ((flags & SF_MSG_TRUNC) == 0 ? 0 : MSG_TRUNC)
                                 | ((flags & SF_MSG_CTRUNC) == 0 ? 0 : MSG_CTRUNC);
 
@@ -84,8 +68,8 @@ namespace NativeSockets
         {
             platformFlags &= SUPPORTED_NATIVE_FLAGS_MASK;
 
-            int result = ((platformFlags & MSG_OOB) == 0 ? 0 : SF_MSG_OOB) |
-                         ((platformFlags & MSG_DONTROUTE) == 0 ? 0 : SF_MSG_DONTROUTE) |
+            int result = (platformFlags & SF_MSG_OOB) |
+                         (platformFlags & SF_MSG_DONTROUTE) |
                          ((platformFlags & MSG_TRUNC) == 0 ? 0 : SF_MSG_TRUNC) |
                          ((platformFlags & MSG_CTRUNC) == 0 ? 0 : SF_MSG_CTRUNC);
 

@@ -35,7 +35,7 @@
 
     <PropertyGroup Condition="'$(NATIVE_SOCKETS_USE_BRIDGE)' != 'true'">
         <PackageId>NativeSockets</PackageId>
-        <Version>1.3.8</Version>
+        <Version>1.3.9</Version>
         <Description>High performance pure c# udp-sockets library with no binary dependencies.</Description>
     </PropertyGroup>
 

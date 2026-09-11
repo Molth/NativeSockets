@@ -50,7 +50,6 @@ namespace NativeSockets
                 },
                 SocketOptionLevel.Tcp => name switch
                 {
-                    SocketOptionName.NoDelay => 1,
                     SO_TCP_KEEPALIVE_RETRYCOUNT => 258,
                     SO_TCP_KEEPALIVE_TIME => 16,
                     SO_TCP_KEEPALIVE_INTERVAL => 257,
