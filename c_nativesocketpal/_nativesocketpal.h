@@ -27,7 +27,6 @@ extern "C"
     typedef uint8_t u8;
     typedef int64_t i64;
 
-/* SocketError */
 #define _SOCKET_ERROR_SUCCESS 0
 #define _SOCKET_ERROR_SOCKET_ERROR -1
 #define _SOCKET_ERROR_INTERRUPTED 10004
@@ -73,7 +72,6 @@ extern "C"
 #define _SOCKET_ERROR_NO_RECOVERY 11003
 #define _SOCKET_ERROR_NO_DATA 11004
 
-/* SocketFlags */
 #define _SOCKET_FLAGS_NONE 0
 #define _SOCKET_FLAGS_OUT_OF_BAND 1
 #define _SOCKET_FLAGS_PEEK 2
@@ -83,19 +81,16 @@ extern "C"
 #define _SOCKET_FLAGS_BROADCAST 1024
 #define _SOCKET_FLAGS_PARTIAL 32768
 
-/* SelectMode */
 #define _SELECT_MODE_SELECT_READ 0
 #define _SELECT_MODE_SELECT_WRITE 1
 #define _SELECT_MODE_SELECT_ERROR 2
 
-/* SocketOptionLevel */
 #define _SOCKET_OPTION_LEVEL_SOCKET 65535
 #define _SOCKET_OPTION_LEVEL_IP 0
 #define _SOCKET_OPTION_LEVEL_IPV6 41
 #define _SOCKET_OPTION_LEVEL_TCP 6
 #define _SOCKET_OPTION_LEVEL_UDP 17
 
-/* SocketOptionName */
 #define _SOCKET_OPTION_NAME_DEBUG 1
 #define _SOCKET_OPTION_NAME_ACCEPT_CONNECTION 2
 #define _SOCKET_OPTION_NAME_REUSE_ADDRESS 4
@@ -200,37 +195,6 @@ extern "C"
         /// </summary>
         u32 sin6_scope_id;
     } _sockaddr_in6;
-
-    /// <summary>
-    ///     Represents a generic socket address storage structure that can hold any address family (<c>sockaddr_storage</c>).
-    /// </summary>
-    /// <remarks>
-    ///     This structure is large enough to contain both Ipv4 and Ipv6 addresses, and is aligned to the most strict alignment
-    ///     requirement of the system. It is used for functions that need to accept any address family without knowing the
-    ///     exact type.
-    /// </remarks>
-    typedef struct _sockaddr_storage
-    {
-        /// <summary>
-        ///     The address family of the stored address.
-        /// </summary>
-        u16 ss_family;
-
-        /// <summary>
-        ///     Padding.
-        /// </summary>
-        u8 __padding[6];
-
-        /// <summary>
-        ///     Alignment padding to ensure the structure is properly aligned in memory.
-        /// </summary>
-        i64 __ss_align;
-
-        /// <summary>
-        ///     Padding.
-        /// </summary>
-        u8 __ss_padding[112];
-    } _sockaddr_storage;
 
     /// <summary>
     ///     Represents a contiguous region of arbitrary native memory.

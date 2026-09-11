@@ -26,6 +26,7 @@ namespace NativeSockets
 #else
                 RuntimeInformation.IsOSPlatform(OSPlatform.Create("BROWSER")) ||
                 RuntimeInformation.IsOSPlatform(OSPlatform.Create("IOS")) ||
+                RuntimeInformation.IsOSPlatform(OSPlatform.Create("MACCATALYST")) ||
                 RuntimeInformation.IsOSPlatform(OSPlatform.Create("TVOS")) ||
                 RuntimeInformation.IsOSPlatform(OSPlatform.Create("WATCHOS")) ||
 #endif

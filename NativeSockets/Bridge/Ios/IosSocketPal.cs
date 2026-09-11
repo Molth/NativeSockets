@@ -24,6 +24,7 @@ namespace NativeSockets
                     OperatingSystem.IsWatchOS() ||
 #else
                     RuntimeInformation.IsOSPlatform(OSPlatform.Create("IOS")) ||
+                    RuntimeInformation.IsOSPlatform(OSPlatform.Create("MACCATALYST")) ||
                     RuntimeInformation.IsOSPlatform(OSPlatform.Create("TVOS")) ||
                     RuntimeInformation.IsOSPlatform(OSPlatform.Create("WATCHOS")) ||
 #endif

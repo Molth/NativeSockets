@@ -406,17 +406,6 @@ static void _WriteIpv6Prefix(u8 *addr)
 }
 
 /// <summary>
-///     Maps the Ipv4 address to an Ipv6 address.
-/// </summary>
-/// <param name="out_addr">The 16‑byte span containing the Ipv4‑mapped Ipv6 address data.</param>
-/// <param name="sin4_addr">The 4‑byte span containing the Ipv4 address data.</param>
-static void _MapIpv4ToIpv6(u8 *sin6_addr, u32 sin4_addr)
-{
-    _WriteIpv6Prefix(sin6_addr);
-    memcpy(sin6_addr + 12, &sin4_addr, 4);
-}
-
-/// <summary>
 ///     Gets the address family value for Ipv4 used by the current platform.
 /// </summary>
 u16 _GetAddressFamilyInterNetworkV4(void)
