@@ -4,7 +4,7 @@ using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-#pragma warning disable CS9080 // Use of variable in this context may expose referenced variables outside of their declaration scope
+#pragma warning disable CS9080 // Use of variable in this context may expose referenced variables outside of their declaration scope.
 
 // ReSharper disable ALL
 
