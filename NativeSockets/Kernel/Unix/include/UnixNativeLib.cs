@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using static NativeSockets.UnixNativeLibName;
 
-#pragma warning disable SYSLIB1054
+#pragma warning disable SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time.
 
 // ReSharper disable All
 

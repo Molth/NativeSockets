@@ -50,10 +50,10 @@ namespace NativeSockets
                 },
                 SocketOptionLevel.Tcp => name switch
                 {
-                    SO_TCP_KEEPALIVE_RETRYCOUNT => 258,
+                    SocketOptionName.DontRoute => 258,
                     SO_TCP_KEEPALIVE_TIME => 16,
-                    SO_TCP_KEEPALIVE_INTERVAL => 257,
-                    SO_TCP_FASTOPEN => 261,
+                    SocketOptionName.BlockSource => 257,
+                    SocketOptionName.AddSourceMembership => 261,
                     _ => (int)name
                 },
                 _ => (int)name

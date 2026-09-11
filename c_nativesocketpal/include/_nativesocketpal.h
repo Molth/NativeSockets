@@ -9,11 +9,13 @@ extern "C"
 #endif
 
 #ifdef _WIN32
+
 #ifdef _NATIVESOCKETPAL_BUILD_DLL
 #define _NATIVESOCKETPAL_API __declspec(dllexport)
 #else
 #define _NATIVESOCKETPAL_API
 #endif
+
 #else
 #define _NATIVESOCKETPAL_API __attribute__((visibility("default")))
 #endif

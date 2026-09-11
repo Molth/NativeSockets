@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-#pragma warning disable CS8981
+#pragma warning disable CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
 
 // ReSharper disable All
 

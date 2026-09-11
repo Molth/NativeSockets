@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFrameworks>net10.0;net9.0;net8.0;net7.0;net6.0;net5.0;netstandard2.1</TargetFrameworks>
@@ -30,18 +30,18 @@
     </ItemGroup>
 
     <PropertyGroup>
-        <NATIVE_SOCKETS_USE_BRIDGE>true</NATIVE_SOCKETS_USE_BRIDGE>
+        <NATIVE_SOCKETS_USE_BRIDGE>false</NATIVE_SOCKETS_USE_BRIDGE>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(NATIVE_SOCKETS_USE_BRIDGE)' != 'true'">
         <PackageId>NativeSockets</PackageId>
-        <Version>1.4.0</Version>
+        <Version>1.4.1</Version>
         <Description>High performance pure c# udp-sockets library with no binary dependencies.</Description>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(NATIVE_SOCKETS_USE_BRIDGE)' == 'true'">
         <PackageId>NativeSockets2</PackageId>
-        <Version>1.2.2</Version>
+        <Version>1.2.3</Version>
         <Description>High performance udp-sockets library.</Description>
     </PropertyGroup>
 
@@ -100,6 +100,14 @@
             <Visible>false</Visible>
         </Content>
 
+        <Content Include="Bridge\runtimes\maccatalyst-arm64\native\libnativesocketpal.a">
+            <Pack>true</Pack>
+            <PackagePath>runtimes\maccatalyst-arm64\native\libnativesocketpal.a</PackagePath>
+            <Link>libnativesocketpal.a</Link>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <Visible>false</Visible>
+        </Content>
+
         <Content Include="Bridge\runtimes\osx-x64\native\libnativesocketpal.dylib">
             <Pack>true</Pack>
             <PackagePath>runtimes\osx-x64\native\libnativesocketpal.dylib</PackagePath>
@@ -112,6 +120,30 @@
             <Pack>true</Pack>
             <PackagePath>runtimes\osx-arm64\native\libnativesocketpal.dylib</PackagePath>
             <Link>libnativesocketpal.dylib</Link>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <Visible>false</Visible>
+        </Content>
+
+        <Content Include="Bridge\runtimes\tvos-arm64\native\libnativesocketpal.a">
+            <Pack>true</Pack>
+            <PackagePath>runtimes\tvos-arm64\native\libnativesocketpal.a</PackagePath>
+            <Link>libnativesocketpal.a</Link>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <Visible>false</Visible>
+        </Content>
+
+        <Content Include="Bridge\runtimes\watchos-arm64\native\libnativesocketpal.a">
+            <Pack>true</Pack>
+            <PackagePath>runtimes\watchos-arm64\native\libnativesocketpal.a</PackagePath>
+            <Link>libnativesocketpal.a</Link>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <Visible>false</Visible>
+        </Content>
+
+        <Content Include="Bridge\runtimes\visionos-arm64\native\libnativesocketpal.a">
+            <Pack>true</Pack>
+            <PackagePath>runtimes\visionos-arm64\native\libnativesocketpal.a</PackagePath>
+            <Link>libnativesocketpal.a</Link>
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
             <Visible>false</Visible>
         </Content>

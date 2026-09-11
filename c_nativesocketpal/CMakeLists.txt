@@ -81,4 +81,4 @@ if (NATIVESOCKETPAL_STATIC)
     )
 endif()
 
-install(FILES include/_nativesocketpal.h include/_Types.h DESTINATION include)
+install(FILES include/_Types.h include/_nativesocketpal.h DESTINATION include)

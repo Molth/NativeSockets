@@ -27,14 +27,18 @@ i32 _ToNativeSocketFlags(i32 flags)
     {
         native_flags |= MSG_DONTROUTE;
     }
+#ifdef MSG_TRUNC
     if (flags & _SOCKET_FLAGS_TRUNCATED)
     {
         native_flags |= MSG_TRUNC;
     }
+#endif
+#ifdef MSG_CTRUNC
     if (flags & _SOCKET_FLAGS_CONTROL_DATA_TRUNCATED)
     {
         native_flags |= MSG_CTRUNC;
     }
+#endif
     return native_flags;
 }
 
@@ -58,14 +62,18 @@ i32 _FromNativeSocketFlags(i32 native_flags)
     {
         flags |= _SOCKET_FLAGS_DONT_ROUTE;
     }
+#ifdef MSG_TRUNC
     if (native_flags & MSG_TRUNC)
     {
         flags |= _SOCKET_FLAGS_TRUNCATED;
     }
+#endif
+#ifdef MSG_CTRUNC
     if (native_flags & MSG_CTRUNC)
     {
         flags |= _SOCKET_FLAGS_CONTROL_DATA_TRUNCATED;
     }
+#endif
     return flags;
 }
 

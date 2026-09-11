@@ -3,10 +3,10 @@
 
 #ifndef _WIN32
 
+#include "include/_SocketOptionLevel.h"
+
 #include <netinet/in.h>
 #include <sys/socket.h>
-
-#include "include/_SocketOptionLevel.h"
 
 /// <summary>
 ///     Converts a managed <see cref="SocketOptionLevel" /> to the native unix socket option level value.

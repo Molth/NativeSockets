@@ -18,13 +18,13 @@
 
 - Windows
 - Linux
+- Android
 - macOS
 - iOS
-- Android
-- FreeBSD
 - tvOS
 - watchOS
 - visionOS
+- FreeBSD
 
 ---
 
@@ -75,6 +75,9 @@
 - macOS
 - iOS
 - Android
+- tvOS
+- watchOS
+- visionOS
 
 ---
 

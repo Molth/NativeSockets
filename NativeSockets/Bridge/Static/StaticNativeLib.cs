@@ -1,7 +1,7 @@
 ﻿using System.Net.Sockets;
 using System.Runtime.InteropServices;
 
-#pragma warning disable SYSLIB1054
+#pragma warning disable SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time.
 
 // ReSharper disable All
 

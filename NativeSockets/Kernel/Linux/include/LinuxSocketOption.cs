@@ -84,10 +84,10 @@ namespace NativeSockets
                 },
                 SocketOptionLevel.Tcp => name switch
                 {
-                    SO_TCP_KEEPALIVE_RETRYCOUNT => 6,
+                    SocketOptionName.DontRoute => 6,
                     SO_TCP_KEEPALIVE_TIME => 4,
-                    SO_TCP_KEEPALIVE_INTERVAL => 5,
-                    SO_TCP_FASTOPEN => 23,
+                    SocketOptionName.BlockSource => 5,
+                    SocketOptionName.AddSourceMembership => 23,
                     _ => (int)name
                 },
                 SocketOptionLevel.Udp => name switch

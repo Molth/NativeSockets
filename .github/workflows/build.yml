@@ -197,9 +197,143 @@ jobs:
           name: nativesocketpal-ios-arm64
           path: c_nativesocketpal/libnativesocketpal.a
 
+  build-maccatalyst-arm64:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.branch }}
+
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: "4.x"
+
+      - run: |
+          cd c_nativesocketpal
+          mkdir -p build && cd build
+          cmake .. \
+            -G Xcode \
+            -DCMAKE_SYSTEM_NAME=iOS \
+            -DCMAKE_OSX_SYSROOT=macosx \
+            -DCMAKE_OSX_ARCHITECTURES=arm64 \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=13.0 \
+            -DNATIVESOCKETPAL_STATIC=1 \
+            -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+          cmake --build . --config Release --target nativesocketpal_static
+          cp Release/libnativesocketpal.a ../libnativesocketpal.a
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: nativesocketpal-maccatalyst-arm64
+          path: c_nativesocketpal/libnativesocketpal.a
+
+  build-tvos-arm64:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.branch }}
+
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: "4.x"
+
+      - run: |
+          cd c_nativesocketpal
+          mkdir -p build && cd build
+          cmake .. \
+            -G Xcode \
+            -DCMAKE_SYSTEM_NAME=tvOS \
+            -DCMAKE_OSX_SYSROOT=appletvos \
+            -DCMAKE_OSX_ARCHITECTURES=arm64 \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0 \
+            -DNATIVESOCKETPAL_STATIC=1 \
+            -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+          cmake --build . --config Release --target nativesocketpal_static
+          cp Release-appletvos/libnativesocketpal.a ../libnativesocketpal.a
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: nativesocketpal-tvos-arm64
+          path: c_nativesocketpal/libnativesocketpal.a
+
+  build-watchos-arm64:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.branch }}
+
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: "4.x"
+
+      - run: |
+          cd c_nativesocketpal
+          mkdir -p build && cd build
+          cmake .. \
+            -G Xcode \
+            -DCMAKE_SYSTEM_NAME=watchOS \
+            -DCMAKE_OSX_SYSROOT=watchos \
+            -DCMAKE_OSX_ARCHITECTURES=arm64_32 \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=7.0 \
+            -DNATIVESOCKETPAL_STATIC=1 \
+            -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+          cmake --build . --config Release --target nativesocketpal_static
+          cp Release-watchos/libnativesocketpal.a ../libnativesocketpal.a
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: nativesocketpal-watchos-arm64
+          path: c_nativesocketpal/libnativesocketpal.a
+
+  build-visionos-arm64:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.branch }}
+
+      - name: Setup CMake
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: "4.x"
+
+      - run: |
+          cd c_nativesocketpal
+          mkdir -p build && cd build
+          cmake .. \
+            -G Xcode \
+            -DCMAKE_SYSTEM_NAME=visionOS \
+            -DCMAKE_OSX_SYSROOT=xros \
+            -DCMAKE_OSX_ARCHITECTURES=arm64 \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=1.0 \
+            -DNATIVESOCKETPAL_STATIC=1 \
+            -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+          cmake --build . --config Release --target nativesocketpal_static
+          cp Release-xros/libnativesocketpal.a ../libnativesocketpal.a
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: nativesocketpal-visionos-arm64
+          path: c_nativesocketpal/libnativesocketpal.a
+
   package:
     needs:
-      [build-linux, build-osx, build-win-x64, build-android, build-ios-arm64]
+      [
+        build-linux,
+        build-osx,
+        build-win-x64,
+        build-android,
+        build-ios-arm64,
+        build-maccatalyst-arm64,
+        build-tvos-arm64,
+        build-watchos-arm64,
+        build-visionos-arm64,
+      ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v7
@@ -207,7 +341,7 @@ jobs:
           path: artifacts
 
       - run: |
-          mkdir -p dist/{linux-x64/native,linux-arm64/native,osx-x64/native,osx-arm64/native,win-x64/native,android-arm64/native,android-x64/native,ios-arm64/native}
+          mkdir -p dist/{linux-x64/native,linux-arm64/native,osx-x64/native,osx-arm64/native,win-x64/native,android-arm64/native,android-x64/native,ios-arm64/native,maccatalyst-arm64/native,tvos-arm64/native,watchos-arm64/native,visionos-arm64/native}
 
           cp artifacts/nativesocketpal-linux-x64/libnativesocketpal.so dist/linux-x64/native/
           cp artifacts/nativesocketpal-linux-arm64/libnativesocketpal.so dist/linux-arm64/native/
@@ -221,6 +355,10 @@ jobs:
           cp artifacts/nativesocketpal-android-x64/libnativesocketpal.so dist/android-x64/native/
 
           cp artifacts/nativesocketpal-ios-arm64/libnativesocketpal.a dist/ios-arm64/native/
+          cp artifacts/nativesocketpal-maccatalyst-arm64/libnativesocketpal.a dist/maccatalyst-arm64/native/
+          cp artifacts/nativesocketpal-tvos-arm64/libnativesocketpal.a dist/tvos-arm64/native/
+          cp artifacts/nativesocketpal-watchos-arm64/libnativesocketpal.a dist/watchos-arm64/native/
+          cp artifacts/nativesocketpal-visionos-arm64/libnativesocketpal.a dist/visionos-arm64/native/
 
       - uses: actions/upload-artifact@v6
         with:

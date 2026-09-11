@@ -19,9 +19,12 @@
 
 - Windows
 - Linux
+- Android
 - macOS
 - iOS
-- Android
+- tvOS
+- watchOS
+- visionOS
 
 ---
 
