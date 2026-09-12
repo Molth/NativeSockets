@@ -396,7 +396,7 @@ i32 _ReceiveFromIpv4(isize socket, void *buffer, i32 length, i32 socketFlags, _s
     i32 result = (i32)recvfrom((SOCKET)socket, (u8 *)buffer, length, socketFlags, (struct sockaddr *)&storage, &addr_len);
     if (result >= 0 && socketAddress != NULL)
     {
-        memcpy(socketAddress, &storage, sizeof(_sockaddr_in4));
+        *socketAddress = storage;
     }
     return result;
 }
@@ -587,7 +587,7 @@ i32 _ReceiveFromVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCo
     }
     if (socketAddress != NULL)
     {
-        memcpy(socketAddress, &storage, sizeof(_sockaddr_in4));
+        *socketAddress = storage;
     }
     return bytesRecv;
 }
@@ -639,7 +639,7 @@ i32 _GetNameIpv4(isize socket, _sockaddr_in4 *socketAddress)
     i32 result = getsockname((SOCKET)socket, (struct sockaddr *)&storage, &addr_len);
     if (result == 0 && socketAddress != NULL)
     {
-        memcpy(socketAddress, &storage, sizeof(_sockaddr_in4));
+        *socketAddress = storage;
     }
     return result;
 }
