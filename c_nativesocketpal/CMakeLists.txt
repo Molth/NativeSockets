@@ -1,84 +1,86 @@
 cmake_minimum_required(VERSION 4.0)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-project(nativesocketpal C)
+
+project(nativesocketpal
+    VERSION 1.0.0
+    DESCRIPTION "Platform abstraction layer for native sockets"
+    LANGUAGES C
+)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(SOURCES
+include(GNUInstallDirs)
+
+option(NATIVESOCKETPAL_STATIC "Build the static library" OFF)
+option(NATIVESOCKETPAL_SHARED "Build the shared library" OFF)
+
+set(NATIVESOCKETPAL_SOURCES
     _nativesocketpal.c
+)
+
+set(NATIVESOCKETPAL_PUBLIC_HEADERS
     include/_Types.h
-    include/_nativesocketpal.h
     include/_SocketError.h
     include/_SelectMode.h
     include/_SelectModeFlags.h
     include/_SocketFlags.h
     include/_SocketOptionLevel.h
     include/_SocketOptionName.h
+    include/_nativesocketpal.h
     include/_win32.h
     include/_unix.h
 )
 
-set(NATIVESOCKETPAL_STATIC "0" CACHE BOOL "Create a static library")
-set(NATIVESOCKETPAL_SHARED "0" CACHE BOOL "Create a shared library")
-
-if (MSYS OR MINGW)
-    string(APPEND CMAKE_C_FLAGS " -static")
-    add_definitions(-DWINVER=0x0601)
-    add_definitions(-D_WIN32_WINNT=0x0601)
+if(WIN32)
+    set(NATIVESOCKETPAL_PLATFORM_LIBS ws2_32)
 endif()
 
-if (WIN32)
-    set(NATIVESOCKETPAL_LIBS ws2_32)
-endif()
-
-if (NATIVESOCKETPAL_STATIC)
-    add_library(nativesocketpal_static STATIC ${SOURCES})
-    target_include_directories(nativesocketpal_static PUBLIC
+function(nativesocketpal_configure target)
+    target_include_directories(${target} PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:include>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     )
-
-    if (WIN32)
-        target_link_libraries(nativesocketpal_static PUBLIC ${NATIVESOCKETPAL_LIBS})
+    if(WIN32)
+        target_link_libraries(${target} PUBLIC ${NATIVESOCKETPAL_PLATFORM_LIBS})
     endif()
+    if(MSYS OR MINGW)
+        target_compile_definitions(${target} PRIVATE
+            WINVER=0x0601
+            _WIN32_WINNT=0x0601
+        )
+        target_link_options(${target} PRIVATE -static)
+    endif()
+endfunction()
 
-    set_target_properties(nativesocketpal_static PROPERTIES
-        OUTPUT_NAME "nativesocketpal"
-    )
+if(NATIVESOCKETPAL_STATIC)
+    add_library(nativesocketpal_static STATIC ${NATIVESOCKETPAL_SOURCES} ${NATIVESOCKETPAL_PUBLIC_HEADERS})
+    nativesocketpal_configure(nativesocketpal_static)
+    if(WIN32)
+        set_target_properties(nativesocketpal_static PROPERTIES OUTPUT_NAME nativesocketpal_static)
+    else()
+        set_target_properties(nativesocketpal_static PROPERTIES OUTPUT_NAME nativesocketpal)
+    endif()
+    set_target_properties(nativesocketpal_static PROPERTIES POSITION_INDEPENDENT_CODE ON)
 endif()
 
-if (NATIVESOCKETPAL_SHARED)
-    add_library(nativesocketpal SHARED ${SOURCES})
-
+if(NATIVESOCKETPAL_SHARED)
+    add_library(nativesocketpal SHARED ${NATIVESOCKETPAL_SOURCES} ${NATIVESOCKETPAL_PUBLIC_HEADERS})
+    nativesocketpal_configure(nativesocketpal)
     target_compile_definitions(nativesocketpal PRIVATE _NATIVESOCKETPAL_BUILD_DLL)
-
-    target_include_directories(nativesocketpal PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:include>
-    )
-
-    if (WIN32)
-        target_link_libraries(nativesocketpal PUBLIC ${NATIVESOCKETPAL_LIBS})
-    endif()
-
-    set_target_properties(nativesocketpal PROPERTIES
-        OUTPUT_NAME "nativesocketpal"
-    )
+    set_target_properties(nativesocketpal PROPERTIES OUTPUT_NAME nativesocketpal)
 endif()
 
-if (NATIVESOCKETPAL_SHARED)
+install(FILES ${NATIVESOCKETPAL_PUBLIC_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+if(NATIVESOCKETPAL_STATIC)
+    install(TARGETS nativesocketpal_static ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+endif()
+
+if(NATIVESOCKETPAL_SHARED)
     install(TARGETS nativesocketpal
-        RUNTIME DESTINATION bin
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     )
 endif()
-
-if (NATIVESOCKETPAL_STATIC)
-    install(TARGETS nativesocketpal_static
-        ARCHIVE DESTINATION lib
-    )
-endif()
-
-install(FILES include/_Types.h include/_nativesocketpal.h DESTINATION include)
