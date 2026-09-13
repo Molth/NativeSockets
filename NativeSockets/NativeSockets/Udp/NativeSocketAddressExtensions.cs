@@ -28,8 +28,7 @@ namespace NativeSockets
         public static SocketError FromIpEndPoint(ref this NativeSocketAddress socketAddress, IPEndPoint source) => socketAddress.FromIpAddress(source.Address, (ushort)source.Port);
 
         /// <summary>
-        ///     Populates a <see cref="NativeSocketAddress" /> from the specified <see cref="IPAddress" />, port,
-        ///     and scope id (ignored for Ipv4).
+        ///     Populates a <see cref="NativeSocketAddress" /> from the specified <see cref="IPAddress" />, port.
         /// </summary>
         /// <param name="socketAddress">The destination <see cref="NativeSocketAddress" /> to fill.</param>
         /// <param name="source">The <see cref="IPAddress" /> to set.</param>

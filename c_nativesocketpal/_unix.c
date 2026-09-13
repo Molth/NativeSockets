@@ -164,6 +164,11 @@ i32 _ConnectIpv6(isize socket, _sockaddr_in6 *socketAddress)
 /// <param name="value">Pointer to the option value.</param>
 /// <param name="length">The length of the option value in bytes.</param>
 /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+/// <remarks>
+///     The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
+///     platform equivalents by the underlying socket layer. The <paramref name="value" /> bytes are
+///     passed through unmodified; the platform interprets the buffer according to the mapped option.
+/// </remarks>
 i32 _SetOption(isize socket, i32 level, i32 name, u8 *value, i32 length)
 {
     i32 native_level = _ToNativeSocketOptionLevel(level);
@@ -181,11 +186,46 @@ i32 _SetOption(isize socket, i32 level, i32 name, u8 *value, i32 length)
 /// <param name="value">Pointer to a buffer to receive the option value.</param>
 /// <param name="length">Pointer to the length of the buffer; on output, the actual size of the option.</param>
 /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+/// <remarks>
+///     The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
+///     platform equivalents by the underlying socket layer. The <paramref name="value" /> buffer is
+///     passed through unmodified; the platform populates the buffer according to the mapped option.
+/// </remarks>
 i32 _GetOption(isize socket, i32 level, i32 name, u8 *value, i32 *length)
 {
     i32 native_level = _ToNativeSocketOptionLevel(level);
     i32 native_name = _ToNativeSocketOptionName(level, name);
     i32 result = getsockopt((i32)socket, native_level, native_name, value, (socklen_t *)length);
+    return (result == 0) ? _SOCKET_ERROR_SUCCESS : _GetLastSocketError();
+}
+
+/// <summary>
+///     Sets a socket option.
+/// </summary>
+/// <param name="socket">The socket handle.</param>
+/// <param name="level">The option level.</param>
+/// <param name="name">The option name.</param>
+/// <param name="value">Pointer to the option value.</param>
+/// <param name="length">The length of the option value in bytes.</param>
+/// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+i32 _SetRawOption(isize socket, i32 level, i32 name, u8 *value, i32 length)
+{
+    i32 result = setsockopt((i32)socket, level, name, value, (socklen_t)length);
+    return (result == 0) ? _SOCKET_ERROR_SUCCESS : _GetLastSocketError();
+}
+
+/// <summary>
+///     Gets a socket option.
+/// </summary>
+/// <param name="socket">The socket handle.</param>
+/// <param name="level">The option level.</param>
+/// <param name="name">The option name.</param>
+/// <param name="value">Pointer to a buffer to receive the option value.</param>
+/// <param name="length">Pointer to the length of the buffer; on output, the actual size of the option.</param>
+/// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+i32 _GetRawOption(isize socket, i32 level, i32 name, u8 *value, i32 *length)
+{
+    i32 result = getsockopt((i32)socket, level, name, value, (socklen_t *)length);
     return (result == 0) ? _SOCKET_ERROR_SUCCESS : _GetLastSocketError();
 }
 

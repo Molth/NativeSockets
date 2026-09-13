@@ -11,7 +11,7 @@ using System.Threading;
 namespace NativeSockets
 {
     /// <summary>
-    ///     Provides platform-abstracted socket operations for sending and receiving data.
+    ///     Provides platform-abstracted socket operations.
     ///     This class contains Windows-specific implementations using Winsock.
     /// </summary>
     internal static unsafe class WindowsNativeLib

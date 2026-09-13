@@ -7,13 +7,9 @@ using System.Runtime.CompilerServices;
 namespace NativeSockets
 {
     /// <summary>
-    ///     Provides platform-abstracted socket operations for sending and receiving data.
+    ///     Provides platform-abstracted socket operations.
     /// </summary>
-    /// <remarks>
-    ///     This class uses function pointers to delegate to the appropriate platform-specific implementation
-    ///     (Windows, Linux, Android, macOS) at runtime.
-    /// </remarks>
-    internal static unsafe class SharedSocketPal
+    internal static unsafe class UnifiedSocketPal
     {
         /// <summary>
         ///     Retrieves the last socket error code from the underlying platform.
@@ -21,12 +17,12 @@ namespace NativeSockets
         private static readonly delegate* managed<SocketError> _GetLastSocketError;
 
         /// <summary>
-        ///     Starts up the platform-specific socket subsystem (e.g., WSAStartup on Windows).
+        ///     Starts up the platform-specific socket subsystem.
         /// </summary>
         private static readonly delegate* managed<SocketError> _Startup;
 
         /// <summary>
-        ///     Cleans up the platform-specific socket subsystem (e.g., WSACleanup on Windows).
+        ///     Cleans up the platform-specific socket subsystem.
         /// </summary>
         private static readonly delegate* managed<SocketError> _Cleanup;
 
@@ -74,6 +70,16 @@ namespace NativeSockets
         ///     Gets a socket option.
         /// </summary>
         private static readonly delegate* managed<nint, SocketOptionLevel, SocketOptionName, byte*, int*, SocketError> _GetOption;
+
+        /// <summary>
+        ///     Sets a socket option.
+        /// </summary>
+        private static readonly delegate* managed<nint, int, int, byte*, int, SocketError> _SetRawOption;
+
+        /// <summary>
+        ///     Gets a socket option.
+        /// </summary>
+        private static readonly delegate* managed<nint, int, int, byte*, int*, SocketError> _GetRawOption;
 
         /// <summary>
         ///     Sets a socket's blocking mode.
@@ -203,192 +209,106 @@ namespace NativeSockets
         /// <summary>
         ///     Initializes a new instance of this class.
         /// </summary>
-        static SharedSocketPal()
+        static UnifiedSocketPal()
         {
-            if (IsWindows())
+            if (IsShared())
             {
-                ADDRESS_FAMILY_INTER_NETWORK_V4 = WindowsSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V4;
-                ADDRESS_FAMILY_INTER_NETWORK_V6 = WindowsSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
+                ADDRESS_FAMILY_INTER_NETWORK_V4 = SharedSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V4;
+                ADDRESS_FAMILY_INTER_NETWORK_V6 = SharedSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
 
-                _GetLastSocketError = &WindowsSocketPal.GetLastSocketError;
-                _Startup = &WindowsSocketPal.Startup;
-                _Cleanup = &WindowsSocketPal.Cleanup;
-                _Create = &WindowsSocketPal.Create;
-                _Close = &WindowsSocketPal.Close;
-                _SetDualModeIpv6 = &WindowsSocketPal.SetDualModeIpv6;
-                _BindIpv4 = &WindowsSocketPal.BindIpv4;
-                _BindIpv6 = &WindowsSocketPal.BindIpv6;
-                _ConnectIpv4 = &WindowsSocketPal.ConnectIpv4;
-                _ConnectIpv6 = &WindowsSocketPal.ConnectIpv6;
-                _SetOption = &WindowsSocketPal.SetOption;
-                _GetOption = &WindowsSocketPal.GetOption;
-                _SetBlocking = &WindowsSocketPal.SetBlocking;
-                _Poll = &WindowsSocketPal.Poll;
-                _PollFlags = &WindowsSocketPal.PollFlags;
-                _Send = &WindowsSocketPal.Send;
-                _SendToIpv4 = &WindowsSocketPal.SendToIpv4;
-                _SendToIpv6 = &WindowsSocketPal.SendToIpv6;
-                _Receive = &WindowsSocketPal.Receive;
-                _ReceiveFromIpv4 = &WindowsSocketPal.ReceiveFromIpv4;
-                _ReceiveFromIpv6 = &WindowsSocketPal.ReceiveFromIpv6;
-                _SendVectored = &WindowsSocketPal.SendVectored;
-                _SendToVectoredIpv4 = &WindowsSocketPal.SendToVectoredIpv4;
-                _SendToVectoredIpv6 = &WindowsSocketPal.SendToVectoredIpv6;
-                _ReceiveVectored = &WindowsSocketPal.ReceiveVectored;
-                _ReceiveFromVectoredIpv4 = &WindowsSocketPal.ReceiveFromVectoredIpv4;
-                _ReceiveFromVectoredIpv6 = &WindowsSocketPal.ReceiveFromVectoredIpv6;
-                _GetNameIpv4 = &WindowsSocketPal.GetNameIpv4;
-                _GetNameIpv6 = &WindowsSocketPal.GetNameIpv6;
-                _SetIpIpv4 = &WindowsSocketPal.SetIpIpv4;
-                _SetIpIpv6 = &WindowsSocketPal.SetIpIpv6;
-                _GetIpIpv4 = &WindowsSocketPal.GetIpIpv4;
-                _GetIpIpv6 = &WindowsSocketPal.GetIpIpv6;
-                _SetHostNameIpv4 = &WindowsSocketPal.SetHostNameIpv4;
-                _SetHostNameIpv6 = &WindowsSocketPal.SetHostNameIpv6;
-                _GetHostNameIpv4 = &WindowsSocketPal.GetHostNameIpv4;
-                _GetHostNameIpv6 = &WindowsSocketPal.GetHostNameIpv6;
+                _GetLastSocketError = &SharedSocketPal.GetLastSocketError;
+                _Startup = &SharedSocketPal.Startup;
+                _Cleanup = &SharedSocketPal.Cleanup;
+                _Create = &SharedSocketPal.Create;
+                _Close = &SharedSocketPal.Close;
+                _SetDualModeIpv6 = &SharedSocketPal.SetDualModeIpv6;
+                _BindIpv4 = &SharedSocketPal.BindIpv4;
+                _BindIpv6 = &SharedSocketPal.BindIpv6;
+                _ConnectIpv4 = &SharedSocketPal.ConnectIpv4;
+                _ConnectIpv6 = &SharedSocketPal.ConnectIpv6;
+                _SetOption = &SharedSocketPal.SetOption;
+                _GetOption = &SharedSocketPal.GetOption;
+                _SetRawOption = &SharedSocketPal.SetRawOption;
+                _GetRawOption = &SharedSocketPal.GetRawOption;
+                _SetBlocking = &SharedSocketPal.SetBlocking;
+                _Poll = &SharedSocketPal.Poll;
+                _PollFlags = &SharedSocketPal.PollFlags;
+                _Send = &SharedSocketPal.Send;
+                _SendToIpv4 = &SharedSocketPal.SendToIpv4;
+                _SendToIpv6 = &SharedSocketPal.SendToIpv6;
+                _Receive = &SharedSocketPal.Receive;
+                _ReceiveFromIpv4 = &SharedSocketPal.ReceiveFromIpv4;
+                _ReceiveFromIpv6 = &SharedSocketPal.ReceiveFromIpv6;
+                _SendVectored = &SharedSocketPal.SendVectored;
+                _SendToVectoredIpv4 = &SharedSocketPal.SendToVectoredIpv4;
+                _SendToVectoredIpv6 = &SharedSocketPal.SendToVectoredIpv6;
+                _ReceiveVectored = &SharedSocketPal.ReceiveVectored;
+                _ReceiveFromVectoredIpv4 = &SharedSocketPal.ReceiveFromVectoredIpv4;
+                _ReceiveFromVectoredIpv6 = &SharedSocketPal.ReceiveFromVectoredIpv6;
+                _GetNameIpv4 = &SharedSocketPal.GetNameIpv4;
+                _GetNameIpv6 = &SharedSocketPal.GetNameIpv6;
+                _SetIpIpv4 = &SharedSocketPal.SetIpIpv4;
+                _SetIpIpv6 = &SharedSocketPal.SetIpIpv6;
+                _GetIpIpv4 = &SharedSocketPal.GetIpIpv4;
+                _GetIpIpv6 = &SharedSocketPal.GetIpIpv6;
+                _SetHostNameIpv4 = &SharedSocketPal.SetHostNameIpv4;
+                _SetHostNameIpv6 = &SharedSocketPal.SetHostNameIpv6;
+                _GetHostNameIpv4 = &SharedSocketPal.GetHostNameIpv4;
+                _GetHostNameIpv6 = &SharedSocketPal.GetHostNameIpv6;
             }
 
-            else if (IsLinux())
+            else if (IsStatic())
             {
-                ADDRESS_FAMILY_INTER_NETWORK_V4 = LinuxSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V4;
-                ADDRESS_FAMILY_INTER_NETWORK_V6 = LinuxSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
+                ADDRESS_FAMILY_INTER_NETWORK_V4 = StaticSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V4;
+                ADDRESS_FAMILY_INTER_NETWORK_V6 = StaticSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
 
-                _GetLastSocketError = &LinuxSocketPal.GetLastSocketError;
-                _Startup = &LinuxSocketPal.Startup;
-                _Cleanup = &LinuxSocketPal.Cleanup;
-                _Create = &LinuxSocketPal.Create;
-                _Close = &LinuxSocketPal.Close;
-                _SetDualModeIpv6 = &LinuxSocketPal.SetDualModeIpv6;
-                _BindIpv4 = &LinuxSocketPal.BindIpv4;
-                _BindIpv6 = &LinuxSocketPal.BindIpv6;
-                _ConnectIpv4 = &LinuxSocketPal.ConnectIpv4;
-                _ConnectIpv6 = &LinuxSocketPal.ConnectIpv6;
-                _SetOption = &LinuxSocketPal.SetOption;
-                _GetOption = &LinuxSocketPal.GetOption;
-                _SetBlocking = &LinuxSocketPal.SetBlocking;
-                _Poll = &LinuxSocketPal.Poll;
-                _PollFlags = &LinuxSocketPal.PollFlags;
-                _Send = &LinuxSocketPal.Send;
-                _SendToIpv4 = &LinuxSocketPal.SendToIpv4;
-                _SendToIpv6 = &LinuxSocketPal.SendToIpv6;
-                _Receive = &LinuxSocketPal.Receive;
-                _ReceiveFromIpv4 = &LinuxSocketPal.ReceiveFromIpv4;
-                _ReceiveFromIpv6 = &LinuxSocketPal.ReceiveFromIpv6;
-                _SendVectored = &LinuxSocketPal.SendVectored;
-                _SendToVectoredIpv4 = &LinuxSocketPal.SendToVectoredIpv4;
-                _SendToVectoredIpv6 = &LinuxSocketPal.SendToVectoredIpv6;
-                _ReceiveVectored = &LinuxSocketPal.ReceiveVectored;
-                _ReceiveFromVectoredIpv4 = &LinuxSocketPal.ReceiveFromVectoredIpv4;
-                _ReceiveFromVectoredIpv6 = &LinuxSocketPal.ReceiveFromVectoredIpv6;
-                _GetNameIpv4 = &LinuxSocketPal.GetNameIpv4;
-                _GetNameIpv6 = &LinuxSocketPal.GetNameIpv6;
-                _SetIpIpv4 = &LinuxSocketPal.SetIpIpv4;
-                _SetIpIpv6 = &LinuxSocketPal.SetIpIpv6;
-                _GetIpIpv4 = &LinuxSocketPal.GetIpIpv4;
-                _GetIpIpv6 = &LinuxSocketPal.GetIpIpv6;
-                _SetHostNameIpv4 = &LinuxSocketPal.SetHostNameIpv4;
-                _SetHostNameIpv6 = &LinuxSocketPal.SetHostNameIpv6;
-                _GetHostNameIpv4 = &LinuxSocketPal.GetHostNameIpv4;
-                _GetHostNameIpv6 = &LinuxSocketPal.GetHostNameIpv6;
+                _GetLastSocketError = &StaticSocketPal.GetLastSocketError;
+                _Startup = &StaticSocketPal.Startup;
+                _Cleanup = &StaticSocketPal.Cleanup;
+                _Create = &StaticSocketPal.Create;
+                _Close = &StaticSocketPal.Close;
+                _SetDualModeIpv6 = &StaticSocketPal.SetDualModeIpv6;
+                _BindIpv4 = &StaticSocketPal.BindIpv4;
+                _BindIpv6 = &StaticSocketPal.BindIpv6;
+                _ConnectIpv4 = &StaticSocketPal.ConnectIpv4;
+                _ConnectIpv6 = &StaticSocketPal.ConnectIpv6;
+                _SetOption = &StaticSocketPal.SetOption;
+                _GetOption = &StaticSocketPal.GetOption;
+                _SetRawOption = &StaticSocketPal.SetRawOption;
+                _GetRawOption = &StaticSocketPal.GetRawOption;
+                _SetBlocking = &StaticSocketPal.SetBlocking;
+                _Poll = &StaticSocketPal.Poll;
+                _PollFlags = &StaticSocketPal.PollFlags;
+                _Send = &StaticSocketPal.Send;
+                _SendToIpv4 = &StaticSocketPal.SendToIpv4;
+                _SendToIpv6 = &StaticSocketPal.SendToIpv6;
+                _Receive = &StaticSocketPal.Receive;
+                _ReceiveFromIpv4 = &StaticSocketPal.ReceiveFromIpv4;
+                _ReceiveFromIpv6 = &StaticSocketPal.ReceiveFromIpv6;
+                _SendVectored = &StaticSocketPal.SendVectored;
+                _SendToVectoredIpv4 = &StaticSocketPal.SendToVectoredIpv4;
+                _SendToVectoredIpv6 = &StaticSocketPal.SendToVectoredIpv6;
+                _ReceiveVectored = &StaticSocketPal.ReceiveVectored;
+                _ReceiveFromVectoredIpv4 = &StaticSocketPal.ReceiveFromVectoredIpv4;
+                _ReceiveFromVectoredIpv6 = &StaticSocketPal.ReceiveFromVectoredIpv6;
+                _GetNameIpv4 = &StaticSocketPal.GetNameIpv4;
+                _GetNameIpv6 = &StaticSocketPal.GetNameIpv6;
+                _SetIpIpv4 = &StaticSocketPal.SetIpIpv4;
+                _SetIpIpv6 = &StaticSocketPal.SetIpIpv6;
+                _GetIpIpv4 = &StaticSocketPal.GetIpIpv4;
+                _GetIpIpv6 = &StaticSocketPal.GetIpIpv6;
+                _SetHostNameIpv4 = &StaticSocketPal.SetHostNameIpv4;
+                _SetHostNameIpv6 = &StaticSocketPal.SetHostNameIpv6;
+                _GetHostNameIpv4 = &StaticSocketPal.GetHostNameIpv4;
+                _GetHostNameIpv6 = &StaticSocketPal.GetHostNameIpv6;
             }
 
-            else if (IsOsx())
-            {
-                ADDRESS_FAMILY_INTER_NETWORK_V4 = OsxSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V4;
-                ADDRESS_FAMILY_INTER_NETWORK_V6 = OsxSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
-
-                _GetLastSocketError = &OsxSocketPal.GetLastSocketError;
-                _Startup = &OsxSocketPal.Startup;
-                _Cleanup = &OsxSocketPal.Cleanup;
-                _Create = &OsxSocketPal.Create;
-                _Close = &OsxSocketPal.Close;
-                _SetDualModeIpv6 = &OsxSocketPal.SetDualModeIpv6;
-                _BindIpv4 = &OsxSocketPal.BindIpv4;
-                _BindIpv6 = &OsxSocketPal.BindIpv6;
-                _ConnectIpv4 = &OsxSocketPal.ConnectIpv4;
-                _ConnectIpv6 = &OsxSocketPal.ConnectIpv6;
-                _SetOption = &OsxSocketPal.SetOption;
-                _GetOption = &OsxSocketPal.GetOption;
-                _SetBlocking = &OsxSocketPal.SetBlocking;
-                _Poll = &OsxSocketPal.Poll;
-                _PollFlags = &OsxSocketPal.PollFlags;
-                _Send = &OsxSocketPal.Send;
-                _SendToIpv4 = &OsxSocketPal.SendToIpv4;
-                _SendToIpv6 = &OsxSocketPal.SendToIpv6;
-                _Receive = &OsxSocketPal.Receive;
-                _ReceiveFromIpv4 = &OsxSocketPal.ReceiveFromIpv4;
-                _ReceiveFromIpv6 = &OsxSocketPal.ReceiveFromIpv6;
-                _SendVectored = &OsxSocketPal.SendVectored;
-                _SendToVectoredIpv4 = &OsxSocketPal.SendToVectoredIpv4;
-                _SendToVectoredIpv6 = &OsxSocketPal.SendToVectoredIpv6;
-                _ReceiveVectored = &OsxSocketPal.ReceiveVectored;
-                _ReceiveFromVectoredIpv4 = &OsxSocketPal.ReceiveFromVectoredIpv4;
-                _ReceiveFromVectoredIpv6 = &OsxSocketPal.ReceiveFromVectoredIpv6;
-                _GetNameIpv4 = &OsxSocketPal.GetNameIpv4;
-                _GetNameIpv6 = &OsxSocketPal.GetNameIpv6;
-                _SetIpIpv4 = &OsxSocketPal.SetIpIpv4;
-                _SetIpIpv6 = &OsxSocketPal.SetIpIpv6;
-                _GetIpIpv4 = &OsxSocketPal.GetIpIpv4;
-                _GetIpIpv6 = &OsxSocketPal.GetIpIpv6;
-                _SetHostNameIpv4 = &OsxSocketPal.SetHostNameIpv4;
-                _SetHostNameIpv6 = &OsxSocketPal.SetHostNameIpv6;
-                _GetHostNameIpv4 = &OsxSocketPal.GetHostNameIpv4;
-                _GetHostNameIpv6 = &OsxSocketPal.GetHostNameIpv6;
-            }
-
-            else if (IsFreeBsd())
-            {
-                ADDRESS_FAMILY_INTER_NETWORK_V4 = FreeBsdSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V4;
-                ADDRESS_FAMILY_INTER_NETWORK_V6 = FreeBsdSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
-
-                _GetLastSocketError = &FreeBsdSocketPal.GetLastSocketError;
-                _Startup = &FreeBsdSocketPal.Startup;
-                _Cleanup = &FreeBsdSocketPal.Cleanup;
-                _Create = &FreeBsdSocketPal.Create;
-                _Close = &FreeBsdSocketPal.Close;
-                _SetDualModeIpv6 = &FreeBsdSocketPal.SetDualModeIpv6;
-                _BindIpv4 = &FreeBsdSocketPal.BindIpv4;
-                _BindIpv6 = &FreeBsdSocketPal.BindIpv6;
-                _ConnectIpv4 = &FreeBsdSocketPal.ConnectIpv4;
-                _ConnectIpv6 = &FreeBsdSocketPal.ConnectIpv6;
-                _SetOption = &FreeBsdSocketPal.SetOption;
-                _GetOption = &FreeBsdSocketPal.GetOption;
-                _SetBlocking = &FreeBsdSocketPal.SetBlocking;
-                _Poll = &FreeBsdSocketPal.Poll;
-                _PollFlags = &FreeBsdSocketPal.PollFlags;
-                _Send = &FreeBsdSocketPal.Send;
-                _SendToIpv4 = &FreeBsdSocketPal.SendToIpv4;
-                _SendToIpv6 = &FreeBsdSocketPal.SendToIpv6;
-                _Receive = &FreeBsdSocketPal.Receive;
-                _ReceiveFromIpv4 = &FreeBsdSocketPal.ReceiveFromIpv4;
-                _ReceiveFromIpv6 = &FreeBsdSocketPal.ReceiveFromIpv6;
-                _SendVectored = &FreeBsdSocketPal.SendVectored;
-                _SendToVectoredIpv4 = &FreeBsdSocketPal.SendToVectoredIpv4;
-                _SendToVectoredIpv6 = &FreeBsdSocketPal.SendToVectoredIpv6;
-                _ReceiveVectored = &FreeBsdSocketPal.ReceiveVectored;
-                _ReceiveFromVectoredIpv4 = &FreeBsdSocketPal.ReceiveFromVectoredIpv4;
-                _ReceiveFromVectoredIpv6 = &FreeBsdSocketPal.ReceiveFromVectoredIpv6;
-                _GetNameIpv4 = &FreeBsdSocketPal.GetNameIpv4;
-                _GetNameIpv6 = &FreeBsdSocketPal.GetNameIpv6;
-                _SetIpIpv4 = &FreeBsdSocketPal.SetIpIpv4;
-                _SetIpIpv6 = &FreeBsdSocketPal.SetIpIpv6;
-                _GetIpIpv4 = &FreeBsdSocketPal.GetIpIpv4;
-                _GetIpIpv6 = &FreeBsdSocketPal.GetIpIpv6;
-                _SetHostNameIpv4 = &FreeBsdSocketPal.SetHostNameIpv4;
-                _SetHostNameIpv6 = &FreeBsdSocketPal.SetHostNameIpv6;
-                _GetHostNameIpv4 = &FreeBsdSocketPal.GetHostNameIpv4;
-                _GetHostNameIpv6 = &FreeBsdSocketPal.GetHostNameIpv6;
-            }
-
-            IsSupported = IsWindows() || IsLinux() || IsOsx() || IsFreeBsd();
+            IsSupported = IsShared() || IsStatic();
 
             return;
 
-            static bool IsWindows() => WindowsSocketPal.IsSupported;
-            static bool IsLinux() => LinuxSocketPal.IsSupported;
-            static bool IsOsx() => OsxSocketPal.IsSupported;
-            static bool IsFreeBsd() => FreeBsdSocketPal.IsSupported;
+            static bool IsShared() => SharedSocketPal.IsSupported;
+            static bool IsStatic() => StaticSocketPal.IsSupported;
         }
 
         /// <summary>
@@ -497,6 +417,11 @@ namespace NativeSockets
         /// <param name="value">Pointer to the option value.</param>
         /// <param name="length">The length of the option value in bytes.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
+        ///     platform equivalents by the underlying socket layer. The <paramref name="value" /> bytes are
+        ///     passed through unmodified; the platform interprets the buffer according to the mapped option.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError SetOption(nint socket, SocketOptionLevel level, SocketOptionName name, byte* value, int length) => _SetOption(socket, level, name, value, length);
 
@@ -509,8 +434,37 @@ namespace NativeSockets
         /// <param name="value">Pointer to a buffer to receive the option value.</param>
         /// <param name="length">Pointer to the length of the buffer; on output, the actual size of the option.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
+        ///     platform equivalents by the underlying socket layer. The <paramref name="value" /> buffer is
+        ///     passed through unmodified; the platform populates the buffer according to the mapped option.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetOption(nint socket, SocketOptionLevel level, SocketOptionName name, byte* value, int* length) => _GetOption(socket, level, name, value, length);
+
+        /// <summary>
+        ///     Sets a socket option.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="level">The option level.</param>
+        /// <param name="name">The option name.</param>
+        /// <param name="value">Pointer to the option value.</param>
+        /// <param name="length">The length of the option value in bytes.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError SetRawOption(nint socket, int level, int name, byte* value, int length) => _SetRawOption(socket, level, name, value, length);
+
+        /// <summary>
+        ///     Gets a socket option.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="level">The option level.</param>
+        /// <param name="name">The option name.</param>
+        /// <param name="value">Pointer to a buffer to receive the option value.</param>
+        /// <param name="length">Pointer to the length of the buffer; on output, the actual size of the option.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError GetRawOption(nint socket, int level, int name, byte* value, int* length) => _GetRawOption(socket, level, name, value, length);
 
         /// <summary>
         ///     Sets a socket's blocking mode.

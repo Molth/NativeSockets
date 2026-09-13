@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 namespace NativeSockets
 {
     /// <summary>
-    ///     Provides platform-abstracted socket operations for sending and receiving data.
+    ///     Provides platform-abstracted socket operations.
     /// </summary>
     internal static unsafe class StaticSocketPal
     {
@@ -152,6 +152,11 @@ namespace NativeSockets
         /// <param name="value">Pointer to the option value.</param>
         /// <param name="length">The length of the option value in bytes.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
+        ///     platform equivalents by the underlying socket layer. The <paramref name="value" /> bytes are
+        ///     passed through unmodified; the platform interprets the buffer according to the mapped option.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError SetOption(nint socket, SocketOptionLevel level, SocketOptionName name, byte* value, int length) => StaticNativeLib.SetOption(socket, level, name, value, length);
 
@@ -164,8 +169,37 @@ namespace NativeSockets
         /// <param name="value">Pointer to a buffer to receive the option value.</param>
         /// <param name="length">Pointer to the length of the buffer; on output, the actual size of the option.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
+        ///     platform equivalents by the underlying socket layer. The <paramref name="value" /> buffer is
+        ///     passed through unmodified; the platform populates the buffer according to the mapped option.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetOption(nint socket, SocketOptionLevel level, SocketOptionName name, byte* value, int* length) => StaticNativeLib.GetOption(socket, level, name, value, length);
+
+        /// <summary>
+        ///     Sets a socket option.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="level">The option level.</param>
+        /// <param name="name">The option name.</param>
+        /// <param name="value">Pointer to the option value.</param>
+        /// <param name="length">The length of the option value in bytes.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError SetRawOption(nint socket, int level, int name, byte* value, int length) => StaticNativeLib.SetRawOption(socket, level, name, value, length);
+
+        /// <summary>
+        ///     Gets a socket option.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="level">The option level.</param>
+        /// <param name="name">The option name.</param>
+        /// <param name="value">Pointer to a buffer to receive the option value.</param>
+        /// <param name="length">Pointer to the length of the buffer; on output, the actual size of the option.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError GetRawOption(nint socket, int level, int name, byte* value, int* length) => StaticNativeLib.GetRawOption(socket, level, name, value, length);
 
         /// <summary>
         ///     Sets a socket's blocking mode.

@@ -71,14 +71,18 @@ namespace NativeSockets
         /// <param name="result">The native socket handle, or -1 on error.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError Create(bool ipv6, out NativeSocket result) => NativeSocketPal.Create(ipv6, out result);
+        public static SocketError Create(bool ipv6, out NativeSocket result)
+        {
+            result = new NativeSocket(SocketPal.Create(ipv6), ipv6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork);
+            return result.Handle != -1 ? SocketError.Success : SocketError.SocketError;
+        }
 
         /// <summary>
         ///     Performs application-defined tasks associated with freeing,
         ///     releasing, or resetting unmanaged resources.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Dispose() => NativeSocketPal.Close(this);
+        public void Dispose() => SocketPal.Close(this);
 
         /// <summary>
         ///     Implicitly converts a <see cref="NativeSocket" /> to its native handle.

@@ -47,6 +47,11 @@ namespace NativeSockets
         /// <param name="name">The option name.</param>
         /// <param name="value">Pointer to the option value.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
+        ///     platform equivalents by the underlying socket layer. The <paramref name="value" /> bytes are
+        ///     passed through unmodified; the platform interprets the buffer according to the mapped option.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError SetOption(this NativeSocket socket, SocketOptionLevel level, SocketOptionName name, ReadOnlySpan<byte> value)
         {
@@ -64,6 +69,11 @@ namespace NativeSockets
         /// <param name="name">The option name.</param>
         /// <param name="value">Pointer to a buffer to receive the option value.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
+        ///     platform equivalents by the underlying socket layer. The <paramref name="value" /> buffer is
+        ///     passed through unmodified; the platform populates the buffer according to the mapped option.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetOption(this NativeSocket socket, SocketOptionLevel level, SocketOptionName name, ref Span<byte> value)
         {
@@ -72,6 +82,47 @@ namespace NativeSockets
             fixed (byte* pValue = &MemoryMarshal.GetReference(value))
             {
                 error = SocketPal.GetOption(socket, level, name, pValue, &length);
+            }
+
+            if (error == SocketError.Success)
+                value = value.Slice(0, length);
+
+            return error;
+        }
+
+        /// <summary>
+        ///     Sets a socket option.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="level">The option level.</param>
+        /// <param name="name">The option name.</param>
+        /// <param name="value">Pointer to the option value.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError SetRawOption(this NativeSocket socket, int level, int name, ReadOnlySpan<byte> value)
+        {
+            fixed (byte* pValue = &MemoryMarshal.GetReference(value))
+            {
+                return SocketPal.SetRawOption(socket, level, name, pValue, value.Length);
+            }
+        }
+
+        /// <summary>
+        ///     Gets a socket option.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="level">The option level.</param>
+        /// <param name="name">The option name.</param>
+        /// <param name="value">Pointer to a buffer to receive the option value.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError GetRawOption(this NativeSocket socket, int level, int name, ref Span<byte> value)
+        {
+            int length = value.Length;
+            SocketError error;
+            fixed (byte* pValue = &MemoryMarshal.GetReference(value))
+            {
+                error = SocketPal.GetRawOption(socket, level, name, pValue, &length);
             }
 
             if (error == SocketError.Success)

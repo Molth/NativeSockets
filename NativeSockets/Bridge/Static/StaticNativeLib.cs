@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 namespace NativeSockets
 {
     /// <summary>
-    ///     Provides platform-abstracted socket operations for sending and receiving data.
+    ///     Provides platform-abstracted socket operations.
     /// </summary>
     internal static unsafe class StaticNativeLib
     {
@@ -125,6 +125,11 @@ namespace NativeSockets
         /// <param name="value">Pointer to the option value.</param>
         /// <param name="length">The length of the option value in bytes.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
+        ///     platform equivalents by the underlying socket layer. The <paramref name="value" /> bytes are
+        ///     passed through unmodified; the platform interprets the buffer according to the mapped option.
+        /// </remarks>
         [DllImport(NATIVE_LIBRARY, EntryPoint = "_SetOption", CallingConvention = CALLING_CONVENTION)]
         public static extern SocketError SetOption(nint socket, SocketOptionLevel level, SocketOptionName name, byte* value, int length);
 
@@ -137,8 +142,37 @@ namespace NativeSockets
         /// <param name="value">Pointer to a buffer to receive the option value.</param>
         /// <param name="length">Pointer to the length of the buffer; on output, the actual size of the option.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
+        ///     platform equivalents by the underlying socket layer. The <paramref name="value" /> buffer is
+        ///     passed through unmodified; the platform populates the buffer according to the mapped option.
+        /// </remarks>
         [DllImport(NATIVE_LIBRARY, EntryPoint = "_GetOption", CallingConvention = CALLING_CONVENTION)]
         public static extern SocketError GetOption(nint socket, SocketOptionLevel level, SocketOptionName name, byte* value, int* length);
+
+        /// <summary>
+        ///     Sets a socket option.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="level">The option level.</param>
+        /// <param name="name">The option name.</param>
+        /// <param name="value">Pointer to the option value.</param>
+        /// <param name="length">The length of the option value in bytes.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        [DllImport(NATIVE_LIBRARY, EntryPoint = "_SetRawOption", CallingConvention = CALLING_CONVENTION)]
+        public static extern SocketError SetRawOption(nint socket, int level, int name, byte* value, int length);
+
+        /// <summary>
+        ///     Gets a socket option.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="level">The option level.</param>
+        /// <param name="name">The option name.</param>
+        /// <param name="value">Pointer to a buffer to receive the option value.</param>
+        /// <param name="length">Pointer to the length of the buffer; on output, the actual size of the option.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        [DllImport(NATIVE_LIBRARY, EntryPoint = "_GetRawOption", CallingConvention = CALLING_CONVENTION)]
+        public static extern SocketError GetRawOption(nint socket, int level, int name, byte* value, int* length);
 
         /// <summary>
         ///     Sets a socket's blocking mode.

@@ -178,12 +178,45 @@ extern "C"
     /// <summary>
     ///     Sets a socket option.
     /// </summary>
+    /// <remarks>
+    ///     The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
+    ///     platform equivalents by the underlying socket layer. The <paramref name="value" /> bytes are
+    ///     passed through unmodified; the platform interprets the buffer according to the mapped option.
+    /// </remarks>
     _NATIVESOCKETPAL_API i32 _SetOption(isize socket, i32 level, i32 name, u8 *value, i32 length);
 
     /// <summary>
     ///     Gets a socket option.
     /// </summary>
+    /// <remarks>
+    ///     The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
+    ///     platform equivalents by the underlying socket layer. The <paramref name="value" /> buffer is
+    ///     passed through unmodified; on success it is resized to the actual option size reported by
+    ///     the platform.
+    /// </remarks>
     _NATIVESOCKETPAL_API i32 _GetOption(isize socket, i32 level, i32 name, u8 *value, i32 *length);
+
+    /// <summary>
+    ///     Sets a socket option.
+    /// </summary>
+    /// <param name="socket">The socket handle.</param>
+    /// <param name="level">The option level.</param>
+    /// <param name="name">The option name.</param>
+    /// <param name="value">Pointer to the option value.</param>
+    /// <param name="length">The length of the option value in bytes.</param>
+    /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+    _NATIVESOCKETPAL_API i32 _SetRawOption(isize socket, i32 level, i32 name, u8 *value, i32 length);
+
+    /// <summary>
+    ///     Gets a socket option.
+    /// </summary>
+    /// <param name="socket">The socket handle.</param>
+    /// <param name="level">The option level.</param>
+    /// <param name="name">The option name.</param>
+    /// <param name="value">Pointer to a buffer to receive the option value.</param>
+    /// <param name="length">Pointer to the length of the buffer; on output, the actual size of the option.</param>
+    /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+    _NATIVESOCKETPAL_API i32 _GetRawOption(isize socket, i32 level, i32 name, u8 *value, i32 *length);
 
     /// <summary>
     ///     Sets a socket's blocking mode.

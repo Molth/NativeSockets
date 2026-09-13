@@ -13,7 +13,7 @@ namespace NativeSockets
     /// <summary>
     ///     Provides Unix-specific socket operations using libc functions.
     /// </summary>
-    internal static unsafe class UnixNativeLib
+    internal static unsafe class UnixNativeLib1
     {
         /// <summary>
         ///     Binds a socket to a local address.
