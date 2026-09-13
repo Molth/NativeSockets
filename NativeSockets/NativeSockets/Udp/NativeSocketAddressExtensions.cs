@@ -188,7 +188,7 @@ namespace NativeSockets
         /// <param name="scopeId">The scope id for the Ipv6 address.</param>
         /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetIpIpv6(ref this NativeSocketAddress socketAddress, ReadOnlySpan<char> ip, ushort port, uint scopeId = 0)
+        public static SocketError SetIpIpv6(ref this NativeSocketAddress socketAddress, ReadOnlySpan<char> ip, ushort port, uint scopeId = default)
         {
             Unsafe.SkipInit(out sockaddr_in6 __socketAddress_native);
             SocketError error;
@@ -254,7 +254,7 @@ namespace NativeSockets
         /// <param name="scopeId">The Ipv6 scope identifier (used for link-local or site-local addresses).</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetHostNameIpv6(ref this NativeSocketAddress socketAddress, ReadOnlySpan<char> hostName, ushort port, uint scopeId = 0)
+        public static SocketError SetHostNameIpv6(ref this NativeSocketAddress socketAddress, ReadOnlySpan<char> hostName, ushort port, uint scopeId = default)
         {
             Unsafe.SkipInit(out sockaddr_in6 __socketAddress_native);
             SocketError error;
