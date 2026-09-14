@@ -16,79 +16,6 @@ namespace NativeSockets
     public static unsafe class NativeSocketAddressExtensions
     {
         /// <summary>
-        ///     Populates a <see cref="NativeSocketAddress" /> from the specified <see cref="IPEndPoint" />.
-        /// </summary>
-        /// <param name="socketAddress">The destination <see cref="NativeSocketAddress" /> to fill.</param>
-        /// <param name="source">The <see cref="IPEndPoint" /> containing the ip address and port.</param>
-        /// <returns>
-        ///     <see cref="SocketError.Success" /> if successful;
-        ///     <see cref="SocketError.AddressFamilyNotSupported" /> if the address family is not Ipv4 or Ipv6.
-        /// </returns>
-        /// <exception cref="NullReferenceException">Thrown if <paramref name="source" /> is null.</exception>
-        public static SocketError FromIpEndPoint(ref this NativeSocketAddress socketAddress, IPEndPoint source) => socketAddress.FromIpAddress(source.Address, (ushort)source.Port);
-
-        /// <summary>
-        ///     Populates a <see cref="NativeSocketAddress" /> from the specified <see cref="IPAddress" /> and port.
-        /// </summary>
-        /// <param name="socketAddress">The destination <see cref="NativeSocketAddress" /> to fill.</param>
-        /// <param name="source">The <see cref="IPAddress" /> to copy from.</param>
-        /// <param name="port">The port number.</param>
-        /// <returns>
-        ///     <see cref="SocketError.Success" /> if successful;
-        ///     <see cref="SocketError.AddressFamilyNotSupported" /> if the address family is not Ipv4 or Ipv6.
-        /// </returns>
-        /// <exception cref="NullReferenceException">Thrown if <paramref name="source" /> is null.</exception>
-        public static SocketError FromIpAddress(ref this NativeSocketAddress socketAddress, IPAddress source, ushort port)
-        {
-            if (source.AddressFamily == AddressFamily.InterNetwork || source.AddressFamily == AddressFamily.InterNetworkV6)
-            {
-                socketAddress = new NativeSocketAddress();
-                socketAddress.Family = source.AddressFamily;
-                socketAddress.Port = port;
-                source.TryWriteBytes(socketAddress.Address, out _);
-
-                if (source.AddressFamily == AddressFamily.InterNetworkV6)
-                    socketAddress.ScopeId = (uint)source.ScopeId;
-
-                return SocketError.Success;
-            }
-
-            return SocketError.AddressFamilyNotSupported;
-        }
-
-        /// <summary>
-        ///     Populates a <see cref="NativeSocketAddress" /> from the specified <see cref="SocketAddress" />.
-        /// </summary>
-        /// <param name="socketAddress">The destination <see cref="NativeSocketAddress" /> to fill.</param>
-        /// <param name="source">The source <see cref="SocketAddress" /> to copy from.</param>
-        /// <returns>
-        ///     <see cref="SocketError.Success" /> if the address is valid and copied successfully;
-        ///     <see cref="SocketError.AddressFamilyNotSupported" /> if the address family is not Ipv4 or Ipv6;
-        ///     <see cref="SocketError.NoBufferSpaceAvailable" /> if the address size is insufficient.
-        /// </returns>
-        /// <exception cref="NullReferenceException">Thrown if <paramref name="source" /> is null.</exception>
-        public static SocketError FromSocketAddress(ref this NativeSocketAddress socketAddress, SocketAddress source)
-        {
-            if (source.Family == AddressFamily.InterNetwork || source.Family == AddressFamily.InterNetworkV6)
-            {
-                if ((source.Family == AddressFamily.InterNetwork && source.Size >= 16) || (source.Family == AddressFamily.InterNetworkV6 && source.Size >= 28))
-                {
-                    socketAddress.Family = source.Family;
-                    source.CopyTo(socketAddress.Buffer, source.Family == AddressFamily.InterNetwork ? 8 : 28);
-
-                    if (source.Family == AddressFamily.InterNetwork)
-                        socketAddress.AsSpan().Slice(8).Clear();
-
-                    return SocketError.Success;
-                }
-
-                return SocketError.NoBufferSpaceAvailable;
-            }
-
-            return SocketError.AddressFamilyNotSupported;
-        }
-
-        /// <summary>
         ///     Converts a <see cref="NativeSocketAddress" /> into an <see cref="IPEndPoint" />.
         /// </summary>
         /// <param name="socketAddress">The socket address to convert.</param>
@@ -133,7 +60,7 @@ namespace NativeSockets
                 return SocketError.AddressFamilyNotSupported;
             }
 
-            result = socketAddress.IsIpv6 ? new IPAddress(socketAddress.Address, socketAddress.ScopeId) : new IPAddress(socketAddress.Address);
+            result = socketAddress.IsIpv6 ? new IPAddress(socketAddress.Ip, socketAddress.ScopeId) : new IPAddress(socketAddress.Ip);
             return SocketError.Success;
         }
 
@@ -159,8 +86,121 @@ namespace NativeSockets
 
             ReadOnlySpan<byte> buffer = socketAddress.Buffer;
             result = new SocketAddress(socketAddress.Family);
-            result.CopyFrom(buffer, socketAddress.IsIpv4 ? 8 : 28);
+            result.CopyFromWithoutFamily(buffer, socketAddress.IsIpv4 ? 8 : 28);
             return SocketError.Success;
+        }
+
+        /// <summary>
+        ///     Retrieves the ip address from a <see cref="NativeSocketAddress" /> as text.
+        /// </summary>
+        /// <param name="socketAddress">The <see cref="NativeSocketAddress" /> to read the ip address from.</param>
+        /// <param name="ip">The character span to receive the ip address; resized to the actual length on success.</param>
+        /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError GetIp(this NativeSocketAddress socketAddress, ref Span<char> ip)
+        {
+            if (!socketAddress.IsIpv4 && !socketAddress.IsIpv6)
+                return SocketError.AddressFamilyNotSupported;
+
+            Span<byte> bytes = stackalloc byte[WinSock2.NI_MAXHOST];
+            SocketError result = socketAddress.IsIpv4 ? SocketPal.GetIpIpv4((sockaddr_in4*)&socketAddress, bytes) : SocketPal.GetIpIpv6((sockaddr_in6*)&socketAddress, bytes);
+            if (result == SocketError.Success)
+                return CopyAsciiBytesToChars(bytes, ref ip);
+
+            return result;
+        }
+
+        /// <summary>
+        ///     Gets the host name (reverse DNS) from a <see cref="NativeSocketAddress" />.
+        /// </summary>
+        /// <param name="socketAddress">The <see cref="NativeSocketAddress" /> to resolve the host name for.</param>
+        /// <param name="hostName">The character span to receive the host name; resized to the actual length on success.</param>
+        /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError GetHostName(this NativeSocketAddress socketAddress, ref Span<char> hostName)
+        {
+            if (!socketAddress.IsIpv4 && !socketAddress.IsIpv6)
+                return SocketError.AddressFamilyNotSupported;
+
+            Span<byte> bytes = stackalloc byte[WinSock2.NI_MAXHOST];
+            SocketError result = socketAddress.IsIpv4 ? SocketPal.GetHostNameIpv4((sockaddr_in4*)&socketAddress, bytes) : SocketPal.GetHostNameIpv6((sockaddr_in6*)&socketAddress, bytes);
+            if (result == SocketError.Success)
+                return CopyAsciiBytesToChars(bytes, ref hostName);
+
+            return result;
+        }
+
+        /// <summary>
+        ///     Populates a <see cref="NativeSocketAddress" /> from the specified <see cref="IPEndPoint" />.
+        /// </summary>
+        /// <param name="socketAddress">The destination <see cref="NativeSocketAddress" /> to fill.</param>
+        /// <param name="source">The <see cref="IPEndPoint" /> containing the ip address and port.</param>
+        /// <returns>
+        ///     <see cref="SocketError.Success" /> if successful;
+        ///     <see cref="SocketError.AddressFamilyNotSupported" /> if the address family is not Ipv4 or Ipv6.
+        /// </returns>
+        /// <exception cref="NullReferenceException">Thrown if <paramref name="source" /> is null.</exception>
+        internal static SocketError CopyFromIpEndPoint(ref this NativeSocketAddress socketAddress, IPEndPoint source) => socketAddress.CopyFromIpAddress(source.Address, (ushort)source.Port);
+
+        /// <summary>
+        ///     Populates a <see cref="NativeSocketAddress" /> from the specified <see cref="IPAddress" /> and port.
+        /// </summary>
+        /// <param name="socketAddress">The destination <see cref="NativeSocketAddress" /> to fill.</param>
+        /// <param name="source">The <see cref="IPAddress" /> to copy from.</param>
+        /// <param name="port">The port number.</param>
+        /// <returns>
+        ///     <see cref="SocketError.Success" /> if successful;
+        ///     <see cref="SocketError.AddressFamilyNotSupported" /> if the address family is not Ipv4 or Ipv6.
+        /// </returns>
+        /// <exception cref="NullReferenceException">Thrown if <paramref name="source" /> is null.</exception>
+        internal static SocketError CopyFromIpAddress(ref this NativeSocketAddress socketAddress, IPAddress source, ushort port)
+        {
+            if (source.AddressFamily == AddressFamily.InterNetwork || source.AddressFamily == AddressFamily.InterNetworkV6)
+            {
+                socketAddress = new NativeSocketAddress();
+                socketAddress.Family = source.AddressFamily;
+                socketAddress.Port = port;
+                source.TryWriteBytes(socketAddress.Ip, out _);
+
+                if (source.AddressFamily == AddressFamily.InterNetworkV6)
+                    socketAddress.ScopeId = (uint)source.ScopeId;
+
+                return SocketError.Success;
+            }
+
+            return SocketError.AddressFamilyNotSupported;
+        }
+
+        /// <summary>
+        ///     Populates a <see cref="NativeSocketAddress" /> from the specified <see cref="SocketAddress" />.
+        /// </summary>
+        /// <param name="socketAddress">The destination <see cref="NativeSocketAddress" /> to fill.</param>
+        /// <param name="source">The source <see cref="SocketAddress" /> to copy from.</param>
+        /// <returns>
+        ///     <see cref="SocketError.Success" /> if the address is valid and copied successfully;
+        ///     <see cref="SocketError.AddressFamilyNotSupported" /> if the address family is not Ipv4 or Ipv6;
+        ///     <see cref="SocketError.NoBufferSpaceAvailable" /> if the address size is insufficient.
+        /// </returns>
+        /// <exception cref="NullReferenceException">Thrown if <paramref name="source" /> is null.</exception>
+        internal static SocketError CopyFromSocketAddress(ref this NativeSocketAddress socketAddress, SocketAddress source)
+        {
+            if (source.Family == AddressFamily.InterNetwork || source.Family == AddressFamily.InterNetworkV6)
+            {
+                if ((source.Family == AddressFamily.InterNetwork && source.Size >= 16) || (source.Family == AddressFamily.InterNetworkV6 && source.Size >= 28))
+                {
+                    socketAddress.Family = source.Family;
+                    source.CopyToWithoutFamily(socketAddress.Buffer, source.Family == AddressFamily.InterNetwork ? 8 : 28);
+
+                    if (source.Family == AddressFamily.InterNetwork)
+                        socketAddress.AsSpan().Slice(8).Clear();
+
+                    return SocketError.Success;
+                }
+
+                return SocketError.NoBufferSpaceAvailable;
+            }
+
+            return SocketError.AddressFamilyNotSupported;
         }
 
         /// <summary>
@@ -171,7 +211,7 @@ namespace NativeSockets
         /// <param name="port">The port number.</param>
         /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetIpIpv4(ref this NativeSocketAddress socketAddress, ReadOnlySpan<char> ip, ushort port)
+        internal static SocketError SetIpIpv4(ref this NativeSocketAddress socketAddress, ReadOnlySpan<char> ip, ushort port)
         {
             Unsafe.SkipInit(out sockaddr_in4 __socketAddress_native);
             SocketError error;
@@ -196,7 +236,7 @@ namespace NativeSockets
         /// <param name="scopeId">The scope id for the Ipv6 address.</param>
         /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetIpIpv6(ref this NativeSocketAddress socketAddress, ReadOnlySpan<char> ip, ushort port, uint scopeId = default)
+        internal static SocketError SetIpIpv6(ref this NativeSocketAddress socketAddress, ReadOnlySpan<char> ip, ushort port, uint scopeId)
         {
             Unsafe.SkipInit(out sockaddr_in6 __socketAddress_native);
             SocketError error;
@@ -213,23 +253,6 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Retrieves the ip address from a <see cref="NativeSocketAddress" /> as text.
-        /// </summary>
-        /// <param name="socketAddress">The <see cref="NativeSocketAddress" /> to read the ip address from.</param>
-        /// <param name="ip">The character span to receive the ip address; resized to the actual length on success.</param>
-        /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetIp(this NativeSocketAddress socketAddress, ref Span<char> ip)
-        {
-            Span<byte> bytes = stackalloc byte[WinSock2.NI_MAXHOST];
-            SocketError result = socketAddress.IsIpv4 ? SocketPal.GetIpIpv4((sockaddr_in4*)&socketAddress, bytes) : SocketPal.GetIpIpv6((sockaddr_in6*)&socketAddress, bytes);
-            if (result == SocketError.Success)
-                return CopyAsciiBytesToChars(bytes, ref ip);
-
-            return result;
-        }
-
-        /// <summary>
         ///     Populates a <see cref="NativeSocketAddress" /> by resolving the specified host name to an Ipv4 address.
         /// </summary>
         /// <param name="socketAddress">The destination <see cref="NativeSocketAddress" /> to fill.</param>
@@ -237,7 +260,7 @@ namespace NativeSockets
         /// <param name="port">The port number.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetHostNameIpv4(ref this NativeSocketAddress socketAddress, ReadOnlySpan<char> hostName, ushort port)
+        internal static SocketError SetHostNameIpv4(ref this NativeSocketAddress socketAddress, ReadOnlySpan<char> hostName, ushort port)
         {
             Unsafe.SkipInit(out sockaddr_in4 __socketAddress_native);
             SocketError error;
@@ -262,7 +285,7 @@ namespace NativeSockets
         /// <param name="scopeId">The Ipv6 scope identifier (used for link-local or site-local addresses).</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetHostNameIpv6(ref this NativeSocketAddress socketAddress, ReadOnlySpan<char> hostName, ushort port, uint scopeId = default)
+        internal static SocketError SetHostNameIpv6(ref this NativeSocketAddress socketAddress, ReadOnlySpan<char> hostName, ushort port, uint scopeId)
         {
             Unsafe.SkipInit(out sockaddr_in6 __socketAddress_native);
             SocketError error;
@@ -276,23 +299,6 @@ namespace NativeSockets
 
             socketAddress.CopyFromIpv6(ref __socketAddress_native, port, scopeId);
             return SocketError.Success;
-        }
-
-        /// <summary>
-        ///     Gets the host name (reverse DNS) from a <see cref="NativeSocketAddress" />.
-        /// </summary>
-        /// <param name="socketAddress">The <see cref="NativeSocketAddress" /> to resolve the host name for.</param>
-        /// <param name="hostName">The character span to receive the host name; resized to the actual length on success.</param>
-        /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetHostName(this NativeSocketAddress socketAddress, ref Span<char> hostName)
-        {
-            Span<byte> bytes = stackalloc byte[WinSock2.NI_MAXHOST];
-            SocketError result = socketAddress.IsIpv4 ? SocketPal.GetHostNameIpv4((sockaddr_in4*)&socketAddress, bytes) : SocketPal.GetHostNameIpv6((sockaddr_in6*)&socketAddress, bytes);
-            if (result == SocketError.Success)
-                return CopyAsciiBytesToChars(bytes, ref hostName);
-
-            return result;
         }
 
         /// <summary>

@@ -70,7 +70,7 @@ namespace NativeSockets
         {
             ExceptionArgument.alignment => "alignment",
             ExceptionArgument.length => "length",
-            ExceptionArgument.offset => "offset",
+            ExceptionArgument.index => "index",
             _ => null
         };
     }

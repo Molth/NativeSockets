@@ -24,12 +24,12 @@ namespace NativeSockets
         ///     The total number of bytes to copy, including the address family prefix.
         ///     Must match the size of the address structure (e.g., 16 for Ipv4, 28 for Ipv6).
         /// </param>
-        /// <exception cref="ArgumentException">
+        /// <exception cref="ArgumentOutOfRangeException">
         ///     Thrown when <paramref name="size" /> is larger than the capacity of the destination buffer,
         ///     or when <paramref name="source" /> is shorter than <paramref name="size" />.
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void CopyFrom(this SocketAddress address, ReadOnlySpan<byte> source, int size)
+        public static void CopyFromWithoutFamily(this SocketAddress address, ReadOnlySpan<byte> source, int size)
         {
 #if NET8_0_OR_GREATER
             source.Slice(2, size - 2).CopyTo(address.Buffer.Span.Slice(2, size - 2));
@@ -52,12 +52,12 @@ namespace NativeSockets
         ///     The total number of bytes to copy, including the address family prefix.
         ///     Must match the size of the address structure (e.g., 16 for Ipv4, 28 for Ipv6).
         /// </param>
-        /// <exception cref="ArgumentException">
+        /// <exception cref="ArgumentOutOfRangeException">
         ///     Thrown when <paramref name="size" /> is larger than the length of <paramref name="destination" />,
         ///     or when the source <see cref="SocketAddress" /> has insufficient data.
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void CopyTo(this SocketAddress address, Span<byte> destination, int size)
+        public static void CopyToWithoutFamily(this SocketAddress address, Span<byte> destination, int size)
         {
 #if NET8_0_OR_GREATER
             address.Buffer.Span.Slice(2, size - 2).CopyTo(destination.Slice(2, size - 2));

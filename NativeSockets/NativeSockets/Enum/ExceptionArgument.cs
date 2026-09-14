@@ -9,7 +9,7 @@ namespace NativeSockets
     {
         alignment,
         length,
-        offset,
+        index,
 
         _dummy
     }

@@ -82,8 +82,7 @@ namespace Examples
             var counter = 1;
 
             var socketAddress = new NativeSocketAddress();
-            var serverAddress = new NativeSocketAddress();
-            serverAddress.FromIpEndPoint(serverEndPoint);
+            NativeSocketAddress.FromIpEndPoint(serverEndPoint, out var serverAddress);
 
             try
             {
