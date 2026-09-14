@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using static NativeSockets.UnixNativeLibName;
-using static NativeSockets.UnixNativeLib2;
+using static NativeSockets.UnixNativeLib;
 using static NativeSockets.BsdSocketFlags;
 
 #pragma warning disable CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
@@ -30,7 +30,7 @@ namespace NativeSockets
         /// <param name="value">The integer value representing the number of I/O vectors.</param>
         /// <returns>The input value as <see cref="int" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int _get_msg_iovlen(int value) => value;
+        public static int __get_msg_iovlen(int value) => value;
 
         /// <summary>
         ///     Sends data on a connected socket.
@@ -40,7 +40,7 @@ namespace NativeSockets
         /// <param name="__len_native">The length of the buffer in bytes.</param>
         /// <param name="socketFlags">The socket flags for the send operation.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
-        public static nint _send(int __socketHandle_native, byte* __pinnedBuffer_native, nuint __len_native, SocketFlags socketFlags) => __send(__socketHandle_native, __pinnedBuffer_native, __len_native, ToNativeSocketFlags(socketFlags));
+        public static nint __send(int __socketHandle_native, byte* __pinnedBuffer_native, nuint __len_native, SocketFlags socketFlags) => _send(__socketHandle_native, __pinnedBuffer_native, __len_native, ToNativeSocketFlags(socketFlags));
 
         /// <summary>
         ///     Receives data on a connected socket.
@@ -50,7 +50,7 @@ namespace NativeSockets
         /// <param name="__len_native">The length of the buffer in bytes.</param>
         /// <param name="socketFlags">The socket flags for the receive operation.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
-        public static nint _recv(int __socketHandle_native, byte* __pinnedBuffer_native, nuint __len_native, SocketFlags socketFlags) => __recv(__socketHandle_native, __pinnedBuffer_native, __len_native, ToNativeSocketFlags(socketFlags));
+        public static nint __recv(int __socketHandle_native, byte* __pinnedBuffer_native, nuint __len_native, SocketFlags socketFlags) => _recv(__socketHandle_native, __pinnedBuffer_native, __len_native, ToNativeSocketFlags(socketFlags));
 
         /// <summary>
         ///     Sends data to a specified destination address.
@@ -62,7 +62,7 @@ namespace NativeSockets
         /// <param name="__socketAddress_native">Pointer to the destination socket address.</param>
         /// <param name="__socketAddressSize_native">Size of the destination address structure.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
-        public static nint _sendto(int __socketHandle_native, byte* __pinnedBuffer_native, nuint __len_native, SocketFlags socketFlags, sockaddr* __socketAddress_native, uint __socketAddressSize_native) => __sendto(__socketHandle_native, __pinnedBuffer_native, __len_native, ToNativeSocketFlags(socketFlags), __socketAddress_native, __socketAddressSize_native);
+        public static nint __sendto(int __socketHandle_native, byte* __pinnedBuffer_native, nuint __len_native, SocketFlags socketFlags, sockaddr* __socketAddress_native, uint __socketAddressSize_native) => _sendto(__socketHandle_native, __pinnedBuffer_native, __len_native, ToNativeSocketFlags(socketFlags), __socketAddress_native, __socketAddressSize_native);
 
         /// <summary>
         ///     Receives data from a socket and captures the source address.
@@ -77,7 +77,7 @@ namespace NativeSockets
         ///     output the actual address size.
         /// </param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
-        public static nint _recvfrom(int __socketHandle_native, byte* __pinnedBuffer_native, nuint __len_native, SocketFlags socketFlags, sockaddr* __socketAddress_native, uint* __socketAddressSize_native) => __recvfrom(__socketHandle_native, __pinnedBuffer_native, __len_native, ToNativeSocketFlags(socketFlags), __socketAddress_native, __socketAddressSize_native);
+        public static nint __recvfrom(int __socketHandle_native, byte* __pinnedBuffer_native, nuint __len_native, SocketFlags socketFlags, sockaddr* __socketAddress_native, uint* __socketAddressSize_native) => _recvfrom(__socketHandle_native, __pinnedBuffer_native, __len_native, ToNativeSocketFlags(socketFlags), __socketAddress_native, __socketAddressSize_native);
 
         /// <summary>
         ///     Sends data from multiple buffers using a socket.
@@ -86,7 +86,7 @@ namespace NativeSockets
         /// <param name="__msg_native">Pointer to a <see cref="msghdr" /> structure describing the message.</param>
         /// <param name="socketFlags">Flags for the send operation.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
-        public static nint _sendmsg(int __socketHandle_native, msghdr* __msg_native, SocketFlags socketFlags) => __sendmsg(__socketHandle_native, __msg_native, ToNativeSocketFlags(socketFlags));
+        public static nint __sendmsg(int __socketHandle_native, msghdr* __msg_native, SocketFlags socketFlags) => _sendmsg(__socketHandle_native, __msg_native, ToNativeSocketFlags(socketFlags));
 
         /// <summary>
         ///     Receives data into multiple buffers from a socket.
@@ -95,9 +95,9 @@ namespace NativeSockets
         /// <param name="__msg_native">Pointer to a <see cref="msghdr" /> structure that will receive the message.</param>
         /// <param name="socketFlags">Flags for the receive operation.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
-        public static nint _recvmsg(int __socketHandle_native, msghdr* __msg_native, SocketFlags socketFlags)
+        public static nint __recvmsg(int __socketHandle_native, msghdr* __msg_native, SocketFlags socketFlags)
         {
-            nint result = __recvmsg(__socketHandle_native, __msg_native, ToNativeSocketFlags(socketFlags));
+            nint result = _recvmsg(__socketHandle_native, __msg_native, ToNativeSocketFlags(socketFlags));
 
             if (__msg_native != null)
                 __msg_native->msg_flags = (int)FromNativeSocketFlags(__msg_native->msg_flags);
@@ -113,27 +113,7 @@ namespace NativeSockets
         /// <param name="timeout">The timeout in milliseconds; -1 for infinite.</param>
         /// <returns>The number of events occurred, 0 on timeout, or -1 on error.</returns>
         [DllImport(NATIVE_LIBRARY, EntryPoint = "poll", CallingConvention = CALLING_CONVENTION, SetLastError = true)]
-        public static extern int _poll(pollfd* fds, uint nfds, int timeout);
-
-        /// <summary>
-        ///     Sends data from multiple buffers using a socket.
-        /// </summary>
-        /// <param name="__socketHandle_native">The socket file descriptor.</param>
-        /// <param name="__msg_native">Pointer to a <see cref="msghdr" /> structure describing the message.</param>
-        /// <param name="__socketFlags_native">Flags for the send operation.</param>
-        /// <returns>The number of bytes sent, or -1 on error.</returns>
-        [DllImport(NATIVE_LIBRARY, EntryPoint = "sendmsg", CallingConvention = CALLING_CONVENTION, SetLastError = true)]
-        private static extern nint __sendmsg(int __socketHandle_native, msghdr* __msg_native, int __socketFlags_native);
-
-        /// <summary>
-        ///     Receives data into multiple buffers from a socket.
-        /// </summary>
-        /// <param name="__socketHandle_native">The socket file descriptor.</param>
-        /// <param name="__msg_native">Pointer to a <see cref="msghdr" /> structure that will receive the message.</param>
-        /// <param name="__socketFlags_native">Flags for the receive operation.</param>
-        /// <returns>The number of bytes received, or -1 on error.</returns>
-        [DllImport(NATIVE_LIBRARY, EntryPoint = "recvmsg", CallingConvention = CALLING_CONVENTION, SetLastError = true)]
-        private static extern nint __recvmsg(int __socketHandle_native, msghdr* __msg_native, int __socketFlags_native);
+        public static extern int __poll(pollfd* fds, uint nfds, int timeout);
 
         /// <summary>
         ///     Represents a message header used with <c>sendmsg</c>

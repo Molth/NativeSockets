@@ -400,35 +400,5 @@ namespace NativeSockets
                 span[i] = new WSABuffer((nuint)buffers[i].Length, buffers[i].Buffer);
             return __buffers_native;
         }
-
-        /// <summary>
-        ///     A dummy structure used for WSAStartup data.
-        ///     The actual content is not required for this implementation.
-        /// </summary>
-        [StructLayout(LayoutKind.Sequential, Size = 408)]
-        public struct WSAData
-        {
-            /// <summary>
-            ///     Alignment padding to ensure the structure is properly aligned in memory.
-            /// </summary>
-            private nint __ss_align;
-        }
-
-        /// <summary>
-        ///     Represents a time value used with select and other functions.
-        /// </summary>
-        [StructLayout(LayoutKind.Sequential)]
-        public struct TimeValue
-        {
-            /// <summary>
-            ///     The number of seconds.
-            /// </summary>
-            public int Seconds;
-
-            /// <summary>
-            ///     The number of microseconds.
-            /// </summary>
-            public int Microseconds;
-        }
     }
 }

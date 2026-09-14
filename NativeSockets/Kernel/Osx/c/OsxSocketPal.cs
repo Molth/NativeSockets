@@ -2,8 +2,7 @@
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using static NativeSockets.UnixNativeLib1;
-using static NativeSockets.UnixNativeLib2;
+using static NativeSockets.UnixNativeLib;
 using static NativeSockets.BsdNativeLib;
 using static NativeSockets.OsxNativeLib;
 using static NativeSockets.OsxSocketError;
@@ -203,7 +202,7 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError SetOption(nint socket, SocketOptionLevel level, SocketOptionName name, byte* value, int length)
         {
-            int errno = _setsockopt((int)socket, level, name, value, (uint)length);
+            int errno = __setsockopt((int)socket, level, name, value, (uint)length);
             return errno == 0 ? SocketError.Success : GetLastSocketError();
         }
 
@@ -224,7 +223,7 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetOption(nint socket, SocketOptionLevel level, SocketOptionName name, byte* value, int* length)
         {
-            int errno = _getsockopt((int)socket, level, name, value, (uint*)length);
+            int errno = __getsockopt((int)socket, level, name, value, (uint*)length);
             return errno == 0 ? SocketError.Success : GetLastSocketError();
         }
 
@@ -240,7 +239,7 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError SetRawOption(nint socket, int level, int name, byte* value, int length)
         {
-            int errno = __setsockopt((int)socket, level, name, value, (uint)length);
+            int errno = _setsockopt((int)socket, level, name, value, (uint)length);
             return errno == 0 ? SocketError.Success : GetLastSocketError();
         }
 
@@ -256,7 +255,7 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetRawOption(nint socket, int level, int name, byte* value, int* length)
         {
-            int errno = __getsockopt((int)socket, level, name, value, (uint*)length);
+            int errno = _getsockopt((int)socket, level, name, value, (uint*)length);
             return errno == 0 ? SocketError.Success : GetLastSocketError();
         }
 
@@ -306,7 +305,7 @@ namespace NativeSockets
             fd.events = (short)inEvent;
             fd.revents = 0;
 
-            int errno = _poll(&fd, 1, milliseconds);
+            int errno = __poll(&fd, 1, milliseconds);
             if (errno == -1)
             {
                 status = false;
@@ -364,7 +363,7 @@ namespace NativeSockets
 
             outFlags = 0;
 
-            int errno = _poll(&fd, 1, milliseconds);
+            int errno = __poll(&fd, 1, milliseconds);
             if (errno == -1)
                 return GetLastSocketError();
 
@@ -393,7 +392,7 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Send(nint socket, void* buffer, int length, SocketFlags socketFlags)
         {
-            int num = (int)_send((int)socket, (byte*)buffer, (nuint)length, socketFlags);
+            int num = (int)__send((int)socket, (byte*)buffer, (nuint)length, socketFlags);
             return num;
         }
 
@@ -410,7 +409,7 @@ namespace NativeSockets
         public static int SendToIpv4(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in4* socketAddress)
         {
             if (socketAddress != null)
-                return (int)_sendto((int)socket, (byte*)buffer, (nuint)length, socketFlags, (sockaddr*)socketAddress, (uint)sizeof(sockaddr_in4));
+                return (int)__sendto((int)socket, (byte*)buffer, (nuint)length, socketFlags, (sockaddr*)socketAddress, (uint)sizeof(sockaddr_in4));
 
             int num = Send(socket, (byte*)buffer, length, socketFlags);
             return num;
@@ -429,7 +428,7 @@ namespace NativeSockets
         public static int SendToIpv6(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in6* socketAddress)
         {
             if (socketAddress != null)
-                return (int)_sendto((int)socket, (byte*)buffer, (nuint)length, socketFlags, (sockaddr*)socketAddress, (uint)sizeof(sockaddr_in6));
+                return (int)__sendto((int)socket, (byte*)buffer, (nuint)length, socketFlags, (sockaddr*)socketAddress, (uint)sizeof(sockaddr_in6));
 
             int num = Send(socket, (byte*)buffer, length, socketFlags);
             return num;
@@ -446,7 +445,7 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Receive(nint socket, void* buffer, int length, SocketFlags socketFlags)
         {
-            int num = (int)_recv((int)socket, (byte*)buffer, (nuint)length, socketFlags);
+            int num = (int)__recv((int)socket, (byte*)buffer, (nuint)length, socketFlags);
             return num;
         }
 
@@ -465,7 +464,7 @@ namespace NativeSockets
             Unsafe.SkipInit(out sockaddr_in4 storage);
             uint socketAddressSize = (uint)sizeof(sockaddr_in4);
 
-            int num = (int)_recvfrom((int)socket, (byte*)buffer, (nuint)length, socketFlags, (sockaddr*)&storage, &socketAddressSize);
+            int num = (int)__recvfrom((int)socket, (byte*)buffer, (nuint)length, socketFlags, (sockaddr*)&storage, &socketAddressSize);
 
             if (num >= 0 && socketAddress != null)
                 *socketAddress = storage;
@@ -488,7 +487,7 @@ namespace NativeSockets
             Unsafe.SkipInit(out sockaddr_in6 storage);
             uint socketAddressSize = (uint)sizeof(sockaddr_in6);
 
-            int num = (int)_recvfrom((int)socket, (byte*)buffer, (nuint)length, socketFlags, (sockaddr*)&storage, &socketAddressSize);
+            int num = (int)__recvfrom((int)socket, (byte*)buffer, (nuint)length, socketFlags, (sockaddr*)&storage, &socketAddressSize);
 
             if (num >= 0 && socketAddress != null)
                 *socketAddress = storage;
@@ -508,14 +507,14 @@ namespace NativeSockets
         public static int SendVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags)
         {
             msghdr msg = new msghdr();
-            msg.msg_iovlen = _get_msg_iovlen(bufferCount);
+            msg.msg_iovlen = __get_msg_iovlen(bufferCount);
 
             int num;
 
             using (NativeScopedArray<iovec> __buffers_native = Build(stackalloc iovec[16], buffers, bufferCount))
             {
                 msg.msg_iov = __buffers_native.Buffer;
-                num = (int)_sendmsg((int)socket, &msg, socketFlags);
+                num = (int)__sendmsg((int)socket, &msg, socketFlags);
             }
 
             return num;
@@ -538,14 +537,14 @@ namespace NativeSockets
                 msghdr msg = new msghdr();
                 msg.msg_name = socketAddress;
                 msg.msg_namelen = (uint)sizeof(sockaddr_in4);
-                msg.msg_iovlen = _get_msg_iovlen(bufferCount);
+                msg.msg_iovlen = __get_msg_iovlen(bufferCount);
 
                 int num;
 
                 using (NativeScopedArray<iovec> __buffers_native = Build(stackalloc iovec[16], buffers, bufferCount))
                 {
                     msg.msg_iov = __buffers_native.Buffer;
-                    num = (int)_sendmsg((int)socket, &msg, socketFlags);
+                    num = (int)__sendmsg((int)socket, &msg, socketFlags);
                 }
 
                 return num;
@@ -571,14 +570,14 @@ namespace NativeSockets
                 msghdr msg = new msghdr();
                 msg.msg_name = socketAddress;
                 msg.msg_namelen = (uint)sizeof(sockaddr_in6);
-                msg.msg_iovlen = _get_msg_iovlen(bufferCount);
+                msg.msg_iovlen = __get_msg_iovlen(bufferCount);
 
                 int num;
 
                 using (NativeScopedArray<iovec> __buffers_native = Build(stackalloc iovec[16], buffers, bufferCount))
                 {
                     msg.msg_iov = __buffers_native.Buffer;
-                    num = (int)_sendmsg((int)socket, &msg, socketFlags);
+                    num = (int)__sendmsg((int)socket, &msg, socketFlags);
                 }
 
                 return num;
@@ -599,7 +598,7 @@ namespace NativeSockets
         public static int ReceiveVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags)
         {
             msghdr msg = new msghdr();
-            msg.msg_iovlen = _get_msg_iovlen(bufferCount);
+            msg.msg_iovlen = __get_msg_iovlen(bufferCount);
 
             SocketFlags flags = inOutFlags != null ? *inOutFlags : 0;
 
@@ -608,7 +607,7 @@ namespace NativeSockets
             using (NativeScopedArray<iovec> __buffers_native = Build(stackalloc iovec[16], buffers, bufferCount))
             {
                 msg.msg_iov = __buffers_native.Buffer;
-                num = (int)_recvmsg((int)socket, &msg, flags);
+                num = (int)__recvmsg((int)socket, &msg, flags);
             }
 
             if (inOutFlags != null)
@@ -637,7 +636,7 @@ namespace NativeSockets
             msghdr msg = new msghdr();
             msg.msg_name = &storage;
             msg.msg_namelen = (uint)sizeof(sockaddr_in4);
-            msg.msg_iovlen = _get_msg_iovlen(bufferCount);
+            msg.msg_iovlen = __get_msg_iovlen(bufferCount);
 
             SocketFlags flags = inOutFlags != null ? *inOutFlags : 0;
 
@@ -646,7 +645,7 @@ namespace NativeSockets
             using (NativeScopedArray<iovec> __buffers_native = Build(stackalloc iovec[16], buffers, bufferCount))
             {
                 msg.msg_iov = __buffers_native.Buffer;
-                num = (int)_recvmsg((int)socket, &msg, flags);
+                num = (int)__recvmsg((int)socket, &msg, flags);
             }
 
             if (inOutFlags != null)
@@ -678,7 +677,7 @@ namespace NativeSockets
             msghdr msg = new msghdr();
             msg.msg_name = &storage;
             msg.msg_namelen = (uint)sizeof(sockaddr_in6);
-            msg.msg_iovlen = _get_msg_iovlen(bufferCount);
+            msg.msg_iovlen = __get_msg_iovlen(bufferCount);
 
             SocketFlags flags = inOutFlags != null ? *inOutFlags : 0;
 
@@ -687,7 +686,7 @@ namespace NativeSockets
             using (NativeScopedArray<iovec> __buffers_native = Build(stackalloc iovec[16], buffers, bufferCount))
             {
                 msg.msg_iov = __buffers_native.Buffer;
-                num = (int)_recvmsg((int)socket, &msg, flags);
+                num = (int)__recvmsg((int)socket, &msg, flags);
             }
 
             if (inOutFlags != null)
