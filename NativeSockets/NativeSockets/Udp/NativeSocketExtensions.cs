@@ -25,7 +25,7 @@ namespace NativeSockets
         ///     Binds a socket to an address.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
-        /// <param name="socketAddress">Pointer to the address structure.</param>
+        /// <param name="socketAddress">The address to bind to.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Bind(this NativeSocket socket, NativeSocketAddress socketAddress) => socket.IsIpv4 ? SocketPal.BindIpv4(socket, (sockaddr_in4*)&socketAddress) : SocketPal.BindIpv6(socket, (sockaddr_in6*)&socketAddress);
@@ -34,7 +34,7 @@ namespace NativeSockets
         ///     Connects a socket to an endpoint.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
-        /// <param name="socketAddress">Pointer to the address structure.</param>
+        /// <param name="socketAddress">The address to connect to.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Connect(this NativeSocket socket, NativeSocketAddress socketAddress) => socket.IsIpv4 ? SocketPal.ConnectIpv4(socket, (sockaddr_in4*)&socketAddress) : SocketPal.ConnectIpv6(socket, (sockaddr_in6*)&socketAddress);
@@ -45,7 +45,7 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="level">The option level.</param>
         /// <param name="name">The option name.</param>
-        /// <param name="value">Pointer to the option value.</param>
+        /// <param name="value">The option value.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         /// <remarks>
         ///     The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
@@ -67,7 +67,7 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="level">The option level.</param>
         /// <param name="name">The option name.</param>
-        /// <param name="value">Pointer to a buffer to receive the option value.</param>
+        /// <param name="value">The buffer to receive the option value.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         /// <remarks>
         ///     The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
@@ -96,7 +96,7 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="level">The option level.</param>
         /// <param name="name">The option name.</param>
-        /// <param name="value">Pointer to the option value.</param>
+        /// <param name="value">The option value.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError SetRawOption(this NativeSocket socket, int level, int name, ReadOnlySpan<byte> value)
@@ -113,7 +113,7 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="level">The option level.</param>
         /// <param name="name">The option name.</param>
-        /// <param name="value">Pointer to a buffer to receive the option value.</param>
+        /// <param name="value">The buffer to receive the option value.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetRawOption(this NativeSocket socket, int level, int name, ref Span<byte> value)
@@ -166,7 +166,7 @@ namespace NativeSockets
         ///     Sends data on a connected socket.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
-        /// <param name="buffer">Pointer to the data buffer.</param>
+        /// <param name="buffer">The data buffer.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -182,8 +182,8 @@ namespace NativeSockets
         ///     Sends data to an endpoint.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
-        /// <param name="buffer">Pointer to the data buffer.</param>
-        /// <param name="socketAddress">Pointer to the destination socket address structure.</param>
+        /// <param name="buffer">The data buffer.</param>
+        /// <param name="socketAddress">The destination socket address.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int SendTo(this NativeSocket socket, ReadOnlySpan<byte> buffer, in NativeSocketAddress socketAddress) => socket.SendTo(buffer, SocketFlags.None, socketAddress);
@@ -192,9 +192,9 @@ namespace NativeSockets
         ///     Sends data to an endpoint.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
-        /// <param name="buffer">Pointer to the data buffer.</param>
+        /// <param name="buffer">The data buffer.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <param name="socketAddress">Pointer to the destination socket address structure.</param>
+        /// <param name="socketAddress">The destination socket address.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int SendTo(this NativeSocket socket, ReadOnlySpan<byte> buffer, SocketFlags socketFlags, in NativeSocketAddress socketAddress)
@@ -212,7 +212,7 @@ namespace NativeSockets
         ///     Receives data on a connected socket.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
-        /// <param name="buffer">Pointer to the receive buffer.</param>
+        /// <param name="buffer">The receive buffer.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -228,8 +228,8 @@ namespace NativeSockets
         ///     Receives data from an endpoint, filling the provided address structure.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
-        /// <param name="buffer">Pointer to the receive buffer.</param>
-        /// <param name="socketAddress">Pointer to the sender's address structure.</param>
+        /// <param name="buffer">The receive buffer.</param>
+        /// <param name="socketAddress">The sender's socket address.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveFrom(this NativeSocket socket, Span<byte> buffer, ref NativeSocketAddress socketAddress) => socket.ReceiveFrom(buffer, SocketFlags.None, ref socketAddress);
@@ -238,9 +238,9 @@ namespace NativeSockets
         ///     Receives data from an endpoint, filling the provided address structure.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
-        /// <param name="buffer">Pointer to the receive buffer.</param>
+        /// <param name="buffer">The receive buffer.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <param name="socketAddress">Pointer to the sender's address structure.</param>
+        /// <param name="socketAddress">The sender's socket address.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveFrom(this NativeSocket socket, Span<byte> buffer, SocketFlags socketFlags, ref NativeSocketAddress socketAddress)
@@ -264,7 +264,7 @@ namespace NativeSockets
         ///     Sends data from multiple buffers on a connected socket.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
-        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
+        /// <param name="buffers">The array of <see cref="NativeIoSlice" /> structures.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -280,8 +280,8 @@ namespace NativeSockets
         ///     Sends data from multiple buffers to an endpoint.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
-        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
-        /// <param name="socketAddress">Pointer to the destination socket address.</param>
+        /// <param name="buffers">The array of <see cref="NativeIoSlice" /> structures.</param>
+        /// <param name="socketAddress">The destination socket address.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int SendToVectored(this NativeSocket socket, ReadOnlySpan<NativeIoSlice> buffers, in NativeSocketAddress socketAddress) => socket.SendToVectored(buffers, SocketFlags.None, socketAddress);
@@ -290,9 +290,9 @@ namespace NativeSockets
         ///     Sends data from multiple buffers to an endpoint.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
-        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
+        /// <param name="buffers">The array of <see cref="NativeIoSlice" /> structures.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <param name="socketAddress">Pointer to the destination socket address.</param>
+        /// <param name="socketAddress">The destination socket address.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int SendToVectored(this NativeSocket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags, in NativeSocketAddress socketAddress)
@@ -310,7 +310,7 @@ namespace NativeSockets
         ///     Receives data into multiple buffers on a connected socket.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
-        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
+        /// <param name="buffers">The array of <see cref="NativeIoSlice" /> structures.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveVectored(this NativeSocket socket, Span<NativeIoSlice> buffers) => socket.ReceiveVectored(buffers, ref Unsafe.NullRef<SocketFlags>());
@@ -319,7 +319,7 @@ namespace NativeSockets
         ///     Receives data into multiple buffers on a connected socket.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
-        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
+        /// <param name="buffers">The array of <see cref="NativeIoSlice" /> structures.</param>
         /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -338,8 +338,8 @@ namespace NativeSockets
         ///     Receives data into multiple buffers from an endpoint.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
-        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
-        /// <param name="socketAddress">Pointer to the sender's socket address.</param>
+        /// <param name="buffers">The array of <see cref="NativeIoSlice" /> structures.</param>
+        /// <param name="socketAddress">The sender's socket address.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveFromVectored(this NativeSocket socket, Span<NativeIoSlice> buffers, ref NativeSocketAddress socketAddress) => socket.ReceiveFromVectored(buffers, ref Unsafe.NullRef<SocketFlags>(), ref socketAddress);
@@ -348,9 +348,9 @@ namespace NativeSockets
         ///     Receives data into multiple buffers from an endpoint.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
-        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
+        /// <param name="buffers">The array of <see cref="NativeIoSlice" /> structures.</param>
         /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
-        /// <param name="socketAddress">Pointer to the sender's socket address.</param>
+        /// <param name="socketAddress">The sender's socket address.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveFromVectored(this NativeSocket socket, Span<NativeIoSlice> buffers, ref SocketFlags inOutFlags, ref NativeSocketAddress socketAddress)
@@ -377,7 +377,7 @@ namespace NativeSockets
         ///     Gets the local name (address) of an Ipv4 socket.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
-        /// <param name="socketAddress">Pointer to the Ipv4 address structure to receive the name.</param>
+        /// <param name="socketAddress">The socket address to receive the local name into.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetName(this NativeSocket socket, ref NativeSocketAddress socketAddress)

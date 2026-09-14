@@ -28,10 +28,10 @@ namespace NativeSockets
         public static SocketError FromIpEndPoint(ref this NativeSocketAddress socketAddress, IPEndPoint source) => socketAddress.FromIpAddress(source.Address, (ushort)source.Port);
 
         /// <summary>
-        ///     Populates a <see cref="NativeSocketAddress" /> from the specified <see cref="IPAddress" />, port.
+        ///     Populates a <see cref="NativeSocketAddress" /> from the specified <see cref="IPAddress" /> and port.
         /// </summary>
         /// <param name="socketAddress">The destination <see cref="NativeSocketAddress" /> to fill.</param>
-        /// <param name="source">The <see cref="IPAddress" /> to set.</param>
+        /// <param name="source">The <see cref="IPAddress" /> to copy from.</param>
         /// <param name="port">The port number.</param>
         /// <returns>
         ///     <see cref="SocketError.Success" /> if successful;
@@ -89,10 +89,13 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="IPEndPoint" /> class with the specified address and port number.
+        ///     Converts a <see cref="NativeSocketAddress" /> into an <see cref="IPEndPoint" />.
         /// </summary>
         /// <param name="socketAddress">The socket address to convert.</param>
-        /// <param name="result">A new instance of the <see cref="IPEndPoint" /> class.</param>
+        /// <param name="result">
+        ///     When this method returns, contains the converted <see cref="IPEndPoint" />,
+        ///     or null if the address family is not supported.
+        /// </param>
         /// <returns>
         ///     <see cref="SocketError.Success" /> if successful;
         ///     <see cref="SocketError.AddressFamilyNotSupported" /> if the address family is not Ipv4 or Ipv6.
@@ -111,10 +114,13 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="IPAddress" /> class with the specified address.
+        ///     Converts a <see cref="NativeSocketAddress" /> into an <see cref="IPAddress" />.
         /// </summary>
         /// <param name="socketAddress">The socket address to convert.</param>
-        /// <param name="result">A new instance of the <see cref="IPAddress" /> class.</param>
+        /// <param name="result">
+        ///     When this method returns, contains the converted <see cref="IPAddress" />,
+        ///     or null if the address family is not supported.
+        /// </param>
         /// <returns>
         ///     <see cref="SocketError.Success" /> if successful;
         ///     <see cref="SocketError.AddressFamilyNotSupported" /> if the address family is not Ipv4 or Ipv6.
@@ -132,10 +138,13 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="SocketAddress" /> class with the specified address.
+        ///     Converts a <see cref="NativeSocketAddress" /> into a <see cref="SocketAddress" />.
         /// </summary>
         /// <param name="socketAddress">The socket address to convert.</param>
-        /// <param name="result">A new instance of the <see cref="SocketAddress" /> class.</param>
+        /// <param name="result">
+        ///     When this method returns, contains the converted <see cref="SocketAddress" />,
+        ///     or null if the address family is not supported.
+        /// </param>
         /// <returns>
         ///     <see cref="SocketError.Success" /> if successful;
         ///     <see cref="SocketError.AddressFamilyNotSupported" /> if the address family is not Ipv4 or Ipv6.
@@ -155,7 +164,7 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Converts an Ipv4 address and port into a <see cref="NativeSocketAddress" />.
+        ///     Sets the specified Ipv4 address and port on a <see cref="NativeSocketAddress" />.
         /// </summary>
         /// <param name="socketAddress">The destination <see cref="NativeSocketAddress" /> to fill.</param>
         /// <param name="ip">The ip address as a span of characters.</param>
@@ -179,7 +188,7 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Converts an Ipv6 address, port, and scope id into a <see cref="NativeSocketAddress" />.
+        ///     Sets the specified Ipv6 address, port, and scope id on a <see cref="NativeSocketAddress" />.
         /// </summary>
         /// <param name="socketAddress">The destination <see cref="NativeSocketAddress" /> to fill.</param>
         /// <param name="ip">The ip address as a span of characters.</param>
@@ -204,10 +213,10 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Retrieves the address from a socket address structure.
+        ///     Retrieves the ip address from a <see cref="NativeSocketAddress" /> as text.
         /// </summary>
-        /// <param name="socketAddress">Pointer to the address structure.</param>
-        /// <param name="ip">A span to receive the address chars.</param>
+        /// <param name="socketAddress">The <see cref="NativeSocketAddress" /> to read the ip address from.</param>
+        /// <param name="ip">The character span to receive the ip address; resized to the actual length on success.</param>
         /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetIp(this NativeSocketAddress socketAddress, ref Span<char> ip)
@@ -270,10 +279,10 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Gets the host name (reverse DNS) from an address.
+        ///     Gets the host name (reverse DNS) from a <see cref="NativeSocketAddress" />.
         /// </summary>
-        /// <param name="socketAddress">Pointer to the address structure.</param>
-        /// <param name="hostName">A span to receive the host name chars.</param>
+        /// <param name="socketAddress">The <see cref="NativeSocketAddress" /> to resolve the host name for.</param>
+        /// <param name="hostName">The character span to receive the host name; resized to the actual length on success.</param>
         /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetHostName(this NativeSocketAddress socketAddress, ref Span<char> hostName)
@@ -329,7 +338,10 @@ namespace NativeSockets
         ///     if the required size exceeds the span, a larger buffer may be allocated.
         /// </param>
         /// <param name="text">The text to convert to ASCII.</param>
-        /// <returns>A array that owns the null-terminated ASCII byte array. The caller should dispose it when done.</returns>
+        /// <returns>
+        ///     A <see cref="NativeScopedArray{T}" /> that owns the null-terminated ASCII bytes;
+        ///     the caller must dispose it when done.
+        /// </returns>
         private static NativeScopedArray<byte> GetAsciiBytesFromChars(Span<byte> buffer, ReadOnlySpan<char> text)
         {
             int byteCount = Encoding.ASCII.GetByteCount(text);
