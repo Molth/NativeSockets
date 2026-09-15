@@ -96,7 +96,7 @@ namespace NativeSockets
             Span<byte> bytes = stackalloc byte[WinSock2.NI_MAXHOST];
             SocketError result = socketAddress.IsIpv4 ? SocketPal.GetIpIpv4((sockaddr_in4*)&socketAddress, bytes) : SocketPal.GetIpIpv6((sockaddr_in6*)&socketAddress, bytes);
             if (result == SocketError.Success)
-                return CopyAsciiBytesToChars(bytes, ref ip);
+                return GetAsciiCharsFromBytes(ref ip, bytes);
 
             return result;
         }
@@ -116,7 +116,7 @@ namespace NativeSockets
             Span<byte> bytes = stackalloc byte[WinSock2.NI_MAXHOST];
             SocketError result = socketAddress.IsIpv4 ? SocketPal.GetHostNameIpv4((sockaddr_in4*)&socketAddress, bytes) : SocketPal.GetHostNameIpv6((sockaddr_in6*)&socketAddress, bytes);
             if (result == SocketError.Success)
-                return CopyAsciiBytesToChars(bytes, ref hostName);
+                return GetAsciiCharsFromBytes(ref hostName, bytes);
 
             return result;
         }
@@ -204,7 +204,7 @@ namespace NativeSockets
             if (error != SocketError.Success)
                 return error;
 
-            socketAddress.CopyFromIpv4(ref __socketAddress_native, port);
+            socketAddress.SetFromIpv4(ref __socketAddress_native, port);
             return SocketError.Success;
         }
 
@@ -229,7 +229,7 @@ namespace NativeSockets
             if (error != SocketError.Success)
                 return error;
 
-            socketAddress.CopyFromIpv6(ref __socketAddress_native, port, scopeId);
+            socketAddress.SetFromIpv6(ref __socketAddress_native, port, scopeId);
             return SocketError.Success;
         }
 
@@ -253,7 +253,7 @@ namespace NativeSockets
             if (error != SocketError.Success)
                 return error;
 
-            socketAddress.CopyFromIpv4(ref __socketAddress_native, port);
+            socketAddress.SetFromIpv4(ref __socketAddress_native, port);
             return SocketError.Success;
         }
 
@@ -278,7 +278,7 @@ namespace NativeSockets
             if (error != SocketError.Success)
                 return error;
 
-            socketAddress.CopyFromIpv6(ref __socketAddress_native, port, scopeId);
+            socketAddress.SetFromIpv6(ref __socketAddress_native, port, scopeId);
             return SocketError.Success;
         }
 
@@ -286,13 +286,13 @@ namespace NativeSockets
         ///     Extracts the ASCII string from a null-terminated byte
         ///     span and copies it into a character span.
         /// </summary>
-        /// <param name="source">The null-terminated ASCII byte span (typically from native APIs).</param>
         /// <param name="destination">
         ///     The character span to receive the decoded string.
         ///     On success, it is resized to the actual character count.
         /// </param>
+        /// <param name="source">The null-terminated ASCII byte span (typically from native APIs).</param>
         /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
-        private static SocketError CopyAsciiBytesToChars(ReadOnlySpan<byte> source, ref Span<char> destination)
+        private static SocketError GetAsciiCharsFromBytes(ref Span<char> destination, ReadOnlySpan<byte> source)
         {
             int index = source.IndexOf((byte)'\0');
             if (index <= 0)
@@ -312,21 +312,21 @@ namespace NativeSockets
         ///     Converts the specified text to null-terminated ASCII bytes and writes them into the provided span,
         ///     suitable for use with native APIs that expect null-terminated strings (e.g., <c>inet_pton</c>, <c>getaddrinfo</c>).
         /// </summary>
-        /// <param name="bytes">
+        /// <param name="destination">
         ///     The span used to receive the null-terminated ASCII bytes.
         ///     On success, it is resized to the actual written length (ASCII byte count + 1).
         /// </param>
-        /// <param name="text">The text to convert to ASCII.</param>
+        /// <param name="source">The text to convert to ASCII.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        private static SocketError GetAsciiBytesFromChars(ref Span<byte> bytes, ReadOnlySpan<char> text)
+        private static SocketError GetAsciiBytesFromChars(ref Span<byte> destination, ReadOnlySpan<char> source)
         {
-            int byteCount = Encoding.ASCII.GetByteCount(text);
-            if ((uint)(byteCount + 1) > (uint)bytes.Length)
+            int byteCount = Encoding.ASCII.GetByteCount(source);
+            if ((uint)(byteCount + 1) > (uint)destination.Length)
                 return SocketError.InvalidArgument;
 
-            bytes = bytes.Slice(0, byteCount + 1);
-            Encoding.ASCII.GetBytes(text, bytes);
-            bytes[byteCount] = (byte)'\0';
+            destination = destination.Slice(0, byteCount + 1);
+            Encoding.ASCII.GetBytes(source, destination);
+            destination[byteCount] = (byte)'\0';
 
             return SocketError.Success;
         }
@@ -339,7 +339,7 @@ namespace NativeSockets
         /// <param name="__socketAddress_native">The source Ipv4 address structure.</param>
         /// <param name="port">The port number in host byte order.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void CopyFromIpv4(ref this NativeSocketAddress socketAddress, ref sockaddr_in4 __socketAddress_native, ushort port)
+        private static void SetFromIpv4(ref this NativeSocketAddress socketAddress, ref sockaddr_in4 __socketAddress_native, ushort port)
         {
             __socketAddress_native.sin4_family = SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V4;
             __socketAddress_native.sin4_port = WinSock2.HOST_TO_NET_16(port);
@@ -356,7 +356,7 @@ namespace NativeSockets
         /// <param name="port">The port number in host byte order.</param>
         /// <param name="scopeId">The Ipv6 scope identifier.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void CopyFromIpv6(ref this NativeSocketAddress socketAddress, ref sockaddr_in6 __socketAddress_native, ushort port, uint scopeId)
+        private static void SetFromIpv6(ref this NativeSocketAddress socketAddress, ref sockaddr_in6 __socketAddress_native, ushort port, uint scopeId)
         {
             __socketAddress_native.sin6_family = SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
             __socketAddress_native.sin6_port = WinSock2.HOST_TO_NET_16(port);

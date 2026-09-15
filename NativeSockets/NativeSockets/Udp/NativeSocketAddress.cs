@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
 
 // ReSharper disable ALL
 
@@ -22,6 +23,9 @@ namespace NativeSockets
     public unsafe struct NativeSocketAddress : IEquatable<NativeSocketAddress>, IComparable<NativeSocketAddress>
 #if NET6_0_OR_GREATER
         , ISpanFormattable
+#if NET8_0_OR_GREATER
+        , IUtf8SpanFormattable
+#endif
 #else
         , IFormattable
 #endif
@@ -284,8 +288,17 @@ namespace NativeSockets
         {
             Span<char> chars = stackalloc char[256];
             Format(ref chars, this);
+
             return chars.ToString();
         }
+
+        /// <summary>
+        ///     Returns the string representation of the current socket address.
+        /// </summary>
+        /// <param name="_">The format specifier (ignored).</param>
+        /// <param name="__">The format provider (ignored).</param>
+        /// <returns>A string representation of the socket address.</returns>
+        public readonly string ToString(string? _, IFormatProvider? __) => ToString();
 
         /// <summary>
         ///     Tries to format the current socket address into the provided span.
@@ -300,6 +313,7 @@ namespace NativeSockets
         {
             Span<char> chars = stackalloc char[256];
             Format(ref chars, this);
+
             if (chars.TryCopyTo(destination))
             {
                 charsWritten = chars.Length;
@@ -311,14 +325,6 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Returns the string representation of the current socket address.
-        /// </summary>
-        /// <param name="_">The format specifier (ignored).</param>
-        /// <param name="__">The format provider (ignored).</param>
-        /// <returns>A string representation of the socket address.</returns>
-        public readonly string ToString(string? _, IFormatProvider? __) => ToString();
-
-        /// <summary>
         ///     Tries to format the current socket address into the provided span.
         /// </summary>
         /// <param name="destination">The span to receive the formatted characters.</param>
@@ -327,6 +333,51 @@ namespace NativeSockets
         /// <param name="__">The format provider (ignored).</param>
         /// <returns><see langword="true" /> if the formatting succeeded; otherwise, <see langword="false" />.</returns>
         public readonly bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> _, IFormatProvider? __) => TryFormat(destination, out charsWritten);
+
+        /// <summary>
+        ///     Tries to format the value of the current instance as UTF-8 into the provided span of bytes.
+        /// </summary>
+        /// <param name="utf8Destination">The span in which to write this instance's value formatted as a span of bytes.</param>
+        /// <param name="bytesWritten">
+        ///     When this method returns, contains the number of bytes that were written in
+        ///     <paramref name="utf8Destination" />.
+        /// </param>
+        /// <returns>
+        ///     <see langword="true" /> if the formatting was successful;
+        ///     otherwise, <see langword="false" />.
+        /// </returns>
+        public readonly bool TryFormat(Span<byte> utf8Destination, out int bytesWritten)
+        {
+            Span<char> chars = stackalloc char[256];
+            Format(ref chars, this);
+
+            int byteCount = Encoding.UTF8.GetByteCount(chars);
+            if (byteCount <= utf8Destination.Length)
+            {
+                Encoding.UTF8.GetBytes(chars, utf8Destination);
+                bytesWritten = byteCount;
+                return true;
+            }
+
+            bytesWritten = 0;
+            return false;
+        }
+
+        /// <summary>
+        ///     Tries to format the value of the current instance as UTF-8 into the provided span of bytes.
+        /// </summary>
+        /// <param name="utf8Destination">The span in which to write this instance's value formatted as a span of bytes.</param>
+        /// <param name="bytesWritten">
+        ///     When this method returns, contains the number of bytes that were written in
+        ///     <paramref name="utf8Destination" />.
+        /// </param>
+        /// <param name="_">The format specifier (ignored).</param>
+        /// <param name="__">The format provider (ignored).</param>
+        /// <returns>
+        ///     <see langword="true" /> if the formatting was successful;
+        ///     otherwise, <see langword="false" />.
+        /// </returns>
+        public readonly bool TryFormat(Span<byte> utf8Destination, out int bytesWritten, ReadOnlySpan<char> _, IFormatProvider? __) => TryFormat(utf8Destination, out bytesWritten);
 
         /// <summary>
         ///     Formats the socket address into a human-readable string representation.
@@ -342,7 +393,7 @@ namespace NativeSockets
         /// <param name="socketAddress">A reference to the socket address to format.</param>
         private static void Format(ref Span<char> chars, in NativeSocketAddress socketAddress)
         {
-            ReadOnlySpan<char> family = socketAddress.Family.ToString();
+            ReadOnlySpan<char> family = (ReadOnlySpan<char>)socketAddress.Family.ToString();
 
             family.CopyTo(chars);
             int length = family.Length;
