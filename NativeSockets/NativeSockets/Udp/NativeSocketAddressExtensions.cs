@@ -23,10 +23,7 @@ namespace NativeSockets
         ///     When this method returns, contains the converted <see cref="IPEndPoint" />,
         ///     or null if the address family is not supported.
         /// </param>
-        /// <returns>
-        ///     <see cref="SocketError.Success" /> if successful;
-        ///     <see cref="SocketError.AddressFamilyNotSupported" /> if the address family is not Ipv4 or Ipv6.
-        /// </returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         public static SocketError ToIpEndPoint(this NativeSocketAddress socketAddress, out IPEndPoint? result)
         {
             SocketError error = socketAddress.ToIpAddress(out IPAddress? address);
@@ -48,10 +45,7 @@ namespace NativeSockets
         ///     When this method returns, contains the converted <see cref="IPAddress" />,
         ///     or null if the address family is not supported.
         /// </param>
-        /// <returns>
-        ///     <see cref="SocketError.Success" /> if successful;
-        ///     <see cref="SocketError.AddressFamilyNotSupported" /> if the address family is not Ipv4 or Ipv6.
-        /// </returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         public static SocketError ToIpAddress(this NativeSocketAddress socketAddress, out IPAddress? result)
         {
             if (!socketAddress.IsIpv4 && !socketAddress.IsIpv6)
@@ -72,10 +66,7 @@ namespace NativeSockets
         ///     When this method returns, contains the converted <see cref="SocketAddress" />,
         ///     or null if the address family is not supported.
         /// </param>
-        /// <returns>
-        ///     <see cref="SocketError.Success" /> if successful;
-        ///     <see cref="SocketError.AddressFamilyNotSupported" /> if the address family is not Ipv4 or Ipv6.
-        /// </returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         public static SocketError ToSocketAddress(this NativeSocketAddress socketAddress, out SocketAddress? result)
         {
             if (!socketAddress.IsIpv4 && !socketAddress.IsIpv6)
@@ -135,12 +126,9 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socketAddress">The destination <see cref="NativeSocketAddress" /> to fill.</param>
         /// <param name="source">The <see cref="IPEndPoint" /> containing the ip address and port.</param>
-        /// <returns>
-        ///     <see cref="SocketError.Success" /> if successful;
-        ///     <see cref="SocketError.AddressFamilyNotSupported" /> if the address family is not Ipv4 or Ipv6.
-        /// </returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         /// <exception cref="NullReferenceException">Thrown if <paramref name="source" /> is null.</exception>
-        internal static SocketError CopyFromIpEndPoint(ref this NativeSocketAddress socketAddress, IPEndPoint source) => socketAddress.CopyFromIpAddress(source.Address, (ushort)source.Port);
+        internal static SocketError FromIpEndPoint(ref this NativeSocketAddress socketAddress, IPEndPoint source) => socketAddress.FromIpAddress(source.Address, (ushort)source.Port);
 
         /// <summary>
         ///     Populates a <see cref="NativeSocketAddress" /> from the specified <see cref="IPAddress" /> and port.
@@ -148,12 +136,9 @@ namespace NativeSockets
         /// <param name="socketAddress">The destination <see cref="NativeSocketAddress" /> to fill.</param>
         /// <param name="source">The <see cref="IPAddress" /> to copy from.</param>
         /// <param name="port">The port number.</param>
-        /// <returns>
-        ///     <see cref="SocketError.Success" /> if successful;
-        ///     <see cref="SocketError.AddressFamilyNotSupported" /> if the address family is not Ipv4 or Ipv6.
-        /// </returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         /// <exception cref="NullReferenceException">Thrown if <paramref name="source" /> is null.</exception>
-        internal static SocketError CopyFromIpAddress(ref this NativeSocketAddress socketAddress, IPAddress source, ushort port)
+        internal static SocketError FromIpAddress(ref this NativeSocketAddress socketAddress, IPAddress source, ushort port)
         {
             if (source.AddressFamily == AddressFamily.InterNetwork || source.AddressFamily == AddressFamily.InterNetworkV6)
             {
@@ -176,13 +161,9 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socketAddress">The destination <see cref="NativeSocketAddress" /> to fill.</param>
         /// <param name="source">The source <see cref="SocketAddress" /> to copy from.</param>
-        /// <returns>
-        ///     <see cref="SocketError.Success" /> if the address is valid and copied successfully;
-        ///     <see cref="SocketError.AddressFamilyNotSupported" /> if the address family is not Ipv4 or Ipv6;
-        ///     <see cref="SocketError.NoBufferSpaceAvailable" /> if the address size is insufficient.
-        /// </returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         /// <exception cref="NullReferenceException">Thrown if <paramref name="source" /> is null.</exception>
-        internal static SocketError CopyFromSocketAddress(ref this NativeSocketAddress socketAddress, SocketAddress source)
+        internal static SocketError FromSocketAddress(ref this NativeSocketAddress socketAddress, SocketAddress source)
         {
             if (source.Family == AddressFamily.InterNetwork || source.Family == AddressFamily.InterNetworkV6)
             {
@@ -211,15 +192,15 @@ namespace NativeSockets
         /// <param name="port">The port number.</param>
         /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static SocketError SetIpIpv4(ref this NativeSocketAddress socketAddress, ReadOnlySpan<char> ip, ushort port)
+        internal static SocketError FromIpIpv4(ref this NativeSocketAddress socketAddress, ReadOnlySpan<char> ip, ushort port)
         {
-            Unsafe.SkipInit(out sockaddr_in4 __socketAddress_native);
-            SocketError error;
-            using (NativeScopedArray<byte> array = GetAsciiBytesFromChars(stackalloc byte[256], ip))
-            {
-                error = SocketPal.SetIpIpv4(&__socketAddress_native, array.AsReadOnlySpan());
-            }
+            Span<byte> bytes = stackalloc byte[WinSock2.NI_MAXHOST];
+            SocketError error = GetAsciiBytesFromChars(ref bytes, ip);
+            if (error != SocketError.Success)
+                return error;
 
+            Unsafe.SkipInit(out sockaddr_in4 __socketAddress_native);
+            error = SocketPal.SetIpIpv4(&__socketAddress_native, bytes);
             if (error != SocketError.Success)
                 return error;
 
@@ -236,15 +217,15 @@ namespace NativeSockets
         /// <param name="scopeId">The scope id for the Ipv6 address.</param>
         /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static SocketError SetIpIpv6(ref this NativeSocketAddress socketAddress, ReadOnlySpan<char> ip, ushort port, uint scopeId)
+        internal static SocketError FromIpIpv6(ref this NativeSocketAddress socketAddress, ReadOnlySpan<char> ip, ushort port, uint scopeId)
         {
-            Unsafe.SkipInit(out sockaddr_in6 __socketAddress_native);
-            SocketError error;
-            using (NativeScopedArray<byte> array = GetAsciiBytesFromChars(stackalloc byte[256], ip))
-            {
-                error = SocketPal.SetIpIpv6(&__socketAddress_native, array.AsReadOnlySpan());
-            }
+            Span<byte> bytes = stackalloc byte[WinSock2.NI_MAXHOST];
+            SocketError error = GetAsciiBytesFromChars(ref bytes, ip);
+            if (error != SocketError.Success)
+                return error;
 
+            Unsafe.SkipInit(out sockaddr_in6 __socketAddress_native);
+            error = SocketPal.SetIpIpv6(&__socketAddress_native, bytes);
             if (error != SocketError.Success)
                 return error;
 
@@ -260,15 +241,15 @@ namespace NativeSockets
         /// <param name="port">The port number.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static SocketError SetHostNameIpv4(ref this NativeSocketAddress socketAddress, ReadOnlySpan<char> hostName, ushort port)
+        internal static SocketError FromHostNameIpv4(ref this NativeSocketAddress socketAddress, ReadOnlySpan<char> hostName, ushort port)
         {
-            Unsafe.SkipInit(out sockaddr_in4 __socketAddress_native);
-            SocketError error;
-            using (NativeScopedArray<byte> array = GetAsciiBytesFromChars(stackalloc byte[256], hostName))
-            {
-                error = SocketPal.SetHostNameIpv4(&__socketAddress_native, array.AsReadOnlySpan());
-            }
+            Span<byte> bytes = stackalloc byte[WinSock2.NI_MAXHOST];
+            SocketError error = GetAsciiBytesFromChars(ref bytes, hostName);
+            if (error != SocketError.Success)
+                return error;
 
+            Unsafe.SkipInit(out sockaddr_in4 __socketAddress_native);
+            error = SocketPal.SetHostNameIpv4(&__socketAddress_native, bytes);
             if (error != SocketError.Success)
                 return error;
 
@@ -285,19 +266,68 @@ namespace NativeSockets
         /// <param name="scopeId">The Ipv6 scope identifier (used for link-local or site-local addresses).</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static SocketError SetHostNameIpv6(ref this NativeSocketAddress socketAddress, ReadOnlySpan<char> hostName, ushort port, uint scopeId)
+        internal static SocketError FromHostNameIpv6(ref this NativeSocketAddress socketAddress, ReadOnlySpan<char> hostName, ushort port, uint scopeId)
         {
-            Unsafe.SkipInit(out sockaddr_in6 __socketAddress_native);
-            SocketError error;
-            using (NativeScopedArray<byte> array = GetAsciiBytesFromChars(stackalloc byte[256], hostName))
-            {
-                error = SocketPal.SetHostNameIpv6(&__socketAddress_native, array.AsReadOnlySpan());
-            }
+            Span<byte> bytes = stackalloc byte[WinSock2.NI_MAXHOST];
+            SocketError error = GetAsciiBytesFromChars(ref bytes, hostName);
+            if (error != SocketError.Success)
+                return error;
 
+            Unsafe.SkipInit(out sockaddr_in6 __socketAddress_native);
+            error = SocketPal.SetHostNameIpv6(&__socketAddress_native, bytes);
             if (error != SocketError.Success)
                 return error;
 
             socketAddress.CopyFromIpv6(ref __socketAddress_native, port, scopeId);
+            return SocketError.Success;
+        }
+
+        /// <summary>
+        ///     Extracts the ASCII string from a null-terminated byte
+        ///     span and copies it into a character span.
+        /// </summary>
+        /// <param name="source">The null-terminated ASCII byte span (typically from native APIs).</param>
+        /// <param name="destination">
+        ///     The character span to receive the decoded string.
+        ///     On success, it is resized to the actual character count.
+        /// </param>
+        /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
+        private static SocketError CopyAsciiBytesToChars(ReadOnlySpan<byte> source, ref Span<char> destination)
+        {
+            int index = source.IndexOf((byte)'\0');
+            if (index <= 0)
+                return SocketError.Fault;
+
+            source = source.Slice(0, index);
+            int charCount = Encoding.ASCII.GetCharCount(source);
+            if (destination.Length < charCount)
+                return SocketError.NoBufferSpaceAvailable;
+
+            destination = destination.Slice(0, charCount);
+            Encoding.ASCII.GetChars(source, destination);
+            return SocketError.Success;
+        }
+
+        /// <summary>
+        ///     Converts the specified text to null-terminated ASCII bytes and writes them into the provided span,
+        ///     suitable for use with native APIs that expect null-terminated strings (e.g., <c>inet_pton</c>, <c>getaddrinfo</c>).
+        /// </summary>
+        /// <param name="bytes">
+        ///     The span used to receive the null-terminated ASCII bytes.
+        ///     On success, it is resized to the actual written length (ASCII byte count + 1).
+        /// </param>
+        /// <param name="text">The text to convert to ASCII.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        private static SocketError GetAsciiBytesFromChars(ref Span<byte> bytes, ReadOnlySpan<char> text)
+        {
+            int byteCount = Encoding.ASCII.GetByteCount(text);
+            if ((uint)(byteCount + 1) > (uint)bytes.Length)
+                return SocketError.InvalidArgument;
+
+            bytes = bytes.Slice(0, byteCount + 1);
+            Encoding.ASCII.GetBytes(text, bytes);
+            bytes[byteCount] = (byte)'\0';
+
             return SocketError.Success;
         }
 
@@ -333,55 +363,6 @@ namespace NativeSockets
             __socketAddress_native.sin6_flowinfo = 0;
             __socketAddress_native.sin6_scope_id = scopeId;
             SpanHelpers.Copy(ref Unsafe.As<NativeSocketAddress, byte>(ref socketAddress), ref Unsafe.As<sockaddr_in6, byte>(ref __socketAddress_native), 28);
-        }
-
-        /// <summary>
-        ///     Converts the specified text to a null-terminated ASCII byte array,
-        ///     suitable for use with native APIs that expect null-terminated strings (e.g., <c>inet_pton</c>, <c>getaddrinfo</c>).
-        /// </summary>
-        /// <param name="buffer">
-        ///     A temporary span that can be used for storage;
-        ///     if the required size exceeds the span, a larger buffer may be allocated.
-        /// </param>
-        /// <param name="text">The text to convert to ASCII.</param>
-        /// <returns>
-        ///     A <see cref="NativeScopedArray{T}" /> that owns the null-terminated ASCII bytes;
-        ///     the caller must dispose it when done.
-        /// </returns>
-        private static NativeScopedArray<byte> GetAsciiBytesFromChars(Span<byte> buffer, ReadOnlySpan<char> text)
-        {
-            int byteCount = Encoding.ASCII.GetByteCount(text);
-            NativeScopedArray<byte> array = new NativeScopedArray<byte>(buffer, byteCount + 1);
-            Span<byte> bytes = array.AsSpan();
-            Encoding.ASCII.GetBytes(text, bytes);
-            bytes[byteCount] = (byte)'\0';
-            return array;
-        }
-
-        /// <summary>
-        ///     Extracts the ASCII string from a null-terminated byte
-        ///     span and copies it into a character span.
-        /// </summary>
-        /// <param name="source">The null-terminated ASCII byte span (typically from native APIs).</param>
-        /// <param name="destination">
-        ///     The character span to receive the decoded string.
-        ///     On success, it is resized to the actual character count.
-        /// </param>
-        /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
-        private static SocketError CopyAsciiBytesToChars(ReadOnlySpan<byte> source, ref Span<char> destination)
-        {
-            int index = source.IndexOf((byte)'\0');
-            if (index <= 0)
-                return SocketError.Fault;
-
-            source = source.Slice(0, index);
-            int charCount = Encoding.ASCII.GetCharCount(source);
-            if (destination.Length < charCount)
-                return SocketError.NoBufferSpaceAvailable;
-
-            destination = destination.Slice(0, charCount);
-            Encoding.ASCII.GetChars(source, destination);
-            return SocketError.Success;
         }
     }
 }

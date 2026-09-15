@@ -82,7 +82,7 @@ namespace Examples
             var counter = 1;
 
             var socketAddress = new NativeSocketAddress();
-            NativeSocketAddress.FromIpEndPoint(serverEndPoint, out var serverAddress);
+            NativeSocketAddress.FromHostNameIpv4("localhost", (ushort)serverEndPoint.Port, out var serverAddress);
 
             try
             {
