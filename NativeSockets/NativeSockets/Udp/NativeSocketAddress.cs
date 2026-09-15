@@ -3,7 +3,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
 
 // ReSharper disable ALL
 
@@ -286,8 +285,8 @@ namespace NativeSockets
         /// <returns>A string that contains information about this.</returns>
         public readonly override string ToString()
         {
-            Span<char> chars = stackalloc char[256];
-            Format(ref chars, this);
+            Span<char> chars = stackalloc char[NativeSocketAddressPal.FORMAT_MAX_CHARS];
+            NativeSocketAddressPal.Format(ref chars, this);
 
             return chars.ToString();
         }
@@ -308,69 +307,13 @@ namespace NativeSockets
         ///     When this method returns, the number of characters that were written in
         ///     <paramref name="destination" />.
         /// </param>
-        /// <returns>
-        ///     <see langword="true" /> if the formatting was successful;
-        ///     otherwise, <see langword="false" />.
-        /// </returns>
-        public readonly bool TryFormat(Span<char> destination, out int charsWritten)
-        {
-            Span<char> chars = stackalloc char[256];
-            Format(ref chars, this);
-
-            if (chars.TryCopyTo(destination))
-            {
-                charsWritten = chars.Length;
-                return true;
-            }
-
-            charsWritten = 0;
-            return false;
-        }
-
-        /// <summary>
-        ///     Tries to format the value of the current instance into the provided span of characters.
-        /// </summary>
-        /// <param name="destination">When this method returns, this instance's value formatted as a span of characters.</param>
-        /// <param name="charsWritten">
-        ///     When this method returns, the number of characters that were written in
-        ///     <paramref name="destination" />.
-        /// </param>
         /// <param name="_">The format specifier (ignored).</param>
         /// <param name="__">The format provider (ignored).</param>
         /// <returns>
         ///     <see langword="true" /> if the formatting was successful;
         ///     otherwise, <see langword="false" />.
         /// </returns>
-        public readonly bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> _, IFormatProvider? __) => TryFormat(destination, out charsWritten);
-
-        /// <summary>
-        ///     Tries to format the value of the current instance as UTF-8 into the provided span of bytes.
-        /// </summary>
-        /// <param name="utf8Destination">The span in which to write this instance's value formatted as a span of bytes.</param>
-        /// <param name="bytesWritten">
-        ///     When this method returns, contains the number of bytes that were written in
-        ///     <paramref name="utf8Destination" />.
-        /// </param>
-        /// <returns>
-        ///     <see langword="true" /> if the formatting was successful;
-        ///     otherwise, <see langword="false" />.
-        /// </returns>
-        public readonly bool TryFormat(Span<byte> utf8Destination, out int bytesWritten)
-        {
-            Span<char> chars = stackalloc char[256];
-            Format(ref chars, this);
-
-            int byteCount = Encoding.UTF8.GetByteCount(chars);
-            if (byteCount <= utf8Destination.Length)
-            {
-                Encoding.UTF8.GetBytes(chars, utf8Destination);
-                bytesWritten = byteCount;
-                return true;
-            }
-
-            bytesWritten = 0;
-            return false;
-        }
+        public readonly bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> _, IFormatProvider? __) => this.TryFormat(destination, out charsWritten);
 
         /// <summary>
         ///     Tries to format the value of the current instance as UTF-8 into the provided span of bytes.
@@ -386,51 +329,7 @@ namespace NativeSockets
         ///     <see langword="true" /> if the formatting was successful;
         ///     otherwise, <see langword="false" />.
         /// </returns>
-        public readonly bool TryFormat(Span<byte> utf8Destination, out int bytesWritten, ReadOnlySpan<char> _, IFormatProvider? __) => TryFormat(utf8Destination, out bytesWritten);
-
-        /// <summary>
-        ///     Formats the socket address into a human-readable string representation.
-        ///     The format is: <c>Family:Size:{byte1,byte2,...}</c>, where each byte is expressed as a decimal number.
-        /// </summary>
-        /// <param name="destination">
-        ///     A caller-provided character buffer that receives the formatted output.
-        ///     It must be large enough to hold the result (a 256-character stack buffer is sufficient
-        ///     for both Ipv4 and Ipv6 addresses). On return, this reference is reassigned to the
-        ///     slice of the buffer that contains the formatted characters, i.e. it is trimmed
-        ///     to the exact written length.
-        /// </param>
-        /// <param name="source">A reference to the socket address to format.</param>
-        private static void Format(ref Span<char> destination, in NativeSocketAddress source)
-        {
-            ReadOnlySpan<char> family = (ReadOnlySpan<char>)source.Family.ToString();
-
-            family.CopyTo(destination);
-            int length = family.Length;
-
-            destination[length++] = ':';
-
-            source.Size.TryFormat(destination.Slice(length), out int charsWritten);
-
-            length += charsWritten;
-
-            destination[length++] = ':';
-            destination[length++] = '{';
-
-            ReadOnlySpan<byte> buffer = source.AsReadOnlySpan().Slice(0, source.Size);
-            for (int i = 2; i < buffer.Length; ++i)
-            {
-                if (i > 2)
-                    destination[length++] = ',';
-
-                buffer[i].TryFormat(destination.Slice(length), out charsWritten);
-
-                length += charsWritten;
-            }
-
-            destination[length++] = '}';
-
-            destination = destination.Slice(0, length);
-        }
+        public readonly bool TryFormat(Span<byte> utf8Destination, out int bytesWritten, ReadOnlySpan<char> _, IFormatProvider? __) => this.TryFormat(utf8Destination, out bytesWritten);
 
         /// <summary>
         ///     Populates a <see cref="NativeSocketAddress" /> from the specified <see cref="IPEndPoint" />.
@@ -442,7 +341,7 @@ namespace NativeSockets
         public static SocketError FromIpEndPoint(IPEndPoint ipEndPoint, out NativeSocketAddress result)
         {
             Unsafe.SkipInit(out result);
-            return result.FromIpEndPoint(ipEndPoint);
+            return NativeSocketAddressPal.SetFromIpEndPoint(ref result, ipEndPoint);
         }
 
         /// <summary>
@@ -456,7 +355,7 @@ namespace NativeSockets
         public static SocketError FromIpAddress(IPAddress ipAddress, ushort port, out NativeSocketAddress result)
         {
             Unsafe.SkipInit(out result);
-            return result.FromIpAddress(ipAddress, port);
+            return NativeSocketAddressPal.SetFromIpAddress(ref result, ipAddress, port);
         }
 
         /// <summary>
@@ -469,7 +368,7 @@ namespace NativeSockets
         public static SocketError FromSocketAddress(SocketAddress socketAddress, out NativeSocketAddress result)
         {
             Unsafe.SkipInit(out result);
-            return result.FromSocketAddress(socketAddress);
+            return NativeSocketAddressPal.SetFromSocketAddress(ref result, socketAddress);
         }
 
         /// <summary>
@@ -483,7 +382,7 @@ namespace NativeSockets
         public static SocketError FromIpIpv4(ReadOnlySpan<char> ip, ushort port, out NativeSocketAddress result)
         {
             Unsafe.SkipInit(out result);
-            return result.FromIpIpv4(ip, port);
+            return NativeSocketAddressPal.SetFromIpIpv4(ref result, ip, port);
         }
 
         /// <summary>
@@ -498,7 +397,7 @@ namespace NativeSockets
         public static SocketError FromIpIpv6(ReadOnlySpan<char> ip, ushort port, uint scopeId, out NativeSocketAddress result)
         {
             Unsafe.SkipInit(out result);
-            return result.FromIpIpv6(ip, port, scopeId);
+            return NativeSocketAddressPal.SetFromIpIpv6(ref result, ip, port, scopeId);
         }
 
         /// <summary>
@@ -512,7 +411,7 @@ namespace NativeSockets
         public static SocketError FromHostNameIpv4(ReadOnlySpan<char> hostName, ushort port, out NativeSocketAddress result)
         {
             Unsafe.SkipInit(out result);
-            return result.FromHostNameIpv4(hostName, port);
+            return NativeSocketAddressPal.SetFromHostNameIpv4(ref result, hostName, port);
         }
 
         /// <summary>
@@ -527,67 +426,21 @@ namespace NativeSockets
         public static SocketError FromHostNameIpv6(ReadOnlySpan<char> hostName, ushort port, uint scopeId, out NativeSocketAddress result)
         {
             Unsafe.SkipInit(out result);
-            return result.FromHostNameIpv6(hostName, port, scopeId);
+            return NativeSocketAddressPal.SetFromHostNameIpv6(ref result, hostName, port, scopeId);
         }
 
         /// <summary>
-        ///     Serializes the address into the specified byte span.
+        ///     Deserializes an address from the specified bytes.
         /// </summary>
-        /// <remarks>
-        ///     An Ipv4 address is serialized as 8 bytes (family, port, address),
-        ///     an Ipv6 address as 28 bytes (the full socket address structure).
-        ///     The family field is stored as the managed <see cref="AddressFamily" /> value
-        ///     so the serialized bytes are independent of the native platform constants.
-        /// </remarks>
-        /// <param name="destination">
-        ///     The byte span to receive the serialized address. On return, it is sliced
-        ///     to the number of bytes actually written.
-        /// </param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        public readonly SocketError Serialize(ref Span<byte> destination)
-        {
-            if (!IsIpv4 && !IsIpv6)
-                return SocketError.AddressFamilyNotSupported;
-
-            ReadOnlySpan<byte> buffer = AsReadOnlySpan().Slice(IsIpv4 ? 8 : 28);
-            if (!buffer.TryCopyTo(destination))
-                return SocketError.NoBufferSpaceAvailable;
-
-            Unsafe.WriteUnaligned(ref MemoryMarshal.GetReference(destination), (ushort)Family);
-            destination = destination.Slice(0, buffer.Length);
-            return SocketError.Success;
-        }
-
-        /// <summary>
-        ///     Deserializes an address from the specified byte span.
-        /// </summary>
-        /// <param name="source">
-        ///     The byte span produced by <see cref="Serialize" />. An Ipv4 address requires
-        ///     at least 8 bytes; an Ipv6 address requires 28 bytes.
+        /// <param name="bytes">
+        ///     An Ipv4 address requires at least 8 bytes; an Ipv6 address requires 28 bytes.
         /// </param>
         /// <param name="result">When this method returns, contains the deserialized address.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        public static SocketError Deserialize(ReadOnlySpan<byte> source, out NativeSocketAddress result)
+        public static SocketError Deserialize(ReadOnlySpan<byte> bytes, out NativeSocketAddress result)
         {
             Unsafe.SkipInit(out result);
-
-            if (source.Length < 8)
-                return SocketError.NoBufferSpaceAvailable;
-
-            AddressFamily family = (AddressFamily)Unsafe.ReadUnaligned<ushort>(ref MemoryMarshal.GetReference(source));
-
-            if (family != AddressFamily.InterNetwork && family != AddressFamily.InterNetworkV6)
-                return SocketError.AddressFamilyNotSupported;
-
-            if (family == AddressFamily.InterNetworkV6 && source.Length < 28)
-                return SocketError.NoBufferSpaceAvailable;
-
-            SpanHelpers.Copy(ref Unsafe.As<NativeSocketAddress, byte>(ref result), ref MemoryMarshal.GetReference(source), (uint)(family == AddressFamily.InterNetwork ? 8 : 28));
-            if (family == AddressFamily.InterNetwork)
-                SpanHelpers.Set(ref Unsafe.Add(ref Unsafe.As<NativeSocketAddress, byte>(ref result), 8), 0, 20);
-
-            result.Family = family;
-            return SocketError.Success;
+            return NativeSocketAddressPal.Deserialize(ref result, bytes);
         }
     }
 }
