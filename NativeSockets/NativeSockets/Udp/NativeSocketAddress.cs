@@ -282,11 +282,9 @@ namespace NativeSockets
         /// <returns>A string that contains information about this.</returns>
         public readonly override string ToString()
         {
-            using (NativeScopedArray<char> array = Format(stackalloc char[256], this, out int chars))
-            {
-                ReadOnlySpan<char> result = array.AsReadOnlySpan().Slice(0, chars);
-                return result.ToString();
-            }
+            Span<char> chars = stackalloc char[256];
+            Format(ref chars, this);
+            return chars.ToString();
         }
 
         /// <summary>
@@ -300,18 +298,16 @@ namespace NativeSockets
         /// </returns>
         public readonly bool TryFormat(Span<char> destination, out int charsWritten)
         {
-            using (NativeScopedArray<char> array = Format(stackalloc char[256], this, out int chars))
+            Span<char> chars = stackalloc char[256];
+            Format(ref chars, this);
+            if (chars.TryCopyTo(destination))
             {
-                ReadOnlySpan<char> result = array.AsReadOnlySpan().Slice(0, chars);
-                if (result.TryCopyTo(destination))
-                {
-                    charsWritten = result.Length;
-                    return true;
-                }
-
-                charsWritten = 0;
-                return false;
+                charsWritten = chars.Length;
+                return true;
             }
+
+            charsWritten = 0;
+            return false;
         }
 
         /// <summary>
@@ -336,48 +332,44 @@ namespace NativeSockets
         ///     Formats the socket address into a human-readable string representation.
         ///     The format is: <c>Family:Size:{byte1,byte2,...}</c>, where each byte is expressed as a decimal number.
         /// </summary>
-        /// <param name="span">
-        ///     A temporary buffer used to hold the formatted string. If the formatted string exceeds the
-        ///     capacity of the stack-allocated buffer (typically 256 characters), this span provides
-        ///     fallback storage via <see cref="NativeScopedArray{T}" />.
+        /// <param name="chars">
+        ///     A caller-provided character buffer that receives the formatted output.
+        ///     It must be large enough to hold the result (a 256-character stack buffer is sufficient
+        ///     for both Ipv4 and Ipv6 addresses). On return, this reference is reassigned to the
+        ///     slice of the buffer that contains the formatted characters, i.e. it is trimmed
+        ///     to the exact written length.
         /// </param>
         /// <param name="socketAddress">A reference to the socket address to format.</param>
-        /// <param name="chars">When this method returns, contains the number of characters written to the temporary buffer.</param>
-        /// <returns>A <see cref="NativeScopedArray{Char}" /> that owns the formatted character span.</returns>
-        private static NativeScopedArray<char> Format(Span<char> span, in NativeSocketAddress socketAddress, out int chars)
+        private static void Format(ref Span<char> chars, in NativeSocketAddress socketAddress)
         {
             ReadOnlySpan<char> family = socketAddress.Family.ToString();
-            int maxLength = checked(family.Length + 1 + 10 + 2 + (socketAddress.Size - 2) * 4 + 1);
 
-            NativeScopedArray<char> array = new NativeScopedArray<char>(span, maxLength);
-            Span<char> destination = array.AsSpan();
-
-            family.CopyTo(destination);
+            family.CopyTo(chars);
             int length = family.Length;
 
-            destination[length++] = ':';
+            chars[length++] = ':';
 
-            socketAddress.Size.TryFormat(destination.Slice(length), out int charsWritten);
+            socketAddress.Size.TryFormat(chars.Slice(length), out int charsWritten);
 
             length += charsWritten;
 
-            destination[length++] = ':';
-            destination[length++] = '{';
+            chars[length++] = ':';
+            chars[length++] = '{';
 
-            ReadOnlySpan<byte> buffer = socketAddress.AsReadOnlySpan();
-            for (int i = 2; i < socketAddress.Size; ++i)
+            ReadOnlySpan<byte> buffer = socketAddress.AsReadOnlySpan().Slice(0, socketAddress.Size);
+            for (int i = 2; i < buffer.Length; ++i)
             {
                 if (i > 2)
-                    destination[length++] = ',';
+                    chars[length++] = ',';
 
-                buffer[i].TryFormat(destination.Slice(length), out charsWritten);
+                buffer[i].TryFormat(chars.Slice(length), out charsWritten);
 
                 length += charsWritten;
             }
 
-            destination[length++] = '}';
-            chars = length;
-            return array;
+            chars[length++] = '}';
+
+            chars = chars.Slice(0, length);
         }
 
         /// <summary>
