@@ -75,9 +75,8 @@ namespace NativeSockets
                 return SocketError.AddressFamilyNotSupported;
             }
 
-            ReadOnlySpan<byte> buffer = socketAddress.Buffer;
             result = new SocketAddress(socketAddress.Family);
-            result.CopyFromWithoutFamily(buffer, socketAddress.IsIpv4 ? 8 : 28);
+            result.CopyFromWithoutFamily(socketAddress.AsReadOnlySpan(), socketAddress.IsIpv4 ? 8 : 28);
             return SocketError.Success;
         }
 
@@ -170,7 +169,7 @@ namespace NativeSockets
                 if ((source.Family == AddressFamily.InterNetwork && source.Size >= 16) || (source.Family == AddressFamily.InterNetworkV6 && source.Size >= 28))
                 {
                     socketAddress.Family = source.Family;
-                    source.CopyToWithoutFamily(socketAddress.Buffer, source.Family == AddressFamily.InterNetwork ? 8 : 28);
+                    source.CopyToWithoutFamily(socketAddress.AsSpan(), source.Family == AddressFamily.InterNetwork ? 8 : 28);
 
                     if (source.Family == AddressFamily.InterNetwork)
                         socketAddress.AsSpan().Slice(8).Clear();
