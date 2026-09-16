@@ -16,7 +16,7 @@ namespace NativeSockets
     public static unsafe class NativeSocketAddressExtensions
     {
         /// <summary>
-        ///     Serializes the address into the specified byte span.
+        ///     Serializes a <see cref="NativeSocketAddress" /> into the specified byte span.
         /// </summary>
         /// <param name="socketAddress">The socket address to serialize.</param>
         /// <param name="destination">

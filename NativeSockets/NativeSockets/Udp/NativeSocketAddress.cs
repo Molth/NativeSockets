@@ -329,7 +329,7 @@ namespace NativeSockets
         public readonly bool TryFormat(Span<byte> utf8Destination, out int bytesWritten, ReadOnlySpan<char> _, IFormatProvider? __) => this.TryFormat(utf8Destination, out bytesWritten);
 
         /// <summary>
-        ///     Deserializes an address from the specified byte span.
+        ///     Deserializes a <see cref="NativeSocketAddress" /> from the specified byte span.
         /// </summary>
         /// <param name="bytes">
         ///     An Ipv4 address requires at least 8 bytes; an Ipv6 address requires 28 bytes.
@@ -341,6 +341,19 @@ namespace NativeSockets
         {
             Unsafe.SkipInit(out result);
             return NativeSocketAddressPal.Deserialize(ref result, bytes);
+        }
+
+        /// <summary>
+        ///     Tries to parse an <see cref="IPEndPoint" /> string into a <see cref="NativeSocketAddress" />.
+        /// </summary>
+        /// <param name="ipEndPointText">The <see cref="IPEndPoint" /> string to parse.</param>
+        /// <param name="result">When this method returns, contains the parsed address.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>Only complete, standard <see cref="IPEndPoint" /> string representations are accepted.</remarks>
+        public static SocketError TryParse(ReadOnlySpan<char> ipEndPointText, out NativeSocketAddress result)
+        {
+            Unsafe.SkipInit(out result);
+            return NativeSocketAddressPal.TryParse(ref result, ipEndPointText);
         }
 
         /// <summary>

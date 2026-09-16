@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
@@ -22,7 +23,51 @@ namespace NativeSockets
         public const int FORMAT_MAX_CHARS = 256;
 
         /// <summary>
-        ///     Serializes the address into the specified byte span.
+        ///     Tries to parse an <see cref="IPEndPoint" /> string into a <see cref="NativeSocketAddress" />.
+        /// </summary>
+        /// <param name="destination">When this method returns, contains the parsed address.</param>
+        /// <param name="source">The <see cref="IPEndPoint" /> string to parse.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>Only complete, standard <see cref="IPEndPoint" /> string representations are accepted.</remarks>
+        public static SocketError TryParse(ref NativeSocketAddress destination, ReadOnlySpan<char> source)
+        {
+            if (source.Length < 3)
+                return SocketError.InvalidArgument;
+
+            if (source[0] == '[')
+            {
+                int closeBracket = source.IndexOf(']');
+                if (closeBracket <= 2 || closeBracket >= source.Length - 2 || source[closeBracket + 1] != ':' || !ushort.TryParse(source.Slice(closeBracket + 2), NumberStyles.None, CultureInfo.InvariantCulture, out ushort port))
+                    return SocketError.InvalidArgument;
+
+                ReadOnlySpan<char> ip = source.Slice(1, closeBracket - 1);
+                uint scopeId = 0;
+
+                int percent = ip.IndexOf('%');
+                if (percent >= 0)
+                {
+                    if (!uint.TryParse(ip.Slice(percent + 1), NumberStyles.None, CultureInfo.InvariantCulture, out scopeId))
+                        return SocketError.InvalidArgument;
+
+                    ip = ip.Slice(0, percent);
+                }
+
+                return SetFromIpIpv6(ref destination, ip, port, scopeId);
+            }
+            else
+            {
+                int lastColon = source.LastIndexOf(':');
+                if (lastColon <= 0 || lastColon >= source.Length - 1 || !ushort.TryParse(source.Slice(lastColon + 1), NumberStyles.None, CultureInfo.InvariantCulture, out ushort port))
+                    return SocketError.InvalidArgument;
+
+                ReadOnlySpan<char> ip = source.Slice(0, lastColon);
+
+                return SetFromIpIpv4(ref destination, ip, port);
+            }
+        }
+
+        /// <summary>
+        ///     Serializes a <see cref="NativeSocketAddress" /> into the specified byte span.
         /// </summary>
         /// <param name="source">The socket address to serialize.</param>
         /// <param name="destination">
@@ -56,7 +101,7 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Deserializes an address from the specified byte span.
+        ///     Deserializes a <see cref="NativeSocketAddress" /> from the specified byte span.
         /// </summary>
         /// <param name="source">
         ///     An Ipv4 address requires at least 8 bytes; an Ipv6 address requires 28 bytes.
@@ -112,7 +157,7 @@ namespace NativeSockets
 
             destination[length++] = ':';
 
-            source.Size.TryFormat(destination.Slice(length), out int charsWritten);
+            source.Size.TryFormat(destination.Slice(length), out int charsWritten, default, CultureInfo.InvariantCulture);
 
             length += charsWritten;
 
@@ -125,7 +170,7 @@ namespace NativeSockets
                 if (i > 2)
                     destination[length++] = ',';
 
-                buffer[i].TryFormat(destination.Slice(length), out charsWritten);
+                buffer[i].TryFormat(destination.Slice(length), out charsWritten, default, CultureInfo.InvariantCulture);
 
                 length += charsWritten;
             }
@@ -149,17 +194,17 @@ namespace NativeSockets
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         public static SocketError FormatAsIpEndPoint(ref Span<char> destination, in NativeSocketAddress source)
         {
-            int position = 0;
+            int length = 0;
 
             if (source.IsIpv6)
-                destination[position++] = '[';
+                destination[length++] = '[';
 
-            Span<char> ip = destination.Slice(position);
+            Span<char> ip = destination.Slice(length);
             SocketError error = source.GetIp(ref ip);
             if (error != SocketError.Success)
                 return error;
 
-            position += ip.Length;
+            length += ip.Length;
 
             int charsWritten;
 
@@ -167,19 +212,19 @@ namespace NativeSockets
             {
                 if (source.ScopeId != 0)
                 {
-                    destination[position++] = '%';
-                    source.ScopeId.TryFormat(destination.Slice(position), out charsWritten);
-                    position += charsWritten;
+                    destination[length++] = '%';
+                    source.ScopeId.TryFormat(destination.Slice(length), out charsWritten, default, CultureInfo.InvariantCulture);
+                    length += charsWritten;
                 }
 
-                destination[position++] = ']';
+                destination[length++] = ']';
             }
 
-            destination[position++] = ':';
-            source.Port.TryFormat(destination.Slice(position), out charsWritten);
-            position += charsWritten;
+            destination[length++] = ':';
+            source.Port.TryFormat(destination.Slice(length), out charsWritten, default, CultureInfo.InvariantCulture);
+            length += charsWritten;
 
-            destination = destination.Slice(0, position);
+            destination = destination.Slice(0, length);
             return SocketError.Success;
         }
 
