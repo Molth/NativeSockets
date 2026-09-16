@@ -36,6 +36,7 @@ namespace NativeSockets
         ///     The family field is stored as the managed <see cref="AddressFamily" /> value
         ///     so the serialized bytes are independent of the native platform constants.
         /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Serialize(ref Span<byte> destination, in NativeSocketAddress source)
         {
             if (!source.IsIpv4 && !source.IsIpv6)
@@ -62,6 +63,7 @@ namespace NativeSockets
         /// </param>
         /// <param name="destination">When this method returns, contains the deserialized address.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Deserialize(ref NativeSocketAddress destination, ReadOnlySpan<byte> source)
         {
             if (source.Length < 8)
@@ -91,55 +93,6 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Extracts the ASCII string from a null-terminated byte
-        ///     span and copies it into a character span.
-        /// </summary>
-        /// <param name="destination">
-        ///     The character span to receive the decoded string.
-        ///     On success, it is resized to the actual character count.
-        /// </param>
-        /// <param name="source">The null-terminated ASCII byte span (typically from native APIs).</param>
-        /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
-        public static SocketError GetAsciiCharsFromBytes(ref Span<char> destination, ReadOnlySpan<byte> source)
-        {
-            int index = source.IndexOf((byte)'\0');
-            if (index <= 0)
-                return SocketError.Fault;
-
-            source = source.Slice(0, index);
-            int charCount = Encoding.ASCII.GetCharCount(source);
-            if (destination.Length < charCount)
-                return SocketError.NoBufferSpaceAvailable;
-
-            destination = destination.Slice(0, charCount);
-            Encoding.ASCII.GetChars(source, destination);
-            return SocketError.Success;
-        }
-
-        /// <summary>
-        ///     Converts the specified text to null-terminated ASCII bytes and writes them into the provided span,
-        ///     suitable for use with native APIs that expect null-terminated strings (e.g., <c>inet_pton</c>, <c>getaddrinfo</c>).
-        /// </summary>
-        /// <param name="destination">
-        ///     The span used to receive the null-terminated ASCII bytes.
-        ///     On success, it is resized to the actual written length (ASCII byte count + 1).
-        /// </param>
-        /// <param name="source">The text to convert to ASCII.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        public static SocketError GetAsciiBytesFromChars(ref Span<byte> destination, ReadOnlySpan<char> source)
-        {
-            int byteCount = Encoding.ASCII.GetByteCount(source);
-            if ((uint)(byteCount + 1) > (uint)destination.Length)
-                return SocketError.InvalidArgument;
-
-            destination = destination.Slice(0, byteCount + 1);
-            Encoding.ASCII.GetBytes(source, destination);
-            destination[byteCount] = (byte)'\0';
-
-            return SocketError.Success;
-        }
-
-        /// <summary>
         ///     Formats the socket address into the specified character buffer.
         ///     The format is: <c>Family:Size:{byte1,byte2,...}</c>,
         ///     where each byte is expressed as a decimal number.
@@ -154,7 +107,7 @@ namespace NativeSockets
         /// <param name="source">A reference to the socket address to format.</param>
         public static void Format(ref Span<char> destination, in NativeSocketAddress source)
         {
-            ReadOnlySpan<char> family = (ReadOnlySpan<char>)source.Family.ToString();
+            ReadOnlySpan<char> family = source.Family.ToString().AsSpan();
 
             family.CopyTo(destination);
             int length = family.Length;
@@ -233,6 +186,32 @@ namespace NativeSockets
         }
 
         /// <summary>
+        ///     Extracts the ASCII string from a null-terminated byte
+        ///     span and copies it into a character span.
+        /// </summary>
+        /// <param name="destination">
+        ///     The character span to receive the decoded string.
+        ///     On success, it is resized to the actual character count.
+        /// </param>
+        /// <param name="source">The null-terminated ASCII byte span (typically from native APIs).</param>
+        /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
+        public static SocketError GetAsciiCharsFromBytes(ref Span<char> destination, ReadOnlySpan<byte> source)
+        {
+            int index = source.IndexOf((byte)'\0');
+            if (index <= 0)
+                return SocketError.Fault;
+
+            source = source.Slice(0, index);
+            int charCount = Encoding.ASCII.GetCharCount(source);
+            if (destination.Length < charCount)
+                return SocketError.NoBufferSpaceAvailable;
+
+            destination = destination.Slice(0, charCount);
+            Encoding.ASCII.GetChars(source, destination);
+            return SocketError.Success;
+        }
+
+        /// <summary>
         ///     Populates a <see cref="NativeSocketAddress" /> from the specified <see cref="IPEndPoint" />.
         /// </summary>
         /// <param name="destination">The destination <see cref="NativeSocketAddress" /> to fill.</param>
@@ -281,10 +260,16 @@ namespace NativeSockets
                 if ((socketAddress.Family == AddressFamily.InterNetwork && socketAddress.Size >= 16) || (socketAddress.Family == AddressFamily.InterNetworkV6 && socketAddress.Size >= 28))
                 {
                     destination.Family = socketAddress.Family;
-                    socketAddress.CopyToWithoutFamily(destination.AsSpan(), socketAddress.Family == AddressFamily.InterNetwork ? 8 : 28);
 
                     if (socketAddress.Family == AddressFamily.InterNetwork)
-                        destination.AsSpan().Slice(8).Clear();
+                    {
+                        socketAddress.CopyToWithoutFamily(destination.AsSpan(), 8);
+                        SpanHelpers.Set(ref Unsafe.Add(ref Unsafe.As<NativeSocketAddress, byte>(ref destination), 8), 0, 20);
+                    }
+                    else
+                    {
+                        socketAddress.CopyToWithoutFamily(destination.AsSpan(), 28);
+                    }
 
                     return SocketError.Success;
                 }
@@ -390,6 +375,29 @@ namespace NativeSockets
                 return error;
 
             SetFromIpv6(ref destination, ref __socketAddress_native, port, scopeId);
+            return SocketError.Success;
+        }
+
+        /// <summary>
+        ///     Converts the specified text to null-terminated ASCII bytes and writes them into the provided span,
+        ///     suitable for use with native APIs that expect null-terminated strings (e.g., <c>inet_pton</c>, <c>getaddrinfo</c>).
+        /// </summary>
+        /// <param name="destination">
+        ///     The span used to receive the null-terminated ASCII bytes.
+        ///     On success, it is resized to the actual written length (ASCII byte count + 1).
+        /// </param>
+        /// <param name="source">The text to convert to ASCII.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        private static SocketError GetAsciiBytesFromChars(ref Span<byte> destination, ReadOnlySpan<char> source)
+        {
+            int byteCount = Encoding.ASCII.GetByteCount(source);
+            if ((uint)(byteCount + 1) > (uint)destination.Length)
+                return SocketError.InvalidArgument;
+
+            destination = destination.Slice(0, byteCount + 1);
+            Encoding.ASCII.GetBytes(source, destination);
+            destination[byteCount] = (byte)'\0';
+
             return SocketError.Success;
         }
 

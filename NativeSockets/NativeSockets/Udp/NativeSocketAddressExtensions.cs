@@ -30,6 +30,7 @@ namespace NativeSockets
         ///     The family field is stored as the managed <see cref="AddressFamily" /> value
         ///     so the serialized bytes are independent of the native platform constants.
         /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Serialize(in this NativeSocketAddress socketAddress, ref Span<byte> destination) => NativeSocketAddressPal.Serialize(ref destination, socketAddress);
 
         /// <summary>
@@ -165,6 +166,46 @@ namespace NativeSockets
         }
 
         /// <summary>
+        ///     Retrieves the ip address from a <see cref="NativeSocketAddress" /> as text.
+        /// </summary>
+        /// <param name="socketAddress">The <see cref="NativeSocketAddress" /> to read the ip address from.</param>
+        /// <param name="ip">The character span to receive the ip address; resized to the actual length on success.</param>
+        /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError GetIp(this NativeSocketAddress socketAddress, ref Span<char> ip)
+        {
+            if (!socketAddress.IsIpv4 && !socketAddress.IsIpv6)
+                return SocketError.AddressFamilyNotSupported;
+
+            Span<byte> bytes = stackalloc byte[WinSock2.NI_MAXHOST];
+            SocketError result = socketAddress.IsIpv4 ? SocketPal.GetIpIpv4((sockaddr_in4*)&socketAddress, bytes) : SocketPal.GetIpIpv6((sockaddr_in6*)&socketAddress, bytes);
+            if (result == SocketError.Success)
+                return NativeSocketAddressPal.GetAsciiCharsFromBytes(ref ip, bytes);
+
+            return result;
+        }
+
+        /// <summary>
+        ///     Gets the host name (reverse DNS) from a <see cref="NativeSocketAddress" />.
+        /// </summary>
+        /// <param name="socketAddress">The <see cref="NativeSocketAddress" /> to resolve the host name for.</param>
+        /// <param name="hostName">The character span to receive the host name; resized to the actual length on success.</param>
+        /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError GetHostName(this NativeSocketAddress socketAddress, ref Span<char> hostName)
+        {
+            if (!socketAddress.IsIpv4 && !socketAddress.IsIpv6)
+                return SocketError.AddressFamilyNotSupported;
+
+            Span<byte> bytes = stackalloc byte[WinSock2.NI_MAXHOST];
+            SocketError result = socketAddress.IsIpv4 ? SocketPal.GetHostNameIpv4((sockaddr_in4*)&socketAddress, bytes) : SocketPal.GetHostNameIpv6((sockaddr_in6*)&socketAddress, bytes);
+            if (result == SocketError.Success)
+                return NativeSocketAddressPal.GetAsciiCharsFromBytes(ref hostName, bytes);
+
+            return result;
+        }
+
+        /// <summary>
         ///     Converts a <see cref="NativeSocketAddress" /> into an <see cref="IPEndPoint" />.
         /// </summary>
         /// <param name="socketAddress">The socket address to convert.</param>
@@ -227,46 +268,6 @@ namespace NativeSockets
             result = new SocketAddress(socketAddress.Family);
             result.CopyFromWithoutFamily(socketAddress.AsReadOnlySpan(), socketAddress.IsIpv4 ? 8 : 28);
             return SocketError.Success;
-        }
-
-        /// <summary>
-        ///     Retrieves the ip address from a <see cref="NativeSocketAddress" /> as text.
-        /// </summary>
-        /// <param name="socketAddress">The <see cref="NativeSocketAddress" /> to read the ip address from.</param>
-        /// <param name="ip">The character span to receive the ip address; resized to the actual length on success.</param>
-        /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetIp(this NativeSocketAddress socketAddress, ref Span<char> ip)
-        {
-            if (!socketAddress.IsIpv4 && !socketAddress.IsIpv6)
-                return SocketError.AddressFamilyNotSupported;
-
-            Span<byte> bytes = stackalloc byte[WinSock2.NI_MAXHOST];
-            SocketError result = socketAddress.IsIpv4 ? SocketPal.GetIpIpv4((sockaddr_in4*)&socketAddress, bytes) : SocketPal.GetIpIpv6((sockaddr_in6*)&socketAddress, bytes);
-            if (result == SocketError.Success)
-                return NativeSocketAddressPal.GetAsciiCharsFromBytes(ref ip, bytes);
-
-            return result;
-        }
-
-        /// <summary>
-        ///     Gets the host name (reverse DNS) from a <see cref="NativeSocketAddress" />.
-        /// </summary>
-        /// <param name="socketAddress">The <see cref="NativeSocketAddress" /> to resolve the host name for.</param>
-        /// <param name="hostName">The character span to receive the host name; resized to the actual length on success.</param>
-        /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetHostName(this NativeSocketAddress socketAddress, ref Span<char> hostName)
-        {
-            if (!socketAddress.IsIpv4 && !socketAddress.IsIpv6)
-                return SocketError.AddressFamilyNotSupported;
-
-            Span<byte> bytes = stackalloc byte[WinSock2.NI_MAXHOST];
-            SocketError result = socketAddress.IsIpv4 ? SocketPal.GetHostNameIpv4((sockaddr_in4*)&socketAddress, bytes) : SocketPal.GetHostNameIpv6((sockaddr_in6*)&socketAddress, bytes);
-            if (result == SocketError.Success)
-                return NativeSocketAddressPal.GetAsciiCharsFromBytes(ref hostName, bytes);
-
-            return result;
         }
     }
 }

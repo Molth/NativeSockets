@@ -287,7 +287,6 @@ namespace NativeSockets
         {
             Span<char> chars = stackalloc char[NativeSocketAddressPal.FORMAT_MAX_CHARS];
             NativeSocketAddressPal.Format(ref chars, this);
-
             return chars.ToString();
         }
 
@@ -330,6 +329,21 @@ namespace NativeSockets
         ///     otherwise, <see langword="false" />.
         /// </returns>
         public readonly bool TryFormat(Span<byte> utf8Destination, out int bytesWritten, ReadOnlySpan<char> _, IFormatProvider? __) => this.TryFormat(utf8Destination, out bytesWritten);
+
+        /// <summary>
+        ///     Deserializes an address from the specified bytes.
+        /// </summary>
+        /// <param name="bytes">
+        ///     An Ipv4 address requires at least 8 bytes; an Ipv6 address requires 28 bytes.
+        /// </param>
+        /// <param name="result">When this method returns, contains the deserialized address.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError Deserialize(ReadOnlySpan<byte> bytes, out NativeSocketAddress result)
+        {
+            Unsafe.SkipInit(out result);
+            return NativeSocketAddressPal.Deserialize(ref result, bytes);
+        }
 
         /// <summary>
         ///     Populates a <see cref="NativeSocketAddress" /> from the specified <see cref="IPEndPoint" />.
@@ -427,20 +441,6 @@ namespace NativeSockets
         {
             Unsafe.SkipInit(out result);
             return NativeSocketAddressPal.SetFromHostNameIpv6(ref result, hostName, port, scopeId);
-        }
-
-        /// <summary>
-        ///     Deserializes an address from the specified bytes.
-        /// </summary>
-        /// <param name="bytes">
-        ///     An Ipv4 address requires at least 8 bytes; an Ipv6 address requires 28 bytes.
-        /// </param>
-        /// <param name="result">When this method returns, contains the deserialized address.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        public static SocketError Deserialize(ReadOnlySpan<byte> bytes, out NativeSocketAddress result)
-        {
-            Unsafe.SkipInit(out result);
-            return NativeSocketAddressPal.Deserialize(ref result, bytes);
         }
     }
 }
