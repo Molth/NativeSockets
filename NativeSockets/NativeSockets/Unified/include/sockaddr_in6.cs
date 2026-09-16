@@ -1,5 +1,4 @@
-﻿using System.Net.Sockets;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 // ReSharper disable All
 
@@ -16,7 +15,7 @@ namespace NativeSockets
     internal unsafe struct sockaddr_in6
     {
         /// <summary>
-        ///     The address family (must be <see cref="AddressFamily.InterNetworkV6" />).
+        ///     The address family (must be <see cref="SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6" />).
         /// </summary>
         [FieldOffset(0)] public ushort sin6_family;
 

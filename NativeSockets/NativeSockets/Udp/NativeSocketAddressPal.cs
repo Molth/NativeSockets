@@ -94,8 +94,6 @@ namespace NativeSockets
 
         /// <summary>
         ///     Formats the socket address into the specified character buffer.
-        ///     The format is: <c>Family:Size:{byte1,byte2,...}</c>,
-        ///     where each byte is expressed as a decimal number.
         /// </summary>
         /// <param name="destination">
         ///     A caller-provided character buffer that receives the formatted output.

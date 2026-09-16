@@ -280,9 +280,8 @@ namespace NativeSockets
         public static bool operator !=(NativeSocketAddress left, NativeSocketAddress right) => !left.Equals(right);
 
         /// <summary>
-        ///     Returns information about the socket address.
+        ///     Returns the fully qualified type name of this instance.
         /// </summary>
-        /// <returns>A string that contains information about this.</returns>
         public readonly override string ToString()
         {
             Span<char> chars = stackalloc char[NativeSocketAddressPal.FORMAT_MAX_CHARS];
@@ -291,11 +290,10 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Returns the string representation of the current socket address.
+        ///     Returns the fully qualified type name of this instance.
         /// </summary>
         /// <param name="_">The format specifier (ignored).</param>
         /// <param name="__">The format provider (ignored).</param>
-        /// <returns>A string representation of the socket address.</returns>
         public readonly string ToString(string? _, IFormatProvider? __) => ToString();
 
         /// <summary>
@@ -331,7 +329,7 @@ namespace NativeSockets
         public readonly bool TryFormat(Span<byte> utf8Destination, out int bytesWritten, ReadOnlySpan<char> _, IFormatProvider? __) => this.TryFormat(utf8Destination, out bytesWritten);
 
         /// <summary>
-        ///     Deserializes an address from the specified bytes.
+        ///     Deserializes an address from the specified byte span.
         /// </summary>
         /// <param name="bytes">
         ///     An Ipv4 address requires at least 8 bytes; an Ipv6 address requires 28 bytes.
@@ -348,7 +346,7 @@ namespace NativeSockets
         /// <summary>
         ///     Populates a <see cref="NativeSocketAddress" /> from the specified <see cref="IPEndPoint" />.
         /// </summary>
-        /// <param name="ipEndPoint">The <see cref="IPEndPoint" /> containing the ip address and port.</param>
+        /// <param name="ipEndPoint">The <see cref="IPEndPoint" /> to copy from.</param>
         /// <param name="result">When this method returns, contains the populated <see cref="NativeSocketAddress" />.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         /// <exception cref="NullReferenceException">Thrown if <paramref name="ipEndPoint" /> is null.</exception>
@@ -375,7 +373,7 @@ namespace NativeSockets
         /// <summary>
         ///     Populates a <see cref="NativeSocketAddress" /> from the specified <see cref="SocketAddress" />.
         /// </summary>
-        /// <param name="socketAddress">The source <see cref="SocketAddress" /> to copy from.</param>
+        /// <param name="socketAddress">The <see cref="SocketAddress" /> to copy from.</param>
         /// <param name="result">When this method returns, contains the populated <see cref="NativeSocketAddress" />.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         /// <exception cref="NullReferenceException">Thrown if <paramref name="socketAddress" /> is null.</exception>
