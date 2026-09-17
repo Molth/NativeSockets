@@ -36,11 +36,6 @@ namespace NativeSockets
         private static readonly delegate* managed<nint, SocketError> _Close;
 
         /// <summary>
-        ///     Enables or disables dual-mode (Ipv6/Ipv4) on an Ipv6 socket.
-        /// </summary>
-        private static readonly delegate* managed<nint, bool, SocketError> _SetDualModeIpv6;
-
-        /// <summary>
         ///     Binds a socket to an Ipv4 address.
         /// </summary>
         private static readonly delegate* managed<nint, sockaddr_in4*, SocketError> _BindIpv4;
@@ -180,7 +175,6 @@ namespace NativeSockets
                 _Cleanup = &WindowsSocketPal.Cleanup;
                 _Create = &WindowsSocketPal.Create;
                 _Close = &WindowsSocketPal.Close;
-                _SetDualModeIpv6 = &WindowsSocketPal.SetDualModeIpv6;
                 _BindIpv4 = &WindowsSocketPal.BindIpv4;
                 _BindIpv6 = &WindowsSocketPal.BindIpv6;
                 _ConnectIpv4 = &WindowsSocketPal.ConnectIpv4;
@@ -218,7 +212,6 @@ namespace NativeSockets
                 _Cleanup = &LinuxSocketPal.Cleanup;
                 _Create = &LinuxSocketPal.Create;
                 _Close = &LinuxSocketPal.Close;
-                _SetDualModeIpv6 = &LinuxSocketPal.SetDualModeIpv6;
                 _BindIpv4 = &LinuxSocketPal.BindIpv4;
                 _BindIpv6 = &LinuxSocketPal.BindIpv6;
                 _ConnectIpv4 = &LinuxSocketPal.ConnectIpv4;
@@ -256,7 +249,6 @@ namespace NativeSockets
                 _Cleanup = &OsxSocketPal.Cleanup;
                 _Create = &OsxSocketPal.Create;
                 _Close = &OsxSocketPal.Close;
-                _SetDualModeIpv6 = &OsxSocketPal.SetDualModeIpv6;
                 _BindIpv4 = &OsxSocketPal.BindIpv4;
                 _BindIpv6 = &OsxSocketPal.BindIpv6;
                 _ConnectIpv4 = &OsxSocketPal.ConnectIpv4;
@@ -294,7 +286,6 @@ namespace NativeSockets
                 _Cleanup = &FreeBsdSocketPal.Cleanup;
                 _Create = &FreeBsdSocketPal.Create;
                 _Close = &FreeBsdSocketPal.Close;
-                _SetDualModeIpv6 = &FreeBsdSocketPal.SetDualModeIpv6;
                 _BindIpv4 = &FreeBsdSocketPal.BindIpv4;
                 _BindIpv6 = &FreeBsdSocketPal.BindIpv6;
                 _ConnectIpv4 = &FreeBsdSocketPal.ConnectIpv4;
@@ -383,15 +374,6 @@ namespace NativeSockets
         /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Close(nint socket) => _Close(socket);
-
-        /// <summary>
-        ///     Enables or disables dual-mode (Ipv6/Ipv4) on an Ipv6 socket.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="dualMode">true to enable dual-mode; false to disable.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetDualModeIpv6(nint socket, bool dualMode) => _SetDualModeIpv6(socket, dualMode);
 
         /// <summary>
         ///     Binds a socket to an Ipv4 address.

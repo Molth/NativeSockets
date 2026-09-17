@@ -52,7 +52,8 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Tries to parse an <see cref="IPAddress" /> string into a <see cref="NativeSocketAddress" />.
+        ///     Tries to parse an <see cref="IPAddress" /> string into a <see cref="NativeSocketAddress" />,
+        ///     using the specified port.
         /// </summary>
         /// <param name="destination">When this method returns, contains the parsed address.</param>
         /// <param name="ipAddressText">The <see cref="IPAddress" /> string to parse.</param>

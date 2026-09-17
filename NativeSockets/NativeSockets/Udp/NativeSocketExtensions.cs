@@ -19,7 +19,11 @@ namespace NativeSockets
         /// <param name="dualMode">true to enable dual-mode; false to disable.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetDualMode(this NativeSocket socket, bool dualMode) => SocketPal.SetDualModeIpv6(socket, dualMode);
+        public static SocketError SetDualMode(this NativeSocket socket, bool dualMode)
+        {
+            int optionValue = dualMode ? 0 : 1;
+            return socket.SetOption(SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, MemoryMarshalHelpers.AsReadOnlyBytes(ref optionValue));
+        }
 
         /// <summary>
         ///     Binds a socket to an address.

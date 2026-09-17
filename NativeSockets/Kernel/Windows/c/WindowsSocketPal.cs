@@ -109,20 +109,6 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Enables or disables dual-mode (Ipv6/Ipv4) on an Ipv6 socket.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="dualMode">true to enable dual-mode; false to disable.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetDualModeIpv6(nint socket, bool dualMode)
-        {
-            int optionValue = dualMode ? 0 : 1;
-            SocketError error = SetOption(socket, SocketOptionLevel.IPv6, SocketOptionName.IPv6Only, (byte*)&optionValue, 4);
-            return error;
-        }
-
-        /// <summary>
         ///     Binds a socket to an Ipv4 address.
         /// </summary>
         /// <param name="socket">The socket handle.</param>

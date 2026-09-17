@@ -72,15 +72,6 @@ namespace NativeSockets
         public static extern SocketError Close(nint socket);
 
         /// <summary>
-        ///     Enables or disables dual-mode (Ipv6/Ipv4) on an Ipv6 socket.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="dualMode">true to enable dual-mode; false to disable.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        [DllImport(NATIVE_LIBRARY, EntryPoint = "_SetDualModeIpv6", CallingConvention = CALLING_CONVENTION)]
-        public static extern SocketError SetDualModeIpv6(nint socket, int dualMode);
-
-        /// <summary>
         ///     Binds a socket to an Ipv4 address.
         /// </summary>
         /// <param name="socket">The socket handle.</param>

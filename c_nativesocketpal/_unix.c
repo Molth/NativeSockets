@@ -84,18 +84,6 @@ i32 _Close(isize socket)
 }
 
 /// <summary>
-///     Enables or disables dual-mode (Ipv6/Ipv4) on an Ipv6 socket.
-/// </summary>
-/// <param name="socket">The socket handle.</param>
-/// <param name="dualMode">true to enable dual-mode; false to disable.</param>
-/// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-i32 _SetDualModeIpv6(isize socket, i32 dualMode)
-{
-    i32 optionValue = dualMode ? 0 : 1;
-    return _SetOption(socket, _SOCKET_OPTION_LEVEL_IPV6, _SOCKET_OPTION_NAME_IPV6_V6ONLY, (u8 *)&optionValue, sizeof(i32));
-}
-
-/// <summary>
 ///     Binds a socket to an Ipv4 address.
 /// </summary>
 /// <param name="socket">The socket handle.</param>

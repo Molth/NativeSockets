@@ -151,11 +151,6 @@ extern "C"
     _NATIVESOCKETPAL_API i32 _Close(isize socket);
 
     /// <summary>
-    ///     Enables or disables dual-mode (Ipv6/Ipv4) on an Ipv6 socket.
-    /// </summary>
-    _NATIVESOCKETPAL_API i32 _SetDualModeIpv6(isize socket, i32 dualMode);
-
-    /// <summary>
     ///     Binds a socket to an Ipv4 address.
     /// </summary>
     _NATIVESOCKETPAL_API i32 _BindIpv4(isize socket, _sockaddr_in4 *socketAddress);

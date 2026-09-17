@@ -36,11 +36,6 @@ namespace NativeSockets
         private static readonly delegate* managed<nint, SocketError> _Close;
 
         /// <summary>
-        ///     Enables or disables dual-mode (Ipv6/Ipv4) on an Ipv6 socket.
-        /// </summary>
-        private static readonly delegate* managed<nint, bool, SocketError> _SetDualModeIpv6;
-
-        /// <summary>
         ///     Binds a socket to an Ipv4 address.
         /// </summary>
         private static readonly delegate* managed<nint, sockaddr_in4*, SocketError> _BindIpv4;
@@ -180,7 +175,6 @@ namespace NativeSockets
                 _Cleanup = &SharedSocketPal.Cleanup;
                 _Create = &SharedSocketPal.Create;
                 _Close = &SharedSocketPal.Close;
-                _SetDualModeIpv6 = &SharedSocketPal.SetDualModeIpv6;
                 _BindIpv4 = &SharedSocketPal.BindIpv4;
                 _BindIpv6 = &SharedSocketPal.BindIpv6;
                 _ConnectIpv4 = &SharedSocketPal.ConnectIpv4;
@@ -218,7 +212,6 @@ namespace NativeSockets
                 _Cleanup = &StaticSocketPal.Cleanup;
                 _Create = &StaticSocketPal.Create;
                 _Close = &StaticSocketPal.Close;
-                _SetDualModeIpv6 = &StaticSocketPal.SetDualModeIpv6;
                 _BindIpv4 = &StaticSocketPal.BindIpv4;
                 _BindIpv6 = &StaticSocketPal.BindIpv6;
                 _ConnectIpv4 = &StaticSocketPal.ConnectIpv4;
@@ -305,15 +298,6 @@ namespace NativeSockets
         /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Close(nint socket) => _Close(socket);
-
-        /// <summary>
-        ///     Enables or disables dual-mode (Ipv6/Ipv4) on an Ipv6 socket.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="dualMode">true to enable dual-mode; false to disable.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetDualModeIpv6(nint socket, bool dualMode) => _SetDualModeIpv6(socket, dualMode);
 
         /// <summary>
         ///     Binds a socket to an Ipv4 address.

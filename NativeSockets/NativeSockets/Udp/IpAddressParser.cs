@@ -153,8 +153,9 @@ namespace NativeSockets
         /// <param name="destination">The span to receive the formatted Ipv6 string.</param>
         /// <param name="charsWritten">When this method returns, receives the number of characters written.</param>
         /// <returns>
-        ///     <see langword="true" /> on success; <see langword="false" /> if the address is shorter than 16 bytes or the
-        ///     destination is too small.
+        ///     <see langword="true" /> on success;
+        ///     <see langword="false" /> if the address is shorter than 16 bytes
+        ///     or the destination is too small.
         /// </returns>
         /// <remarks>
         ///     The longest run of zero 16-bit groups is compressed as <c>::</c>. Ipv4-mapped,

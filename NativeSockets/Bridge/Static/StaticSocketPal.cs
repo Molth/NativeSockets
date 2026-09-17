@@ -99,15 +99,6 @@ namespace NativeSockets
         public static SocketError Close(nint socket) => StaticNativeLib.Close(socket);
 
         /// <summary>
-        ///     Enables or disables dual-mode (Ipv6/Ipv4) on an Ipv6 socket.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="dualMode">true to enable dual-mode; false to disable.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetDualModeIpv6(nint socket, bool dualMode) => StaticNativeLib.SetDualModeIpv6(socket, dualMode ? 1 : 0);
-
-        /// <summary>
         ///     Binds a socket to an Ipv4 address.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
