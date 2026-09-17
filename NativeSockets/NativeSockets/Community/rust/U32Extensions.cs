@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using NativeSockets;
 
-// ReSharper disable All
+// ReSharper disable ALL
 
 namespace rust
 {

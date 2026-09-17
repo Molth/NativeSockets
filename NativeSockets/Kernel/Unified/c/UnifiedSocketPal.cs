@@ -1,5 +1,4 @@
-﻿using System;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 
 // ReSharper disable All
@@ -167,46 +166,6 @@ namespace NativeSockets
         private static readonly delegate* managed<nint, sockaddr_in6*, SocketError> _GetNameIpv6;
 
         /// <summary>
-        ///     Sets the Ipv4 address in the given address structure.
-        /// </summary>
-        private static readonly delegate* managed<sockaddr_in4*, ReadOnlySpan<byte>, SocketError> _SetIpIpv4;
-
-        /// <summary>
-        ///     Sets the Ipv6 address in the given address structure.
-        /// </summary>
-        private static readonly delegate* managed<sockaddr_in6*, ReadOnlySpan<byte>, SocketError> _SetIpIpv6;
-
-        /// <summary>
-        ///     Retrieves the Ipv4 address from a socket address structure.
-        /// </summary>
-        private static readonly delegate* managed<sockaddr_in4*, Span<byte>, SocketError> _GetIpIpv4;
-
-        /// <summary>
-        ///     Retrieves the Ipv6 address from a socket address structure.
-        /// </summary>
-        private static readonly delegate* managed<sockaddr_in6*, Span<byte>, SocketError> _GetIpIpv6;
-
-        /// <summary>
-        ///     Sets the host name (reverse DNS) for an Ipv4 address.
-        /// </summary>
-        private static readonly delegate* managed<sockaddr_in4*, ReadOnlySpan<byte>, SocketError> _SetHostNameIpv4;
-
-        /// <summary>
-        ///     Sets the host name (reverse DNS) for an Ipv6 address.
-        /// </summary>
-        private static readonly delegate* managed<sockaddr_in6*, ReadOnlySpan<byte>, SocketError> _SetHostNameIpv6;
-
-        /// <summary>
-        ///     Gets the host name (reverse DNS) from an Ipv4 address.
-        /// </summary>
-        private static readonly delegate* managed<sockaddr_in4*, Span<byte>, SocketError> _GetHostNameIpv4;
-
-        /// <summary>
-        ///     Gets the host name (reverse DNS) from an Ipv6 address.
-        /// </summary>
-        private static readonly delegate* managed<sockaddr_in6*, Span<byte>, SocketError> _GetHostNameIpv6;
-
-        /// <summary>
         ///     Initializes a new instance of this class.
         /// </summary>
         static UnifiedSocketPal()
@@ -247,14 +206,6 @@ namespace NativeSockets
                 _ReceiveFromVectoredIpv6 = &WindowsSocketPal.ReceiveFromVectoredIpv6;
                 _GetNameIpv4 = &WindowsSocketPal.GetNameIpv4;
                 _GetNameIpv6 = &WindowsSocketPal.GetNameIpv6;
-                _SetIpIpv4 = &WindowsSocketPal.SetIpIpv4;
-                _SetIpIpv6 = &WindowsSocketPal.SetIpIpv6;
-                _GetIpIpv4 = &WindowsSocketPal.GetIpIpv4;
-                _GetIpIpv6 = &WindowsSocketPal.GetIpIpv6;
-                _SetHostNameIpv4 = &WindowsSocketPal.SetHostNameIpv4;
-                _SetHostNameIpv6 = &WindowsSocketPal.SetHostNameIpv6;
-                _GetHostNameIpv4 = &WindowsSocketPal.GetHostNameIpv4;
-                _GetHostNameIpv6 = &WindowsSocketPal.GetHostNameIpv6;
             }
 
             else if (IsLinux())
@@ -293,14 +244,6 @@ namespace NativeSockets
                 _ReceiveFromVectoredIpv6 = &LinuxSocketPal.ReceiveFromVectoredIpv6;
                 _GetNameIpv4 = &LinuxSocketPal.GetNameIpv4;
                 _GetNameIpv6 = &LinuxSocketPal.GetNameIpv6;
-                _SetIpIpv4 = &LinuxSocketPal.SetIpIpv4;
-                _SetIpIpv6 = &LinuxSocketPal.SetIpIpv6;
-                _GetIpIpv4 = &LinuxSocketPal.GetIpIpv4;
-                _GetIpIpv6 = &LinuxSocketPal.GetIpIpv6;
-                _SetHostNameIpv4 = &LinuxSocketPal.SetHostNameIpv4;
-                _SetHostNameIpv6 = &LinuxSocketPal.SetHostNameIpv6;
-                _GetHostNameIpv4 = &LinuxSocketPal.GetHostNameIpv4;
-                _GetHostNameIpv6 = &LinuxSocketPal.GetHostNameIpv6;
             }
 
             else if (IsOsx())
@@ -339,14 +282,6 @@ namespace NativeSockets
                 _ReceiveFromVectoredIpv6 = &OsxSocketPal.ReceiveFromVectoredIpv6;
                 _GetNameIpv4 = &OsxSocketPal.GetNameIpv4;
                 _GetNameIpv6 = &OsxSocketPal.GetNameIpv6;
-                _SetIpIpv4 = &OsxSocketPal.SetIpIpv4;
-                _SetIpIpv6 = &OsxSocketPal.SetIpIpv6;
-                _GetIpIpv4 = &OsxSocketPal.GetIpIpv4;
-                _GetIpIpv6 = &OsxSocketPal.GetIpIpv6;
-                _SetHostNameIpv4 = &OsxSocketPal.SetHostNameIpv4;
-                _SetHostNameIpv6 = &OsxSocketPal.SetHostNameIpv6;
-                _GetHostNameIpv4 = &OsxSocketPal.GetHostNameIpv4;
-                _GetHostNameIpv6 = &OsxSocketPal.GetHostNameIpv6;
             }
 
             else if (IsFreeBsd())
@@ -385,14 +320,6 @@ namespace NativeSockets
                 _ReceiveFromVectoredIpv6 = &FreeBsdSocketPal.ReceiveFromVectoredIpv6;
                 _GetNameIpv4 = &FreeBsdSocketPal.GetNameIpv4;
                 _GetNameIpv6 = &FreeBsdSocketPal.GetNameIpv6;
-                _SetIpIpv4 = &FreeBsdSocketPal.SetIpIpv4;
-                _SetIpIpv6 = &FreeBsdSocketPal.SetIpIpv6;
-                _GetIpIpv4 = &FreeBsdSocketPal.GetIpIpv4;
-                _GetIpIpv6 = &FreeBsdSocketPal.GetIpIpv6;
-                _SetHostNameIpv4 = &FreeBsdSocketPal.SetHostNameIpv4;
-                _SetHostNameIpv6 = &FreeBsdSocketPal.SetHostNameIpv6;
-                _GetHostNameIpv4 = &FreeBsdSocketPal.GetHostNameIpv4;
-                _GetHostNameIpv6 = &FreeBsdSocketPal.GetHostNameIpv6;
             }
 
             IsSupported = IsWindows() || IsLinux() || IsOsx() || IsFreeBsd();
@@ -748,77 +675,5 @@ namespace NativeSockets
         /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetNameIpv6(nint socket, sockaddr_in6* socketAddress) => _GetNameIpv6(socket, socketAddress);
-
-        /// <summary>
-        ///     Sets the Ipv4 address in the given address structure.
-        /// </summary>
-        /// <param name="socketAddress">Pointer to the Ipv4 address structure.</param>
-        /// <param name="ip">The ip address as a span of bytes.</param>
-        /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetIpIpv4(sockaddr_in4* socketAddress, ReadOnlySpan<byte> ip) => _SetIpIpv4(socketAddress, ip);
-
-        /// <summary>
-        ///     Sets the Ipv6 address in the given address structure.
-        /// </summary>
-        /// <param name="socketAddress">Pointer to the Ipv6 address structure.</param>
-        /// <param name="ip">The ip address as a span of bytes.</param>
-        /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetIpIpv6(sockaddr_in6* socketAddress, ReadOnlySpan<byte> ip) => _SetIpIpv6(socketAddress, ip);
-
-        /// <summary>
-        ///     Retrieves the Ipv4 address from a socket address structure.
-        /// </summary>
-        /// <param name="socketAddress">Pointer to the Ipv4 address structure.</param>
-        /// <param name="ip">A span to receive the address bytes.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.Fault" />.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetIpIpv4(sockaddr_in4* socketAddress, Span<byte> ip) => _GetIpIpv4(socketAddress, ip);
-
-        /// <summary>
-        ///     Retrieves the Ipv6 address from a socket address structure.
-        /// </summary>
-        /// <param name="socketAddress">Pointer to the Ipv6 address structure.</param>
-        /// <param name="ip">A span to receive the address bytes.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.Fault" />.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetIpIpv6(sockaddr_in6* socketAddress, Span<byte> ip) => _GetIpIpv6(socketAddress, ip);
-
-        /// <summary>
-        ///     Sets the host name (reverse DNS) for an Ipv4 address.
-        /// </summary>
-        /// <param name="socketAddress">Pointer to the Ipv4 address structure.</param>
-        /// <param name="hostName">The host name as a span of bytes.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetHostNameIpv4(sockaddr_in4* socketAddress, ReadOnlySpan<byte> hostName) => _SetHostNameIpv4(socketAddress, hostName);
-
-        /// <summary>
-        ///     Sets the host name (reverse DNS) for an Ipv6 address.
-        /// </summary>
-        /// <param name="socketAddress">Pointer to the Ipv6 address structure.</param>
-        /// <param name="hostName">The host name as a span of bytes.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetHostNameIpv6(sockaddr_in6* socketAddress, ReadOnlySpan<byte> hostName) => _SetHostNameIpv6(socketAddress, hostName);
-
-        /// <summary>
-        ///     Gets the host name (reverse DNS) from an Ipv4 address.
-        /// </summary>
-        /// <param name="socketAddress">Pointer to the Ipv4 address structure.</param>
-        /// <param name="hostName">A span to receive the host name bytes.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.Fault" />.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetHostNameIpv4(sockaddr_in4* socketAddress, Span<byte> hostName) => _GetHostNameIpv4(socketAddress, hostName);
-
-        /// <summary>
-        ///     Gets the host name (reverse DNS) from an Ipv6 address.
-        /// </summary>
-        /// <param name="socketAddress">Pointer to the Ipv6 address structure.</param>
-        /// <param name="hostName">A span to receive the host name bytes.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.Fault" />.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetHostNameIpv6(sockaddr_in6* socketAddress, Span<byte> hostName) => _GetHostNameIpv6(socketAddress, hostName);
     }
 }

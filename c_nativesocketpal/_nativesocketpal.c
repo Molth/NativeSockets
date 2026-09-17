@@ -10,16 +10,12 @@
 #endif
 
 #include <winsock2.h>
-#include <ws2tcpip.h>
-#include <windows.h>
 
 #else
 
 #include <sys/socket.h>
 #include <sys/uio.h>
 #include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
 #include <poll.h>
 #include <sys/ioctl.h>
 #include <unistd.h>

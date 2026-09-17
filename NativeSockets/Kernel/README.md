@@ -40,7 +40,6 @@
     - `SendToVectored` – send data from multiple buffers without temporary allocations.
     - `ReceiveFromVectored` – receive data into multiple buffers and capture the remote endpoint without allocations.
 - **Scatter/gather I/O** – Efficient vectored send and receive operations.
-- **Host name resolution and reverse lookups** – Resolve names to addresses and back, all without allocations.
 
 ---
 

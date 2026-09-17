@@ -4,7 +4,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
 
 // ReSharper disable ALL
 
@@ -13,7 +12,7 @@ namespace NativeSockets
     /// <summary>
     ///     Provides methods for <see cref="NativeSocketAddress" />.
     /// </summary>
-    internal static unsafe class NativeSocketAddressPal
+    internal static class NativeSocketAddressPal
     {
         /// <summary>
         ///     Size of the stack-allocated character buffer used when formatting an address as
@@ -26,44 +25,60 @@ namespace NativeSockets
         ///     Tries to parse an <see cref="IPEndPoint" /> string into a <see cref="NativeSocketAddress" />.
         /// </summary>
         /// <param name="destination">When this method returns, contains the parsed address.</param>
-        /// <param name="source">The <see cref="IPEndPoint" /> string to parse.</param>
+        /// <param name="ipEndPointText">The <see cref="IPEndPoint" /> string to parse.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         /// <remarks>Only complete, standard <see cref="IPEndPoint" /> string representations are accepted.</remarks>
-        public static SocketError TryParse(ref NativeSocketAddress destination, ReadOnlySpan<char> source)
+        public static SocketError TryParseIpEndPoint(ref NativeSocketAddress destination, ReadOnlySpan<char> ipEndPointText)
         {
-            if (source.Length < 3)
+            if (ipEndPointText.Length < 3)
                 return SocketError.InvalidArgument;
 
-            if (source[0] == '[')
+            if (ipEndPointText[0] == '[')
             {
-                int closeBracket = source.IndexOf(']');
-                if (closeBracket <= 2 || closeBracket >= source.Length - 2 || source[closeBracket + 1] != ':' || !ushort.TryParse(source.Slice(closeBracket + 2), NumberStyles.None, CultureInfo.InvariantCulture, out ushort port))
+                int closeBracket = ipEndPointText.IndexOf(']');
+                if (closeBracket <= 2 || closeBracket >= ipEndPointText.Length - 2 || ipEndPointText[closeBracket + 1] != ':' || !ushort.TryParse(ipEndPointText.Slice(closeBracket + 2), NumberStyles.None, CultureInfo.InvariantCulture, out ushort port))
                     return SocketError.InvalidArgument;
 
-                ReadOnlySpan<char> ip = source.Slice(1, closeBracket - 1);
-                uint scopeId = 0;
-
-                int percent = ip.IndexOf('%');
-                if (percent >= 0)
-                {
-                    if (!uint.TryParse(ip.Slice(percent + 1), NumberStyles.None, CultureInfo.InvariantCulture, out scopeId))
-                        return SocketError.InvalidArgument;
-
-                    ip = ip.Slice(0, percent);
-                }
-
-                return SetFromIpIpv6(ref destination, ip, port, scopeId);
+                return TryParseIpAddress(ref destination, ipEndPointText.Slice(0, closeBracket + 1), port);
             }
             else
             {
-                int lastColon = source.LastIndexOf(':');
-                if (lastColon <= 0 || lastColon >= source.Length - 1 || !ushort.TryParse(source.Slice(lastColon + 1), NumberStyles.None, CultureInfo.InvariantCulture, out ushort port))
+                int lastColon = ipEndPointText.LastIndexOf(':');
+                if (lastColon <= 0 || lastColon >= ipEndPointText.Length - 1 || !ushort.TryParse(ipEndPointText.Slice(lastColon + 1), NumberStyles.None, CultureInfo.InvariantCulture, out ushort port))
                     return SocketError.InvalidArgument;
 
-                ReadOnlySpan<char> ip = source.Slice(0, lastColon);
-
-                return SetFromIpIpv4(ref destination, ip, port);
+                return TryParseIpAddress(ref destination, ipEndPointText.Slice(0, lastColon), port);
             }
+        }
+
+        /// <summary>
+        ///     Tries to parse an <see cref="IPAddress" /> string into a <see cref="NativeSocketAddress" />.
+        /// </summary>
+        /// <param name="destination">When this method returns, contains the parsed address.</param>
+        /// <param name="ipAddressText">The <see cref="IPAddress" /> string to parse.</param>
+        /// <param name="port">The port number.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        public static SocketError TryParseIpAddress(ref NativeSocketAddress destination, ReadOnlySpan<char> ipAddressText, ushort port)
+        {
+            if (ipAddressText.IndexOf(':') >= 0)
+            {
+                if (ipAddressText.Length >= 2 && ipAddressText[0] == '[' && ipAddressText[^1] == ']')
+                    ipAddressText = ipAddressText.Slice(1, ipAddressText.Length - 2);
+
+                uint scopeId = 0;
+                int percent = ipAddressText.IndexOf('%');
+                if (percent >= 0)
+                {
+                    if (!uint.TryParse(ipAddressText.Slice(percent + 1), NumberStyles.None, CultureInfo.InvariantCulture, out scopeId))
+                        return SocketError.InvalidArgument;
+
+                    ipAddressText = ipAddressText.Slice(0, percent);
+                }
+
+                return SetFromIpIpv6(ref destination, ipAddressText, port, scopeId);
+            }
+
+            return SetFromIpIpv4(ref destination, ipAddressText, port);
         }
 
         /// <summary>
@@ -148,7 +163,7 @@ namespace NativeSockets
         ///     to the exact written length.
         /// </param>
         /// <param name="source">A reference to the socket address to format.</param>
-        public static void Format(ref Span<char> destination, in NativeSocketAddress source)
+        public static void FormatDebugView(ref Span<char> destination, in NativeSocketAddress source)
         {
             ReadOnlySpan<char> family = source.Family.ToString().AsSpan();
 
@@ -225,32 +240,6 @@ namespace NativeSockets
             length += charsWritten;
 
             destination = destination.Slice(0, length);
-            return SocketError.Success;
-        }
-
-        /// <summary>
-        ///     Extracts the ASCII string from a null-terminated byte
-        ///     span and copies it into a character span.
-        /// </summary>
-        /// <param name="destination">
-        ///     The character span to receive the decoded string.
-        ///     On success, it is resized to the actual character count.
-        /// </param>
-        /// <param name="source">The null-terminated ASCII byte span (typically from native APIs).</param>
-        /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
-        public static SocketError GetAsciiCharsFromBytes(ref Span<char> destination, ReadOnlySpan<byte> source)
-        {
-            int index = source.IndexOf((byte)'\0');
-            if (index <= 0)
-                return SocketError.Fault;
-
-            source = source.Slice(0, index);
-            int charCount = Encoding.ASCII.GetCharCount(source);
-            if (destination.Length < charCount)
-                return SocketError.NoBufferSpaceAvailable;
-
-            destination = destination.Slice(0, charCount);
-            Encoding.ASCII.GetChars(source, destination);
             return SocketError.Success;
         }
 
@@ -333,15 +322,9 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError SetFromIpIpv4(ref NativeSocketAddress destination, ReadOnlySpan<char> ip, ushort port)
         {
-            Span<byte> bytes = stackalloc byte[WinSock2.NI_MAXHOST];
-            SocketError error = GetAsciiBytesFromChars(ref bytes, ip);
-            if (error != SocketError.Success)
-                return error;
-
             Unsafe.SkipInit(out sockaddr_in4 __socketAddress_native);
-            error = SocketPal.SetIpIpv4(&__socketAddress_native, bytes);
-            if (error != SocketError.Success)
-                return error;
+            if (!IpAddressParser.TryParseIpv4(ip, MemoryMarshalHelpers.AsBytes(ref __socketAddress_native).Slice(4, 4)))
+                return SocketError.InvalidArgument;
 
             SetFromIpv4(ref destination, ref __socketAddress_native, port);
             return SocketError.Success;
@@ -358,89 +341,11 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError SetFromIpIpv6(ref NativeSocketAddress destination, ReadOnlySpan<char> ip, ushort port, uint scopeId)
         {
-            Span<byte> bytes = stackalloc byte[WinSock2.NI_MAXHOST];
-            SocketError error = GetAsciiBytesFromChars(ref bytes, ip);
-            if (error != SocketError.Success)
-                return error;
-
             Unsafe.SkipInit(out sockaddr_in6 __socketAddress_native);
-            error = SocketPal.SetIpIpv6(&__socketAddress_native, bytes);
-            if (error != SocketError.Success)
-                return error;
-
-            SetFromIpv6(ref destination, ref __socketAddress_native, port, scopeId);
-            return SocketError.Success;
-        }
-
-        /// <summary>
-        ///     Populates a <see cref="NativeSocketAddress" /> by resolving the specified host name to an Ipv4 address.
-        /// </summary>
-        /// <param name="destination">The destination <see cref="NativeSocketAddress" /> to fill.</param>
-        /// <param name="hostName">The host name to resolve (e.g., "localhost", "example.com").</param>
-        /// <param name="port">The port number.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetFromHostNameIpv4(ref NativeSocketAddress destination, ReadOnlySpan<char> hostName, ushort port)
-        {
-            Span<byte> bytes = stackalloc byte[WinSock2.NI_MAXHOST];
-            SocketError error = GetAsciiBytesFromChars(ref bytes, hostName);
-            if (error != SocketError.Success)
-                return error;
-
-            Unsafe.SkipInit(out sockaddr_in4 __socketAddress_native);
-            error = SocketPal.SetHostNameIpv4(&__socketAddress_native, bytes);
-            if (error != SocketError.Success)
-                return error;
-
-            SetFromIpv4(ref destination, ref __socketAddress_native, port);
-            return SocketError.Success;
-        }
-
-        /// <summary>
-        ///     Populates a <see cref="NativeSocketAddress" /> by resolving the specified host name to an Ipv6 address.
-        /// </summary>
-        /// <param name="destination">The destination <see cref="NativeSocketAddress" /> to fill.</param>
-        /// <param name="hostName">The host name to resolve (e.g., "localhost", "example.com").</param>
-        /// <param name="port">The port number.</param>
-        /// <param name="scopeId">The Ipv6 scope identifier (used for link-local or site-local addresses).</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetFromHostNameIpv6(ref NativeSocketAddress destination, ReadOnlySpan<char> hostName, ushort port, uint scopeId)
-        {
-            Span<byte> bytes = stackalloc byte[WinSock2.NI_MAXHOST];
-            SocketError error = GetAsciiBytesFromChars(ref bytes, hostName);
-            if (error != SocketError.Success)
-                return error;
-
-            Unsafe.SkipInit(out sockaddr_in6 __socketAddress_native);
-            error = SocketPal.SetHostNameIpv6(&__socketAddress_native, bytes);
-            if (error != SocketError.Success)
-                return error;
-
-            SetFromIpv6(ref destination, ref __socketAddress_native, port, scopeId);
-            return SocketError.Success;
-        }
-
-        /// <summary>
-        ///     Converts the specified text to null-terminated ASCII bytes and writes them into the provided span,
-        ///     suitable for use with native APIs that expect null-terminated strings (e.g., <c>inet_pton</c>, <c>getaddrinfo</c>).
-        /// </summary>
-        /// <param name="destination">
-        ///     The span used to receive the null-terminated ASCII bytes.
-        ///     On success, it is resized to the actual written length (ASCII byte count + 1).
-        /// </param>
-        /// <param name="source">The text to convert to ASCII.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        private static SocketError GetAsciiBytesFromChars(ref Span<byte> destination, ReadOnlySpan<char> source)
-        {
-            int byteCount = Encoding.ASCII.GetByteCount(source);
-            if ((uint)(byteCount + 1) > (uint)destination.Length)
+            if (!IpAddressParser.TryParseIpv6(ip, MemoryMarshalHelpers.AsBytes(ref __socketAddress_native).Slice(8, 16)))
                 return SocketError.InvalidArgument;
 
-            destination = destination.Slice(0, byteCount + 1);
-            Encoding.ASCII.GetBytes(source, destination);
-            destination[byteCount] = (byte)'\0';
-
+            SetFromIpv6(ref destination, ref __socketAddress_native, port, scopeId);
             return SocketError.Success;
         }
 

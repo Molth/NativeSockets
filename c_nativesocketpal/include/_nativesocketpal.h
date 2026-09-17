@@ -303,46 +303,6 @@ extern "C"
     /// </summary>
     _NATIVESOCKETPAL_API i32 _GetNameIpv6(isize socket, _sockaddr_in6 *socketAddress);
 
-    /// <summary>
-    ///     Sets the Ipv4 address in the given address structure.
-    /// </summary>
-    _NATIVESOCKETPAL_API i32 _SetIpIpv4(_sockaddr_in4 *socketAddress, const u8 *ip, i32 ipLength);
-
-    /// <summary>
-    ///     Sets the Ipv6 address in the given address structure.
-    /// </summary>
-    _NATIVESOCKETPAL_API i32 _SetIpIpv6(_sockaddr_in6 *socketAddress, const u8 *ip, i32 ipLength);
-
-    /// <summary>
-    ///     Retrieves the Ipv4 address from a socket address structure.
-    /// </summary>
-    _NATIVESOCKETPAL_API i32 _GetIpIpv4(_sockaddr_in4 *socketAddress, u8 *ip, i32 ipLength);
-
-    /// <summary>
-    ///     Retrieves the Ipv6 address from a socket address structure.
-    /// </summary>
-    _NATIVESOCKETPAL_API i32 _GetIpIpv6(_sockaddr_in6 *socketAddress, u8 *ip, i32 ipLength);
-
-    /// <summary>
-    ///     Sets the host name (reverse DNS) for an Ipv4 address.
-    /// </summary>
-    _NATIVESOCKETPAL_API i32 _SetHostNameIpv4(_sockaddr_in4 *socketAddress, const u8 *hostName, i32 hostNameLength);
-
-    /// <summary>
-    ///     Sets the host name (reverse DNS) for an Ipv6 address.
-    /// </summary>
-    _NATIVESOCKETPAL_API i32 _SetHostNameIpv6(_sockaddr_in6 *socketAddress, const u8 *hostName, i32 hostNameLength);
-
-    /// <summary>
-    ///     Gets the host name (reverse DNS) from an Ipv4 address.
-    /// </summary>
-    _NATIVESOCKETPAL_API i32 _GetHostNameIpv4(_sockaddr_in4 *socketAddress, u8 *hostName, i32 hostNameLength);
-
-    /// <summary>
-    ///     Gets the host name (reverse DNS) from an Ipv6 address.
-    /// </summary>
-    _NATIVESOCKETPAL_API i32 _GetHostNameIpv6(_sockaddr_in6 *socketAddress, u8 *hostName, i32 hostNameLength);
-
 #ifdef __cplusplus
 }
 #endif

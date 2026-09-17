@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 #pragma warning disable SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time.
 
-// ReSharper disable All
+// ReSharper disable ALL
 
 namespace NativeSockets
 {
@@ -362,85 +362,5 @@ namespace NativeSockets
         /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
         [DllImport(NATIVE_LIBRARY, EntryPoint = "_GetNameIpv6", CallingConvention = CALLING_CONVENTION)]
         public static extern SocketError GetNameIpv6(nint socket, sockaddr_in6* socketAddress);
-
-        /// <summary>
-        ///     Sets the Ipv4 address in the given address structure.
-        /// </summary>
-        /// <param name="socketAddress">Pointer to the Ipv4 address structure.</param>
-        /// <param name="ip">The ip address as a span of bytes.</param>
-        /// <param name="ipLength">Address bytes length.</param>
-        /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
-        [DllImport(NATIVE_LIBRARY, EntryPoint = "_SetIpIpv4", CallingConvention = CALLING_CONVENTION)]
-        public static extern SocketError SetIpIpv4(sockaddr_in4* socketAddress, byte* ip, int ipLength);
-
-        /// <summary>
-        ///     Sets the Ipv6 address in the given address structure.
-        /// </summary>
-        /// <param name="socketAddress">Pointer to the Ipv6 address structure.</param>
-        /// <param name="ip">The ip address as a span of bytes.</param>
-        /// <param name="ipLength">Address bytes length.</param>
-        /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
-        [DllImport(NATIVE_LIBRARY, EntryPoint = "_SetIpIpv6", CallingConvention = CALLING_CONVENTION)]
-        public static extern SocketError SetIpIpv6(sockaddr_in6* socketAddress, byte* ip, int ipLength);
-
-        /// <summary>
-        ///     Retrieves the Ipv4 address from a socket address structure.
-        /// </summary>
-        /// <param name="socketAddress">Pointer to the Ipv4 address structure.</param>
-        /// <param name="ip">A span to receive the address bytes.</param>
-        /// <param name="ipLength">Address bytes length.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.Fault" />.</returns>
-        [DllImport(NATIVE_LIBRARY, EntryPoint = "_GetIpIpv4", CallingConvention = CALLING_CONVENTION)]
-        public static extern SocketError GetIpIpv4(sockaddr_in4* socketAddress, byte* ip, int ipLength);
-
-        /// <summary>
-        ///     Retrieves the Ipv6 address from a socket address structure.
-        /// </summary>
-        /// <param name="socketAddress">Pointer to the Ipv6 address structure.</param>
-        /// <param name="ip">A span to receive the address bytes.</param>
-        /// <param name="ipLength">Address bytes length.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.Fault" />.</returns>
-        [DllImport(NATIVE_LIBRARY, EntryPoint = "_GetIpIpv6", CallingConvention = CALLING_CONVENTION)]
-        public static extern SocketError GetIpIpv6(sockaddr_in6* socketAddress, byte* ip, int ipLength);
-
-        /// <summary>
-        ///     Sets the host name (reverse DNS) for an Ipv4 address.
-        /// </summary>
-        /// <param name="socketAddress">Pointer to the Ipv4 address structure.</param>
-        /// <param name="hostName">The host name as a span of bytes.</param>
-        /// <param name="hostNameLength">Host name bytes length.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        [DllImport(NATIVE_LIBRARY, EntryPoint = "_SetHostNameIpv4", CallingConvention = CALLING_CONVENTION)]
-        public static extern SocketError SetHostNameIpv4(sockaddr_in4* socketAddress, byte* hostName, int hostNameLength);
-
-        /// <summary>
-        ///     Sets the host name (reverse DNS) for an Ipv6 address.
-        /// </summary>
-        /// <param name="socketAddress">Pointer to the Ipv6 address structure.</param>
-        /// <param name="hostName">The host name as a span of bytes.</param>
-        /// <param name="hostNameLength">Host name bytes length.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        [DllImport(NATIVE_LIBRARY, EntryPoint = "_SetHostNameIpv6", CallingConvention = CALLING_CONVENTION)]
-        public static extern SocketError SetHostNameIpv6(sockaddr_in6* socketAddress, byte* hostName, int hostNameLength);
-
-        /// <summary>
-        ///     Gets the host name (reverse DNS) from an Ipv4 address.
-        /// </summary>
-        /// <param name="socketAddress">Pointer to the Ipv4 address structure.</param>
-        /// <param name="hostName">A span to receive the host name bytes.</param>
-        /// <param name="hostNameLength">Host name bytes length.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.Fault" />.</returns>
-        [DllImport(NATIVE_LIBRARY, EntryPoint = "_GetHostNameIpv4", CallingConvention = CALLING_CONVENTION)]
-        public static extern SocketError GetHostNameIpv4(sockaddr_in4* socketAddress, byte* hostName, int hostNameLength);
-
-        /// <summary>
-        ///     Gets the host name (reverse DNS) from an Ipv6 address.
-        /// </summary>
-        /// <param name="socketAddress">Pointer to the Ipv6 address structure.</param>
-        /// <param name="hostName">A span to receive the host name bytes.</param>
-        /// <param name="hostNameLength">Host name bytes length.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.Fault" />.</returns>
-        [DllImport(NATIVE_LIBRARY, EntryPoint = "_GetHostNameIpv6", CallingConvention = CALLING_CONVENTION)]
-        public static extern SocketError GetHostNameIpv6(sockaddr_in6* socketAddress, byte* hostName, int hostNameLength);
     }
 }

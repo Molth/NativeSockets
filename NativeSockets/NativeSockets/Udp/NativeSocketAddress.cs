@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
@@ -20,14 +20,6 @@ namespace NativeSockets
     /// </remarks>
     [StructLayout(LayoutKind.Explicit, Size = 28)]
     public unsafe struct NativeSocketAddress : IEquatable<NativeSocketAddress>, IComparable<NativeSocketAddress>
-#if NET6_0_OR_GREATER
-        , ISpanFormattable
-#if NET8_0_OR_GREATER
-        , IUtf8SpanFormattable
-#endif
-#else
-        , IFormattable
-#endif
     {
         /// <summary>
         ///     The raw buffer containing the socket address bytes.
@@ -172,6 +164,21 @@ namespace NativeSockets
         public Span<byte> Buffer => AsSpan().Slice(0, Size);
 
         /// <summary>
+        ///     Returns the fully qualified type name of this instance.
+        /// </summary>
+        public readonly string DebugView => GetDebugView();
+
+        /// <summary>
+        ///     Returns the fully qualified type name of this instance.
+        /// </summary>
+        private readonly string GetDebugView()
+        {
+            Span<char> chars = stackalloc char[NativeSocketAddressPal.FORMAT_MAX_CHARS];
+            NativeSocketAddressPal.FormatDebugView(ref chars, this);
+            return chars.ToString();
+        }
+
+        /// <summary>
         ///     Returns a span that represents the raw (28 bytes) buffer of the address.
         /// </summary>
         /// <returns>A span of bytes.</returns>
@@ -285,48 +292,9 @@ namespace NativeSockets
         public readonly override string ToString()
         {
             Span<char> chars = stackalloc char[NativeSocketAddressPal.FORMAT_MAX_CHARS];
-            NativeSocketAddressPal.Format(ref chars, this);
-            return chars.ToString();
+            SocketError error = NativeSocketAddressPal.FormatAsIpEndPoint(ref chars, this);
+            return error == SocketError.Success ? chars.ToString() : error.ToString();
         }
-
-        /// <summary>
-        ///     Returns the fully qualified type name of this instance.
-        /// </summary>
-        /// <param name="_">The format specifier (ignored).</param>
-        /// <param name="__">The format provider (ignored).</param>
-        public readonly string ToString(string? _, IFormatProvider? __) => ToString();
-
-        /// <summary>
-        ///     Tries to format the value of the current instance into the provided span of characters.
-        /// </summary>
-        /// <param name="destination">When this method returns, this instance's value formatted as a span of characters.</param>
-        /// <param name="charsWritten">
-        ///     When this method returns, the number of characters that were written in
-        ///     <paramref name="destination" />.
-        /// </param>
-        /// <param name="_">The format specifier (ignored).</param>
-        /// <param name="__">The format provider (ignored).</param>
-        /// <returns>
-        ///     <see langword="true" /> if the formatting was successful;
-        ///     otherwise, <see langword="false" />.
-        /// </returns>
-        public readonly bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> _, IFormatProvider? __) => this.TryFormat(destination, out charsWritten);
-
-        /// <summary>
-        ///     Tries to format the value of the current instance as UTF-8 into the provided span of bytes.
-        /// </summary>
-        /// <param name="utf8Destination">The span in which to write this instance's value formatted as a span of bytes.</param>
-        /// <param name="bytesWritten">
-        ///     When this method returns, contains the number of bytes that were written in
-        ///     <paramref name="utf8Destination" />.
-        /// </param>
-        /// <param name="_">The format specifier (ignored).</param>
-        /// <param name="__">The format provider (ignored).</param>
-        /// <returns>
-        ///     <see langword="true" /> if the formatting was successful;
-        ///     otherwise, <see langword="false" />.
-        /// </returns>
-        public readonly bool TryFormat(Span<byte> utf8Destination, out int bytesWritten, ReadOnlySpan<char> _, IFormatProvider? __) => this.TryFormat(utf8Destination, out bytesWritten);
 
         /// <summary>
         ///     Deserializes a <see cref="NativeSocketAddress" /> from the specified byte span.
@@ -353,7 +321,21 @@ namespace NativeSockets
         public static SocketError TryParse(ReadOnlySpan<char> ipEndPointText, out NativeSocketAddress result)
         {
             Unsafe.SkipInit(out result);
-            return NativeSocketAddressPal.TryParse(ref result, ipEndPointText);
+            return NativeSocketAddressPal.TryParseIpEndPoint(ref result, ipEndPointText);
+        }
+
+        /// <summary>
+        ///     Tries to parse an <see cref="IPAddress" /> string into a <see cref="NativeSocketAddress" />,
+        ///     using the specified port.
+        /// </summary>
+        /// <param name="ipAddressText">The <see cref="IPAddress" /> string to parse.</param>
+        /// <param name="port">The port number.</param>
+        /// <param name="result">When this method returns, contains the parsed address.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        public static SocketError TryParseIpAddress(ReadOnlySpan<char> ipAddressText, ushort port, out NativeSocketAddress result)
+        {
+            Unsafe.SkipInit(out result);
+            return NativeSocketAddressPal.TryParseIpAddress(ref result, ipAddressText, port);
         }
 
         /// <summary>
@@ -423,35 +405,6 @@ namespace NativeSockets
         {
             Unsafe.SkipInit(out result);
             return NativeSocketAddressPal.SetFromIpIpv6(ref result, ip, port, scopeId);
-        }
-
-        /// <summary>
-        ///     Populates a <see cref="NativeSocketAddress" /> by resolving the specified host name to an Ipv4 address.
-        /// </summary>
-        /// <param name="hostName">The host name to resolve (e.g., "localhost", "example.com").</param>
-        /// <param name="port">The port number.</param>
-        /// <param name="result">When this method returns, contains the populated <see cref="NativeSocketAddress" />.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError FromHostNameIpv4(ReadOnlySpan<char> hostName, ushort port, out NativeSocketAddress result)
-        {
-            Unsafe.SkipInit(out result);
-            return NativeSocketAddressPal.SetFromHostNameIpv4(ref result, hostName, port);
-        }
-
-        /// <summary>
-        ///     Populates a <see cref="NativeSocketAddress" /> by resolving the specified host name to an Ipv6 address.
-        /// </summary>
-        /// <param name="hostName">The host name to resolve (e.g., "localhost", "example.com").</param>
-        /// <param name="port">The port number.</param>
-        /// <param name="scopeId">The Ipv6 scope identifier (used for link-local or site-local addresses).</param>
-        /// <param name="result">When this method returns, contains the populated <see cref="NativeSocketAddress" />.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError FromHostNameIpv6(ReadOnlySpan<char> hostName, ushort port, uint scopeId, out NativeSocketAddress result)
-        {
-            Unsafe.SkipInit(out result);
-            return NativeSocketAddressPal.SetFromHostNameIpv6(ref result, hostName, port, scopeId);
         }
     }
 }

@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using NativeSockets;
 using rust;
 
-// ReSharper disable All
+// ReSharper disable ALL
 
 namespace xxhash_rust
 {
