@@ -1,6 +1,6 @@
 ﻿using System.Net.Sockets;
 
-// ReSharper disable All
+// ReSharper disable ALL
 
 namespace NativeSockets
 {

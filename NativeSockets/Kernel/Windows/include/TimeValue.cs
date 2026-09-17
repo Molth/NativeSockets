@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-// ReSharper disable All
+// ReSharper disable ALL
 
 namespace NativeSockets
 {

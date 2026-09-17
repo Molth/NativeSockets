@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using static NativeSockets.StdSocketFlags;
 
-// ReSharper disable All
+// ReSharper disable ALL
 
 namespace NativeSockets
 {

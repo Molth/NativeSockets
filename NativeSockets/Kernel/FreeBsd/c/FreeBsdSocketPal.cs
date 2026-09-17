@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 #endif
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
-using static NativeSockets.UnixNativeLib;
-using static NativeSockets.BsdNativeLib;
-using static NativeSockets.FreeBsdNativeLib;
+using static NativeSockets.UnixSocketLib;
+using static NativeSockets.BsdSocketLib;
+using static NativeSockets.FreeBsdSocketLib;
 using static NativeSockets.FreeBsdSocketError;
 
-// ReSharper disable All
+// ReSharper disable ALL
 
 namespace NativeSockets
 {

@@ -4,12 +4,12 @@ using System;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using static NativeSockets.UnixNativeLib;
-using static NativeSockets.BsdNativeLib;
-using static NativeSockets.OsxNativeLib;
+using static NativeSockets.UnixSocketLib;
+using static NativeSockets.BsdSocketLib;
+using static NativeSockets.OsxSocketLib;
 using static NativeSockets.OsxSocketError;
 
-// ReSharper disable All
+// ReSharper disable ALL
 
 namespace NativeSockets
 {

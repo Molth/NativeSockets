@@ -1,7 +1,7 @@
 ﻿using System.Net.Sockets;
 using static NativeSockets.StdSocketOptionName;
 
-// ReSharper disable All
+// ReSharper disable ALL
 
 namespace NativeSockets
 {

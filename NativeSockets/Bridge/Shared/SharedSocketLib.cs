@@ -10,12 +10,12 @@ namespace NativeSockets
     /// <summary>
     ///     Provides platform-abstracted socket operations.
     /// </summary>
-    internal static unsafe class StaticNativeLib
+    internal static unsafe class SharedSocketLib
     {
         /// <summary>
         ///     The name of the native library containing the socket functions.
         /// </summary>
-        private const string NATIVE_LIBRARY = "__Internal";
+        private const string NATIVE_LIBRARY = "nativesocketpal";
 
         /// <summary>
         ///     Indicates the calling convention of an entry point.

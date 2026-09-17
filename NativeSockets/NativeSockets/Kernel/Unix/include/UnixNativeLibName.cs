@@ -1,18 +1,18 @@
 ﻿using System.Runtime.InteropServices;
 
-// ReSharper disable All
+// ReSharper disable ALL
 
 namespace NativeSockets
 {
     /// <summary>
-    ///     Provides Unix-specific socket operations using libc functions.
+    ///     Provides the native library name and calling convention for Unix.
     /// </summary>
     internal static class UnixNativeLibName
     {
         /// <summary>
-        ///     The name of the native library containing the socket functions.
+        ///     The name of the native library.
         /// </summary>
-        public const string NATIVE_LIBRARY = "libc";
+        public const string DLL_NAME_LIBC = "libc";
 
         /// <summary>
         ///     Indicates the calling convention of an entry point.

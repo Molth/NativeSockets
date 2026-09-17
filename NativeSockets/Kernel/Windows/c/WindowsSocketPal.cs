@@ -5,9 +5,9 @@ using System.Runtime.InteropServices;
 #endif
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
-using static NativeSockets.WindowsNativeLib;
+using static NativeSockets.WindowsSocketLib;
 
-// ReSharper disable All
+// ReSharper disable ALL
 
 namespace NativeSockets
 {

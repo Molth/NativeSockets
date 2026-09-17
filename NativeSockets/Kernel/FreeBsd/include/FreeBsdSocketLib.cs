@@ -1,15 +1,15 @@
 ﻿using System.Net.Sockets;
-using static NativeSockets.UnixNativeLib;
+using static NativeSockets.UnixSocketLib;
 using static NativeSockets.FreeBsdSocketOption;
 
-// ReSharper disable All
+// ReSharper disable ALL
 
 namespace NativeSockets
 {
     /// <summary>
     ///     Provides Unix-specific socket operations using libc functions.
     /// </summary>
-    internal static unsafe class FreeBsdNativeLib
+    internal static unsafe class FreeBsdSocketLib
     {
         /// <summary>
         ///     Sets a socket option.

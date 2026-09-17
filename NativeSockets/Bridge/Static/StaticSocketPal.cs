@@ -40,8 +40,8 @@ namespace NativeSockets
                 return;
             }
 
-            ADDRESS_FAMILY_INTER_NETWORK_V4 = StaticNativeLib.GetAddressFamilyInterNetworkV4();
-            ADDRESS_FAMILY_INTER_NETWORK_V6 = StaticNativeLib.GetAddressFamilyInterNetworkV6();
+            ADDRESS_FAMILY_INTER_NETWORK_V4 = StaticSocketLib.GetAddressFamilyInterNetworkV4();
+            ADDRESS_FAMILY_INTER_NETWORK_V6 = StaticSocketLib.GetAddressFamilyInterNetworkV6();
 
             IsSupported = true;
         }
@@ -66,21 +66,21 @@ namespace NativeSockets
         /// </summary>
         /// <returns>The last <see cref="SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetLastSocketError() => StaticNativeLib.GetLastSocketError();
+        public static SocketError GetLastSocketError() => StaticSocketLib.GetLastSocketError();
 
         /// <summary>
         ///     Starts up the platform-specific socket subsystem.
         /// </summary>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError Startup() => StaticNativeLib.Startup();
+        public static SocketError Startup() => StaticSocketLib.Startup();
 
         /// <summary>
         ///     Cleans up the platform-specific socket subsystem.
         /// </summary>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError Cleanup() => StaticNativeLib.Cleanup();
+        public static SocketError Cleanup() => StaticSocketLib.Cleanup();
 
         /// <summary>
         ///     Creates a native socket handle.
@@ -88,7 +88,7 @@ namespace NativeSockets
         /// <param name="ipv6">true to create an Ipv6 socket; false for Ipv4.</param>
         /// <returns>The native socket handle, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static nint Create(bool ipv6) => StaticNativeLib.Create(ipv6 ? 1 : 0);
+        public static nint Create(bool ipv6) => StaticSocketLib.Create(ipv6 ? 1 : 0);
 
         /// <summary>
         ///     Closes a native socket handle.
@@ -96,7 +96,7 @@ namespace NativeSockets
         /// <param name="socket">The native socket handle to close.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError Close(nint socket) => StaticNativeLib.Close(socket);
+        public static SocketError Close(nint socket) => StaticSocketLib.Close(socket);
 
         /// <summary>
         ///     Binds a socket to an Ipv4 address.
@@ -105,7 +105,7 @@ namespace NativeSockets
         /// <param name="socketAddress">Pointer to the Ipv4 address structure.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError BindIpv4(nint socket, sockaddr_in4* socketAddress) => StaticNativeLib.BindIpv4(socket, socketAddress);
+        public static SocketError BindIpv4(nint socket, sockaddr_in4* socketAddress) => StaticSocketLib.BindIpv4(socket, socketAddress);
 
         /// <summary>
         ///     Binds a socket to an Ipv6 address.
@@ -114,7 +114,7 @@ namespace NativeSockets
         /// <param name="socketAddress">Pointer to the Ipv6 address structure.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError BindIpv6(nint socket, sockaddr_in6* socketAddress) => StaticNativeLib.BindIpv6(socket, socketAddress);
+        public static SocketError BindIpv6(nint socket, sockaddr_in6* socketAddress) => StaticSocketLib.BindIpv6(socket, socketAddress);
 
         /// <summary>
         ///     Connects a socket to an Ipv4 endpoint.
@@ -123,7 +123,7 @@ namespace NativeSockets
         /// <param name="socketAddress">Pointer to the Ipv4 address structure.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError ConnectIpv4(nint socket, sockaddr_in4* socketAddress) => StaticNativeLib.ConnectIpv4(socket, socketAddress);
+        public static SocketError ConnectIpv4(nint socket, sockaddr_in4* socketAddress) => StaticSocketLib.ConnectIpv4(socket, socketAddress);
 
         /// <summary>
         ///     Connects a socket to an Ipv6 endpoint.
@@ -132,7 +132,7 @@ namespace NativeSockets
         /// <param name="socketAddress">Pointer to the Ipv6 address structure.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError ConnectIpv6(nint socket, sockaddr_in6* socketAddress) => StaticNativeLib.ConnectIpv6(socket, socketAddress);
+        public static SocketError ConnectIpv6(nint socket, sockaddr_in6* socketAddress) => StaticSocketLib.ConnectIpv6(socket, socketAddress);
 
         /// <summary>
         ///     Sets a socket option.
@@ -149,7 +149,7 @@ namespace NativeSockets
         ///     passed through unmodified; the platform interprets the buffer according to the mapped option.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetOption(nint socket, SocketOptionLevel level, SocketOptionName name, byte* value, int length) => StaticNativeLib.SetOption(socket, level, name, value, length);
+        public static SocketError SetOption(nint socket, SocketOptionLevel level, SocketOptionName name, byte* value, int length) => StaticSocketLib.SetOption(socket, level, name, value, length);
 
         /// <summary>
         ///     Gets a socket option.
@@ -166,7 +166,7 @@ namespace NativeSockets
         ///     passed through unmodified; the platform populates the buffer according to the mapped option.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetOption(nint socket, SocketOptionLevel level, SocketOptionName name, byte* value, int* length) => StaticNativeLib.GetOption(socket, level, name, value, length);
+        public static SocketError GetOption(nint socket, SocketOptionLevel level, SocketOptionName name, byte* value, int* length) => StaticSocketLib.GetOption(socket, level, name, value, length);
 
         /// <summary>
         ///     Sets a socket option.
@@ -178,7 +178,7 @@ namespace NativeSockets
         /// <param name="length">The length of the option value in bytes.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetRawOption(nint socket, int level, int name, byte* value, int length) => StaticNativeLib.SetRawOption(socket, level, name, value, length);
+        public static SocketError SetRawOption(nint socket, int level, int name, byte* value, int length) => StaticSocketLib.SetRawOption(socket, level, name, value, length);
 
         /// <summary>
         ///     Gets a socket option.
@@ -190,7 +190,7 @@ namespace NativeSockets
         /// <param name="length">Pointer to the length of the buffer; on output, the actual size of the option.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetRawOption(nint socket, int level, int name, byte* value, int* length) => StaticNativeLib.GetRawOption(socket, level, name, value, length);
+        public static SocketError GetRawOption(nint socket, int level, int name, byte* value, int* length) => StaticSocketLib.GetRawOption(socket, level, name, value, length);
 
         /// <summary>
         ///     Sets a socket's blocking mode.
@@ -199,7 +199,7 @@ namespace NativeSockets
         /// <param name="blocking">true for blocking; false for non-blocking.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetBlocking(nint socket, bool blocking) => StaticNativeLib.SetBlocking(socket, blocking ? 1 : 0);
+        public static SocketError SetBlocking(nint socket, bool blocking) => StaticSocketLib.SetBlocking(socket, blocking ? 1 : 0);
 
         /// <summary>
         ///     Polls a socket for pending events.
@@ -212,7 +212,7 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Poll(nint socket, int microseconds, SelectMode mode, out bool status)
         {
-            SocketError result = StaticNativeLib.Poll(socket, microseconds, mode, out int statusI32);
+            SocketError result = StaticSocketLib.Poll(socket, microseconds, mode, out int statusI32);
             status = statusI32 != 0;
             return result;
         }
@@ -226,7 +226,7 @@ namespace NativeSockets
         /// <param name="outFlags">When this method returns, contains true if the socket is ready, false otherwise.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError PollFlags(nint socket, int microseconds, SelectModeFlags inFlags, out SelectModeFlags outFlags) => StaticNativeLib.PollFlags(socket, microseconds, inFlags, out outFlags);
+        public static SocketError PollFlags(nint socket, int microseconds, SelectModeFlags inFlags, out SelectModeFlags outFlags) => StaticSocketLib.PollFlags(socket, microseconds, inFlags, out outFlags);
 
         /// <summary>
         ///     Sends data on a connected socket.
@@ -237,7 +237,7 @@ namespace NativeSockets
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Send(nint socket, void* buffer, int length, SocketFlags socketFlags) => StaticNativeLib.Send(socket, buffer, length, socketFlags);
+        public static int Send(nint socket, void* buffer, int length, SocketFlags socketFlags) => StaticSocketLib.Send(socket, buffer, length, socketFlags);
 
         /// <summary>
         ///     Sends data to an Ipv4 endpoint.
@@ -249,7 +249,7 @@ namespace NativeSockets
         /// <param name="socketAddress">Pointer to the destination Ipv4 socket address structure.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendToIpv4(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in4* socketAddress) => StaticNativeLib.SendToIpv4(socket, buffer, length, socketFlags, socketAddress);
+        public static int SendToIpv4(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in4* socketAddress) => StaticSocketLib.SendToIpv4(socket, buffer, length, socketFlags, socketAddress);
 
         /// <summary>
         ///     Sends data to an Ipv6 endpoint.
@@ -261,7 +261,7 @@ namespace NativeSockets
         /// <param name="socketAddress">Pointer to the destination Ipv6 socket address structure.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendToIpv6(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in6* socketAddress) => StaticNativeLib.SendToIpv6(socket, buffer, length, socketFlags, socketAddress);
+        public static int SendToIpv6(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in6* socketAddress) => StaticSocketLib.SendToIpv6(socket, buffer, length, socketFlags, socketAddress);
 
         /// <summary>
         ///     Receives data on a connected socket.
@@ -272,7 +272,7 @@ namespace NativeSockets
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Receive(nint socket, void* buffer, int length, SocketFlags socketFlags) => StaticNativeLib.Receive(socket, buffer, length, socketFlags);
+        public static int Receive(nint socket, void* buffer, int length, SocketFlags socketFlags) => StaticSocketLib.Receive(socket, buffer, length, socketFlags);
 
         /// <summary>
         ///     Receives data from an Ipv4 endpoint, filling the provided address structure.
@@ -284,7 +284,7 @@ namespace NativeSockets
         /// <param name="socketAddress">Pointer to the sender's Ipv4 address structure.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveFromIpv4(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in4* socketAddress) => StaticNativeLib.ReceiveFromIpv4(socket, buffer, length, socketFlags, socketAddress);
+        public static int ReceiveFromIpv4(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in4* socketAddress) => StaticSocketLib.ReceiveFromIpv4(socket, buffer, length, socketFlags, socketAddress);
 
         /// <summary>
         ///     Receives data from an Ipv6 endpoint, filling the provided address structure.
@@ -296,7 +296,7 @@ namespace NativeSockets
         /// <param name="socketAddress">Pointer to the sender's Ipv6 address structure.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveFromIpv6(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in6* socketAddress) => StaticNativeLib.ReceiveFromIpv6(socket, buffer, length, socketFlags, socketAddress);
+        public static int ReceiveFromIpv6(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in6* socketAddress) => StaticSocketLib.ReceiveFromIpv6(socket, buffer, length, socketFlags, socketAddress);
 
         /// <summary>
         ///     Sends data from multiple buffers on a connected socket.
@@ -307,7 +307,7 @@ namespace NativeSockets
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags) => StaticNativeLib.SendVectored(socket, buffers, bufferCount, socketFlags);
+        public static int SendVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags) => StaticSocketLib.SendVectored(socket, buffers, bufferCount, socketFlags);
 
         /// <summary>
         ///     Sends data from multiple buffers to an Ipv4 endpoint.
@@ -319,7 +319,7 @@ namespace NativeSockets
         /// <param name="socketAddress">Pointer to the destination Ipv4 socket address.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendToVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in4* socketAddress) => StaticNativeLib.SendToVectoredIpv4(socket, buffers, bufferCount, socketFlags, socketAddress);
+        public static int SendToVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in4* socketAddress) => StaticSocketLib.SendToVectoredIpv4(socket, buffers, bufferCount, socketFlags, socketAddress);
 
         /// <summary>
         ///     Sends data from multiple buffers to an Ipv6 endpoint.
@@ -331,7 +331,7 @@ namespace NativeSockets
         /// <param name="socketAddress">Pointer to the destination Ipv6 socket address.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendToVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in6* socketAddress) => StaticNativeLib.SendToVectoredIpv6(socket, buffers, bufferCount, socketFlags, socketAddress);
+        public static int SendToVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in6* socketAddress) => StaticSocketLib.SendToVectoredIpv6(socket, buffers, bufferCount, socketFlags, socketAddress);
 
         /// <summary>
         ///     Receives data into multiple buffers on a connected socket.
@@ -342,7 +342,7 @@ namespace NativeSockets
         /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags) => StaticNativeLib.ReceiveVectored(socket, buffers, bufferCount, inOutFlags);
+        public static int ReceiveVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags) => StaticSocketLib.ReceiveVectored(socket, buffers, bufferCount, inOutFlags);
 
         /// <summary>
         ///     Receives data into multiple buffers from an Ipv4 endpoint.
@@ -354,7 +354,7 @@ namespace NativeSockets
         /// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveFromVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in4* socketAddress) => StaticNativeLib.ReceiveFromVectoredIpv4(socket, buffers, bufferCount, inOutFlags, socketAddress);
+        public static int ReceiveFromVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in4* socketAddress) => StaticSocketLib.ReceiveFromVectoredIpv4(socket, buffers, bufferCount, inOutFlags, socketAddress);
 
         /// <summary>
         ///     Receives data into multiple buffers from an Ipv6 endpoint.
@@ -366,7 +366,7 @@ namespace NativeSockets
         /// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveFromVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in6* socketAddress) => StaticNativeLib.ReceiveFromVectoredIpv6(socket, buffers, bufferCount, inOutFlags, socketAddress);
+        public static int ReceiveFromVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in6* socketAddress) => StaticSocketLib.ReceiveFromVectoredIpv6(socket, buffers, bufferCount, inOutFlags, socketAddress);
 
         /// <summary>
         ///     Gets the local name (address) of an Ipv4 socket.
@@ -375,7 +375,7 @@ namespace NativeSockets
         /// <param name="socketAddress">Pointer to the Ipv4 address structure to receive the name.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetNameIpv4(nint socket, sockaddr_in4* socketAddress) => StaticNativeLib.GetNameIpv4(socket, socketAddress);
+        public static SocketError GetNameIpv4(nint socket, sockaddr_in4* socketAddress) => StaticSocketLib.GetNameIpv4(socket, socketAddress);
 
         /// <summary>
         ///     Gets the local name (address) of an Ipv6 socket.
@@ -384,6 +384,6 @@ namespace NativeSockets
         /// <param name="socketAddress">Pointer to the Ipv6 address structure to receive the name.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetNameIpv6(nint socket, sockaddr_in6* socketAddress) => StaticNativeLib.GetNameIpv6(socket, socketAddress);
+        public static SocketError GetNameIpv6(nint socket, sockaddr_in6* socketAddress) => StaticSocketLib.GetNameIpv6(socket, socketAddress);
     }
 }

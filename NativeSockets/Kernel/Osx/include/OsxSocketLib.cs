@@ -1,15 +1,15 @@
 ﻿using System.Net.Sockets;
-using static NativeSockets.UnixNativeLib;
+using static NativeSockets.UnixSocketLib;
 using static NativeSockets.OsxSocketOption;
 
-// ReSharper disable All
+// ReSharper disable ALL
 
 namespace NativeSockets
 {
     /// <summary>
     ///     Provides Unix-specific socket operations using libc functions.
     /// </summary>
-    internal static unsafe class OsxNativeLib
+    internal static unsafe class OsxSocketLib
     {
         /// <summary>
         ///     Sets a socket option.

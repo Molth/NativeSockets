@@ -2,35 +2,57 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using static NativeSockets.UnixNativeLibName;
-using static NativeSockets.UnixNativeLib;
-using static NativeSockets.BsdSocketFlags;
+using static NativeSockets.UnixSocketLib;
+using static NativeSockets.LinuxSocketOption;
+using static NativeSockets.LinuxSocketFlags;
 
 #pragma warning disable CS8981 // The type name only contains lower-cased ascii characters. Such names may become reserved for the language.
 #pragma warning disable SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time.
 
-// ReSharper disable All
+// ReSharper disable ALL
 
 namespace NativeSockets
 {
     /// <summary>
     ///     Provides Unix-specific socket operations using libc functions.
     /// </summary>
-    internal static unsafe class BsdNativeLib
+    internal static unsafe class LinuxSocketLib
     {
         /// <summary>
         ///     ioctl request that sets or clears the non-blocking flag on a file descriptor (FIONBIO).
-        ///     Equals _IOW('f', 126, int) on BSD and macOS.
+        ///     Linux-specific request code.
         /// </summary>
-        public const nuint FIONBIO = 0x8004667E;
+        public const nuint FIONBIO = 0x5421;
 
         /// <summary>
         ///     Converts an integer value to the <c>msg_iovlen</c> field of a <see cref="msghdr" /> structure.
-        ///     On bsd, this is a direct conversion as the field is of type <see cref="int" />.
         /// </summary>
         /// <param name="value">The integer value representing the number of I/O vectors.</param>
-        /// <returns>The input value as <see cref="int" />.</returns>
+        /// <returns>The value.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int __get_msg_iovlen(int value) => value;
+        public static nuint __get_msg_iovlen(int value) => (nuint)value;
+
+        /// <summary>
+        ///     Sets a socket option.
+        /// </summary>
+        /// <param name="__socketHandle_native">The native socket handle.</param>
+        /// <param name="optionLevel">The option level.</param>
+        /// <param name="optionName">The option name.</param>
+        /// <param name="__optionValue_native">Pointer to the option value.</param>
+        /// <param name="__optionLength_native">The length of the option value in bytes.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        public static int __setsockopt(int __socketHandle_native, SocketOptionLevel optionLevel, SocketOptionName optionName, byte* __optionValue_native, uint __optionLength_native) => _setsockopt(__socketHandle_native, ToNativeSocketOptionLevel(optionLevel), ToNativeSocketOptionName(optionLevel, optionName), __optionValue_native, __optionLength_native);
+
+        /// <summary>
+        ///     Gets a socket option.
+        /// </summary>
+        /// <param name="__socketHandle_native">The native socket handle.</param>
+        /// <param name="optionLevel">The option level.</param>
+        /// <param name="optionName">The option name.</param>
+        /// <param name="__optionValue_native">Pointer to a buffer that receives the option value.</param>
+        /// <param name="__optionLength_native">Pointer to the size of the buffer; on output, the actual size of the option.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        public static int __getsockopt(int __socketHandle_native, SocketOptionLevel optionLevel, SocketOptionName optionName, byte* __optionValue_native, uint* __optionLength_native) => _getsockopt(__socketHandle_native, ToNativeSocketOptionLevel(optionLevel), ToNativeSocketOptionName(optionLevel, optionName), __optionValue_native, __optionLength_native);
 
         /// <summary>
         ///     Sends data on a connected socket.
@@ -112,8 +134,8 @@ namespace NativeSockets
         /// <param name="nfds">The number of structures in the array.</param>
         /// <param name="timeout">The timeout in milliseconds; -1 for infinite.</param>
         /// <returns>The number of events occurred, 0 on timeout, or -1 on error.</returns>
-        [DllImport(NATIVE_LIBRARY, EntryPoint = "poll", CallingConvention = CALLING_CONVENTION, SetLastError = true)]
-        public static extern int __poll(pollfd* fds, uint nfds, int timeout);
+        [DllImport(DLL_NAME_LIBC, EntryPoint = "poll", CallingConvention = CALLING_CONVENTION, SetLastError = true)]
+        public static extern int __poll(pollfd* fds, nuint nfds, int timeout);
 
         /// <summary>
         ///     Represents a message header used with <c>sendmsg</c>
@@ -139,7 +161,7 @@ namespace NativeSockets
             /// <summary>
             ///     Number of elements in the <see cref="msg_iov" /> array.
             /// </summary>
-            public int msg_iovlen;
+            public nuint msg_iovlen;
 
             /// <summary>
             ///     Pointer to ancillary data (control messages).
@@ -149,7 +171,7 @@ namespace NativeSockets
             /// <summary>
             ///     Length of the ancillary data buffer.
             /// </summary>
-            public uint msg_controllen;
+            public nuint msg_controllen;
 
             /// <summary>
             ///     Flags received or set for the message.
