@@ -33,7 +33,7 @@ namespace NativeSockets
         public static SocketError Serialize(in this NativeSocketAddress socketAddress, ref Span<byte> destination) => NativeSocketAddressPal.Serialize(ref destination, socketAddress);
 
         /// <summary>
-        ///     Tries to format the value of the current instance as an <see cref="IPEndPoint" />,
+        ///     Tries to format a <see cref="NativeSocketAddress" /> as an <see cref="IPEndPoint" />,
         ///     into the provided span of characters.
         /// </summary>
         /// <param name="socketAddress">The socket address to format.</param>
@@ -59,10 +59,10 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Retrieves the ip address from a <see cref="NativeSocketAddress" /> as text.
+        ///     Retrieves the ip from a <see cref="NativeSocketAddress" /> as text.
         /// </summary>
-        /// <param name="socketAddress">The <see cref="NativeSocketAddress" /> to read the ip address from.</param>
-        /// <param name="destination">The character span to receive the ip address; resized to the actual length on success.</param>
+        /// <param name="socketAddress">The <see cref="NativeSocketAddress" /> to read the ip from.</param>
+        /// <param name="destination">The character span to receive the ip; resized to the actual length on success.</param>
         /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetIp(this NativeSocketAddress socketAddress, ref Span<char> destination)

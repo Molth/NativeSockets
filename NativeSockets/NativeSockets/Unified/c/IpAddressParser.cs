@@ -126,8 +126,8 @@ namespace NativeSockets
         ///     resized to the actual length on success.
         /// </param>
         /// <returns>
-        ///     <see langword="true" /> on success; <see langword="false" /> if the address is shorter than 4 bytes or the
-        ///     destination is too small.
+        ///     <see langword="true" /> on success;
+        ///     <see langword="false" /> if the address is shorter than 4 bytes or the destination is too small.
         /// </returns>
         public static bool TryFormatIpv4(ReadOnlySpan<byte> ipv4Addr, ref Span<char> destination)
         {

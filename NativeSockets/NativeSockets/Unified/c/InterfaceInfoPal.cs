@@ -30,11 +30,10 @@ namespace NativeSockets
 
             static bool IsWindows() =>
 #if NET5_0_OR_GREATER
-                OperatingSystem.IsWindows()
+                OperatingSystem.IsWindows();
 #else
-                RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 #endif
-            ;
         }
 
         /// <summary>

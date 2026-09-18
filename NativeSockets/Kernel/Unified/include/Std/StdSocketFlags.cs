@@ -11,37 +11,37 @@ namespace NativeSockets
     internal static class StdSocketFlags
     {
         /// <summary>
-        ///     Managed flag for out‑of‑band data.
+        ///     Flag for out‑of‑band data.
         /// </summary>
         public const int SF_MSG_OOB = (int)SocketFlags.OutOfBand;
 
         /// <summary>
-        ///     Managed flag for peeking at the message.
+        ///     Flag for peeking at the message.
         /// </summary>
         public const int SF_MSG_PEEK = (int)SocketFlags.Peek;
 
         /// <summary>
-        ///     Managed flag for bypassing routing.
+        ///     Flag for bypassing routing.
         /// </summary>
         public const int SF_MSG_DONTROUTE = (int)SocketFlags.DontRoute;
 
         /// <summary>
-        ///     Managed flag indicating the message was truncated.
+        ///     Flag indicating the message was truncated.
         /// </summary>
         public const int SF_MSG_TRUNC = (int)SocketFlags.Truncated;
 
         /// <summary>
-        ///     Managed flag indicating control data was truncated.
+        ///     Flag indicating control data was truncated.
         /// </summary>
         public const int SF_MSG_CTRUNC = (int)SocketFlags.ControlDataTruncated;
 
         /// <summary>
-        ///     Extended managed flag for non‑blocking operation.
+        ///     Extended flag for non‑blocking operation.
         /// </summary>
         public const int SF_MSG_DONTWAIT = 0x1000;
 
         /// <summary>
-        ///     Extended managed flag for error queue.
+        ///     Extended flag for error queue.
         /// </summary>
         public const int SF_MSG_ERRQUEUE = 0x2000;
     }

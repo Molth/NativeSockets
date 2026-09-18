@@ -27,7 +27,27 @@ namespace NativeSockets
         /// <param name="destination">When this method returns, contains the parsed address.</param>
         /// <param name="ipEndPointText">The <see cref="IPEndPoint" /> string to parse.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        /// <remarks>Only complete, standard <see cref="IPEndPoint" /> string representations are accepted.</remarks>
+        /// <remarks>
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <para>Only complete, standard <see cref="IPEndPoint" /> string representations are accepted.</para>
+        ///         </item>
+        ///         <item>
+        ///             <para>
+        ///                 Supports Ipv6 scope identifier parsing:
+        ///                 the text after '%' may be either a numeric value or an interface name.
+        ///             </para>
+        ///         </item>
+        ///         <item>
+        ///             <para>
+        ///                 Unlike the standard library, which silently ignores a malformed scope identifier and returns success
+        ///                 with the scope identifier set to 0,
+        ///                 this implementation returns <see cref="SocketError.InvalidArgument" />
+        ///                 when the scope identifier text is neither a valid number nor a resolvable interface name.
+        ///             </para>
+        ///         </item>
+        ///     </list>
+        /// </remarks>
         public static SocketError TryParseIpEndPoint(ref NativeSocketAddress destination, ReadOnlySpan<char> ipEndPointText)
         {
             if (ipEndPointText.Length < 3)
@@ -59,6 +79,27 @@ namespace NativeSockets
         /// <param name="ipAddressText">The <see cref="IPAddress" /> string to parse.</param>
         /// <param name="port">The port number.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <para>Only complete, standard <see cref="IPAddress" /> string representations are accepted.</para>
+        ///         </item>
+        ///         <item>
+        ///             <para>
+        ///                 Supports Ipv6 scope identifier parsing:
+        ///                 the text after '%' may be either a numeric value or an interface name.
+        ///             </para>
+        ///         </item>
+        ///         <item>
+        ///             <para>
+        ///                 Unlike the standard library, which silently ignores a malformed scope identifier and returns success
+        ///                 with the scope identifier set to 0,
+        ///                 this implementation returns <see cref="SocketError.InvalidArgument" />
+        ///                 when the scope identifier text is neither a valid number nor a resolvable interface name.
+        ///             </para>
+        ///         </item>
+        ///     </list>
+        /// </remarks>
         public static SocketError TryParseIpAddress(ref NativeSocketAddress destination, ReadOnlySpan<char> ipAddressText, ushort port)
         {
             if (ipAddressText.IndexOf(':') >= 0)
@@ -155,7 +196,7 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Formats the socket address into the specified character buffer.
+        ///     Formats the <see cref="NativeSocketAddress" /> into the specified character buffer.
         /// </summary>
         /// <param name="destination">
         ///     A caller-provided character buffer that receives the formatted output.
@@ -198,7 +239,7 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Formats the socket address into the specified character buffer,
+        ///     Formats the <see cref="NativeSocketAddress" /> into the specified character buffer,
         ///     as an <see cref="IPEndPoint" /> string.
         /// </summary>
         /// <param name="destination">
