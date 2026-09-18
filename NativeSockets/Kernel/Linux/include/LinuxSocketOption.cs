@@ -61,7 +61,7 @@ namespace NativeSockets
                     SocketOptionName.MulticastLoopback => 34,
                     SocketOptionName.AddMembership => 35,
                     SocketOptionName.DropMembership => 36,
-                    SocketOptionName.DontFragment => 10,
+                    SocketOptionName.DontFragment => 14,
                     SocketOptionName.PacketInformation => 8,
                     SocketOptionName.AddSourceMembership => 39,
                     SocketOptionName.DropSourceMembership => 40,

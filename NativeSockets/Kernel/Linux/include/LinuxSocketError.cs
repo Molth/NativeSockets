@@ -1,6 +1,6 @@
 ﻿using System.Net.Sockets;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+using static NativeSockets.UnixNativeLib;
 
 // ReSharper disable ALL
 
@@ -18,7 +18,7 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetLastError()
         {
-            int errno = Marshal.GetLastWin32Error();
+            int errno = _errno();
             return FromNativeErrno(errno);
         }
 
@@ -39,6 +39,7 @@ namespace NativeSockets
             9 => SocketError.OperationAborted,
             13 => SocketError.AccessDenied,
             14 => SocketError.Fault,
+            12 => SocketError.NoBufferSpaceAvailable,
             22 => SocketError.InvalidArgument,
             23 => SocketError.TooManyOpenSockets,
             24 => SocketError.TooManyOpenSockets,
@@ -49,6 +50,7 @@ namespace NativeSockets
             90 => SocketError.MessageSize,
             91 => SocketError.ProtocolType,
             92 => SocketError.ProtocolOption,
+            71 => SocketError.ProtocolNotSupported,
             93 => SocketError.ProtocolNotSupported,
             94 => SocketError.SocketNotSupported,
             95 => SocketError.OperationNotSupported,
@@ -70,7 +72,6 @@ namespace NativeSockets
             112 => SocketError.HostDown,
             113 => SocketError.HostUnreachable,
             108 => SocketError.Disconnecting,
-            11003 => SocketError.NoRecovery,
             61 => SocketError.NoData,
             _ => SocketError.SocketError
         };
