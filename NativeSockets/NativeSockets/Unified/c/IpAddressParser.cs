@@ -11,6 +11,7 @@ namespace NativeSockets
     /// <summary>
     ///     Ipv4/Ipv6 address parsing and formatting.
     /// </summary>
+    /// <remarks>https://github.com/dotnet/runtime/blob/main/src/libraries/System.Net.Primitives/src/System/Net/IPAddressParser.cs</remarks>
     internal static class IpAddressParser
     {
         /// <summary>
@@ -288,8 +289,8 @@ namespace NativeSockets
                 for (; current < ipv4AddrText.Length; ++current)
                 {
                     ch = CharValue(ipv4AddrText[current]);
-                    int digitValue = HexFromChar(ipv4AddrText[current]);
-                    if (digitValue < 0 || digitValue >= numberBase)
+                    int digitValue = HexConverter.FromChar(ch);
+                    if (digitValue >= numberBase)
                         break;
 
                     currentValue = currentValue * numberBase + digitValue;
@@ -452,15 +453,15 @@ namespace NativeSockets
                 if ((value & 0xFF00) != 0)
                 {
                     if ((value & 0xF000) != 0)
-                        destination[length++] = HexToCharLower((value >> 12) & 0xF);
+                        destination[length++] = HexConverter.ToCharLower((value >> 12) & 0xF);
 
-                    destination[length++] = HexToCharLower((value >> 8) & 0xF);
+                    destination[length++] = HexConverter.ToCharLower((value >> 8) & 0xF);
                 }
 
-                destination[length++] = HexToCharLower((value >> 4) & 0xF);
+                destination[length++] = HexConverter.ToCharLower((value >> 4) & 0xF);
             }
 
-            destination[length++] = HexToCharLower(value & 0xF);
+            destination[length++] = HexConverter.ToCharLower(value & 0xF);
         }
 
         /// <summary>
@@ -498,7 +499,7 @@ namespace NativeSockets
             for (int i = 0; i < end; ++i)
             {
                 int currentCh = CharValue(ipv6AddrText[i]);
-                if (IsHexChar(ipv6AddrText[i]))
+                if (HexConverter.IsHexChar(currentCh))
                 {
                     ++sequenceLength;
                     expectingNumber = false;
@@ -681,7 +682,7 @@ namespace NativeSockets
                         break;
 
                     default:
-                        number = number * 16 + HexFromChar(ipv6AddrText[i]);
+                        number = number * 16 + HexConverter.FromChar(ch);
                         ++i;
                         break;
                 }
@@ -744,16 +745,21 @@ namespace NativeSockets
         {
             if (value >= 100)
             {
-                destination[offset] = (char)('0' + value / 100);
-                destination[offset + 1] = (char)('0' + value / 10 % 10);
-                destination[offset + 2] = (char)('0' + value % 10);
+                int hundreds = Math.DivRem(value, 100, out int tensAndOnes);
+                int tens = Math.DivRem(tensAndOnes, 10, out int ones);
+
+                destination[offset] = (char)('0' + hundreds);
+                destination[offset + 1] = (char)('0' + tens);
+                destination[offset + 2] = (char)('0' + ones);
                 return offset + 3;
             }
 
             if (value >= 10)
             {
-                destination[offset] = (char)('0' + value / 10);
-                destination[offset + 1] = (char)('0' + value % 10);
+                int tens = Math.DivRem(value, 10, out int ones);
+
+                destination[offset] = (char)('0' + tens);
+                destination[offset + 1] = (char)('0' + ones);
                 return offset + 2;
             }
 
@@ -766,40 +772,6 @@ namespace NativeSockets
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsAsciiDigit(int value) => (uint)(value - '0') <= 9;
-
-        /// <summary>
-        ///     Converts a single hexadecimal character to its value.
-        /// </summary>
-        /// <param name="value">The character (0-9, a-f, A-F).</param>
-        /// <typeparam name="TChar">The character type.</typeparam>
-        /// <returns>The numeric value 0-15, or -1 if the character is not a hexadecimal digit.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int HexFromChar<TChar>(TChar value) where TChar : unmanaged
-        {
-            uint c = (uint)CharValue(value);
-            if (c - '0' <= 9)
-                return (int)(c - '0');
-
-            if (c - 'a' <= 5)
-                return (int)(c - 'a' + 10);
-
-            if (c - 'A' <= 5)
-                return (int)(c - 'A' + 10);
-
-            return -1;
-        }
-
-        /// <summary>
-        ///     Returns whether the given character is a hexadecimal digit.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool IsHexChar<TChar>(TChar value) where TChar : unmanaged => HexFromChar(value) >= 0;
-
-        /// <summary>
-        ///     Converts a nibble (0-15) to its lowercase hexadecimal character.
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static char HexToCharLower(int value) => (char)(value < 10 ? '0' + value : 'a' + value - 10);
 
         /// <summary>
         ///     Reads a single character as an integer code point.
