@@ -70,15 +70,9 @@ namespace NativeSockets
                 int percent = ipAddressText.IndexOf('%');
                 if (percent >= 0)
                 {
-                    ReadOnlySpan<char> scopeText = ipAddressText.Slice(percent + 1);
-                    if (!uint.TryParse(scopeText, NumberStyles.None, CultureInfo.InvariantCulture, out scopeId))
-                    {
-                        uint interfaceIndex = InterfaceInfoPal.InterfaceNameToIndex(scopeText);
-                        if (interfaceIndex == 0)
-                            return SocketError.InvalidArgument;
-
-                        scopeId = interfaceIndex;
-                    }
+                    ReadOnlySpan<char> scopeIdText = ipAddressText.Slice(percent + 1);
+                    if (!InterfaceInfoPal.TryParseScopeId(scopeIdText, out scopeId))
+                        return SocketError.InvalidArgument;
 
                     ipAddressText = ipAddressText.Slice(0, percent);
                 }

@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 #if !NET5_0_OR_GREATER
 using System.Runtime.InteropServices;
 #endif
@@ -37,11 +38,38 @@ namespace NativeSockets
         }
 
         /// <summary>
+        ///     Attempts to parse an Ipv6 scope identifier from the specified text,
+        ///     which may be either a numeric value
+        ///     or a network interface name.
+        /// </summary>
+        /// <param name="scopeIdText">The text to parse.</param>
+        /// <param name="scopeId">
+        ///     When this method returns, contains the parsed scope identifier on success;
+        ///     otherwise, 0.
+        /// </param>
+        /// <returns>
+        ///     <see langword="true" /> if the scope identifier was successfully parsed;
+        ///     otherwise, <see langword="false" />.
+        /// </returns>
+        public static bool TryParseScopeId(ReadOnlySpan<char> scopeIdText, out uint scopeId)
+        {
+            if (uint.TryParse(scopeIdText, NumberStyles.None, CultureInfo.InvariantCulture, out scopeId))
+                return true;
+
+            uint interfaceIndex = InterfaceNameToIndex(scopeIdText);
+            if (interfaceIndex == 0)
+                return false;
+
+            scopeId = interfaceIndex;
+            return true;
+        }
+
+        /// <summary>
         ///     Resolves a network interface name to its interface index, which is used as the Ipv6 scope identifier
         ///     for link‑local and site‑local addresses.
         /// </summary>
         /// <param name="interfaceName">The name of the network interface.</param>
         /// <returns>The interface index on success; otherwise 0.</returns>
-        public static uint InterfaceNameToIndex(ReadOnlySpan<char> interfaceName) => _InterfaceNameToIndex(interfaceName);
+        private static uint InterfaceNameToIndex(ReadOnlySpan<char> interfaceName) => _InterfaceNameToIndex(interfaceName);
     }
 }

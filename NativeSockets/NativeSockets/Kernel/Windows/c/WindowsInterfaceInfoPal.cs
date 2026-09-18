@@ -14,11 +14,6 @@ namespace NativeSockets
     internal static unsafe class WindowsInterfaceInfoPal
     {
         /// <summary>
-        ///     The name of the native library.
-        /// </summary>
-        private const string DLL_NAME_IPHLPAPI = "iphlpapi.dll";
-
-        /// <summary>
         ///     Converts a network interface name (such as "Ethernet" or "Wi-Fi") into its locally unique identifier (LUID).
         /// </summary>
         /// <param name="__utf16_interfaceName_native">Pointer to a null-terminated UTF‑16 interface name string.</param>

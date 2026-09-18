@@ -1,6 +1,6 @@
 ﻿using System.Net.Sockets;
 using System.Runtime.InteropServices;
-using static NativeSockets.UnixNativeLibName;
+using static NativeSockets.SharedNativeLibName;
 
 #pragma warning disable SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time.
 
@@ -13,11 +13,6 @@ namespace NativeSockets
     /// </summary>
     internal static unsafe class SharedSocketLib
     {
-        /// <summary>
-        ///     The name of the native library containing the socket functions.
-        /// </summary>
-        private const string DLL_NAME_NATIVESOCKETPAL = "nativesocketpal";
-
         /// <summary>
         ///     Gets the address family value for Ipv4 used by the current platform.
         /// </summary>

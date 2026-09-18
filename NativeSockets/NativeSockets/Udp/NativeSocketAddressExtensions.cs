@@ -85,14 +85,14 @@ namespace NativeSockets
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         public static SocketError ToIpEndPoint(this NativeSocketAddress socketAddress, out IPEndPoint? result)
         {
-            SocketError error = socketAddress.ToIpAddress(out IPAddress? address);
+            SocketError error = socketAddress.ToIpAddress(out IPAddress? ipAddress);
             if (error != SocketError.Success)
             {
                 result = default;
                 return error;
             }
 
-            result = new IPEndPoint(address!, socketAddress.Port);
+            result = new IPEndPoint(ipAddress!, socketAddress.Port);
             return SocketError.Success;
         }
 

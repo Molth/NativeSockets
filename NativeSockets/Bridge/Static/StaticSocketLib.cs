@@ -1,6 +1,6 @@
 ﻿using System.Net.Sockets;
 using System.Runtime.InteropServices;
-using static NativeSockets.UnixNativeLibName;
+using static NativeSockets.StaticNativeLibName;
 
 #pragma warning disable SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time.
 
@@ -14,41 +14,36 @@ namespace NativeSockets
     internal static unsafe class StaticSocketLib
     {
         /// <summary>
-        ///     The name of the native library containing the socket functions.
-        /// </summary>
-        private const string DLL_NAME_NATIVESOCKETPAL = "__Internal";
-
-        /// <summary>
         ///     Gets the address family value for Ipv4 used by the current platform.
         /// </summary>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_GetAddressFamilyInterNetworkV4", CallingConvention = CALLING_CONVENTION)]
+        [DllImport(DLL_NAME_INTERNAL, EntryPoint = "_GetAddressFamilyInterNetworkV4", CallingConvention = CALLING_CONVENTION)]
         public static extern ushort GetAddressFamilyInterNetworkV4();
 
         /// <summary>
         ///     Gets the address family value for Ipv6 used by the current platform.
         /// </summary>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_GetAddressFamilyInterNetworkV6", CallingConvention = CALLING_CONVENTION)]
+        [DllImport(DLL_NAME_INTERNAL, EntryPoint = "_GetAddressFamilyInterNetworkV6", CallingConvention = CALLING_CONVENTION)]
         public static extern ushort GetAddressFamilyInterNetworkV6();
 
         /// <summary>
         ///     Retrieves the last socket error code from the underlying platform.
         /// </summary>
         /// <returns>The last <see cref="SocketError" />.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_GetLastSocketError", CallingConvention = CALLING_CONVENTION)]
+        [DllImport(DLL_NAME_INTERNAL, EntryPoint = "_GetLastSocketError", CallingConvention = CALLING_CONVENTION)]
         public static extern SocketError GetLastSocketError();
 
         /// <summary>
         ///     Starts up the platform-specific socket subsystem.
         /// </summary>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_Startup", CallingConvention = CALLING_CONVENTION)]
+        [DllImport(DLL_NAME_INTERNAL, EntryPoint = "_Startup", CallingConvention = CALLING_CONVENTION)]
         public static extern SocketError Startup();
 
         /// <summary>
         ///     Cleans up the platform-specific socket subsystem.
         /// </summary>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_Cleanup", CallingConvention = CALLING_CONVENTION)]
+        [DllImport(DLL_NAME_INTERNAL, EntryPoint = "_Cleanup", CallingConvention = CALLING_CONVENTION)]
         public static extern SocketError Cleanup();
 
         /// <summary>
@@ -56,7 +51,7 @@ namespace NativeSockets
         /// </summary>
         /// <param name="ipv6">true to create an Ipv6 socket; false for Ipv4.</param>
         /// <returns>The native socket handle, or -1 on error.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_Create", CallingConvention = CALLING_CONVENTION)]
+        [DllImport(DLL_NAME_INTERNAL, EntryPoint = "_Create", CallingConvention = CALLING_CONVENTION)]
         public static extern nint Create(int ipv6);
 
         /// <summary>
@@ -64,7 +59,7 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The native socket handle to close.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_Close", CallingConvention = CALLING_CONVENTION)]
+        [DllImport(DLL_NAME_INTERNAL, EntryPoint = "_Close", CallingConvention = CALLING_CONVENTION)]
         public static extern SocketError Close(nint socket);
 
         /// <summary>
@@ -73,7 +68,7 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="socketAddress">Pointer to the Ipv4 address structure.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_BindIpv4", CallingConvention = CALLING_CONVENTION)]
+        [DllImport(DLL_NAME_INTERNAL, EntryPoint = "_BindIpv4", CallingConvention = CALLING_CONVENTION)]
         public static extern SocketError BindIpv4(nint socket, sockaddr_in4* socketAddress);
 
         /// <summary>
@@ -82,7 +77,7 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="socketAddress">Pointer to the Ipv6 address structure.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_BindIpv6", CallingConvention = CALLING_CONVENTION)]
+        [DllImport(DLL_NAME_INTERNAL, EntryPoint = "_BindIpv6", CallingConvention = CALLING_CONVENTION)]
         public static extern SocketError BindIpv6(nint socket, sockaddr_in6* socketAddress);
 
         /// <summary>
@@ -91,7 +86,7 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="socketAddress">Pointer to the Ipv4 address structure.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_ConnectIpv4", CallingConvention = CALLING_CONVENTION)]
+        [DllImport(DLL_NAME_INTERNAL, EntryPoint = "_ConnectIpv4", CallingConvention = CALLING_CONVENTION)]
         public static extern SocketError ConnectIpv4(nint socket, sockaddr_in4* socketAddress);
 
         /// <summary>
@@ -100,7 +95,7 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="socketAddress">Pointer to the Ipv6 address structure.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_ConnectIpv6", CallingConvention = CALLING_CONVENTION)]
+        [DllImport(DLL_NAME_INTERNAL, EntryPoint = "_ConnectIpv6", CallingConvention = CALLING_CONVENTION)]
         public static extern SocketError ConnectIpv6(nint socket, sockaddr_in6* socketAddress);
 
         /// <summary>
@@ -117,7 +112,7 @@ namespace NativeSockets
         ///     platform equivalents by the underlying socket layer. The <paramref name="value" /> bytes are
         ///     passed through unmodified; the platform interprets the buffer according to the mapped option.
         /// </remarks>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_SetOption", CallingConvention = CALLING_CONVENTION)]
+        [DllImport(DLL_NAME_INTERNAL, EntryPoint = "_SetOption", CallingConvention = CALLING_CONVENTION)]
         public static extern SocketError SetOption(nint socket, SocketOptionLevel level, SocketOptionName name, byte* value, int length);
 
         /// <summary>
@@ -134,7 +129,7 @@ namespace NativeSockets
         ///     platform equivalents by the underlying socket layer. The <paramref name="value" /> buffer is
         ///     passed through unmodified; the platform populates the buffer according to the mapped option.
         /// </remarks>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_GetOption", CallingConvention = CALLING_CONVENTION)]
+        [DllImport(DLL_NAME_INTERNAL, EntryPoint = "_GetOption", CallingConvention = CALLING_CONVENTION)]
         public static extern SocketError GetOption(nint socket, SocketOptionLevel level, SocketOptionName name, byte* value, int* length);
 
         /// <summary>
@@ -146,7 +141,7 @@ namespace NativeSockets
         /// <param name="value">Pointer to the option value.</param>
         /// <param name="length">The length of the option value in bytes.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_SetRawOption", CallingConvention = CALLING_CONVENTION)]
+        [DllImport(DLL_NAME_INTERNAL, EntryPoint = "_SetRawOption", CallingConvention = CALLING_CONVENTION)]
         public static extern SocketError SetRawOption(nint socket, int level, int name, byte* value, int length);
 
         /// <summary>
@@ -158,7 +153,7 @@ namespace NativeSockets
         /// <param name="value">Pointer to a buffer to receive the option value.</param>
         /// <param name="length">Pointer to the length of the buffer; on output, the actual size of the option.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_GetRawOption", CallingConvention = CALLING_CONVENTION)]
+        [DllImport(DLL_NAME_INTERNAL, EntryPoint = "_GetRawOption", CallingConvention = CALLING_CONVENTION)]
         public static extern SocketError GetRawOption(nint socket, int level, int name, byte* value, int* length);
 
         /// <summary>
@@ -167,7 +162,7 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="blocking">true for blocking; false for non-blocking.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_SetBlocking", CallingConvention = CALLING_CONVENTION)]
+        [DllImport(DLL_NAME_INTERNAL, EntryPoint = "_SetBlocking", CallingConvention = CALLING_CONVENTION)]
         public static extern SocketError SetBlocking(nint socket, int blocking);
 
         /// <summary>
@@ -178,7 +173,7 @@ namespace NativeSockets
         /// <param name="mode">The select mode.</param>
         /// <param name="status">When this method returns, contains true if the socket is ready, false otherwise.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_Poll", CallingConvention = CALLING_CONVENTION)]
+        [DllImport(DLL_NAME_INTERNAL, EntryPoint = "_Poll", CallingConvention = CALLING_CONVENTION)]
         public static extern SocketError Poll(nint socket, int microseconds, SelectMode mode, out int status);
 
         /// <summary>
@@ -189,7 +184,7 @@ namespace NativeSockets
         /// <param name="inFlags">The select mode.</param>
         /// <param name="outFlags">When this method returns, contains true if the socket is ready, false otherwise.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_PollFlags", CallingConvention = CALLING_CONVENTION)]
+        [DllImport(DLL_NAME_INTERNAL, EntryPoint = "_PollFlags", CallingConvention = CALLING_CONVENTION)]
         public static extern SocketError PollFlags(nint socket, int microseconds, SelectModeFlags inFlags, out SelectModeFlags outFlags);
 
         /// <summary>
@@ -200,7 +195,7 @@ namespace NativeSockets
         /// <param name="length">Length of the buffer in bytes.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_Send", CallingConvention = CALLING_CONVENTION)]
+        [DllImport(DLL_NAME_INTERNAL, EntryPoint = "_Send", CallingConvention = CALLING_CONVENTION)]
         public static extern int Send(nint socket, void* buffer, int length, SocketFlags socketFlags);
 
         /// <summary>
@@ -212,7 +207,7 @@ namespace NativeSockets
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">Pointer to the destination Ipv4 socket address structure.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_SendToIpv4", CallingConvention = CALLING_CONVENTION)]
+        [DllImport(DLL_NAME_INTERNAL, EntryPoint = "_SendToIpv4", CallingConvention = CALLING_CONVENTION)]
         public static extern int SendToIpv4(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in4* socketAddress);
 
         /// <summary>
@@ -224,7 +219,7 @@ namespace NativeSockets
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">Pointer to the destination Ipv6 socket address structure.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_SendToIpv6", CallingConvention = CALLING_CONVENTION)]
+        [DllImport(DLL_NAME_INTERNAL, EntryPoint = "_SendToIpv6", CallingConvention = CALLING_CONVENTION)]
         public static extern int SendToIpv6(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in6* socketAddress);
 
         /// <summary>
@@ -235,7 +230,7 @@ namespace NativeSockets
         /// <param name="length">Length of the buffer.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_Receive", CallingConvention = CALLING_CONVENTION)]
+        [DllImport(DLL_NAME_INTERNAL, EntryPoint = "_Receive", CallingConvention = CALLING_CONVENTION)]
         public static extern int Receive(nint socket, void* buffer, int length, SocketFlags socketFlags);
 
         /// <summary>
@@ -247,7 +242,7 @@ namespace NativeSockets
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">Pointer to the sender's Ipv4 address structure.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_ReceiveFromIpv4", CallingConvention = CALLING_CONVENTION)]
+        [DllImport(DLL_NAME_INTERNAL, EntryPoint = "_ReceiveFromIpv4", CallingConvention = CALLING_CONVENTION)]
         public static extern int ReceiveFromIpv4(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in4* socketAddress);
 
         /// <summary>
@@ -259,7 +254,7 @@ namespace NativeSockets
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">Pointer to the sender's Ipv6 address structure.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_ReceiveFromIpv6", CallingConvention = CALLING_CONVENTION)]
+        [DllImport(DLL_NAME_INTERNAL, EntryPoint = "_ReceiveFromIpv6", CallingConvention = CALLING_CONVENTION)]
         public static extern int ReceiveFromIpv6(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in6* socketAddress);
 
         /// <summary>
@@ -270,7 +265,7 @@ namespace NativeSockets
         /// <param name="bufferCount">The number of buffers.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_SendVectored", CallingConvention = CALLING_CONVENTION)]
+        [DllImport(DLL_NAME_INTERNAL, EntryPoint = "_SendVectored", CallingConvention = CALLING_CONVENTION)]
         public static extern int SendVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags);
 
         /// <summary>
@@ -282,7 +277,7 @@ namespace NativeSockets
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">Pointer to the destination Ipv4 socket address.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_SendToVectoredIpv4", CallingConvention = CALLING_CONVENTION)]
+        [DllImport(DLL_NAME_INTERNAL, EntryPoint = "_SendToVectoredIpv4", CallingConvention = CALLING_CONVENTION)]
         public static extern int SendToVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in4* socketAddress);
 
         /// <summary>
@@ -294,7 +289,7 @@ namespace NativeSockets
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">Pointer to the destination Ipv6 socket address.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_SendToVectoredIpv6", CallingConvention = CALLING_CONVENTION)]
+        [DllImport(DLL_NAME_INTERNAL, EntryPoint = "_SendToVectoredIpv6", CallingConvention = CALLING_CONVENTION)]
         public static extern int SendToVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in6* socketAddress);
 
         /// <summary>
@@ -305,7 +300,7 @@ namespace NativeSockets
         /// <param name="bufferCount">The number of buffers.</param>
         /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_ReceiveVectored", CallingConvention = CALLING_CONVENTION)]
+        [DllImport(DLL_NAME_INTERNAL, EntryPoint = "_ReceiveVectored", CallingConvention = CALLING_CONVENTION)]
         public static extern int ReceiveVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags);
 
         /// <summary>
@@ -317,7 +312,7 @@ namespace NativeSockets
         /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_ReceiveFromVectoredIpv4", CallingConvention = CALLING_CONVENTION)]
+        [DllImport(DLL_NAME_INTERNAL, EntryPoint = "_ReceiveFromVectoredIpv4", CallingConvention = CALLING_CONVENTION)]
         public static extern int ReceiveFromVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in4* socketAddress);
 
         /// <summary>
@@ -329,7 +324,7 @@ namespace NativeSockets
         /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_ReceiveFromVectoredIpv6", CallingConvention = CALLING_CONVENTION)]
+        [DllImport(DLL_NAME_INTERNAL, EntryPoint = "_ReceiveFromVectoredIpv6", CallingConvention = CALLING_CONVENTION)]
         public static extern int ReceiveFromVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in6* socketAddress);
 
         /// <summary>
@@ -338,7 +333,7 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="socketAddress">Pointer to the Ipv4 address structure to receive the name.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_GetNameIpv4", CallingConvention = CALLING_CONVENTION)]
+        [DllImport(DLL_NAME_INTERNAL, EntryPoint = "_GetNameIpv4", CallingConvention = CALLING_CONVENTION)]
         public static extern SocketError GetNameIpv4(nint socket, sockaddr_in4* socketAddress);
 
         /// <summary>
@@ -347,7 +342,7 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="socketAddress">Pointer to the Ipv6 address structure to receive the name.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_GetNameIpv6", CallingConvention = CALLING_CONVENTION)]
+        [DllImport(DLL_NAME_INTERNAL, EntryPoint = "_GetNameIpv6", CallingConvention = CALLING_CONVENTION)]
         public static extern SocketError GetNameIpv6(nint socket, sockaddr_in6* socketAddress);
     }
 }

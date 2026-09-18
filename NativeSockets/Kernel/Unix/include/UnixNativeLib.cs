@@ -15,13 +15,6 @@ namespace NativeSockets
         /// </summary>
         /// <returns>The last platform invoke error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int _errno()
-        {
-#if NET6_0_OR_GREATER
-            return Marshal.GetLastPInvokeError();
-#else
-            return Marshal.GetLastWin32Error();
-#endif
-        }
+        public static int _errno() => Marshal.GetLastWin32Error();
     }
 }

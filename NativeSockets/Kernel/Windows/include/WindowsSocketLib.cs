@@ -18,11 +18,6 @@ namespace NativeSockets
     internal static unsafe class WindowsSocketLib
     {
         /// <summary>
-        ///     The name of the native library containing the socket functions (Winsock 2.2).
-        /// </summary>
-        private const string DLL_NAME_WS2_32 = "ws2_32.dll";
-
-        /// <summary>
         ///     Starts up the Winsock library (WSAStartup).
         /// </summary>
         /// <param name="wVersionRequested">The highest version of Winsock that the caller can support (e.g., 0x0202 for 2.2).</param>
