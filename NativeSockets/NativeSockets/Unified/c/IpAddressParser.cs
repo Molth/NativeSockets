@@ -120,38 +120,39 @@ namespace NativeSockets
         ///     Tries to format 4 bytes of a network-order Ipv4 address into the destination span.
         /// </summary>
         /// <param name="ipv4Addr">The 4 address bytes in network byte order.</param>
-        /// <param name="destination">The span to receive the formatted dotted-quad string.</param>
-        /// <param name="charsWritten">When this method returns, receives the number of characters written.</param>
+        /// <param name="destination">
+        ///     The character span to receive the formatted dotted-quad string;
+        ///     resized to the actual length on success.
+        /// </param>
         /// <returns>
         ///     <see langword="true" /> on success; <see langword="false" /> if the address is shorter than 4 bytes or the
         ///     destination is too small.
         /// </returns>
-        public static bool TryFormatIpv4(ReadOnlySpan<byte> ipv4Addr, Span<char> destination, out int charsWritten)
+        public static bool TryFormatIpv4(ReadOnlySpan<byte> ipv4Addr, ref Span<char> destination)
         {
             if (ipv4Addr.Length < 4)
-            {
-                charsWritten = 0;
                 return false;
-            }
 
             Span<char> chars = stackalloc char[16];
             int length = FormatIpv4(ipv4Addr, chars);
-            if (!chars.Slice(0, length).TryCopyTo(destination))
+            chars = chars.Slice(0, length);
+            if (chars.TryCopyTo(destination))
             {
-                charsWritten = 0;
-                return false;
+                destination = destination.Slice(0, chars.Length);
+                return true;
             }
 
-            charsWritten = length;
-            return true;
+            return false;
         }
 
         /// <summary>
         ///     Tries to format 16 bytes of a network-order Ipv6 address into the destination span.
         /// </summary>
         /// <param name="ipv6Addr">The 16 address bytes in network byte order.</param>
-        /// <param name="destination">The span to receive the formatted Ipv6 string.</param>
-        /// <param name="charsWritten">When this method returns, receives the number of characters written.</param>
+        /// <param name="destination">
+        ///     The character span to receive the formatted dotted-quad string;
+        ///     resized to the actual length on success.
+        /// </param>
         /// <returns>
         ///     <see langword="true" /> on success;
         ///     <see langword="false" /> if the address is shorter than 16 bytes
@@ -162,24 +163,21 @@ namespace NativeSockets
         ///     Ipv4-compatible, and ISATAP addresses are emitted with an embedded dotted-quad
         ///     suffix. No scope id is appended.
         /// </remarks>
-        public static bool TryFormatIpv6(ReadOnlySpan<byte> ipv6Addr, Span<char> destination, out int charsWritten)
+        public static bool TryFormatIpv6(ReadOnlySpan<byte> ipv6Addr, ref Span<char> destination)
         {
             if (ipv6Addr.Length < 16)
-            {
-                charsWritten = 0;
                 return false;
-            }
 
             Span<char> chars = stackalloc char[64];
             int length = FormatIpv6(ipv6Addr, chars);
-            if (!chars.Slice(0, length).TryCopyTo(destination))
+            chars = chars.Slice(0, length);
+            if (chars.TryCopyTo(destination))
             {
-                charsWritten = 0;
-                return false;
+                destination = destination.Slice(0, chars.Length);
+                return true;
             }
 
-            charsWritten = length;
-            return true;
+            return false;
         }
 
         /// <summary>

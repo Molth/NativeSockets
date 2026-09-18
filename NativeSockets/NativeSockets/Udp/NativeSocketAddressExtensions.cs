@@ -37,29 +37,24 @@ namespace NativeSockets
         ///     into the provided span of characters.
         /// </summary>
         /// <param name="socketAddress">The socket address to format.</param>
-        /// <param name="destination">When this method returns, this instance's value formatted as a span of characters.</param>
-        /// <param name="charsWritten">
-        ///     When this method returns, the number of characters that were written in
-        ///     <paramref name="destination" />.
+        /// <param name="destination">
+        ///     The character span to receive the <see cref="IPEndPoint" /> string;
+        ///     resized to the actual length on success.
         /// </param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        public static SocketError TryFormat(in this NativeSocketAddress socketAddress, Span<char> destination, out int charsWritten)
+        public static SocketError TryFormat(in this NativeSocketAddress socketAddress, ref Span<char> destination)
         {
             Span<char> chars = stackalloc char[NativeSocketAddressPal.FORMAT_MAX_CHARS];
             SocketError error = NativeSocketAddressPal.FormatAsIpEndPoint(ref chars, socketAddress);
             if (error != SocketError.Success)
-            {
-                charsWritten = 0;
                 return error;
-            }
 
             if (chars.TryCopyTo(destination))
             {
-                charsWritten = chars.Length;
+                destination = destination.Slice(0, chars.Length);
                 return SocketError.Success;
             }
 
-            charsWritten = 0;
             return SocketError.NoBufferSpaceAvailable;
         }
 
@@ -67,24 +62,16 @@ namespace NativeSockets
         ///     Retrieves the ip address from a <see cref="NativeSocketAddress" /> as text.
         /// </summary>
         /// <param name="socketAddress">The <see cref="NativeSocketAddress" /> to read the ip address from.</param>
-        /// <param name="ip">The character span to receive the ip address; resized to the actual length on success.</param>
+        /// <param name="destination">The character span to receive the ip address; resized to the actual length on success.</param>
         /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetIp(this NativeSocketAddress socketAddress, ref Span<char> ip)
+        public static SocketError GetIp(this NativeSocketAddress socketAddress, ref Span<char> destination)
         {
             if (!socketAddress.IsIpv4 && !socketAddress.IsIpv6)
                 return SocketError.AddressFamilyNotSupported;
 
-            int charsWritten = 0;
-            bool result = socketAddress.IsIpv4 ? IpAddressParser.TryFormatIpv4(socketAddress.Ip, ip, out charsWritten) : IpAddressParser.TryFormatIpv6(socketAddress.Ip, ip, out charsWritten);
-
-            if (result)
-            {
-                ip = ip.Slice(0, charsWritten);
-                return SocketError.Success;
-            }
-
-            return SocketError.NoBufferSpaceAvailable;
+            bool result = socketAddress.IsIpv4 ? IpAddressParser.TryFormatIpv4(socketAddress.Ip, ref destination) : IpAddressParser.TryFormatIpv6(socketAddress.Ip, ref destination);
+            return result ? SocketError.Success : SocketError.NoBufferSpaceAvailable;
         }
 
         /// <summary>
