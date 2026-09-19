@@ -19,7 +19,7 @@ namespace NativeSockets
         /// <param name="source">The source byte span containing the raw address data.</param>
         /// <param name="size">
         ///     The total number of bytes to copy, including the address family prefix.
-        ///     Must match the size of the address structure.
+        ///     Must match the size of the socket address.
         /// </param>
         /// <exception cref="ArgumentOutOfRangeException">
         ///     Thrown when <paramref name="size" /> is larger than the capacity of the destination buffer,
@@ -44,7 +44,7 @@ namespace NativeSockets
         /// <param name="destination">The destination byte span to receive the raw address data.</param>
         /// <param name="size">
         ///     The total number of bytes to copy, including the address family prefix.
-        ///     Must match the size of the address structure.
+        ///     Must match the size of the socket address.
         /// </param>
         /// <exception cref="ArgumentOutOfRangeException">
         ///     Thrown when <paramref name="size" /> is larger than the capacity of the destination buffer,

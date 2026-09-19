@@ -14,7 +14,7 @@ namespace NativeSockets
     internal static unsafe class WindowsInterfaceInfoPal
     {
         /// <summary>
-        ///     Converts a network interface name (such as "Ethernet" or "Wi-Fi") into its locally unique identifier (LUID).
+        ///     Converts a network interface name (such as "Ethernet" or "Wi-Fi") into its locally unique id (LUID).
         /// </summary>
         /// <param name="__utf16_interfaceName_native">Pointer to a null-terminated UTF‑16 interface name string.</param>
         /// <param name="__interfaceLuid_native">Pointer to a buffer that receives the interface LUID.</param>
@@ -32,7 +32,7 @@ namespace NativeSockets
         private static extern uint _ConvertInterfaceLuidToIndex(ulong* __interfaceLuid_native, uint* __ifIndex_native);
 
         /// <summary>
-        ///     Resolves a network interface name to its interface index, which is used as the Ipv6 scope identifier
+        ///     Resolves a network interface name to its interface index, which is used as the Ipv6 scope id
         ///     for link‑local and site‑local addresses.
         /// </summary>
         /// <param name="interfaceName">The name of the network interface.</param>

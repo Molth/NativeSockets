@@ -10,7 +10,7 @@ namespace NativeSockets
     /// <remarks>
     ///     This structure is used for Ipv4 socket operations and is
     ///     compatible with the native <c>sockaddr_in</c> on both Windows and Unix.
-    ///     It contains the address family, port, Ipv4 address, and a zero‑padding field.
+    ///     It contains the address family, port, Ipv4 ip, and a zero‑padding field.
     /// </remarks>
     [StructLayout(LayoutKind.Explicit, Size = 16)]
     internal unsafe struct sockaddr_in4
@@ -26,7 +26,7 @@ namespace NativeSockets
         [FieldOffset(2)] public ushort sin4_port;
 
         /// <summary>
-        ///     The Ipv4 address.
+        ///     The Ipv4 ip.
         /// </summary>
         [FieldOffset(4)] public uint sin4_addr;
 

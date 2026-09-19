@@ -16,9 +16,9 @@ static void _MicrosecondsToTimeValue(i64 microseconds, struct timeval *socketTim
 }
 
 /// <summary>
-///     Converts an array of <see cref="NativeIoSlice" /> structures to WinSock <c>WSABUF</c> entries.
+///     Converts an array of <see cref="NativeIoSlice" /> to WinSock <c>WSABUF</c> entries.
 /// </summary>
-/// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
+/// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
 /// <param name="bufferCount">The number of buffers.</param>
 /// <param name="out_bufs">Pointer to the output array of <c>WSABUF</c> structures to fill.</param>
 static void _Build(_NativeIoSlice *buffers, i32 bufferCount, WSABUF *out_bufs)
@@ -109,10 +109,10 @@ i32 _Close(isize socket)
 }
 
 /// <summary>
-///     Binds a socket to an Ipv4 address.
+///     Binds a socket to an Ipv4 socket address.
 /// </summary>
 /// <param name="socket">The socket handle.</param>
-/// <param name="socketAddress">Pointer to the Ipv4 address structure.</param>
+/// <param name="socketAddress">Pointer to the Ipv4 socket address.</param>
 /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
 i32 _BindIpv4(isize socket, _sockaddr_in4 *socketAddress)
 {
@@ -128,10 +128,10 @@ i32 _BindIpv4(isize socket, _sockaddr_in4 *socketAddress)
 }
 
 /// <summary>
-///     Binds a socket to an Ipv6 address.
+///     Binds a socket to an Ipv6 socket address.
 /// </summary>
 /// <param name="socket">The socket handle.</param>
-/// <param name="socketAddress">Pointer to the Ipv6 address structure.</param>
+/// <param name="socketAddress">Pointer to the Ipv6 socket address.</param>
 /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
 i32 _BindIpv6(isize socket, _sockaddr_in6 *socketAddress)
 {
@@ -147,10 +147,10 @@ i32 _BindIpv6(isize socket, _sockaddr_in6 *socketAddress)
 }
 
 /// <summary>
-///     Connects a socket to an Ipv4 endpoint.
+///     Connects a socket to an Ipv4 socket address.
 /// </summary>
 /// <param name="socket">The socket handle.</param>
-/// <param name="socketAddress">Pointer to the Ipv4 address structure.</param>
+/// <param name="socketAddress">Pointer to the Ipv4 socket address.</param>
 /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
 i32 _ConnectIpv4(isize socket, _sockaddr_in4 *socketAddress)
 {
@@ -159,10 +159,10 @@ i32 _ConnectIpv4(isize socket, _sockaddr_in4 *socketAddress)
 }
 
 /// <summary>
-///     Connects a socket to an Ipv6 endpoint.
+///     Connects a socket to an Ipv6 socket address.
 /// </summary>
 /// <param name="socket">The socket handle.</param>
-/// <param name="socketAddress">Pointer to the Ipv6 address structure.</param>
+/// <param name="socketAddress">Pointer to the Ipv6 socket address.</param>
 /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
 i32 _ConnectIpv6(isize socket, _sockaddr_in6 *socketAddress)
 {
@@ -365,13 +365,13 @@ i32 _Send(isize socket, void *buffer, i32 length, i32 socketFlags)
 }
 
 /// <summary>
-///     Sends data to an Ipv4 endpoint.
+///     Sends data to an Ipv4 socket address.
 /// </summary>
 /// <param name="socket">The socket handle.</param>
 /// <param name="buffer">Pointer to the data buffer.</param>
 /// <param name="length">Length of the buffer.</param>
 /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-/// <param name="socketAddress">Pointer to the destination Ipv4 socket address structure.</param>
+/// <param name="socketAddress">Pointer to the destination Ipv4 socket address.</param>
 /// <returns>The number of bytes sent, or -1 on error.</returns>
 i32 _SendToIpv4(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in4 *socketAddress)
 {
@@ -383,13 +383,13 @@ i32 _SendToIpv4(isize socket, void *buffer, i32 length, i32 socketFlags, _sockad
 }
 
 /// <summary>
-///     Sends data to an Ipv6 endpoint.
+///     Sends data to an Ipv6 socket address.
 /// </summary>
 /// <param name="socket">The socket handle.</param>
 /// <param name="buffer">Pointer to the data buffer.</param>
 /// <param name="length">Length of the buffer.</param>
 /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-/// <param name="socketAddress">Pointer to the destination Ipv6 socket address structure.</param>
+/// <param name="socketAddress">Pointer to the destination Ipv6 socket address.</param>
 /// <returns>The number of bytes sent, or -1 on error.</returns>
 i32 _SendToIpv6(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in6 *socketAddress)
 {
@@ -414,13 +414,13 @@ i32 _Receive(isize socket, void *buffer, i32 length, i32 socketFlags)
 }
 
 /// <summary>
-///     Receives data from an Ipv4 endpoint, filling the provided address structure.
+///     Receives data from an Ipv4 socket address, filling the provided socket address.
 /// </summary>
 /// <param name="socket">The socket handle.</param>
 /// <param name="buffer">Pointer to the receive buffer.</param>
 /// <param name="length">Length of the buffer.</param>
 /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-/// <param name="socketAddress">Pointer to the sender's Ipv4 address structure.</param>
+/// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
 /// <returns>The number of bytes received, or -1 on error.</returns>
 i32 _ReceiveFromIpv4(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in4 *socketAddress)
 {
@@ -435,13 +435,13 @@ i32 _ReceiveFromIpv4(isize socket, void *buffer, i32 length, i32 socketFlags, _s
 }
 
 /// <summary>
-///     Receives data from an Ipv6 endpoint, filling the provided address structure.
+///     Receives data from an Ipv6 socket address, filling the provided socket address.
 /// </summary>
 /// <param name="socket">The socket handle.</param>
 /// <param name="buffer">Pointer to the receive buffer.</param>
 /// <param name="length">Length of the buffer.</param>
 /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-/// <param name="socketAddress">Pointer to the sender's Ipv6 address structure.</param>
+/// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
 /// <returns>The number of bytes received, or -1 on error.</returns>
 i32 _ReceiveFromIpv6(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in6 *socketAddress)
 {
@@ -459,7 +459,7 @@ i32 _ReceiveFromIpv6(isize socket, void *buffer, i32 length, i32 socketFlags, _s
 ///     Sends data from multiple buffers on a connected socket.
 /// </summary>
 /// <param name="socket">The socket handle.</param>
-/// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
+/// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
 /// <param name="bufferCount">The number of buffers.</param>
 /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
 /// <returns>The number of bytes sent, or -1 on error.</returns>
@@ -483,10 +483,10 @@ i32 _SendVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 so
 }
 
 /// <summary>
-///     Sends data from multiple buffers to an Ipv4 endpoint.
+///     Sends data from multiple buffers to an Ipv4 socket address.
 /// </summary>
 /// <param name="socket">The socket handle.</param>
-/// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
+/// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
 /// <param name="bufferCount">The number of buffers.</param>
 /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
 /// <param name="socketAddress">Pointer to the destination Ipv4 socket address.</param>
@@ -515,10 +515,10 @@ i32 _SendToVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCount, 
 }
 
 /// <summary>
-///     Sends data from multiple buffers to an Ipv6 endpoint.
+///     Sends data from multiple buffers to an Ipv6 socket address.
 /// </summary>
 /// <param name="socket">The socket handle.</param>
-/// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
+/// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
 /// <param name="bufferCount">The number of buffers.</param>
 /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
 /// <param name="socketAddress">Pointer to the destination Ipv6 socket address.</param>
@@ -550,7 +550,7 @@ i32 _SendToVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCount, 
 ///     Receives data into multiple buffers on a connected socket.
 /// </summary>
 /// <param name="socket">The socket handle.</param>
-/// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
+/// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
 /// <param name="bufferCount">The number of buffers.</param>
 /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
 /// <returns>The number of bytes received, or -1 on error.</returns>
@@ -588,10 +588,10 @@ i32 _ReceiveVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32
 }
 
 /// <summary>
-///     Receives data into multiple buffers from an Ipv4 endpoint.
+///     Receives data into multiple buffers from an Ipv4 socket address.
 /// </summary>
 /// <param name="socket">The socket handle.</param>
-/// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
+/// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
 /// <param name="bufferCount">The number of buffers.</param>
 /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
 /// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
@@ -636,10 +636,10 @@ i32 _ReceiveFromVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCo
 }
 
 /// <summary>
-///     Receives data into multiple buffers from an Ipv6 endpoint.
+///     Receives data into multiple buffers from an Ipv6 socket address.
 /// </summary>
 /// <param name="socket">The socket handle.</param>
-/// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
+/// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
 /// <param name="bufferCount">The number of buffers.</param>
 /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
 /// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
@@ -687,7 +687,7 @@ i32 _ReceiveFromVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCo
 ///     Gets the local name (address) of an Ipv4 socket.
 /// </summary>
 /// <param name="socket">The socket handle.</param>
-/// <param name="socketAddress">Pointer to the Ipv4 address structure to receive the name.</param>
+/// <param name="socketAddress">Pointer to the Ipv4 socket address to receive the name.</param>
 /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
 i32 _GetNameIpv4(isize socket, _sockaddr_in4 *socketAddress)
 {
@@ -705,7 +705,7 @@ i32 _GetNameIpv4(isize socket, _sockaddr_in4 *socketAddress)
 ///     Gets the local name (address) of an Ipv6 socket.
 /// </summary>
 /// <param name="socket">The socket handle.</param>
-/// <param name="socketAddress">Pointer to the Ipv6 address structure to receive the name.</param>
+/// <param name="socketAddress">Pointer to the Ipv6 socket address to receive the name.</param>
 /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
 i32 _GetNameIpv6(isize socket, _sockaddr_in6 *socketAddress)
 {

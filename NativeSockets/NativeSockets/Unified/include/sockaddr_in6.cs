@@ -9,7 +9,7 @@ namespace NativeSockets
     /// </summary>
     /// <remarks>
     ///     This structure is used for Ipv6 socket operations and matches the native layout of <c>sockaddr_in6</c>.
-    ///     It includes the address family, port, flow information, the 128‑bit Ipv6 address, and a scope id.
+    ///     It includes the address family, port, flow information, the 128‑bit Ipv6 ip, and a scope id.
     /// </remarks>
     [StructLayout(LayoutKind.Explicit, Size = 28)]
     internal unsafe struct sockaddr_in6
@@ -30,12 +30,12 @@ namespace NativeSockets
         [FieldOffset(4)] public uint sin6_flowinfo;
 
         /// <summary>
-        ///     The 128‑bit Ipv6 address as a 16‑byte array.
+        ///     The 128‑bit Ipv6 ip as a 16‑byte array.
         /// </summary>
         [FieldOffset(8)] public fixed byte sin6_addr[16];
 
         /// <summary>
-        ///     The Ipv4 address.
+        ///     The Ipv4 ip.
         /// </summary>
         [FieldOffset(20)] public uint sin4_addr;
 

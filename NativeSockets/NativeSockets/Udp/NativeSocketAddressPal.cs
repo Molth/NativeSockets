@@ -15,8 +15,8 @@ namespace NativeSockets
     internal static class NativeSocketAddressPal
     {
         /// <summary>
-        ///     Size of the stack-allocated character buffer used when formatting an address as
-        ///     an endpoint string. The longest possible output (an expanded Ipv6 address with a
+        ///     Size of the stack-allocated character buffer used when formatting a socket address as
+        ///     a socket address string. The longest possible output (an expanded Ipv6 ip with a
         ///     scope id and port) is well under this size.
         /// </summary>
         public const int FORMAT_MAX_CHARS = 256;
@@ -24,7 +24,7 @@ namespace NativeSockets
         /// <summary>
         ///     Tries to parse an <see cref="IPEndPoint" /> string into a <see cref="NativeSocketAddress" />.
         /// </summary>
-        /// <param name="destination">When this method returns, contains the parsed address.</param>
+        /// <param name="destination">When this method returns, contains the parsed socket address.</param>
         /// <param name="ipEndPointText">The <see cref="IPEndPoint" /> string to parse.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         /// <remarks>
@@ -34,16 +34,16 @@ namespace NativeSockets
         ///         </item>
         ///         <item>
         ///             <para>
-        ///                 Supports Ipv6 scope identifier parsing:
+        ///                 Supports Ipv6 scope id parsing:
         ///                 the text after '%' may be either a numeric value or an interface name.
         ///             </para>
         ///         </item>
         ///         <item>
         ///             <para>
-        ///                 Unlike the standard library, which silently ignores a malformed scope identifier and returns success
-        ///                 with the scope identifier set to 0,
+        ///                 Unlike the standard library, which silently ignores a malformed scope id and returns success
+        ///                 with the scope id set to 0,
         ///                 this implementation returns <see cref="SocketError.InvalidArgument" />
-        ///                 when the scope identifier text is neither a valid number nor a resolvable interface name.
+        ///                 when the scope id text is neither a valid number nor a resolvable interface name.
         ///             </para>
         ///         </item>
         ///     </list>
@@ -75,7 +75,7 @@ namespace NativeSockets
         ///     Tries to parse an <see cref="IPAddress" /> string into a <see cref="NativeSocketAddress" />,
         ///     using the specified port.
         /// </summary>
-        /// <param name="destination">When this method returns, contains the parsed address.</param>
+        /// <param name="destination">When this method returns, contains the parsed socket address.</param>
         /// <param name="ipAddressText">The <see cref="IPAddress" /> string to parse.</param>
         /// <param name="port">The port number.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
@@ -86,16 +86,16 @@ namespace NativeSockets
         ///         </item>
         ///         <item>
         ///             <para>
-        ///                 Supports Ipv6 scope identifier parsing:
+        ///                 Supports Ipv6 scope id parsing:
         ///                 the text after '%' may be either a numeric value or an interface name.
         ///             </para>
         ///         </item>
         ///         <item>
         ///             <para>
-        ///                 Unlike the standard library, which silently ignores a malformed scope identifier and returns success
-        ///                 with the scope identifier set to 0,
+        ///                 Unlike the standard library, which silently ignores a malformed scope id and returns success
+        ///                 with the scope id set to 0,
         ///                 this implementation returns <see cref="SocketError.InvalidArgument" />
-        ///                 when the scope identifier text is neither a valid number nor a resolvable interface name.
+        ///                 when the scope id text is neither a valid number nor a resolvable interface name.
         ///             </para>
         ///         </item>
         ///     </list>
@@ -129,14 +129,14 @@ namespace NativeSockets
         /// </summary>
         /// <param name="source">The socket address to serialize.</param>
         /// <param name="destination">
-        ///     The byte span to receive the serialized address. On return, it is sliced
+        ///     The byte span to receive the serialized socket address. On return, it is sliced
         ///     to the number of bytes actually written.
         /// </param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         /// <remarks>
-        ///     An Ipv4 address is serialized as 8 bytes (family, port, address),
-        ///     an Ipv6 address as 28 bytes (the full socket address structure).
-        ///     The family field is stored as the managed <see cref="AddressFamily" /> value
+        ///     An Ipv4 socket address is serialized as 8 bytes (family, port, ip),
+        ///     an Ipv6 socket address as 28 bytes (the full socket address).
+        ///     The family field is stored as the managed <see cref="AddressFamily" /> value,
         ///     so the serialized bytes are independent of the native platform constants.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -162,9 +162,9 @@ namespace NativeSockets
         ///     Deserializes a <see cref="NativeSocketAddress" /> from the specified byte span.
         /// </summary>
         /// <param name="source">
-        ///     An Ipv4 address requires at least 8 bytes; an Ipv6 address requires 28 bytes.
+        ///     An Ipv4 socket address requires at least 8 bytes; an Ipv6 socket address requires 28 bytes.
         /// </param>
-        /// <param name="destination">When this method returns, contains the deserialized address.</param>
+        /// <param name="destination">When this method returns, contains the deserialized socket address.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Deserialize(ref NativeSocketAddress destination, ReadOnlySpan<byte> source)
@@ -196,7 +196,8 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Formats the <see cref="NativeSocketAddress" /> into the specified character buffer.
+        ///     Formats the <see cref="NativeSocketAddress" /> into the specified character buffer,
+        ///     as a debug-friendly representation of the raw socket address bytes.
         /// </summary>
         /// <param name="destination">
         ///     A caller-provided character buffer that receives the formatted output.
@@ -290,7 +291,7 @@ namespace NativeSockets
         ///     Populates a <see cref="NativeSocketAddress" /> from the specified <see cref="IPEndPoint" />.
         /// </summary>
         /// <param name="destination">The destination <see cref="NativeSocketAddress" /> to fill.</param>
-        /// <param name="ipEndPoint">The <see cref="IPEndPoint" /> containing the ip address and port.</param>
+        /// <param name="ipEndPoint">The <see cref="IPEndPoint" /> containing the ip and port.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         /// <exception cref="NullReferenceException">Thrown if <paramref name="ipEndPoint" /> is null.</exception>
         public static SocketError SetFromIpEndPoint(ref NativeSocketAddress destination, IPEndPoint ipEndPoint) => SetFromIpAddress(ref destination, ipEndPoint.Address, (ushort)ipEndPoint.Port);
@@ -356,10 +357,10 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Sets the specified Ipv4 address and port on a <see cref="NativeSocketAddress" />.
+        ///     Sets the specified Ipv4 ip and port on a <see cref="NativeSocketAddress" />.
         /// </summary>
         /// <param name="destination">The destination <see cref="NativeSocketAddress" /> to fill.</param>
-        /// <param name="ip">The ip address as a span of characters.</param>
+        /// <param name="ip">The ip as a span of characters.</param>
         /// <param name="port">The port number.</param>
         /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -374,12 +375,12 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Sets the specified Ipv6 address, port, and scope id on a <see cref="NativeSocketAddress" />.
+        ///     Sets the specified Ipv6 ip, port, and scope id on a <see cref="NativeSocketAddress" />.
         /// </summary>
         /// <param name="destination">The destination <see cref="NativeSocketAddress" /> to fill.</param>
-        /// <param name="ip">The ip address as a span of characters.</param>
+        /// <param name="ip">The ip as a span of characters.</param>
         /// <param name="port">The port number.</param>
-        /// <param name="scopeId">The scope id for the Ipv6 address.</param>
+        /// <param name="scopeId">The scope id for the Ipv6 ip.</param>
         /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError SetFromIpIpv6(ref NativeSocketAddress destination, ReadOnlySpan<char> ip, ushort port, uint scopeId)
@@ -393,11 +394,11 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Copies an Ipv4 socket address structure into a <see cref="NativeSocketAddress" />,
+        ///     Copies an Ipv4 socket address into a <see cref="NativeSocketAddress" />,
         ///     converting the port to network byte order and zeroing the padding.
         /// </summary>
         /// <param name="destination">The destination <see cref="NativeSocketAddress" /> to fill.</param>
-        /// <param name="__socketAddress_native">The source Ipv4 address structure.</param>
+        /// <param name="__socketAddress_native">The source Ipv4 socket address.</param>
         /// <param name="port">The port number in host byte order.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void SetFromIpv4(ref NativeSocketAddress destination, ref sockaddr_in4 __socketAddress_native, ushort port)
@@ -409,13 +410,13 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Copies an Ipv6 socket address structure into a <see cref="NativeSocketAddress" />,
+        ///     Copies an Ipv6 socket address into a <see cref="NativeSocketAddress" />,
         ///     converting the port to network byte order and setting the flow info and scope id.
         /// </summary>
         /// <param name="destination">The destination <see cref="NativeSocketAddress" /> to fill.</param>
-        /// <param name="__socketAddress_native">The source Ipv6 address structure.</param>
+        /// <param name="__socketAddress_native">The source Ipv6 socket address.</param>
         /// <param name="port">The port number in host byte order.</param>
-        /// <param name="scopeId">The Ipv6 scope identifier.</param>
+        /// <param name="scopeId">The Ipv6 scope id.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void SetFromIpv6(ref NativeSocketAddress destination, ref sockaddr_in6 __socketAddress_native, ushort port, uint scopeId)
         {

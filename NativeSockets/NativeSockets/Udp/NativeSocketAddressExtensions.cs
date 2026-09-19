@@ -19,14 +19,14 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socketAddress">The socket address to serialize.</param>
         /// <param name="destination">
-        ///     The byte span to receive the serialized address. On return, it is sliced
+        ///     The byte span to receive the serialized socket address. On return, it is sliced
         ///     to the number of bytes actually written.
         /// </param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         /// <remarks>
-        ///     An Ipv4 address is serialized as 8 bytes (family, port, address),
-        ///     an Ipv6 address as 28 bytes (the full socket address structure).
-        ///     The family field is stored as the managed <see cref="AddressFamily" /> value
+        ///     An Ipv4 socket address is serialized as 8 bytes (family, port, ip),
+        ///     an Ipv6 socket address as 28 bytes (the full socket address).
+        ///     The family field is stored as the managed <see cref="AddressFamily" /> value,
         ///     so the serialized bytes are independent of the native platform constants.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

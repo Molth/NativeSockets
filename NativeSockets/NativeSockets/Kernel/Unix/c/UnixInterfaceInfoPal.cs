@@ -17,7 +17,7 @@ namespace NativeSockets
         /// <summary>
         ///     Returns the interface index of the network interface whose name is given by
         ///     <paramref name="__utf8_interfaceName_native" /> (see <c>if_nametoindex(3)</c>).
-        ///     The interface index is commonly used as the Ipv6 scope identifier for link‑local addresses.
+        ///     The interface index is commonly used as the Ipv6 scope id for link‑local addresses.
         /// </summary>
         /// <param name="__utf8_interfaceName_native">Pointer to a null-terminated UTF‑8 interface name string.</param>
         /// <returns>The interface index on success; 0 on failure, with the error code available via errno.</returns>
@@ -25,7 +25,7 @@ namespace NativeSockets
         private static extern uint _if_nametoindex(byte* __utf8_interfaceName_native);
 
         /// <summary>
-        ///     Resolves a network interface name to its interface index, which is used as the Ipv6 scope identifier
+        ///     Resolves a network interface name to its interface index, which is used as the Ipv6 scope id
         ///     for link‑local and site‑local addresses.
         /// </summary>
         /// <param name="interfaceName">The name of the network interface.</param>

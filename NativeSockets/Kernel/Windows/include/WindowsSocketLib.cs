@@ -37,14 +37,14 @@ namespace NativeSockets
         ///     Binds a socket to a local address.
         /// </summary>
         /// <param name="__socketHandle_native">The native socket handle.</param>
-        /// <param name="__socketAddress_native">Pointer to the socket address structure.</param>
-        /// <param name="__socketAddressSize_native">The size of the address structure.</param>
+        /// <param name="__socketAddress_native">Pointer to the socket address.</param>
+        /// <param name="__socketAddressSize_native">The size of the socket address.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [DllImport(DLL_NAME_WS2_32, EntryPoint = "bind", CallingConvention = CALLING_CONVENTION)]
         public static extern SocketError _bind(nint __socketHandle_native, sockaddr* __socketAddress_native, int __socketAddressSize_native);
 
         /// <summary>
-        ///     Retrieves the local name (address) of a socket.
+        ///     Retrieves the local name (socket address) of a socket.
         /// </summary>
         /// <param name="__socketHandle_native">The native socket handle.</param>
         /// <param name="__socketAddress_native">Pointer to a buffer that receives the local address.</param>
@@ -108,8 +108,8 @@ namespace NativeSockets
         ///     and specifying quality of service parameters.
         /// </summary>
         /// <param name="__socketHandle_native">The native socket handle.</param>
-        /// <param name="__socketAddress_native">Pointer to the socket address structure of the remote endpoint.</param>
-        /// <param name="__socketAddressSize_native">The size of the address structure.</param>
+        /// <param name="__socketAddress_native">Pointer to the socket address of the remote endpoint.</param>
+        /// <param name="__socketAddressSize_native">The size of the socket address.</param>
         /// <param name="__inBuffer_native">
         ///     Pointer to a buffer containing connection data to send to the peer;
         ///     can be <see langword="null" />.
@@ -168,7 +168,7 @@ namespace NativeSockets
         /// <param name="__len_native">The length of the buffer in bytes.</param>
         /// <param name="__socketFlags_native">The socket flags for the send operation.</param>
         /// <param name="__socketAddress_native">Pointer to the destination socket address.</param>
-        /// <param name="__socketAddressSize_native">Size of the destination address structure.</param>
+        /// <param name="__socketAddressSize_native">Size of the destination socket address.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [DllImport(DLL_NAME_WS2_32, EntryPoint = "sendto", CallingConvention = CALLING_CONVENTION)]
         public static extern int _sendto(nint __socketHandle_native, byte* __pinnedBuffer_native, int __len_native, SocketFlags __socketFlags_native, byte* __socketAddress_native, int __socketAddressSize_native);
@@ -228,7 +228,7 @@ namespace NativeSockets
         ///     Sends data using Winsock scatter/gather (WSASend).
         /// </summary>
         /// <param name="__socketHandle_native">The native socket handle.</param>
-        /// <param name="__buffers_native">Pointer to an array of <see cref="WSABuffer" /> structures.</param>
+        /// <param name="__buffers_native">Pointer to an array of <see cref="WSABuffer" />.</param>
         /// <param name="__bufferCount_native">The number of buffers.</param>
         /// <param name="__bytesTransferred_native">Pointer to a variable that receives the number of bytes sent.</param>
         /// <param name="__socketFlags_native">The socket flags.</param>
@@ -242,7 +242,7 @@ namespace NativeSockets
         ///     Sends data to a specified destination using Winsock scatter/gather (WSASendTo).
         /// </summary>
         /// <param name="__socketHandle_native">The native socket handle.</param>
-        /// <param name="__buffers_native">Pointer to an array of <see cref="WSABuffer" /> structures.</param>
+        /// <param name="__buffers_native">Pointer to an array of <see cref="WSABuffer" />.</param>
         /// <param name="__bufferCount_native">The number of buffers.</param>
         /// <param name="__bytesTransferred_native">Pointer to a variable that receives the number of bytes sent.</param>
         /// <param name="__socketFlags_native">The socket flags.</param>
@@ -258,7 +258,7 @@ namespace NativeSockets
         ///     Receives data using Winsock scatter/gather (WSARecv).
         /// </summary>
         /// <param name="__socketHandle_native">The native socket handle.</param>
-        /// <param name="__buffer_native">Pointer to an array of <see cref="WSABuffer" /> structures.</param>
+        /// <param name="__buffer_native">Pointer to an array of <see cref="WSABuffer" />.</param>
         /// <param name="__bufferCount_native">The number of buffers.</param>
         /// <param name="__bytesTransferred_native">Pointer to a variable that receives the number of bytes received.</param>
         /// <param name="__socketFlags_native">Pointer to the socket flags; can be <see langword="null" />.</param>
@@ -272,7 +272,7 @@ namespace NativeSockets
         ///     Receives data from a source address using Winsock scatter/gather (WSARecvFrom).
         /// </summary>
         /// <param name="__socketHandle_native">The native socket handle.</param>
-        /// <param name="__buffers_native">Pointer to an array of <see cref="WSABuffer" /> structures.</param>
+        /// <param name="__buffers_native">Pointer to an array of <see cref="WSABuffer" />.</param>
         /// <param name="__bufferCount_native">The number of buffers.</param>
         /// <param name="__bytesTransferred_native">Pointer to a variable that receives the number of bytes received.</param>
         /// <param name="__socketFlags_native">Pointer to the socket flags; can be <see langword="null" />.</param>
@@ -323,10 +323,10 @@ namespace NativeSockets
         public static bool FD_ISSET(nint socket, nint* fileDescriptorSet) => (int)fileDescriptorSet[0] != 0 && fileDescriptorSet[1] == socket;
 
         /// <summary>
-        ///     Builds a <see cref="NativeScopedArray{WSABuffer}" /> from an array of <see cref="NativeIoSlice" /> structures.
+        ///     Builds a <see cref="NativeScopedArray{WSABuffer}" /> from an array of <see cref="NativeIoSlice" />.
         /// </summary>
         /// <param name="buffer">A span that can be used for temporary storage (e.g., stackalloc).</param>
-        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
+        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
         /// <param name="bufferCount">The number of buffers.</param>
         /// <returns>A <see cref="NativeScopedArray{WSABuffer}" /> that wraps the converted buffers.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

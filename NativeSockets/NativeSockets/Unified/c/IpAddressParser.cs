@@ -9,20 +9,20 @@ using System.Numerics;
 namespace NativeSockets
 {
     /// <summary>
-    ///     Ipv4/Ipv6 address parsing and formatting.
+    ///     Ipv4/Ipv6 ip parsing and formatting.
     /// </summary>
     /// <remarks>https://github.com/dotnet/runtime/blob/main/src/libraries/System.Net.Primitives/src/System/Net/IPAddressParser.cs</remarks>
     internal static class IpAddressParser
     {
         /// <summary>
-        ///     Parses an Ipv4 address string into 4 bytes in network byte order.
+        ///     Parses an Ipv4 ip string into 4 bytes in network byte order.
         /// </summary>
         /// <param name="ipv4AddrText">
-        ///     The address text to parse.
-        ///     Must contain only the address, with no trailing whitespace or port.
+        ///     The ip text to parse.
+        ///     Must contain only the ip, with no trailing whitespace or port.
         /// </param>
         /// <param name="destination">
-        ///     When this method returns, receives the 4 address bytes in network byte order.
+        ///     When this method returns, receives the 4 ip bytes in network byte order.
         ///     Must be at least 4 bytes long.
         /// </param>
         /// <typeparam name="TChar">
@@ -71,14 +71,14 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Parses an Ipv6 address string into 16 bytes in network byte order.
+        ///     Parses an Ipv6 ip string into 16 bytes in network byte order.
         /// </summary>
         /// <param name="ipv6AddrText">
-        ///     The address text to parse.
-        ///     Must contain only the address, with no surrounding brackets, no scope id, and no port.
+        ///     The ip text to parse.
+        ///     Must contain only the ip, with no surrounding brackets, no scope id, and no port.
         /// </param>
         /// <param name="destination">
-        ///     When this method returns, receives the 16 address bytes in network byte order.
+        ///     When this method returns, receives the 16 ip bytes in network byte order.
         ///     Must be at least 16 bytes long.
         /// </param>
         /// <typeparam name="TChar">
@@ -91,7 +91,7 @@ namespace NativeSockets
         /// </returns>
         /// <remarks>
         ///     Accepts the standard colon-separated hexadecimal form with <c>::</c> compression
-        ///     of the longest zero run, and supports embedded Ipv4 addresses in the final two
+        ///     of the longest zero run, and supports embedded Ipv4 ips in the final two
         ///     16-bit groups (e.g. <c>::ffff:192.168.1.1</c>).
         ///     Does <b>not</b> accept surrounding brackets (<c>[::1]</c>), scope IDs (<c>%eth0</c>),
         ///     or trailing CIDR prefixes (<c>/64</c>).
@@ -118,16 +118,16 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Tries to format 4 bytes of a network-order Ipv4 address into the destination span.
+        ///     Tries to format 4 bytes of a network-order Ipv4 ip into the destination span.
         /// </summary>
-        /// <param name="ipv4Addr">The 4 address bytes in network byte order.</param>
+        /// <param name="ipv4Addr">The 4 ip bytes in network byte order.</param>
         /// <param name="destination">
         ///     The character span to receive the formatted dotted-quad string;
         ///     resized to the actual length on success.
         /// </param>
         /// <returns>
         ///     <see langword="true" /> on success;
-        ///     <see langword="false" /> if the address is shorter than 4 bytes or the destination is too small.
+        ///     <see langword="false" /> if the ip is shorter than 4 bytes or the destination is too small.
         /// </returns>
         public static bool TryFormatIpv4(ReadOnlySpan<byte> ipv4Addr, ref Span<char> destination)
         {
@@ -147,16 +147,16 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Tries to format 16 bytes of a network-order Ipv6 address into the destination span.
+        ///     Tries to format 16 bytes of a network-order Ipv6 ip into the destination span.
         /// </summary>
-        /// <param name="ipv6Addr">The 16 address bytes in network byte order.</param>
+        /// <param name="ipv6Addr">The 16 ip bytes in network byte order.</param>
         /// <param name="destination">
         ///     The character span to receive the formatted dotted-quad string;
         ///     resized to the actual length on success.
         /// </param>
         /// <returns>
         ///     <see langword="true" /> on success;
-        ///     <see langword="false" /> if the address is shorter than 16 bytes
+        ///     <see langword="false" /> if the ip is shorter than 16 bytes
         ///     or the destination is too small.
         /// </returns>
         /// <remarks>
@@ -182,9 +182,9 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Formats a 4-byte Ipv4 address in dotted-decimal notation (e.g. <c>"192.168.0.1"</c>).
+        ///     Formats a 4-byte Ipv4 ip in dotted-decimal notation (e.g. <c>"192.168.0.1"</c>).
         /// </summary>
-        /// <param name="ipv4Addr">The 4-byte address in network byte order.</param>
+        /// <param name="ipv4Addr">The 4-byte ip in network byte order.</param>
         /// <param name="destination">
         ///     The buffer to write into. Must be at least 15 characters long (the worst case is
         ///     <c>"255.255.255.255"</c>). Each octet is written without leading zeroes.
@@ -206,9 +206,9 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Formats a 16-byte Ipv6 address in canonical compressed form (RFC 5952).
+        ///     Formats a 16-byte Ipv6 ip in canonical compressed form (RFC 5952).
         /// </summary>
-        /// <param name="ipv6Addr">The 16-byte address in network byte order.</param>
+        /// <param name="ipv6Addr">The 16-byte ip in network byte order.</param>
         /// <param name="destination">
         ///     The buffer to write into. Must be large enough to hold the longest possible output
         ///     (up to ~64 characters, including a dotted-quad suffix for embedded Ipv4 forms).
@@ -242,14 +242,14 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Parses an Ipv4 address with non-canonical forms (octal/hex prefixes, shortened field counts).
+        ///     Parses an Ipv4 ip with non-canonical forms (octal/hex prefixes, shortened field counts).
         /// </summary>
         /// <param name="ipv4AddrText">The input span.</param>
         /// <param name="end">
-        ///     Receives the index just past the last consumed address character.
-        ///     A terminator such as '/', '\\', ':', '?', or '#' is treated as ending the address without being consumed.
+        ///     Receives the index just past the last consumed ip character.
+        ///     A terminator such as '/', '\\', ':', '?', or '#' is treated as ending the ip without being consumed.
         /// </param>
-        /// <returns>The parsed address as a 32-bit integer in host byte order, or -1 on failure.</returns>
+        /// <returns>The parsed ip as a 32-bit integer in host byte order, or -1 on failure.</returns>
         private static long ParseIpv4NonCanonical<TChar>(ReadOnlySpan<TChar> ipv4AddrText, out int end) where TChar : unmanaged
         {
             end = 0;
@@ -379,7 +379,7 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Determines whether the address should be emitted with an embedded dotted-quad Ipv4 suffix.
+        ///     Determines whether the ip should be emitted with an embedded dotted-quad Ipv4 suffix.
         /// </summary>
         /// <param name="numbers">The 8 parsed Ipv6 groups in host byte order.</param>
         /// <returns>
@@ -465,7 +465,7 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Performs a structural validation pass over an Ipv6 address string.
+        ///     Performs a structural validation pass over an Ipv6 ip string.
         /// </summary>
         /// <param name="ipv6AddrText">The input span.</param>
         /// <typeparam name="TChar">
@@ -567,7 +567,7 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Validates the dotted-quad suffix of an embedded Ipv4 address inside an Ipv6 literal.
+        ///     Validates the dotted-quad suffix of an embedded Ipv4 ip inside an Ipv6 literal.
         /// </summary>
         /// <param name="ipv6AddrText">The span starting at the first digit of the Ipv4 suffix.</param>
         /// <typeparam name="TChar">The character type.</typeparam>
@@ -618,7 +618,7 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Populates the 8 Ipv6 groups from a validated address string.
+        ///     Populates the 8 Ipv6 groups from a validated ip string.
         /// </summary>
         /// <param name="ipv6AddrText">The input span (already accepted by <see cref="IsValidIpv6{TChar}" />).</param>
         /// <param name="numbers">
@@ -713,7 +713,7 @@ namespace NativeSockets
         /// <param name="start">Index of the first digit of the suffix.</param>
         /// <param name="end">Index one past the last character of the suffix.</param>
         /// <typeparam name="TChar">The character type.</typeparam>
-        /// <returns>The Ipv4 address as a 32-bit integer in host byte order (big-endian bytes on disk).</returns>
+        /// <returns>The Ipv4 ip as a 32-bit integer in host byte order (big-endian bytes on disk).</returns>
         private static int ParseIpv4HostNumber<TChar>(ReadOnlySpan<TChar> ipv6AddrText, int start, int end) where TChar : unmanaged
         {
             Span<byte> numbers = stackalloc byte[4];

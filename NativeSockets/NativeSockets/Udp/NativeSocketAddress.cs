@@ -9,14 +9,28 @@ using System.Runtime.InteropServices;
 namespace NativeSockets
 {
     /// <summary>
-    ///     Represents a native socket address structure that can hold either an Ipv4 or Ipv6 address.
+    ///     Represents a native socket address structure that can hold either an <c>Ipv4</c> or <c>Ipv6</c> socket address.
     /// </summary>
     /// <remarks>
-    ///     The structure has a fixed size of 28 bytes, which is sufficient for
-    ///     both Ipv4 (16 bytes) and Ipv6 (28 bytes) addresses.
-    ///     It is layout‑explicit to allow direct interpretation as
-    ///     a byte buffer or as a properly aligned structure for native calls.
-    ///     This type is used for low‑level socket operations that require raw address handling without allocation.
+    ///     <list type="bullet">
+    ///         <item>
+    ///             <description>
+    ///                 The structure has a fixed size of 28 bytes, which is sufficient for
+    ///                 both <c>Ipv4</c> (16 bytes) and <c>Ipv6</c> (28 bytes) socket addresses.
+    ///             </description>
+    ///         </item>
+    ///         <item>
+    ///             <description>
+    ///                 It is layout-explicit to allow direct interpretation as
+    ///                 a byte buffer or as a properly aligned structure for native calls.
+    ///             </description>
+    ///         </item>
+    ///         <item>
+    ///             <description>
+    ///                 This type is used for low-level socket operations that require raw address handling without allocation.
+    ///             </description>
+    ///         </item>
+    ///     </list>
     /// </remarks>
     [StructLayout(LayoutKind.Explicit, Size = 28)]
     public unsafe struct NativeSocketAddress : IEquatable<NativeSocketAddress>, IComparable<NativeSocketAddress>
@@ -47,20 +61,20 @@ namespace NativeSockets
         [FieldOffset(0)] private sockaddr_in6 _sin6;
 
         /// <summary>
-        ///     Gets whether the address is an Ipv4 address.
+        ///     Gets whether the socket address is an Ipv4 socket address.
         /// </summary>
         public readonly bool IsIpv4 => _ss_family == SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V4;
 
         /// <summary>
-        ///     Gets whether the address is an Ipv6 address.
+        ///     Gets whether the socket address is an Ipv6 socket address.
         /// </summary>
         public readonly bool IsIpv6 => _ss_family == SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
 
         /// <summary>
-        ///     Gets whether the socket address is an Ipv4-mapped Ipv6 address.
+        ///     Gets whether the socket address is an Ipv4-mapped Ipv6 ip.
         /// </summary>
         /// <returns>
-        ///     Returns true if the socket address is an Ipv4-mapped Ipv6 address;
+        ///     Returns true if the socket address is an Ipv4-mapped Ipv6 ip;
         ///     otherwise, false.
         /// </returns>
         public readonly bool IsIpv4MappedToIpv6 => IsIpv6 && WinSock2.IsIpv4MappedToIpv6(ref Unsafe.AsRef(in _sin6.sin6_addr[0]));
@@ -75,7 +89,7 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Gets the ip address of the endpoint.
+        ///     Gets the ip of the socket address.
         /// </summary>
         public Span<byte> Ip => AsSpan().Slice(IsIpv6 ? 8 : IsIpv4 ? 4 : 0, IsIpv6 ? 16 : IsIpv4 ? 4 : 0);
 
@@ -90,9 +104,9 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Gets or sets the Ipv6 address scope identifier.
+        ///     Gets or sets the Ipv6 socket address scope id.
         /// </summary>
-        /// <returns>An unsigned integer that specifies the scope identifier of the address.</returns>
+        /// <returns>An unsigned integer that specifies the scope id of the socket address.</returns>
         public uint ScopeId
         {
             readonly get => _sin6.sin6_scope_id;
@@ -110,7 +124,7 @@ namespace NativeSockets
         /// </summary>
         /// <param name="index">The array index element of the desired information.</param>
         /// <returns>The value of the specified index element in the underlying buffer.</returns>
-        /// <exception cref="T:System.ArgumentOutOfRangeException">The specified index does not exist in the buffer.</exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">The specified index does not exist in the buffer.</exception>
         public byte this[int index]
         {
             readonly get
@@ -126,9 +140,9 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Maps the socket address object to an Ipv6 address.
+        ///     Maps the socket address object to an Ipv6 socket address.
         /// </summary>
-        /// <returns>Returns socket address. An Ipv6 address.</returns>
+        /// <returns>Returns socket address. An Ipv6 socket address.</returns>
         public readonly NativeSocketAddress MapToIpv6()
         {
             if (IsIpv6)
@@ -143,9 +157,9 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Maps the socket address object to an Ipv4 address.
+        ///     Maps the socket address object to an Ipv4 socket address.
         /// </summary>
-        /// <returns>Returns socket address. An Ipv4 address.</returns>
+        /// <returns>Returns socket address. An Ipv4 socket address.</returns>
         public readonly NativeSocketAddress MapToIpv4()
         {
             if (IsIpv4)
@@ -164,12 +178,12 @@ namespace NativeSockets
         public Span<byte> Buffer => AsSpan().Slice(0, Size);
 
         /// <summary>
-        ///     Returns the fully qualified type name of this instance.
+        ///     Returns a debug-friendly representation of the raw socket address bytes.
         /// </summary>
         public readonly string DebugView => GetDebugView();
 
         /// <summary>
-        ///     Returns the fully qualified type name of this instance.
+        ///     Returns a debug-friendly representation of the raw socket address bytes.
         /// </summary>
         private readonly string GetDebugView()
         {
@@ -179,14 +193,14 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Returns a span that represents the raw (28 bytes) buffer of the address.
+        ///     Returns a span that represents the raw (28 bytes) buffer of the socket address.
         /// </summary>
         /// <returns>A span of bytes.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Span<byte> AsSpan() => MemoryMarshal.CreateSpan(ref _buffer[0], 28);
 
         /// <summary>
-        ///     Returns a read-only span that represents the raw (28 bytes) buffer of the address.
+        ///     Returns a read-only span that represents the raw (28 bytes) buffer of the socket address.
         /// </summary>
         /// <returns>A read-only span of bytes.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -287,7 +301,7 @@ namespace NativeSockets
         public static bool operator !=(NativeSocketAddress left, NativeSocketAddress right) => !left.Equals(right);
 
         /// <summary>
-        ///     Returns the fully qualified type name of this instance.
+        ///     Returns the string representation of this instance in <see cref="IPEndPoint" /> format.
         /// </summary>
         public readonly override string ToString()
         {
@@ -300,9 +314,9 @@ namespace NativeSockets
         ///     Deserializes a <see cref="NativeSocketAddress" /> from the specified byte span.
         /// </summary>
         /// <param name="bytes">
-        ///     An Ipv4 address requires at least 8 bytes; an Ipv6 address requires 28 bytes.
+        ///     An Ipv4 socket address requires at least 8 bytes; an Ipv6 socket address requires 28 bytes.
         /// </param>
-        /// <param name="result">When this method returns, contains the deserialized address.</param>
+        /// <param name="result">When this method returns, contains the deserialized socket address.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Deserialize(ReadOnlySpan<byte> bytes, out NativeSocketAddress result)
@@ -315,7 +329,7 @@ namespace NativeSockets
         ///     Tries to parse an <see cref="IPEndPoint" /> string into a <see cref="NativeSocketAddress" />.
         /// </summary>
         /// <param name="ipEndPointText">The <see cref="IPEndPoint" /> string to parse.</param>
-        /// <param name="result">When this method returns, contains the parsed address.</param>
+        /// <param name="result">When this method returns, contains the parsed socket address.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         /// <remarks>
         ///     <list type="bullet">
@@ -324,16 +338,16 @@ namespace NativeSockets
         ///         </item>
         ///         <item>
         ///             <para>
-        ///                 Supports Ipv6 scope identifier parsing:
+        ///                 Supports Ipv6 scope id parsing:
         ///                 the text after '%' may be either a numeric value or an interface name.
         ///             </para>
         ///         </item>
         ///         <item>
         ///             <para>
-        ///                 Unlike the standard library, which silently ignores a malformed scope identifier and returns success
-        ///                 with the scope identifier set to 0,
+        ///                 Unlike the standard library, which silently ignores a malformed scope id and returns success
+        ///                 with the scope id set to 0,
         ///                 this implementation returns <see cref="SocketError.InvalidArgument" />
-        ///                 when the scope identifier text is neither a valid number nor a resolvable interface name.
+        ///                 when the scope id text is neither a valid number nor a resolvable interface name.
         ///             </para>
         ///         </item>
         ///     </list>
@@ -350,7 +364,7 @@ namespace NativeSockets
         /// </summary>
         /// <param name="ipAddressText">The <see cref="IPAddress" /> string to parse.</param>
         /// <param name="port">The port number.</param>
-        /// <param name="result">When this method returns, contains the parsed address.</param>
+        /// <param name="result">When this method returns, contains the parsed socket address.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         /// <remarks>
         ///     <list type="bullet">
@@ -359,16 +373,16 @@ namespace NativeSockets
         ///         </item>
         ///         <item>
         ///             <para>
-        ///                 Supports Ipv6 scope identifier parsing:
+        ///                 Supports Ipv6 scope id parsing:
         ///                 the text after '%' may be either a numeric value or an interface name.
         ///             </para>
         ///         </item>
         ///         <item>
         ///             <para>
-        ///                 Unlike the standard library, which silently ignores a malformed scope identifier and returns success
-        ///                 with the scope identifier set to 0,
+        ///                 Unlike the standard library, which silently ignores a malformed scope id and returns success
+        ///                 with the scope id set to 0,
         ///                 this implementation returns <see cref="SocketError.InvalidArgument" />
-        ///                 when the scope identifier text is neither a valid number nor a resolvable interface name.
+        ///                 when the scope id text is neither a valid number nor a resolvable interface name.
         ///             </para>
         ///         </item>
         ///     </list>
@@ -420,9 +434,9 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Populates a <see cref="NativeSocketAddress" /> from the specified Ipv4 address and port.
+        ///     Populates a <see cref="NativeSocketAddress" /> from the specified Ipv4 ip and port.
         /// </summary>
-        /// <param name="ip">The ip address as a span of characters.</param>
+        /// <param name="ip">The ip as a span of characters.</param>
         /// <param name="port">The port number.</param>
         /// <param name="result">When this method returns, contains the populated <see cref="NativeSocketAddress" />.</param>
         /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
@@ -434,11 +448,11 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Populates a <see cref="NativeSocketAddress" /> from the specified Ipv6 address, port, and scope id.
+        ///     Populates a <see cref="NativeSocketAddress" /> from the specified Ipv6 ip, port, and scope id.
         /// </summary>
-        /// <param name="ip">The ip address as a span of characters.</param>
+        /// <param name="ip">The ip as a span of characters.</param>
         /// <param name="port">The port number.</param>
-        /// <param name="scopeId">The scope id for the Ipv6 address.</param>
+        /// <param name="scopeId">The scope id for the Ipv6 ip.</param>
         /// <param name="result">When this method returns, contains the populated <see cref="NativeSocketAddress" />.</param>
         /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

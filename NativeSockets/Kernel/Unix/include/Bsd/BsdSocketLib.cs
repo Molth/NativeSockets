@@ -60,7 +60,7 @@ namespace NativeSockets
         /// <param name="__len_native">The length of the buffer in bytes.</param>
         /// <param name="socketFlags">The socket flags for the send operation.</param>
         /// <param name="__socketAddress_native">Pointer to the destination socket address.</param>
-        /// <param name="__socketAddressSize_native">Size of the destination address structure.</param>
+        /// <param name="__socketAddressSize_native">Size of the destination socket address.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         public static nint __sendto(int __socketHandle_native, byte* __pinnedBuffer_native, nuint __len_native, SocketFlags socketFlags, sockaddr* __socketAddress_native, uint __socketAddressSize_native) => _sendto(__socketHandle_native, __pinnedBuffer_native, __len_native, ToNativeSocketFlags(socketFlags), __socketAddress_native, __socketAddressSize_native);
 

@@ -54,7 +54,7 @@ extern "C"
         u16 sin4_port;
 
         /// <summary>
-        ///     The Ipv4 address.
+        ///     The Ipv4 ip.
         /// </summary>
         u32 sin4_addr;
 
@@ -156,22 +156,22 @@ extern "C"
     _NATIVESOCKETPAL_API i32 _Close(isize socket);
 
     /// <summary>
-    ///     Binds a socket to an Ipv4 address.
+    ///     Binds a socket to an Ipv4 socket address.
     /// </summary>
     _NATIVESOCKETPAL_API i32 _BindIpv4(isize socket, _sockaddr_in4 *socketAddress);
 
     /// <summary>
-    ///     Binds a socket to an Ipv6 address.
+    ///     Binds a socket to an Ipv6 socket address.
     /// </summary>
     _NATIVESOCKETPAL_API i32 _BindIpv6(isize socket, _sockaddr_in6 *socketAddress);
 
     /// <summary>
-    ///     Connects a socket to an Ipv4 endpoint.
+    ///     Connects a socket to an Ipv4 socket address.
     /// </summary>
     _NATIVESOCKETPAL_API i32 _ConnectIpv4(isize socket, _sockaddr_in4 *socketAddress);
 
     /// <summary>
-    ///     Connects a socket to an Ipv6 endpoint.
+    ///     Connects a socket to an Ipv6 socket address.
     /// </summary>
     _NATIVESOCKETPAL_API i32 _ConnectIpv6(isize socket, _sockaddr_in6 *socketAddress);
 
@@ -263,12 +263,12 @@ extern "C"
     _NATIVESOCKETPAL_API i32 _Send(isize socket, void *buffer, i32 length, i32 socketFlags);
 
     /// <summary>
-    ///     Sends data to an Ipv4 endpoint.
+    ///     Sends data to an Ipv4 socket address.
     /// </summary>
     _NATIVESOCKETPAL_API i32 _SendToIpv4(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in4 *socketAddress);
 
     /// <summary>
-    ///     Sends data to an Ipv6 endpoint.
+    ///     Sends data to an Ipv6 socket address.
     /// </summary>
     _NATIVESOCKETPAL_API i32 _SendToIpv6(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in6 *socketAddress);
 
@@ -278,12 +278,12 @@ extern "C"
     _NATIVESOCKETPAL_API i32 _Receive(isize socket, void *buffer, i32 length, i32 socketFlags);
 
     /// <summary>
-    ///     Receives data from an Ipv4 endpoint, filling the provided address structure.
+    ///     Receives data from an Ipv4 socket address, filling the provided socket address.
     /// </summary>
     _NATIVESOCKETPAL_API i32 _ReceiveFromIpv4(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in4 *socketAddress);
 
     /// <summary>
-    ///     Receives data from an Ipv6 endpoint, filling the provided address structure.
+    ///     Receives data from an Ipv6 socket address, filling the provided socket address.
     /// </summary>
     _NATIVESOCKETPAL_API i32 _ReceiveFromIpv6(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in6 *socketAddress);
 
@@ -293,12 +293,12 @@ extern "C"
     _NATIVESOCKETPAL_API i32 _SendVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags);
 
     /// <summary>
-    ///     Sends data from multiple buffers to an Ipv4 endpoint.
+    ///     Sends data from multiple buffers to an Ipv4 socket address.
     /// </summary>
     _NATIVESOCKETPAL_API i32 _SendToVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags, _sockaddr_in4 *socketAddress);
 
     /// <summary>
-    ///     Sends data from multiple buffers to an Ipv6 endpoint.
+    ///     Sends data from multiple buffers to an Ipv6 socket address.
     /// </summary>
     _NATIVESOCKETPAL_API i32 _SendToVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags, _sockaddr_in6 *socketAddress);
 
@@ -313,7 +313,7 @@ extern "C"
     _NATIVESOCKETPAL_API i32 _ReceiveVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *inOutFlags);
 
     /// <summary>
-    ///     Receives data into multiple buffers from an Ipv4 endpoint.
+    ///     Receives data into multiple buffers from an Ipv4 socket address.
     /// </summary>
     /// <remarks>
     ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
@@ -323,7 +323,7 @@ extern "C"
     _NATIVESOCKETPAL_API i32 _ReceiveFromVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *inOutFlags, _sockaddr_in4 *socketAddress);
 
     /// <summary>
-    ///     Receives data into multiple buffers from an Ipv6 endpoint.
+    ///     Receives data into multiple buffers from an Ipv6 socket address.
     /// </summary>
     /// <remarks>
     ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
@@ -333,12 +333,12 @@ extern "C"
     _NATIVESOCKETPAL_API i32 _ReceiveFromVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *inOutFlags, _sockaddr_in6 *socketAddress);
 
     /// <summary>
-    ///     Gets the local name (address) of an Ipv4 socket.
+    ///     Gets the local name (socket address) of an Ipv4 socket.
     /// </summary>
     _NATIVESOCKETPAL_API i32 _GetNameIpv4(isize socket, _sockaddr_in4 *socketAddress);
 
     /// <summary>
-    ///     Gets the local name (address) of an Ipv6 socket.
+    ///     Gets the local name (socket address) of an Ipv6 socket.
     /// </summary>
     _NATIVESOCKETPAL_API i32 _GetNameIpv6(isize socket, _sockaddr_in6 *socketAddress);
 

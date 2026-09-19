@@ -19,14 +19,14 @@ namespace NativeSockets
         ///     Binds a socket to a local address.
         /// </summary>
         /// <param name="__socketHandle_native">The native socket handle (file descriptor).</param>
-        /// <param name="__socketAddress_native">Pointer to the socket address structure.</param>
-        /// <param name="__socketAddressSize_native">The size of the address structure.</param>
+        /// <param name="__socketAddress_native">Pointer to the socket address.</param>
+        /// <param name="__socketAddressSize_native">The size of the socket address.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [DllImport(DLL_NAME_LIBC, EntryPoint = "bind", CallingConvention = CALLING_CONVENTION, SetLastError = true)]
         public static extern int _bind(int __socketHandle_native, sockaddr* __socketAddress_native, uint __socketAddressSize_native);
 
         /// <summary>
-        ///     Retrieves the local name (address) of a socket.
+        ///     Retrieves the local name (socket address) of a socket.
         /// </summary>
         /// <param name="__socketHandle_native">The native socket handle.</param>
         /// <param name="__socketAddress_native">Pointer to a buffer that receives the local address.</param>
@@ -62,8 +62,8 @@ namespace NativeSockets
         ///     Connects a socket to a remote address.
         /// </summary>
         /// <param name="__socketHandle_native">The native socket handle.</param>
-        /// <param name="__socketAddress_native">Pointer to the socket address structure.</param>
-        /// <param name="__socketAddressSize_native">The size of the address structure.</param>
+        /// <param name="__socketAddress_native">Pointer to the socket address.</param>
+        /// <param name="__socketAddressSize_native">The size of the socket address.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [DllImport(DLL_NAME_LIBC, EntryPoint = "connect", CallingConvention = CALLING_CONVENTION, SetLastError = true)]
         public static extern int _connect(int __socketHandle_native, sockaddr* __socketAddress_native, uint __socketAddressSize_native);
@@ -130,7 +130,7 @@ namespace NativeSockets
         /// <param name="__len_native">The length of the buffer in bytes.</param>
         /// <param name="__socketFlags_native">The socket flags for the send operation.</param>
         /// <param name="__socketAddress_native">Pointer to the destination socket address.</param>
-        /// <param name="__socketAddressSize_native">Size of the destination address structure.</param>
+        /// <param name="__socketAddressSize_native">Size of the destination socket address.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [DllImport(DLL_NAME_LIBC, EntryPoint = "sendto", CallingConvention = CALLING_CONVENTION, SetLastError = true)]
         public static extern nint _sendto(int __socketHandle_native, byte* __pinnedBuffer_native, nuint __len_native, int __socketFlags_native, sockaddr* __socketAddress_native, uint __socketAddressSize_native);
@@ -172,10 +172,10 @@ namespace NativeSockets
         public static extern nint _recvmsg(int __socketHandle_native, void* __msg_native, int __socketFlags_native);
 
         /// <summary>
-        ///     Builds a <see cref="NativeScopedArray{iovec}" /> from an array of <see cref="NativeIoSlice" /> structures.
+        ///     Builds a <see cref="NativeScopedArray{iovec}" /> from an array of <see cref="NativeIoSlice" />.
         /// </summary>
         /// <param name="buffer">A span that can be used for temporary storage (e.g., stackalloc).</param>
-        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
+        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
         /// <param name="bufferCount">The number of buffers.</param>
         /// <returns>A <see cref="NativeScopedArray{iovec}" /> that wraps the converted buffers.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

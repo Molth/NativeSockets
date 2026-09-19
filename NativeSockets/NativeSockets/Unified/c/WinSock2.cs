@@ -13,7 +13,7 @@ namespace NativeSockets
     internal static class WinSock2
     {
         /// <summary>
-        ///     Gets a pre‑computed Ipv4‑mapped Ipv6 address structure (::ffff:0:0).
+        ///     Gets a pre‑computed Ipv4‑mapped Ipv6 ip prefix.
         /// </summary>
         private static ReadOnlySpan<byte> AF_INET_4_MAPPED_AF_INET_6_PREFIX => new byte[12] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFF, 0xFF };
 
@@ -50,21 +50,21 @@ namespace NativeSockets
         public static uint NET_TO_HOST_32(uint network) => BitConverter.IsLittleEndian ? BinaryPrimitives.ReverseEndianness(network) : network;
 
         /// <summary>
-        ///     Gets whether the ip address is an Ipv4-mapped Ipv6 address.
+        ///     Gets whether the ip is an Ipv4-mapped Ipv6 ip.
         /// </summary>
-        /// <param name="sin6_addr">The 12‑byte span containing the Ipv4‑mapped Ipv6 address data.</param>
+        /// <param name="sin6_addr">The 12‑byte span containing the Ipv4‑mapped Ipv6 ip data.</param>
         /// <returns>
-        ///     Returns true if the ip address is an Ipv4-mapped Ipv6 address;
+        ///     Returns true if the ip is an Ipv4-mapped Ipv6 ip;
         ///     otherwise, false.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsIpv4MappedToIpv6(ref byte sin6_addr) => MemoryMarshal.CreateReadOnlySpan(ref sin6_addr, 12).SequenceEqual(AF_INET_4_MAPPED_AF_INET_6_PREFIX);
 
         /// <summary>
-        ///     Maps the Ipv4 address to an Ipv6 address.
+        ///     Maps the Ipv4 ip to an Ipv6 ip.
         /// </summary>
-        /// <param name="sin6_addr">The 16‑byte span containing the Ipv4‑mapped Ipv6 address data.</param>
-        /// <param name="sin4_addr">The 4‑byte span containing the Ipv4 address data.</param>
+        /// <param name="sin6_addr">The 16‑byte span containing the Ipv4‑mapped Ipv6 ip data.</param>
+        /// <param name="sin4_addr">The 4‑byte span containing the Ipv4 ip data.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void MapIpv4ToIpv6(ref byte sin6_addr, uint sin4_addr)
         {

@@ -14,7 +14,7 @@ namespace NativeSockets
     internal static unsafe class InterfaceInfoPal
     {
         /// <summary>
-        ///     Resolves a network interface name to its interface index, which is used as the Ipv6 scope identifier
+        ///     Resolves a network interface name to its interface index, which is used as the Ipv6 scope id
         ///     for link‑local and site‑local addresses.
         /// </summary>
         private static delegate* managed<ReadOnlySpan<char>, uint> _InterfaceNameToIndex;
@@ -37,17 +37,17 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Attempts to parse an Ipv6 scope identifier from the specified text,
+        ///     Attempts to parse an Ipv6 scope id from the specified text,
         ///     which may be either a numeric value
         ///     or a network interface name.
         /// </summary>
         /// <param name="scopeIdText">The text to parse.</param>
         /// <param name="scopeId">
-        ///     When this method returns, contains the parsed scope identifier on success;
+        ///     When this method returns, contains the parsed scope id on success;
         ///     otherwise, 0.
         /// </param>
         /// <returns>
-        ///     <see langword="true" /> if the scope identifier was successfully parsed;
+        ///     <see langword="true" /> if the scope id was successfully parsed;
         ///     otherwise, <see langword="false" />.
         /// </returns>
         public static bool TryParseScopeId(ReadOnlySpan<char> scopeIdText, out uint scopeId)
@@ -64,7 +64,7 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Resolves a network interface name to its interface index, which is used as the Ipv6 scope identifier
+        ///     Resolves a network interface name to its interface index, which is used as the Ipv6 scope id
         ///     for link‑local and site‑local addresses.
         /// </summary>
         /// <param name="interfaceName">The name of the network interface.</param>

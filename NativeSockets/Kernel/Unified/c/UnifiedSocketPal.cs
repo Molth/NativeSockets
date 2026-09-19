@@ -36,22 +36,22 @@ namespace NativeSockets
         private static readonly delegate* managed<nint, SocketError> _Close;
 
         /// <summary>
-        ///     Binds a socket to an Ipv4 address.
+        ///     Binds a socket to an Ipv4 socket address.
         /// </summary>
         private static readonly delegate* managed<nint, sockaddr_in4*, SocketError> _BindIpv4;
 
         /// <summary>
-        ///     Binds a socket to an Ipv6 address.
+        ///     Binds a socket to an Ipv6 socket address.
         /// </summary>
         private static readonly delegate* managed<nint, sockaddr_in6*, SocketError> _BindIpv6;
 
         /// <summary>
-        ///     Connects a socket to an Ipv4 endpoint.
+        ///     Connects a socket to an Ipv4 socket address.
         /// </summary>
         private static readonly delegate* managed<nint, sockaddr_in4*, SocketError> _ConnectIpv4;
 
         /// <summary>
-        ///     Connects a socket to an Ipv6 endpoint.
+        ///     Connects a socket to an Ipv6 socket address.
         /// </summary>
         private static readonly delegate* managed<nint, sockaddr_in6*, SocketError> _ConnectIpv6;
 
@@ -96,12 +96,12 @@ namespace NativeSockets
         private static readonly delegate* managed<nint, void*, int, SocketFlags, int> _Send;
 
         /// <summary>
-        ///     Sends data to an Ipv4 endpoint.
+        ///     Sends data to an Ipv4 socket address.
         /// </summary>
         private static readonly delegate* managed<nint, void*, int, SocketFlags, sockaddr_in4*, int> _SendToIpv4;
 
         /// <summary>
-        ///     Sends data to an Ipv6 endpoint.
+        ///     Sends data to an Ipv6 socket address.
         /// </summary>
         private static readonly delegate* managed<nint, void*, int, SocketFlags, sockaddr_in6*, int> _SendToIpv6;
 
@@ -111,12 +111,12 @@ namespace NativeSockets
         private static readonly delegate* managed<nint, void*, int, SocketFlags, int> _Receive;
 
         /// <summary>
-        ///     Receives data from an Ipv4 endpoint, filling the provided address structure.
+        ///     Receives data from an Ipv4 socket address, filling the provided socket address.
         /// </summary>
         private static readonly delegate* managed<nint, void*, int, SocketFlags, sockaddr_in4*, int> _ReceiveFromIpv4;
 
         /// <summary>
-        ///     Receives data from an Ipv6 endpoint, filling the provided address structure.
+        ///     Receives data from an Ipv6 socket address, filling the provided socket address.
         /// </summary>
         private static readonly delegate* managed<nint, void*, int, SocketFlags, sockaddr_in6*, int> _ReceiveFromIpv6;
 
@@ -126,12 +126,12 @@ namespace NativeSockets
         private static readonly delegate* managed<nint, NativeIoSlice*, int, SocketFlags, int> _SendVectored;
 
         /// <summary>
-        ///     Sends data from multiple buffers to an Ipv4 endpoint.
+        ///     Sends data from multiple buffers to an Ipv4 socket address.
         /// </summary>
         private static readonly delegate* managed<nint, NativeIoSlice*, int, SocketFlags, sockaddr_in4*, int> _SendToVectoredIpv4;
 
         /// <summary>
-        ///     Sends data from multiple buffers to an Ipv6 endpoint.
+        ///     Sends data from multiple buffers to an Ipv6 socket address.
         /// </summary>
         private static readonly delegate* managed<nint, NativeIoSlice*, int, SocketFlags, sockaddr_in6*, int> _SendToVectoredIpv6;
 
@@ -141,22 +141,22 @@ namespace NativeSockets
         private static readonly delegate* managed<nint, NativeIoSlice*, int, SocketFlags*, int> _ReceiveVectored;
 
         /// <summary>
-        ///     Receives data into multiple buffers from an Ipv4 endpoint.
+        ///     Receives data into multiple buffers from an Ipv4 socket address.
         /// </summary>
         private static readonly delegate* managed<nint, NativeIoSlice*, int, SocketFlags*, sockaddr_in4*, int> _ReceiveFromVectoredIpv4;
 
         /// <summary>
-        ///     Receives data into multiple buffers from an Ipv6 endpoint.
+        ///     Receives data into multiple buffers from an Ipv6 socket address.
         /// </summary>
         private static readonly delegate* managed<nint, NativeIoSlice*, int, SocketFlags*, sockaddr_in6*, int> _ReceiveFromVectoredIpv6;
 
         /// <summary>
-        ///     Gets the local name (address) of an Ipv4 socket.
+        ///     Gets the local name (socket address) of an Ipv4 socket.
         /// </summary>
         private static readonly delegate* managed<nint, sockaddr_in4*, SocketError> _GetNameIpv4;
 
         /// <summary>
-        ///     Gets the local name (address) of an Ipv6 socket.
+        ///     Gets the local name (socket address) of an Ipv6 socket.
         /// </summary>
         private static readonly delegate* managed<nint, sockaddr_in6*, SocketError> _GetNameIpv6;
 
@@ -377,37 +377,37 @@ namespace NativeSockets
         public static SocketError Close(nint socket) => _Close(socket);
 
         /// <summary>
-        ///     Binds a socket to an Ipv4 address.
+        ///     Binds a socket to an Ipv4 socket address.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
-        /// <param name="socketAddress">Pointer to the Ipv4 address structure.</param>
+        /// <param name="socketAddress">Pointer to the Ipv4 socket address.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError BindIpv4(nint socket, sockaddr_in4* socketAddress) => _BindIpv4(socket, socketAddress);
 
         /// <summary>
-        ///     Binds a socket to an Ipv6 address.
+        ///     Binds a socket to an Ipv6 socket address.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
-        /// <param name="socketAddress">Pointer to the Ipv6 address structure.</param>
+        /// <param name="socketAddress">Pointer to the Ipv6 socket address.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError BindIpv6(nint socket, sockaddr_in6* socketAddress) => _BindIpv6(socket, socketAddress);
 
         /// <summary>
-        ///     Connects a socket to an Ipv4 endpoint.
+        ///     Connects a socket to an Ipv4 socket address.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
-        /// <param name="socketAddress">Pointer to the Ipv4 address structure.</param>
+        /// <param name="socketAddress">Pointer to the Ipv4 socket address.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError ConnectIpv4(nint socket, sockaddr_in4* socketAddress) => _ConnectIpv4(socket, socketAddress);
 
         /// <summary>
-        ///     Connects a socket to an Ipv6 endpoint.
+        ///     Connects a socket to an Ipv6 socket address.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
-        /// <param name="socketAddress">Pointer to the Ipv6 address structure.</param>
+        /// <param name="socketAddress">Pointer to the Ipv6 socket address.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError ConnectIpv6(nint socket, sockaddr_in6* socketAddress) => _ConnectIpv6(socket, socketAddress);
@@ -513,25 +513,25 @@ namespace NativeSockets
         public static int Send(nint socket, void* buffer, int length, SocketFlags socketFlags) => _Send(socket, buffer, length, socketFlags);
 
         /// <summary>
-        ///     Sends data to an Ipv4 endpoint.
+        ///     Sends data to an Ipv4 socket address.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffer">Pointer to the data buffer.</param>
         /// <param name="length">Length of the buffer.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <param name="socketAddress">Pointer to the destination Ipv4 socket address structure.</param>
+        /// <param name="socketAddress">Pointer to the destination Ipv4 socket address.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int SendToIpv4(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in4* socketAddress) => _SendToIpv4(socket, buffer, length, socketFlags, socketAddress);
 
         /// <summary>
-        ///     Sends data to an Ipv6 endpoint.
+        ///     Sends data to an Ipv6 socket address.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffer">Pointer to the data buffer.</param>
         /// <param name="length">Length of the buffer.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <param name="socketAddress">Pointer to the destination Ipv6 socket address structure.</param>
+        /// <param name="socketAddress">Pointer to the destination Ipv6 socket address.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int SendToIpv6(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in6* socketAddress) => _SendToIpv6(socket, buffer, length, socketFlags, socketAddress);
@@ -548,25 +548,25 @@ namespace NativeSockets
         public static int Receive(nint socket, void* buffer, int length, SocketFlags socketFlags) => _Receive(socket, buffer, length, socketFlags);
 
         /// <summary>
-        ///     Receives data from an Ipv4 endpoint, filling the provided address structure.
+        ///     Receives data from an Ipv4 socket address, filling the provided socket address.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffer">Pointer to the receive buffer.</param>
         /// <param name="length">Length of the buffer.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <param name="socketAddress">Pointer to the sender's Ipv4 address structure.</param>
+        /// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveFromIpv4(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in4* socketAddress) => _ReceiveFromIpv4(socket, buffer, length, socketFlags, socketAddress);
 
         /// <summary>
-        ///     Receives data from an Ipv6 endpoint, filling the provided address structure.
+        ///     Receives data from an Ipv6 socket address, filling the provided socket address.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffer">Pointer to the receive buffer.</param>
         /// <param name="length">Length of the buffer.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <param name="socketAddress">Pointer to the sender's Ipv6 address structure.</param>
+        /// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveFromIpv6(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in6* socketAddress) => _ReceiveFromIpv6(socket, buffer, length, socketFlags, socketAddress);
@@ -575,7 +575,7 @@ namespace NativeSockets
         ///     Sends data from multiple buffers on a connected socket.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
-        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
+        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
         /// <param name="bufferCount">The number of buffers.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
@@ -583,10 +583,10 @@ namespace NativeSockets
         public static int SendVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags) => _SendVectored(socket, buffers, bufferCount, socketFlags);
 
         /// <summary>
-        ///     Sends data from multiple buffers to an Ipv4 endpoint.
+        ///     Sends data from multiple buffers to an Ipv4 socket address.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
-        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
+        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
         /// <param name="bufferCount">The number of buffers.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">Pointer to the destination Ipv4 socket address.</param>
@@ -595,10 +595,10 @@ namespace NativeSockets
         public static int SendToVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in4* socketAddress) => _SendToVectoredIpv4(socket, buffers, bufferCount, socketFlags, socketAddress);
 
         /// <summary>
-        ///     Sends data from multiple buffers to an Ipv6 endpoint.
+        ///     Sends data from multiple buffers to an Ipv6 socket address.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
-        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
+        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
         /// <param name="bufferCount">The number of buffers.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">Pointer to the destination Ipv6 socket address.</param>
@@ -610,7 +610,7 @@ namespace NativeSockets
         ///     Receives data into multiple buffers on a connected socket.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
-        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
+        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
         /// <param name="bufferCount">The number of buffers.</param>
         /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
@@ -623,10 +623,10 @@ namespace NativeSockets
         public static int ReceiveVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags) => _ReceiveVectored(socket, buffers, bufferCount, inOutFlags);
 
         /// <summary>
-        ///     Receives data into multiple buffers from an Ipv4 endpoint.
+        ///     Receives data into multiple buffers from an Ipv4 socket address.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
-        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
+        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
         /// <param name="bufferCount">The number of buffers.</param>
         /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
@@ -640,10 +640,10 @@ namespace NativeSockets
         public static int ReceiveFromVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in4* socketAddress) => _ReceiveFromVectoredIpv4(socket, buffers, bufferCount, inOutFlags, socketAddress);
 
         /// <summary>
-        ///     Receives data into multiple buffers from an Ipv6 endpoint.
+        ///     Receives data into multiple buffers from an Ipv6 socket address.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
-        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
+        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
         /// <param name="bufferCount">The number of buffers.</param>
         /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
@@ -657,19 +657,19 @@ namespace NativeSockets
         public static int ReceiveFromVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in6* socketAddress) => _ReceiveFromVectoredIpv6(socket, buffers, bufferCount, inOutFlags, socketAddress);
 
         /// <summary>
-        ///     Gets the local name (address) of an Ipv4 socket.
+        ///     Gets the local name (socket address) of an Ipv4 socket.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
-        /// <param name="socketAddress">Pointer to the Ipv4 address structure to receive the name.</param>
+        /// <param name="socketAddress">Pointer to the Ipv4 socket address to receive the name.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetNameIpv4(nint socket, sockaddr_in4* socketAddress) => _GetNameIpv4(socket, socketAddress);
 
         /// <summary>
-        ///     Gets the local name (address) of an Ipv6 socket.
+        ///     Gets the local name (socket address) of an Ipv6 socket.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
-        /// <param name="socketAddress">Pointer to the Ipv6 address structure to receive the name.</param>
+        /// <param name="socketAddress">Pointer to the Ipv6 socket address to receive the name.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetNameIpv6(nint socket, sockaddr_in6* socketAddress) => _GetNameIpv6(socket, socketAddress);
