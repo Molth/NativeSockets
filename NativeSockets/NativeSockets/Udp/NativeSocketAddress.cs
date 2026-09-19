@@ -71,10 +71,10 @@ namespace NativeSockets
         public readonly bool IsIpv6 => _ss_family == SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
 
         /// <summary>
-        ///     Gets whether the socket address is an Ipv4-mapped Ipv6 ip.
+        ///     Gets whether the socket address is an Ipv4-mapped Ipv6 socket address.
         /// </summary>
         /// <returns>
-        ///     Returns true if the socket address is an Ipv4-mapped Ipv6 ip;
+        ///     Returns true if the socket address is an Ipv4-mapped Ipv6 socket address;
         ///     otherwise, false.
         /// </returns>
         public readonly bool IsIpv4MappedToIpv6 => IsIpv6 && WinSock2.IsIpv4MappedToIpv6(ref Unsafe.AsRef(in _sin6.sin6_addr[0]));
