@@ -17,7 +17,7 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="microseconds">The timeout in microseconds.</param>
         /// <param name="inFlags">The select mode.</param>
-        /// <param name="outFlags">When this method returns, contains true if the socket is ready, false otherwise.</param>
+        /// <param name="outFlags">When this method returns, contains the poll result flags.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError PollFlags(this Socket socket, int microseconds, SelectModeFlags inFlags, out SelectModeFlags outFlags) => new NativeSocket(socket).PollFlags(microseconds, inFlags, out outFlags);
@@ -101,6 +101,11 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
+        /// <remarks>
+        ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
+        ///     the operation is considered failed and returns <c>-1</c>,
+        ///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveVectored(this Socket socket, Span<NativeIoSlice> buffers) => new NativeSocket(socket).ReceiveVectored(buffers);
 
@@ -111,6 +116,11 @@ namespace NativeSockets
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
         /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
+        /// <remarks>
+        ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
+        ///     the operation is considered failed and returns <c>-1</c>,
+        ///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveVectored(this Socket socket, Span<NativeIoSlice> buffers, ref SocketFlags inOutFlags) => new NativeSocket(socket).ReceiveVectored(buffers, ref inOutFlags);
 
@@ -121,6 +131,11 @@ namespace NativeSockets
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
         /// <param name="socketAddress">Pointer to the sender's socket address.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
+        /// <remarks>
+        ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
+        ///     the operation is considered failed and returns <c>-1</c>,
+        ///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveFromVectored(this Socket socket, Span<NativeIoSlice> buffers, ref NativeSocketAddress socketAddress) => new NativeSocket(socket).ReceiveFromVectored(buffers, ref socketAddress);
 
@@ -132,6 +147,11 @@ namespace NativeSockets
         /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <param name="socketAddress">Pointer to the sender's socket address.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
+        /// <remarks>
+        ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
+        ///     the operation is considered failed and returns <c>-1</c>,
+        ///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveFromVectored(this Socket socket, Span<NativeIoSlice> buffers, ref SocketFlags inOutFlags, ref NativeSocketAddress socketAddress) => new NativeSocket(socket).ReceiveFromVectored(buffers, ref inOutFlags, ref socketAddress);
     }

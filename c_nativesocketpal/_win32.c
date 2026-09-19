@@ -1,10 +1,10 @@
 #ifdef _WIN32
 
 /// <summary>
-///     Converts a time duration in microseconds to a <see cref="TimeValue" /> structure.
+///     Converts a time duration in microseconds to a <c>struct timeval</c> structure.
 /// </summary>
 /// <param name="microseconds">The duration in microseconds.</param>
-/// <param name="socketTime">The <see cref="TimeValue" /> structure to fill.</param>
+/// <param name="socketTime">Pointer to the <c>struct timeval</c> structure to fill.</param>
 static void _MicrosecondsToTimeValue(i64 microseconds, struct timeval *socketTime)
 {
     const i64 microcnv = 1000000;
@@ -16,13 +16,12 @@ static void _MicrosecondsToTimeValue(i64 microseconds, struct timeval *socketTim
 }
 
 /// <summary>
-///     Builds a <see cref="NativeScopedArray{WSABuffer}" /> from an array of <see cref="NativeIoSlice" /> structures.
+///     Converts an array of <see cref="NativeIoSlice" /> structures to WinSock <c>WSABUF</c> entries.
 /// </summary>
-/// <param name="buffer">A span that can be used for temporary storage (e.g., stackalloc).</param>
 /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
 /// <param name="bufferCount">The number of buffers.</param>
-/// <returns>A <see cref="NativeScopedArray{WSABuffer}" /> that wraps the converted buffers.</returns>
-static i32 _Build(_NativeIoSlice *buffers, i32 bufferCount, WSABUF *out_bufs)
+/// <param name="out_bufs">Pointer to the output array of <c>WSABUF</c> structures to fill.</param>
+static void _Build(_NativeIoSlice *buffers, i32 bufferCount, WSABUF *out_bufs)
 {
     i32 i;
     for (i = 0; i < bufferCount; ++i)
@@ -30,12 +29,12 @@ static i32 _Build(_NativeIoSlice *buffers, i32 bufferCount, WSABUF *out_bufs)
         out_bufs[i].buf = (u8 *)buffers[i]._buffer;
         out_bufs[i].len = (u32)buffers[i]._length;
     }
-    return bufferCount;
 }
 
 /// <summary>
 ///     Gets the address family value for Ipv4 used by the current platform.
 /// </summary>
+/// <returns>The Ipv4 address family value.</returns>
 u16 _GetAddressFamilyInterNetworkV4(void)
 {
     return _ADDRESS_FAMILY_INTER_NETWORK_V4;
@@ -44,6 +43,7 @@ u16 _GetAddressFamilyInterNetworkV4(void)
 /// <summary>
 ///     Gets the address family value for Ipv6 used by the current platform.
 /// </summary>
+/// <returns>The Ipv6 address family value.</returns>
 u16 _GetAddressFamilyInterNetworkV6(void)
 {
     return _ADDRESS_FAMILY_INTER_NETWORK_V6;
@@ -71,7 +71,7 @@ i32 _Startup(void)
 /// <summary>
 ///     Cleans up the platform-specific socket subsystem.
 /// </summary>
-/// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
+/// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
 i32 _Cleanup(void)
 {
     return WSACleanup();
@@ -80,9 +80,10 @@ i32 _Cleanup(void)
 /// <summary>
 ///     Creates a native socket handle.
 /// </summary>
-/// <param name="ipv6">true to create an Ipv6 socket; false for Ipv4.</param>
-/// <returns>The native socket handle, or -1 on error.</returns>
-isize _Create(i32 ipv6)
+/// <param name="ipv6">Non-zero for Ipv6; 0 for Ipv4.</param>
+/// <param name="socket">When this method returns, contains the native socket handle, or -1 on error.</param>
+/// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+i32 _Create(i32 ipv6, isize *out_socket)
 {
     i32 family = ipv6 ? _AF_INET_6 : _AF_INET_4;
     SOCKET s = WSASocketW(family, SOCK_DGRAM, IPPROTO_UDP, NULL, 0, 1 | 128);
@@ -92,17 +93,19 @@ isize _Create(i32 ipv6)
         BOOL bNewBehavior = FALSE;
         WSAIoctl(s, SIO_UDP_CONNRESET, &bNewBehavior, sizeof(BOOL), NULL, 0, &dwBytesReturned, NULL, NULL);
     }
-    return (isize)s;
+    *out_socket = (isize)s;
+    return (s == -1) ? _GetLastSocketError() : _SOCKET_ERROR_SUCCESS;
 }
 
 /// <summary>
 ///     Closes a native socket handle.
 /// </summary>
 /// <param name="socket">The native socket handle to close.</param>
-/// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
+/// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
 i32 _Close(isize socket)
 {
-    return closesocket((SOCKET)socket);
+    i32 result = closesocket((SOCKET)socket);
+    return (result == 0) ? _SOCKET_ERROR_SUCCESS : _GetLastSocketError();
 }
 
 /// <summary>
@@ -110,7 +113,7 @@ i32 _Close(isize socket)
 /// </summary>
 /// <param name="socket">The socket handle.</param>
 /// <param name="socketAddress">Pointer to the Ipv4 address structure.</param>
-/// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
+/// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
 i32 _BindIpv4(isize socket, _sockaddr_in4 *socketAddress)
 {
     _sockaddr_in4 local_addr;
@@ -120,7 +123,8 @@ i32 _BindIpv4(isize socket, _sockaddr_in4 *socketAddress)
         local_addr.sin4_family = _ADDRESS_FAMILY_INTER_NETWORK_V4;
         socketAddress = &local_addr;
     }
-    return bind((SOCKET)socket, (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in4));
+    i32 result = bind((SOCKET)socket, (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in4));
+    return (result == 0) ? _SOCKET_ERROR_SUCCESS : _GetLastSocketError();
 }
 
 /// <summary>
@@ -128,7 +132,7 @@ i32 _BindIpv4(isize socket, _sockaddr_in4 *socketAddress)
 /// </summary>
 /// <param name="socket">The socket handle.</param>
 /// <param name="socketAddress">Pointer to the Ipv6 address structure.</param>
-/// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
+/// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
 i32 _BindIpv6(isize socket, _sockaddr_in6 *socketAddress)
 {
     _sockaddr_in6 local_addr;
@@ -138,7 +142,8 @@ i32 _BindIpv6(isize socket, _sockaddr_in6 *socketAddress)
         local_addr.sin6_family = _ADDRESS_FAMILY_INTER_NETWORK_V6;
         socketAddress = &local_addr;
     }
-    return bind((SOCKET)socket, (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in6));
+    i32 result = bind((SOCKET)socket, (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in6));
+    return (result == 0) ? _SOCKET_ERROR_SUCCESS : _GetLastSocketError();
 }
 
 /// <summary>
@@ -146,10 +151,11 @@ i32 _BindIpv6(isize socket, _sockaddr_in6 *socketAddress)
 /// </summary>
 /// <param name="socket">The socket handle.</param>
 /// <param name="socketAddress">Pointer to the Ipv4 address structure.</param>
-/// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
+/// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
 i32 _ConnectIpv4(isize socket, _sockaddr_in4 *socketAddress)
 {
-    return WSAConnect((SOCKET)socket, (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in4), NULL, NULL, NULL, NULL);
+    i32 result = WSAConnect((SOCKET)socket, (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in4), NULL, NULL, NULL, NULL);
+    return (result == 0) ? _SOCKET_ERROR_SUCCESS : _GetLastSocketError();
 }
 
 /// <summary>
@@ -157,10 +163,11 @@ i32 _ConnectIpv4(isize socket, _sockaddr_in4 *socketAddress)
 /// </summary>
 /// <param name="socket">The socket handle.</param>
 /// <param name="socketAddress">Pointer to the Ipv6 address structure.</param>
-/// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
+/// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
 i32 _ConnectIpv6(isize socket, _sockaddr_in6 *socketAddress)
 {
-    return WSAConnect((SOCKET)socket, (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in6), NULL, NULL, NULL, NULL);
+    i32 result = WSAConnect((SOCKET)socket, (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in6), NULL, NULL, NULL, NULL);
+    return (result == 0) ? _SOCKET_ERROR_SUCCESS : _GetLastSocketError();
 }
 
 /// <summary>
@@ -237,7 +244,7 @@ i32 _GetRawOption(isize socket, i32 level, i32 name, u8 *value, i32 *length)
 ///     Sets a socket's blocking mode.
 /// </summary>
 /// <param name="socket">The socket handle.</param>
-/// <param name="blocking">true for blocking; false for non-blocking.</param>
+/// <param name="blocking">Non-zero for blocking; 0 for non-blocking.</param>
 /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
 i32 _SetBlocking(isize socket, i32 blocking)
 {
@@ -252,7 +259,7 @@ i32 _SetBlocking(isize socket, i32 blocking)
 /// <param name="socket">The socket handle.</param>
 /// <param name="microseconds">The timeout in microseconds.</param>
 /// <param name="mode">The select mode.</param>
-/// <param name="status">When this method returns, contains true if the socket is ready, false otherwise.</param>
+/// <param name="status">When this method returns, contains non-zero if the socket is ready, 0 otherwise.</param>
 /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
 i32 _Poll(isize socket, i32 microseconds, i32 mode, i32 *status)
 {
@@ -285,7 +292,7 @@ i32 _Poll(isize socket, i32 microseconds, i32 mode, i32 *status)
 /// <param name="socket">The socket handle.</param>
 /// <param name="microseconds">The timeout in microseconds.</param>
 /// <param name="inFlags">The select mode.</param>
-/// <param name="outFlags">When this method returns, contains true if the socket is ready, false otherwise.</param>
+/// <param name="outFlags">When this method returns, contains the poll result flags.</param>
 /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
 i32 _PollFlags(isize socket, i32 microseconds, i32 inFlags, i32 *outFlags)
 {
@@ -547,6 +554,11 @@ i32 _SendToVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCount, 
 /// <param name="bufferCount">The number of buffers.</param>
 /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
 /// <returns>The number of bytes received, or -1 on error.</returns>
+/// <remarks>
+///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
+///     the operation is considered failed and returns <c>-1</c>,
+///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
+/// </remarks>
 i32 _ReceiveVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *inOutFlags)
 {
     WSABUF wsabufs[16];
@@ -584,6 +596,11 @@ i32 _ReceiveVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32
 /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
 /// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
 /// <returns>The number of bytes received, or -1 on error.</returns>
+/// <remarks>
+///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
+///     the operation is considered failed and returns <c>-1</c>,
+///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
+/// </remarks>
 i32 _ReceiveFromVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *inOutFlags, _sockaddr_in4 *socketAddress)
 {
     _sockaddr_in4 storage;
@@ -618,6 +635,20 @@ i32 _ReceiveFromVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCo
     return bytesRecv;
 }
 
+/// <summary>
+///     Receives data into multiple buffers from an Ipv6 endpoint.
+/// </summary>
+/// <param name="socket">The socket handle.</param>
+/// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" /> structures.</param>
+/// <param name="bufferCount">The number of buffers.</param>
+/// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
+/// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
+/// <returns>The number of bytes received, or -1 on error.</returns>
+/// <remarks>
+///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
+///     the operation is considered failed and returns <c>-1</c>,
+///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
+/// </remarks>
 i32 _ReceiveFromVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *inOutFlags, _sockaddr_in6 *socketAddress)
 {
     _sockaddr_in6 storage;
@@ -657,7 +688,7 @@ i32 _ReceiveFromVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCo
 /// </summary>
 /// <param name="socket">The socket handle.</param>
 /// <param name="socketAddress">Pointer to the Ipv4 address structure to receive the name.</param>
-/// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
+/// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
 i32 _GetNameIpv4(isize socket, _sockaddr_in4 *socketAddress)
 {
     _sockaddr_in4 storage;
@@ -667,7 +698,7 @@ i32 _GetNameIpv4(isize socket, _sockaddr_in4 *socketAddress)
     {
         *socketAddress = storage;
     }
-    return result;
+    return (result == 0) ? _SOCKET_ERROR_SUCCESS : _GetLastSocketError();
 }
 
 /// <summary>
@@ -675,7 +706,7 @@ i32 _GetNameIpv4(isize socket, _sockaddr_in4 *socketAddress)
 /// </summary>
 /// <param name="socket">The socket handle.</param>
 /// <param name="socketAddress">Pointer to the Ipv6 address structure to receive the name.</param>
-/// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
+/// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
 i32 _GetNameIpv6(isize socket, _sockaddr_in6 *socketAddress)
 {
     _sockaddr_in6 storage;
@@ -685,7 +716,7 @@ i32 _GetNameIpv6(isize socket, _sockaddr_in6 *socketAddress)
     {
         *socketAddress = storage;
     }
-    return result;
+    return (result == 0) ? _SOCKET_ERROR_SUCCESS : _GetLastSocketError();
 }
 
 #endif

@@ -30,7 +30,7 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="socketAddress">The address to bind to.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Bind(this NativeSocket socket, NativeSocketAddress socketAddress) => socket.IsIpv4 ? SocketPal.BindIpv4(socket, (sockaddr_in4*)&socketAddress) : SocketPal.BindIpv6(socket, (sockaddr_in6*)&socketAddress);
 
@@ -39,7 +39,7 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="socketAddress">The address to connect to.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Connect(this NativeSocket socket, NativeSocketAddress socketAddress) => socket.IsIpv4 ? SocketPal.ConnectIpv4(socket, (sockaddr_in4*)&socketAddress) : SocketPal.ConnectIpv6(socket, (sockaddr_in6*)&socketAddress);
 
@@ -161,7 +161,7 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="microseconds">The timeout in microseconds.</param>
         /// <param name="inFlags">The select mode.</param>
-        /// <param name="outFlags">When this method returns, contains true if the socket is ready, false otherwise.</param>
+        /// <param name="outFlags">When this method returns, contains the poll result flags.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError PollFlags(this NativeSocket socket, int microseconds, SelectModeFlags inFlags, out SelectModeFlags outFlags) => SocketPal.PollFlags(socket, microseconds, inFlags, out outFlags);
@@ -316,6 +316,11 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">The array of <see cref="NativeIoSlice" /> structures.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
+        /// <remarks>
+        ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
+        ///     the operation is considered failed and returns <c>-1</c>,
+        ///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveVectored(this NativeSocket socket, Span<NativeIoSlice> buffers) => socket.ReceiveVectored(buffers, ref Unsafe.NullRef<SocketFlags>());
 
@@ -326,6 +331,11 @@ namespace NativeSockets
         /// <param name="buffers">The array of <see cref="NativeIoSlice" /> structures.</param>
         /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
+        /// <remarks>
+        ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
+        ///     the operation is considered failed and returns <c>-1</c>,
+        ///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveVectored(this NativeSocket socket, Span<NativeIoSlice> buffers, ref SocketFlags inOutFlags)
         {
@@ -345,6 +355,11 @@ namespace NativeSockets
         /// <param name="buffers">The array of <see cref="NativeIoSlice" /> structures.</param>
         /// <param name="socketAddress">The sender's socket address.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
+        /// <remarks>
+        ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
+        ///     the operation is considered failed and returns <c>-1</c>,
+        ///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveFromVectored(this NativeSocket socket, Span<NativeIoSlice> buffers, ref NativeSocketAddress socketAddress) => socket.ReceiveFromVectored(buffers, ref Unsafe.NullRef<SocketFlags>(), ref socketAddress);
 
@@ -356,6 +371,11 @@ namespace NativeSockets
         /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <param name="socketAddress">The sender's socket address.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
+        /// <remarks>
+        ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
+        ///     the operation is considered failed and returns <c>-1</c>,
+        ///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveFromVectored(this NativeSocket socket, Span<NativeIoSlice> buffers, ref SocketFlags inOutFlags, ref NativeSocketAddress socketAddress)
         {
@@ -382,7 +402,7 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="socketAddress">The socket address to receive the local name into.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetName(this NativeSocket socket, ref NativeSocketAddress socketAddress)
         {

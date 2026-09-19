@@ -28,38 +28,33 @@ namespace NativeSockets
         /// <param name="level">The managed socket option level (must be the original managed enum value).</param>
         /// <param name="name">The managed socket option name.</param>
         /// <returns>The native integer value for the socket option name.</returns>
-        public static int ToNativeSocketOptionName(SocketOptionLevel level, SocketOptionName name)
+        public static int ToNativeSocketOptionName(SocketOptionLevel level, SocketOptionName name) => level switch
         {
-            int result = level switch
+            SocketOptionLevel.IP => name switch
             {
-                SocketOptionLevel.IP => name switch
-                {
-                    SocketOptionName.DontFragment => 67,
-                    SocketOptionName.PacketInformation => 39,
-                    SocketOptionName.AddSourceMembership => 70,
-                    SocketOptionName.DropSourceMembership => 71,
-                    SocketOptionName.BlockSource => 72,
-                    SocketOptionName.UnblockSource => 73,
-                    _ => (int)name
-                },
-                SocketOptionLevel.IPv6 => name switch
-                {
-                    SocketOptionName.HopLimit => 4,
-                    SocketOptionName.PacketInformation => 61,
-                    _ => (int)name
-                },
-                SocketOptionLevel.Tcp => name switch
-                {
-                    SocketOptionName.DontRoute => 258,
-                    SO_TCP_KEEPALIVE_TIME => 16,
-                    SocketOptionName.BlockSource => 257,
-                    SocketOptionName.AddSourceMembership => 261,
-                    _ => (int)name
-                },
+                SocketOptionName.DontFragment => 67,
+                SocketOptionName.PacketInformation => 39,
+                SocketOptionName.AddSourceMembership => 70,
+                SocketOptionName.DropSourceMembership => 71,
+                SocketOptionName.BlockSource => 72,
+                SocketOptionName.UnblockSource => 73,
                 _ => (int)name
-            };
-
-            return result;
-        }
+            },
+            SocketOptionLevel.IPv6 => name switch
+            {
+                SocketOptionName.HopLimit => 4,
+                SocketOptionName.PacketInformation => 61,
+                _ => (int)name
+            },
+            SocketOptionLevel.Tcp => name switch
+            {
+                SocketOptionName.DontRoute => 258,
+                SO_TCP_KEEPALIVE_TIME => 16,
+                SocketOptionName.BlockSource => 257,
+                SocketOptionName.AddSourceMembership => 261,
+                _ => (int)name
+            },
+            _ => (int)name
+        };
     }
 }

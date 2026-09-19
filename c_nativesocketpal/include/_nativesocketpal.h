@@ -110,7 +110,7 @@ extern "C"
         void *_buffer;
 
         /// <summary>
-        ///     Gets the total numbers of elements the internal data structure can hold.
+        ///     The length of the buffer in bytes.
         /// </summary>
         i32 _length;
     } _NativeIoSlice;
@@ -118,11 +118,13 @@ extern "C"
     /// <summary>
     ///     Gets the address family value for Ipv4 used by the current platform.
     /// </summary>
+    /// <returns>The Ipv4 address family value.</returns>
     _NATIVESOCKETPAL_API u16 _GetAddressFamilyInterNetworkV4(void);
 
     /// <summary>
     ///     Gets the address family value for Ipv6 used by the current platform.
     /// </summary>
+    /// <returns>The Ipv6 address family value.</returns>
     _NATIVESOCKETPAL_API u16 _GetAddressFamilyInterNetworkV6(void);
 
     /// <summary>
@@ -141,9 +143,12 @@ extern "C"
     _NATIVESOCKETPAL_API i32 _Cleanup(void);
 
     /// <summary>
-    ///     Creates a native socket handle for the specified address family (Ipv4 or Ipv6).
+    ///     Creates a native socket handle.
     /// </summary>
-    _NATIVESOCKETPAL_API isize _Create(i32 ipv6);
+    /// <param name="ipv6">Non-zero for Ipv6; 0 for Ipv4.</param>
+    /// <param name="socket">When this method returns, contains the native socket handle, or -1 on error.</param>
+    /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+    _NATIVESOCKETPAL_API i32 _Create(i32 ipv6, isize *out_socket);
 
     /// <summary>
     ///     Closes a native socket handle.
@@ -173,6 +178,12 @@ extern "C"
     /// <summary>
     ///     Sets a socket option.
     /// </summary>
+    /// <param name="socket">The socket handle.</param>
+    /// <param name="level">The option level.</param>
+    /// <param name="name">The option name.</param>
+    /// <param name="value">Pointer to the option value.</param>
+    /// <param name="length">The length of the option value in bytes.</param>
+    /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
     /// <remarks>
     ///     The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
     ///     platform equivalents by the underlying socket layer. The <paramref name="value" /> bytes are
@@ -183,11 +194,16 @@ extern "C"
     /// <summary>
     ///     Gets a socket option.
     /// </summary>
+    /// <param name="socket">The socket handle.</param>
+    /// <param name="level">The option level.</param>
+    /// <param name="name">The option name.</param>
+    /// <param name="value">Pointer to a buffer to receive the option value.</param>
+    /// <param name="length">Pointer to the length of the buffer; on output, the actual size of the option.</param>
+    /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
     /// <remarks>
     ///     The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
     ///     platform equivalents by the underlying socket layer. The <paramref name="value" /> buffer is
-    ///     passed through unmodified; on success it is resized to the actual option size reported by
-    ///     the platform.
+    ///     passed through unmodified; the platform populates the buffer according to the mapped option.
     /// </remarks>
     _NATIVESOCKETPAL_API i32 _GetOption(isize socket, i32 level, i32 name, u8 *value, i32 *length);
 
@@ -216,16 +232,29 @@ extern "C"
     /// <summary>
     ///     Sets a socket's blocking mode.
     /// </summary>
+    /// <param name="socket">The socket handle.</param>
+    /// <param name="blocking">Non-zero for blocking; 0 for non-blocking.</param>
+    /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
     _NATIVESOCKETPAL_API i32 _SetBlocking(isize socket, i32 blocking);
 
     /// <summary>
     ///     Polls a socket for pending events.
     /// </summary>
+    /// <param name="socket">The socket handle.</param>
+    /// <param name="microseconds">The timeout in microseconds.</param>
+    /// <param name="mode">The select mode.</param>
+    /// <param name="status">When this method returns, contains non-zero if the socket is ready, 0 otherwise.</param>
+    /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
     _NATIVESOCKETPAL_API i32 _Poll(isize socket, i32 microseconds, i32 mode, i32 *status);
 
     /// <summary>
     ///     Polls a socket for pending events.
     /// </summary>
+    /// <param name="socket">The socket handle.</param>
+    /// <param name="microseconds">The timeout in microseconds.</param>
+    /// <param name="inFlags">The select flags.</param>
+    /// <param name="outFlags">When this method returns, contains the poll result flags.</param>
+    /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
     _NATIVESOCKETPAL_API i32 _PollFlags(isize socket, i32 microseconds, i32 inFlags, i32 *outFlags);
 
     /// <summary>
@@ -276,16 +305,31 @@ extern "C"
     /// <summary>
     ///     Receives data into multiple buffers on a connected socket.
     /// </summary>
+    /// <remarks>
+    ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
+    ///     the operation is considered failed and returns <c>-1</c>,
+    ///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
+    /// </remarks>
     _NATIVESOCKETPAL_API i32 _ReceiveVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *inOutFlags);
 
     /// <summary>
     ///     Receives data into multiple buffers from an Ipv4 endpoint.
     /// </summary>
+    /// <remarks>
+    ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
+    ///     the operation is considered failed and returns <c>-1</c>,
+    ///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
+    /// </remarks>
     _NATIVESOCKETPAL_API i32 _ReceiveFromVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *inOutFlags, _sockaddr_in4 *socketAddress);
 
     /// <summary>
     ///     Receives data into multiple buffers from an Ipv6 endpoint.
     /// </summary>
+    /// <remarks>
+    ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
+    ///     the operation is considered failed and returns <c>-1</c>,
+    ///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
+    /// </remarks>
     _NATIVESOCKETPAL_API i32 _ReceiveFromVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *inOutFlags, _sockaddr_in6 *socketAddress);
 
     /// <summary>

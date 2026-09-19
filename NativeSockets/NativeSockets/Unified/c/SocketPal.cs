@@ -47,7 +47,7 @@ namespace NativeSockets
         /// <summary>
         ///     Cleans up the platform-specific socket subsystem.
         /// </summary>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Cleanup() => UnifiedSocketPal.Cleanup();
 
@@ -55,15 +55,16 @@ namespace NativeSockets
         ///     Creates a native socket handle.
         /// </summary>
         /// <param name="ipv6">true to create an Ipv6 socket; false for Ipv4.</param>
-        /// <returns>The native socket handle, or -1 on error.</returns>
+        /// <param name="socket">When this method returns, contains the native socket handle, or -1 on error.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static nint Create(bool ipv6) => UnifiedSocketPal.Create(ipv6);
+        public static SocketError Create(bool ipv6, out nint socket) => UnifiedSocketPal.Create(ipv6, out socket);
 
         /// <summary>
         ///     Closes a native socket handle.
         /// </summary>
         /// <param name="socket">The native socket handle to close.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Close(nint socket) => UnifiedSocketPal.Close(socket);
 
@@ -72,7 +73,7 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="socketAddress">Pointer to the Ipv4 address structure.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError BindIpv4(nint socket, sockaddr_in4* socketAddress) => UnifiedSocketPal.BindIpv4(socket, socketAddress);
 
@@ -81,7 +82,7 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="socketAddress">Pointer to the Ipv6 address structure.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError BindIpv6(nint socket, sockaddr_in6* socketAddress) => UnifiedSocketPal.BindIpv6(socket, socketAddress);
 
@@ -90,7 +91,7 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="socketAddress">Pointer to the Ipv4 address structure.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError ConnectIpv4(nint socket, sockaddr_in4* socketAddress) => UnifiedSocketPal.ConnectIpv4(socket, socketAddress);
 
@@ -99,7 +100,7 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="socketAddress">Pointer to the Ipv6 address structure.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError ConnectIpv6(nint socket, sockaddr_in6* socketAddress) => UnifiedSocketPal.ConnectIpv6(socket, socketAddress);
 
@@ -187,7 +188,7 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="microseconds">The timeout in microseconds.</param>
         /// <param name="inFlags">The select mode.</param>
-        /// <param name="outFlags">When this method returns, contains true if the socket is ready, false otherwise.</param>
+        /// <param name="outFlags">When this method returns, contains the poll result flags.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError PollFlags(nint socket, int microseconds, SelectModeFlags inFlags, out SelectModeFlags outFlags) => UnifiedSocketPal.PollFlags(socket, microseconds, inFlags, out outFlags);
@@ -305,6 +306,11 @@ namespace NativeSockets
         /// <param name="bufferCount">The number of buffers.</param>
         /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
+        /// <remarks>
+        ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
+        ///     the operation is considered failed and returns <c>-1</c>,
+        ///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags) => UnifiedSocketPal.ReceiveVectored(socket, buffers, bufferCount, inOutFlags);
 
@@ -317,6 +323,11 @@ namespace NativeSockets
         /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
+        /// <remarks>
+        ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
+        ///     the operation is considered failed and returns <c>-1</c>,
+        ///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveFromVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in4* socketAddress) => UnifiedSocketPal.ReceiveFromVectoredIpv4(socket, buffers, bufferCount, inOutFlags, socketAddress);
 
@@ -329,6 +340,11 @@ namespace NativeSockets
         /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
+        /// <remarks>
+        ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
+        ///     the operation is considered failed and returns <c>-1</c>,
+        ///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveFromVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in6* socketAddress) => UnifiedSocketPal.ReceiveFromVectoredIpv6(socket, buffers, bufferCount, inOutFlags, socketAddress);
 
@@ -337,7 +353,7 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="socketAddress">Pointer to the Ipv4 address structure to receive the name.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetNameIpv4(nint socket, sockaddr_in4* socketAddress) => UnifiedSocketPal.GetNameIpv4(socket, socketAddress);
 
@@ -346,7 +362,7 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="socketAddress">Pointer to the Ipv6 address structure to receive the name.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetNameIpv6(nint socket, sockaddr_in6* socketAddress) => UnifiedSocketPal.GetNameIpv6(socket, socketAddress);
     }

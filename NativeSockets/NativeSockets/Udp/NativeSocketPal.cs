@@ -32,7 +32,7 @@ namespace NativeSockets
         /// <summary>
         ///     Cleans up the platform-specific socket subsystem.
         /// </summary>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise <see cref="SocketError.SocketError" />.</returns>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Cleanup() => SocketPal.Cleanup();
     }
