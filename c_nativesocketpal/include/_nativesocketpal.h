@@ -133,12 +133,12 @@ extern "C"
     _NATIVESOCKETPAL_API i32 _GetLastSocketError(void);
 
     /// <summary>
-    ///     Starts up the platform-specific socket subsystem (e.g., WSAStartup on Windows).
+    ///     Starts up the platform-specific socket subsystem.
     /// </summary>
     _NATIVESOCKETPAL_API i32 _Startup(void);
 
     /// <summary>
-    ///     Cleans up the platform-specific socket subsystem (e.g., WSACleanup on Windows).
+    ///     Cleans up the platform-specific socket subsystem.
     /// </summary>
     _NATIVESOCKETPAL_API i32 _Cleanup(void);
 
@@ -146,7 +146,7 @@ extern "C"
     ///     Creates a native socket handle.
     /// </summary>
     /// <param name="ipv6">Non-zero for Ipv6; 0 for Ipv4.</param>
-    /// <param name="socket">When this method returns, contains the native socket handle, or -1 on error.</param>
+    /// <param name="out_socket">When this method returns, contains the native socket handle, or -1 on error.</param>
     /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
     _NATIVESOCKETPAL_API i32 _Create(i32 ipv6, isize *out_socket);
 
