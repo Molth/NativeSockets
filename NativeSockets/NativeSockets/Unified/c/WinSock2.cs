@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 namespace NativeSockets
 {
     /// <summary>
-    ///     Provides helper methods and structures for Windows Sockets (Winsock) operations.
+    ///     Provides helper methods.
     /// </summary>
     internal static class WinSock2
     {
@@ -52,24 +52,32 @@ namespace NativeSockets
         /// <summary>
         ///     Gets whether the ip is an Ipv4-mapped Ipv6 ip.
         /// </summary>
-        /// <param name="sin6_addr">The 12‑byte span containing the Ipv4‑mapped Ipv6 ip data.</param>
+        /// <param name="ipv6Addr">The 12‑byte span containing the Ipv4‑mapped Ipv6 ip.</param>
         /// <returns>
         ///     Returns true if the ip is an Ipv4-mapped Ipv6 ip;
         ///     otherwise, false.
         /// </returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsIpv4MappedToIpv6(ref byte sin6_addr) => MemoryMarshal.CreateReadOnlySpan(ref sin6_addr, 12).SequenceEqual(AF_INET_4_MAPPED_AF_INET_6_PREFIX);
+        public static bool IsIpv4MappedToIpv6(ref byte ipv6Addr) => MemoryMarshal.CreateReadOnlySpan(ref ipv6Addr, 12).SequenceEqual(AF_INET_4_MAPPED_AF_INET_6_PREFIX);
 
         /// <summary>
-        ///     Maps the Ipv4 ip to an Ipv6 ip.
+        ///     Maps the Ipv4 ip to an Ipv4‑mapped Ipv6 ip.
         /// </summary>
-        /// <param name="sin6_addr">The 16‑byte span containing the Ipv4‑mapped Ipv6 ip data.</param>
-        /// <param name="sin4_addr">The 4‑byte span containing the Ipv4 ip data.</param>
+        /// <param name="ipv6Addr">The 16‑byte span containing the Ipv4‑mapped Ipv6 ip.</param>
+        /// <param name="ipv4Addr">The 4‑byte span containing the Ipv4 ip.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void MapIpv4ToIpv6(ref byte sin6_addr, uint sin4_addr)
+        public static void MapIpv4ToIpv6(Span<byte> ipv6Addr, ReadOnlySpan<byte> ipv4Addr)
         {
-            SpanHelpers.Copy(ref sin6_addr, ref MemoryMarshal.GetReference(AF_INET_4_MAPPED_AF_INET_6_PREFIX), 12);
-            Unsafe.WriteUnaligned(ref Unsafe.Add(ref sin6_addr, 12), sin4_addr);
+            AF_INET_4_MAPPED_AF_INET_6_PREFIX.CopyTo(ipv6Addr);
+            ipv4Addr.CopyTo(ipv6Addr.Slice(12));
         }
+
+        /// <summary>
+        ///     Maps the Ipv4‑mapped Ipv6 ip to an Ipv4 ip.
+        /// </summary>
+        /// <param name="ipv4Addr">The 4‑byte span containing the Ipv4 ip.</param>
+        /// <param name="ipv6Addr">The 16‑byte span containing the Ipv4‑mapped Ipv6 ip.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void MapIpv4MappedIpv6ToIpv4(Span<byte> ipv4Addr, ReadOnlySpan<byte> ipv6Addr) => ipv6Addr.Slice(12).CopyTo(ipv4Addr);
     }
 }

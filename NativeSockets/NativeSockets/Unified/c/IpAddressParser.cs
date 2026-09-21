@@ -90,11 +90,34 @@ namespace NativeSockets
         ///     otherwise <see langword="false" />.
         /// </returns>
         /// <remarks>
-        ///     Accepts the standard colon-separated hexadecimal form with <c>::</c> compression
-        ///     of the longest zero run, and supports embedded Ipv4 ips in the final two
-        ///     16-bit groups (e.g. <c>::ffff:192.168.1.1</c>).
-        ///     Does <b>not</b> accept surrounding brackets (<c>[::1]</c>), scope IDs (<c>%eth0</c>),
-        ///     or trailing CIDR prefixes (<c>/64</c>).
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 The ip text must not contain brackets.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Accepts the standard colon-separated hexadecimal form with <c>::</c> compression
+        ///                 of the longest zero run.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Supports embedded Ipv4 ips in the final two 16-bit groups (e.g. <c>::ffff:192.168.1.1</c>).
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Does not accept scope ids (<c>%eth0</c>) or trailing CIDR prefixes (<c>/64</c>).
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <para>
+        ///                 Does not accept Ipv4 ips.
+        ///             </para>
+        ///         </item>
+        ///     </list>
         /// </remarks>
         public static bool TryParseIpv6<TChar>(ReadOnlySpan<TChar> ipv6AddrText, Span<byte> destination) where TChar : unmanaged
 #if NET7_0_OR_GREATER
@@ -478,7 +501,7 @@ namespace NativeSockets
         /// </returns>
         /// <remarks>
         ///     Validates group count, single <c>::</c> compression, embedded Ipv4 forms, and rejects
-        ///     brackets, scope IDs, and CIDR prefixes.
+        ///     brackets, scope ids, and CIDR prefixes.
         /// </remarks>
         private static bool IsValidIpv6<TChar>(ReadOnlySpan<TChar> ipv6AddrText) where TChar : unmanaged
         {
@@ -781,6 +804,12 @@ namespace NativeSockets
         ///     any other type yields <see cref="int.MaxValue" />.
         /// </typeparam>
         /// <returns>The unicode code point of the character.</returns>
+        /// <remarks>
+        ///     This method intentionally avoids <c>(T)(object)value</c>-style boxing/unboxing
+        ///     casts. JIT behavior for box-to-unbox sequences can be inconsistent across
+        ///     platforms and may not be optimized away. <c>Unsafe.As</c> is used instead to
+        ///     reinterpret the value without boxing.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static int CharValue<TChar>(TChar value) where TChar : unmanaged
         {

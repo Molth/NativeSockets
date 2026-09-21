@@ -3,8 +3,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 
-#pragma warning disable CS9080 // Use of variable in this context may expose referenced variables outside of their declaration scope.
-
 // ReSharper disable ALL
 
 namespace NativeSockets
@@ -15,6 +13,115 @@ namespace NativeSockets
     public static unsafe class NativeSocketAddressExtensions
     {
         /// <summary>
+        ///     Maps this socket address to an Ipv6 socket address.
+        /// </summary>
+        /// <param name="socketAddress">The socket address to map.</param>
+        /// <param name="scopeId">The Ipv6 scope id.</param>
+        /// <param name="result">When this method returns, contains the mapped socket address.</param>
+        /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
+        /// <remarks>
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <para>
+        ///                 If the family is already Ipv6, the socket address is returned as-is.
+        ///             </para>
+        ///         </item>
+        ///         <item>
+        ///             <para>
+        ///                 If the family is Ipv4, the socket address is converted to an Ipv4-mapped Ipv6
+        ///                 (<c>::ffff:a.b.c.d</c>), and <paramref name="scopeId" /> is set.
+        ///             </para>
+        ///         </item>
+        ///         <item>
+        ///             <para>
+        ///                 If the family is neither Ipv4 nor Ipv6, returns
+        ///                 <see cref="SocketError.AddressFamilyNotSupported" />.
+        ///             </para>
+        ///         </item>
+        ///     </list>
+        /// </remarks>
+        public static SocketError MapToIpv6(this NativeSocketAddress socketAddress, uint scopeId, out NativeSocketAddress result)
+        {
+            if (socketAddress.IsIpv6)
+            {
+                result = socketAddress;
+                return SocketError.Success;
+            }
+
+            if (!socketAddress.IsIpv4)
+            {
+                Unsafe.SkipInit(out result);
+                return SocketError.AddressFamilyNotSupported;
+            }
+
+            result = new NativeSocketAddress();
+            result.Family = AddressFamily.InterNetworkV6;
+            result.Port = socketAddress.Port;
+
+            WinSock2.MapIpv4ToIpv6(result.Ip, socketAddress.Ip);
+            result.ScopeId = scopeId;
+
+            return SocketError.Success;
+        }
+
+        /// <summary>
+        ///     Maps this socket address to an Ipv4 socket address.
+        /// </summary>
+        /// <param name="socketAddress">The socket address to map.</param>
+        /// <param name="result">When this method returns, contains the mapped socket address.</param>
+        /// <returns><see cref="SocketError.Success" /> if successful; otherwise an error code.</returns>
+        /// <remarks>
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <para>
+        ///                 If the family is already Ipv4, the socket address is returned as-is.
+        ///             </para>
+        ///         </item>
+        ///         <item>
+        ///             <para>
+        ///                 If the family is Ipv6 and the socket address is Ipv4-mapped,
+        ///                 the embedded Ipv4 is extracted. <br />
+        ///                 The Ipv6-specific fields (scope id, flow info) are discarded.
+        ///             </para>
+        ///         </item>
+        ///         <item>
+        ///             <para>
+        ///                 If the family is Ipv6 but the socket address is not Ipv4-mapped, returns
+        ///                 <see cref="SocketError.InvalidArgument" />.
+        ///             </para>
+        ///         </item>
+        ///         <item>
+        ///             <para>
+        ///                 If the family is neither Ipv4 nor Ipv6, returns
+        ///                 <see cref="SocketError.AddressFamilyNotSupported" />.
+        ///             </para>
+        ///         </item>
+        ///     </list>
+        /// </remarks>
+        public static SocketError MapToIpv4(this NativeSocketAddress socketAddress, out NativeSocketAddress result)
+        {
+            if (socketAddress.IsIpv4)
+            {
+                result = socketAddress;
+                return SocketError.Success;
+            }
+
+            if (!socketAddress.IsIpv4MappedToIpv6)
+            {
+                Unsafe.SkipInit(out result);
+                return socketAddress.IsIpv6 ? SocketError.InvalidArgument : SocketError.AddressFamilyNotSupported;
+            }
+
+            result = new NativeSocketAddress();
+            result.Family = AddressFamily.InterNetwork;
+            result.Port = socketAddress.Port;
+
+            WinSock2.MapIpv4MappedIpv6ToIpv4(result.Ip, socketAddress.Ip);
+
+            return SocketError.Success;
+        }
+
+        /// <summary>
         ///     Serializes a <see cref="NativeSocketAddress" /> into the specified byte span.
         /// </summary>
         /// <param name="socketAddress">The socket address to serialize.</param>
@@ -24,10 +131,18 @@ namespace NativeSockets
         /// </param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         /// <remarks>
-        ///     An Ipv4 socket address is serialized as 8 bytes (family, port, ip),
-        ///     an Ipv6 socket address as 28 bytes (the full socket address).
-        ///     The family field is stored as the managed <see cref="AddressFamily" /> value,
-        ///     so the serialized bytes are independent of the native platform constants.
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 An Ipv4 socket address is serialized as <c>8</c> bytes.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 An Ipv6 socket address is serialized as <c>28</c> bytes.
+        ///             </description>
+        ///         </item>
+        ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Serialize(in this NativeSocketAddress socketAddress, ref Span<byte> destination) => NativeSocketAddressPal.Serialize(ref destination, socketAddress);

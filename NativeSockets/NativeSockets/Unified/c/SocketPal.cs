@@ -31,6 +31,44 @@ namespace NativeSockets
         public static bool IsSupported { get; }
 
         /// <summary>
+        ///     Converts an <see cref="AddressFamily" /> to a native address family value.
+        /// </summary>
+        /// <param name="value">The <see cref="AddressFamily" /> to convert.</param>
+        /// <returns>The native address family value.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ushort ToNativeAddressFamily(AddressFamily value)
+        {
+            switch (value)
+            {
+                case AddressFamily.InterNetwork:
+                    return ADDRESS_FAMILY_INTER_NETWORK_V4;
+
+                case AddressFamily.InterNetworkV6:
+                    return ADDRESS_FAMILY_INTER_NETWORK_V6;
+
+                default:
+                    return (ushort)value;
+            }
+        }
+
+        /// <summary>
+        ///     Converts a native address family value to an <see cref="AddressFamily" />.
+        /// </summary>
+        /// <param name="value">The native address family value.</param>
+        /// <returns>The corresponding <see cref="AddressFamily" />.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static AddressFamily FromNativeAddressFamily(ushort value)
+        {
+            if (value == ADDRESS_FAMILY_INTER_NETWORK_V4)
+                return AddressFamily.InterNetwork;
+
+            if (value == ADDRESS_FAMILY_INTER_NETWORK_V6)
+                return AddressFamily.InterNetworkV6;
+
+            return (AddressFamily)value;
+        }
+
+        /// <summary>
         ///     Retrieves the last socket error code from the underlying platform.
         /// </summary>
         /// <returns>The last <see cref="SocketError" />.</returns>
