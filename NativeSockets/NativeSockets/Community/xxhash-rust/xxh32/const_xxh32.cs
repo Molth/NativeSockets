@@ -9,9 +9,22 @@ namespace xxhash_rust
 {
     internal static partial class XxHash32
     {
+        /// <summary>
+        ///     Reads a 32-bit little-endian value from the input span at the given cursor.
+        /// </summary>
+        /// <param name="input">The input span.</param>
+        /// <param name="cursor">The byte offset within the span.</param>
+        /// <returns>The 32-bit value read from the span.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static uint read_u32(ReadOnlySpan<byte> input, int cursor) => BinaryPrimitivesHelpers.ReadUInt32LittleEndian(input.Slice(cursor));
 
+        /// <summary>
+        ///     Processes the remaining tail bytes after the main chunk loop and applies the avalanche.
+        /// </summary>
+        /// <param name="input">The running hash value.</param>
+        /// <param name="data">The full input span.</param>
+        /// <param name="cursor">The byte offset where the tail begins.</param>
+        /// <returns>The finalized hash value.</returns>
         private static uint finalize(uint input, ReadOnlySpan<byte> data, int cursor)
         {
             int len = data.Length - cursor;
@@ -37,7 +50,12 @@ namespace xxhash_rust
             return avalanche(input);
         }
 
-        /// Const variant of xxh32 hashing.
+        /// <summary>
+        ///     Computes the XXH32 hash of the given input.
+        /// </summary>
+        /// <param name="input">The data to hash.</param>
+        /// <param name="seed">The seed value.</param>
+        /// <returns>The 32-bit hash value.</returns>
         public static uint xxh32(ReadOnlySpan<byte> input, uint seed)
         {
             uint result = (uint)input.Length;

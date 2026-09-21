@@ -36,20 +36,12 @@ namespace NativeSockets
         /// <param name="value">The <see cref="AddressFamily" /> to convert.</param>
         /// <returns>The native address family value.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ushort ToNativeAddressFamily(AddressFamily value)
+        public static ushort ToNativeAddressFamily(AddressFamily value) => value switch
         {
-            switch (value)
-            {
-                case AddressFamily.InterNetwork:
-                    return ADDRESS_FAMILY_INTER_NETWORK_V4;
-
-                case AddressFamily.InterNetworkV6:
-                    return ADDRESS_FAMILY_INTER_NETWORK_V6;
-
-                default:
-                    return (ushort)value;
-            }
-        }
+            AddressFamily.InterNetwork => ADDRESS_FAMILY_INTER_NETWORK_V4,
+            AddressFamily.InterNetworkV6 => ADDRESS_FAMILY_INTER_NETWORK_V6,
+            _ => (ushort)value
+        };
 
         /// <summary>
         ///     Converts a native address family value to an <see cref="AddressFamily" />.

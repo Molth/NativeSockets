@@ -319,7 +319,7 @@ namespace NativeSockets
         /// <remarks>
         ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
         ///     the operation is considered failed and returns <c>-1</c>,
-        ///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
+        ///     even if <see cref="NativeSocketPal.GetLastSocketError" /> returns <see cref="SocketError.Success" />.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveVectored(this NativeSocket socket, Span<NativeIoSlice> buffers) => socket.ReceiveVectored(buffers, ref Unsafe.NullRef<SocketFlags>());
@@ -334,7 +334,7 @@ namespace NativeSockets
         /// <remarks>
         ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
         ///     the operation is considered failed and returns <c>-1</c>,
-        ///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
+        ///     even if <see cref="NativeSocketPal.GetLastSocketError" /> returns <see cref="SocketError.Success" />.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveVectored(this NativeSocket socket, Span<NativeIoSlice> buffers, ref SocketFlags inOutFlags)
@@ -358,7 +358,7 @@ namespace NativeSockets
         /// <remarks>
         ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
         ///     the operation is considered failed and returns <c>-1</c>,
-        ///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
+        ///     even if <see cref="NativeSocketPal.GetLastSocketError" /> returns <see cref="SocketError.Success" />.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveFromVectored(this NativeSocket socket, Span<NativeIoSlice> buffers, ref NativeSocketAddress socketAddress) => socket.ReceiveFromVectored(buffers, ref Unsafe.NullRef<SocketFlags>(), ref socketAddress);
@@ -374,7 +374,7 @@ namespace NativeSockets
         /// <remarks>
         ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
         ///     the operation is considered failed and returns <c>-1</c>,
-        ///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
+        ///     even if <see cref="NativeSocketPal.GetLastSocketError" /> returns <see cref="SocketError.Success" />.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveFromVectored(this NativeSocket socket, Span<NativeIoSlice> buffers, ref SocketFlags inOutFlags, ref NativeSocketAddress socketAddress)
@@ -398,7 +398,7 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Gets the local name (socket address) of an Ipv4 socket.
+        ///     Gets the local name (socket address) of a socket.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="socketAddress">The socket address to receive the local name into.</param>

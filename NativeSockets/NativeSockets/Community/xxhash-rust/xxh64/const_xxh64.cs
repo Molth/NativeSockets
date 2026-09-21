@@ -9,12 +9,31 @@ namespace xxhash_rust
 {
     internal static partial class XxHash64
     {
+        /// <summary>
+        ///     Reads a 32-bit little-endian value from the input span at the given cursor.
+        /// </summary>
+        /// <param name="input">The input span.</param>
+        /// <param name="cursor">The byte offset within the span.</param>
+        /// <returns>The 32-bit value read from the span.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static uint read_u32(ReadOnlySpan<byte> input, int cursor) => BinaryPrimitivesHelpers.ReadUInt32LittleEndian(input.Slice(cursor));
 
+        /// <summary>
+        ///     Reads a 64-bit little-endian value from the input span at the given cursor.
+        /// </summary>
+        /// <param name="input">The input span.</param>
+        /// <param name="cursor">The byte offset within the span.</param>
+        /// <returns>The 64-bit value read from the span.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static ulong read_u64(ReadOnlySpan<byte> input, int cursor) => BinaryPrimitivesHelpers.ReadUInt64LittleEndian(input.Slice(cursor));
 
+        /// <summary>
+        ///     Processes the remaining tail bytes after the main chunk loop and applies the avalanche.
+        /// </summary>
+        /// <param name="input">The running hash value.</param>
+        /// <param name="data">The full input span.</param>
+        /// <param name="cursor">The byte offset where the tail begins.</param>
+        /// <returns>The finalized hash value.</returns>
         private static ulong finalize(ulong input, ReadOnlySpan<byte> data, int cursor)
         {
             int len = data.Length - cursor;
@@ -46,7 +65,12 @@ namespace xxhash_rust
             return avalanche(input);
         }
 
-        /// Returns hash for the provided input.
+        /// <summary>
+        ///     Computes the XXH64 hash of the given input.
+        /// </summary>
+        /// <param name="input">The data to hash.</param>
+        /// <param name="seed">The seed value.</param>
+        /// <returns>The 64-bit hash value.</returns>
         public static ulong xxh64(ReadOnlySpan<byte> input, ulong seed)
         {
             ulong input_len = (ulong)input.Length;

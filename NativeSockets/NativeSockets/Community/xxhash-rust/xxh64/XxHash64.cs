@@ -8,7 +8,6 @@ namespace NativeSockets
     /// <summary>
     ///     Provides an implementation of the XxHash64 hash algorithm for generating a 64-bit hash.
     /// </summary>
-    /// <remarks>https://github.com/DoumanAsh/xxhash-rust</remarks>
     internal static class XxHash64
     {
         /// <summary>

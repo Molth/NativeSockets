@@ -8,7 +8,6 @@ namespace NativeSockets
     /// <summary>
     ///     Provides an implementation of the XxHash32 hash algorithm for generating a 32-bit hash.
     /// </summary>
-    /// <remarks>https://github.com/DoumanAsh/xxhash-rust</remarks>
     internal static class XxHash32
     {
         /// <summary>
