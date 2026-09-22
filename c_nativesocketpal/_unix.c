@@ -321,15 +321,15 @@ i32 _PollFlags(isize socket, i32 microseconds, i32 inFlags, i32 *outFlags)
     {
         return _GetLastSocketError();
     }
-    if ((pfd.revents & (POLLIN | POLLHUP)) != 0)
+    if ((inFlags & _SELECT_MODE_FLAGS_READ) != 0 && (pfd.revents & (POLLIN | POLLHUP)) != 0)
     {
         *outFlags |= _SELECT_MODE_FLAGS_READ;
     }
-    if ((pfd.revents & POLLOUT) != 0)
+    if ((inFlags & _SELECT_MODE_FLAGS_WRITE) != 0 && (pfd.revents & POLLOUT) != 0)
     {
         *outFlags |= _SELECT_MODE_FLAGS_WRITE;
     }
-    if ((pfd.revents & (POLLERR | POLLPRI)) != 0)
+    if ((inFlags & _SELECT_MODE_FLAGS_ERROR) != 0 && (pfd.revents & (POLLERR | POLLPRI)) != 0)
     {
         *outFlags |= _SELECT_MODE_FLAGS_ERROR;
     }

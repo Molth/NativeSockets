@@ -351,13 +351,13 @@ namespace NativeSockets
 
             PollEvents outEvents = (PollEvents)fd.revents;
 
-            if ((outEvents & (PollEvents.POLLIN | PollEvents.POLLHUP)) != 0)
+            if ((inFlags & SelectModeFlags.SelectRead) != 0 && (outEvents & (PollEvents.POLLIN | PollEvents.POLLHUP)) != 0)
                 outFlags |= SelectModeFlags.SelectRead;
 
-            if ((outEvents & PollEvents.POLLOUT) != 0)
+            if ((inFlags & SelectModeFlags.SelectWrite) != 0 && (outEvents & PollEvents.POLLOUT) != 0)
                 outFlags |= SelectModeFlags.SelectWrite;
 
-            if ((outEvents & (PollEvents.POLLERR | PollEvents.POLLPRI)) != 0)
+            if ((inFlags & SelectModeFlags.SelectError) != 0 && (outEvents & (PollEvents.POLLERR | PollEvents.POLLPRI)) != 0)
                 outFlags |= SelectModeFlags.SelectError;
 
             return SocketError.Success;
