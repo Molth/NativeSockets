@@ -42,7 +42,6 @@ namespace NativeSockets
             int charCount = interfaceName.Length + 1;
 
             ulong __interfaceLuid_native = 0;
-            uint __interfaceIndex_native = 0;
 
             using (NativeScopedArray<char> __buffers_native = new NativeScopedArray<char>(stackalloc char[256], charCount))
             {
@@ -53,6 +52,8 @@ namespace NativeSockets
                 if (_ConvertInterfaceNameToLuidW(__buffers_native.Buffer, &__interfaceLuid_native) != 0)
                     return 0;
             }
+
+            uint __interfaceIndex_native = 0;
 
             return _ConvertInterfaceLuidToIndex(&__interfaceLuid_native, &__interfaceIndex_native) == 0 ? __interfaceIndex_native : 0;
         }

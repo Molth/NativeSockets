@@ -94,14 +94,18 @@ i32 _Close(isize socket)
 /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
 i32 _BindIpv4(isize socket, _sockaddr_in4 *socketAddress)
 {
-    _sockaddr_in4 local_addr;
-    if (socketAddress == NULL)
+    i32 result;
+    if (socketAddress != NULL)
     {
+        result = bind((i32)socket, (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in4));
+    }
+    else
+    {
+        _sockaddr_in4 local_addr;
         memset(&local_addr, 0, sizeof(_sockaddr_in4));
         local_addr.sin4_family = _ADDRESS_FAMILY_INTER_NETWORK_V4;
-        socketAddress = &local_addr;
+        result = bind((i32)socket, (const struct sockaddr *)&local_addr, sizeof(_sockaddr_in4));
     }
-    i32 result = bind((i32)socket, (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in4));
     return (result == 0) ? _SOCKET_ERROR_SUCCESS : _GetLastSocketError();
 }
 
@@ -113,14 +117,18 @@ i32 _BindIpv4(isize socket, _sockaddr_in4 *socketAddress)
 /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
 i32 _BindIpv6(isize socket, _sockaddr_in6 *socketAddress)
 {
-    _sockaddr_in6 local_addr;
-    if (socketAddress == NULL)
+    i32 result;
+    if (socketAddress != NULL)
     {
+        result = bind((i32)socket, (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in6));
+    }
+    else
+    {
+        _sockaddr_in6 local_addr;
         memset(&local_addr, 0, sizeof(_sockaddr_in6));
         local_addr.sin6_family = _ADDRESS_FAMILY_INTER_NETWORK_V6;
-        socketAddress = &local_addr;
+        result = bind((i32)socket, (const struct sockaddr *)&local_addr, sizeof(_sockaddr_in6));
     }
-    i32 result = bind((i32)socket, (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in6));
     return (result == 0) ? _SOCKET_ERROR_SUCCESS : _GetLastSocketError();
 }
 

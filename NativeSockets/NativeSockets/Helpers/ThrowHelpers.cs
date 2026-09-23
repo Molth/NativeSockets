@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 #if NET7_0_OR_GREATER
 using System.Numerics;
@@ -14,6 +15,13 @@ namespace NativeSockets
     /// </summary>
     internal static class ThrowHelpers
     {
+        /// <summary>
+        ///     Throws a <see cref="NotSupportedException" />.
+        /// </summary>
+        [DoesNotReturn]
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public static void ThrowNotSupportedException() => throw new NotSupportedException();
+
         /// <summary>
         ///     Throws an <see cref="ArgumentOutOfRangeException" /> if <paramref name="value" /> is greater than or equal
         ///     <paramref name="other" />.

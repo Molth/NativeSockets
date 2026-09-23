@@ -116,14 +116,18 @@ i32 _Close(isize socket)
 /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
 i32 _BindIpv4(isize socket, _sockaddr_in4 *socketAddress)
 {
-    _sockaddr_in4 local_addr;
-    if (socketAddress == NULL)
+    i32 result;
+    if (socketAddress != NULL)
     {
+        result = bind((SOCKET)socket, (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in4));
+    }
+    else
+    {
+        _sockaddr_in4 local_addr;
         memset(&local_addr, 0, sizeof(_sockaddr_in4));
         local_addr.sin4_family = _ADDRESS_FAMILY_INTER_NETWORK_V4;
-        socketAddress = &local_addr;
+        result = bind((SOCKET)socket, (const struct sockaddr *)&local_addr, sizeof(_sockaddr_in4));
     }
-    i32 result = bind((SOCKET)socket, (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in4));
     return (result == 0) ? _SOCKET_ERROR_SUCCESS : _GetLastSocketError();
 }
 
@@ -135,14 +139,18 @@ i32 _BindIpv4(isize socket, _sockaddr_in4 *socketAddress)
 /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
 i32 _BindIpv6(isize socket, _sockaddr_in6 *socketAddress)
 {
-    _sockaddr_in6 local_addr;
-    if (socketAddress == NULL)
+    i32 result;
+    if (socketAddress != NULL)
     {
+        result = bind((SOCKET)socket, (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in6));
+    }
+    else
+    {
+        _sockaddr_in6 local_addr;
         memset(&local_addr, 0, sizeof(_sockaddr_in6));
         local_addr.sin6_family = _ADDRESS_FAMILY_INTER_NETWORK_V6;
-        socketAddress = &local_addr;
+        result = bind((SOCKET)socket, (const struct sockaddr *)&local_addr, sizeof(_sockaddr_in6));
     }
-    i32 result = bind((SOCKET)socket, (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in6));
     return (result == 0) ? _SOCKET_ERROR_SUCCESS : _GetLastSocketError();
 }
 
@@ -297,28 +305,37 @@ i32 _Poll(isize socket, i32 microseconds, i32 mode, i32 *status)
 i32 _PollFlags(isize socket, i32 microseconds, i32 inFlags, i32 *outFlags)
 {
     isize _readFds[2];
-    _readFds[0] = 1;
-    _readFds[1] = socket;
     isize *readFds = _readFds;
     isize _writeFds[2];
-    _writeFds[0] = 1;
-    _writeFds[1] = socket;
     isize *writeFds = _writeFds;
     isize _errorFds[2];
-    _errorFds[0] = 1;
-    _errorFds[1] = socket;
     isize *errorFds = _errorFds;
     if ((inFlags & _SELECT_MODE_FLAGS_READ) == 0)
     {
         readFds = NULL;
     }
+    else
+    {
+        readFds[0] = 1;
+        readFds[1] = socket;
+    }
     if ((inFlags & _SELECT_MODE_FLAGS_WRITE) == 0)
     {
         writeFds = NULL;
     }
+    else
+    {
+        writeFds[0] = 1;
+        writeFds[1] = socket;
+    }
     if ((inFlags & _SELECT_MODE_FLAGS_ERROR) == 0)
     {
         errorFds = NULL;
+    }
+    else
+    {
+        errorFds[0] = 1;
+        errorFds[1] = socket;
     }
     i32 result;
     if (microseconds != -1)

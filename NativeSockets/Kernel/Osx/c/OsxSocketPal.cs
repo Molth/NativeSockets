@@ -113,16 +113,20 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError BindIpv4(nint socket, sockaddr_in4* socketAddress)
         {
-            Unsafe.SkipInit(out sockaddr_in4 __socketAddress_native);
-            if (socketAddress == null)
+            int errno;
+
+            if (socketAddress != null)
             {
-                __socketAddress_native = new sockaddr_in4();
+                errno = _bind((int)socket, (sockaddr*)socketAddress, (uint)sizeof(sockaddr_in4));
+            }
+            else
+            {
+                sockaddr_in4 __socketAddress_native = new sockaddr_in4();
                 __socketAddress_native.sin4_family = ADDRESS_FAMILY_INTER_NETWORK_V4;
 
-                socketAddress = &__socketAddress_native;
+                errno = _bind((int)socket, (sockaddr*)&__socketAddress_native, (uint)sizeof(sockaddr_in4));
             }
 
-            int errno = _bind((int)socket, (sockaddr*)socketAddress, (uint)sizeof(sockaddr_in4));
             return errno == 0 ? SocketError.Success : GetLastSocketError();
         }
 
@@ -135,16 +139,20 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError BindIpv6(nint socket, sockaddr_in6* socketAddress)
         {
-            Unsafe.SkipInit(out sockaddr_in6 __socketAddress_native);
-            if (socketAddress == null)
+            int errno;
+
+            if (socketAddress != null)
             {
-                __socketAddress_native = new sockaddr_in6();
+                errno = _bind((int)socket, (sockaddr*)socketAddress, (uint)sizeof(sockaddr_in6));
+            }
+            else
+            {
+                sockaddr_in6 __socketAddress_native = new sockaddr_in6();
                 __socketAddress_native.sin6_family = ADDRESS_FAMILY_INTER_NETWORK_V6;
 
-                socketAddress = &__socketAddress_native;
+                errno = _bind((int)socket, (sockaddr*)&__socketAddress_native, (uint)sizeof(sockaddr_in6));
             }
 
-            int errno = _bind((int)socket, (sockaddr*)socketAddress, (uint)sizeof(sockaddr_in6));
             return errno == 0 ? SocketError.Success : GetLastSocketError();
         }
 

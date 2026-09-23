@@ -60,7 +60,7 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Startup()
         {
-            WSAData wsaData;
+            Unsafe.SkipInit(out WSAData wsaData);
             SocketError error = _WSAStartup(514, &wsaData);
             return error;
         }
@@ -118,16 +118,20 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError BindIpv4(nint socket, sockaddr_in4* socketAddress)
         {
-            Unsafe.SkipInit(out sockaddr_in4 __socketAddress_native);
-            if (socketAddress == null)
+            SocketError error;
+
+            if (socketAddress != null)
             {
-                __socketAddress_native = new sockaddr_in4();
+                error = _bind(socket, (sockaddr*)socketAddress, sizeof(sockaddr_in4));
+            }
+            else
+            {
+                sockaddr_in4 __socketAddress_native = new sockaddr_in4();
                 __socketAddress_native.sin4_family = ADDRESS_FAMILY_INTER_NETWORK_V4;
 
-                socketAddress = &__socketAddress_native;
+                error = _bind(socket, (sockaddr*)&__socketAddress_native, sizeof(sockaddr_in4));
             }
 
-            SocketError error = _bind(socket, (sockaddr*)socketAddress, sizeof(sockaddr_in4));
             return error == 0 ? SocketError.Success : GetLastSocketError();
         }
 
@@ -140,16 +144,20 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError BindIpv6(nint socket, sockaddr_in6* socketAddress)
         {
-            Unsafe.SkipInit(out sockaddr_in6 __socketAddress_native);
-            if (socketAddress == null)
+            SocketError error;
+
+            if (socketAddress != null)
             {
-                __socketAddress_native = new sockaddr_in6();
+                error = _bind(socket, (sockaddr*)socketAddress, sizeof(sockaddr_in6));
+            }
+            else
+            {
+                sockaddr_in6 __socketAddress_native = new sockaddr_in6();
                 __socketAddress_native.sin6_family = ADDRESS_FAMILY_INTER_NETWORK_V6;
 
-                socketAddress = &__socketAddress_native;
+                error = _bind(socket, (sockaddr*)&__socketAddress_native, sizeof(sockaddr_in6));
             }
 
-            SocketError error = _bind(socket, (sockaddr*)socketAddress, sizeof(sockaddr_in6));
             return error == 0 ? SocketError.Success : GetLastSocketError();
         }
 
@@ -270,18 +278,21 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Poll(nint socket, int microseconds, SelectMode mode, out bool status)
         {
-            nint* fileDescriptorSet = stackalloc nint[2] { 1, socket };
+            nint* fds = stackalloc nint[2];
+            fds[0] = 1;
+            fds[1] = socket;
 
             int socketCount;
             if (microseconds != -1)
             {
                 TimeValue timeout = new TimeValue();
                 MicrosecondsToTimeValue(microseconds, ref timeout);
-                socketCount = _select(0, mode == SelectMode.SelectRead ? fileDescriptorSet : null, mode == SelectMode.SelectWrite ? fileDescriptorSet : null, mode == SelectMode.SelectError ? fileDescriptorSet : null, &timeout);
+
+                socketCount = _select(0, mode == SelectMode.SelectRead ? fds : null, mode == SelectMode.SelectWrite ? fds : null, mode == SelectMode.SelectError ? fds : null, &timeout);
             }
             else
             {
-                socketCount = _select(0, mode == SelectMode.SelectRead ? fileDescriptorSet : null, mode == SelectMode.SelectWrite ? fileDescriptorSet : null, mode == SelectMode.SelectError ? fileDescriptorSet : null, null);
+                socketCount = _select(0, mode == SelectMode.SelectRead ? fds : null, mode == SelectMode.SelectWrite ? fds : null, mode == SelectMode.SelectError ? fds : null, null);
             }
 
             if (socketCount == -1)
@@ -290,7 +301,7 @@ namespace NativeSockets
                 return GetLastSocketError();
             }
 
-            status = FD_ISSET(socket, fileDescriptorSet);
+            status = FD_ISSET(socket, fds);
 
             return SocketError.Success;
         }
@@ -306,24 +317,46 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError PollFlags(nint socket, int microseconds, SelectModeFlags inFlags, out SelectModeFlags outFlags)
         {
-            nint* readFds = stackalloc nint[2] { 1, socket };
-            nint* writeFds = stackalloc nint[2] { 1, socket };
-            nint* errorFds = stackalloc nint[2] { 1, socket };
+            nint* readFds = stackalloc nint[2];
+            nint* writeFds = stackalloc nint[2];
+            nint* errorFds = stackalloc nint[2];
 
             if ((inFlags & SelectModeFlags.SelectRead) == 0)
+            {
                 readFds = null;
+            }
+            else
+            {
+                readFds[0] = 1;
+                readFds[1] = socket;
+            }
 
             if ((inFlags & SelectModeFlags.SelectWrite) == 0)
+            {
                 writeFds = null;
+            }
+            else
+            {
+                writeFds[0] = 1;
+                writeFds[1] = socket;
+            }
 
             if ((inFlags & SelectModeFlags.SelectError) == 0)
+            {
                 errorFds = null;
+            }
+            else
+            {
+                errorFds[0] = 1;
+                errorFds[1] = socket;
+            }
 
             int socketCount;
             if (microseconds != -1)
             {
                 TimeValue timeout = new TimeValue();
                 MicrosecondsToTimeValue(microseconds, ref timeout);
+
                 socketCount = _select(0, readFds, writeFds, errorFds, &timeout);
             }
             else
@@ -473,7 +506,7 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int SendVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags)
         {
-            int bytesTransferred;
+            Unsafe.SkipInit(out int bytesTransferred);
             SocketError error;
 
             using (NativeScopedArray<WSABuffer> __buffers_native = Build(stackalloc WSABuffer[16], buffers, bufferCount))
@@ -498,7 +531,7 @@ namespace NativeSockets
         {
             if (socketAddress != null)
             {
-                int bytesTransferred;
+                Unsafe.SkipInit(out int bytesTransferred);
                 SocketError error;
 
                 using (NativeScopedArray<WSABuffer> __buffers_native = Build(stackalloc WSABuffer[16], buffers, bufferCount))
@@ -526,7 +559,7 @@ namespace NativeSockets
         {
             if (socketAddress != null)
             {
-                int bytesTransferred;
+                Unsafe.SkipInit(out int bytesTransferred);
                 SocketError error;
 
                 using (NativeScopedArray<WSABuffer> __buffers_native = Build(stackalloc WSABuffer[16], buffers, bufferCount))
@@ -556,7 +589,7 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags)
         {
-            int bytesTransferred;
+            Unsafe.SkipInit(out int bytesTransferred);
             SocketFlags flags = inOutFlags != null ? *inOutFlags : 0;
             SocketError error;
 
@@ -591,7 +624,7 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveFromVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in4* socketAddress)
         {
-            int bytesTransferred;
+            Unsafe.SkipInit(out int bytesTransferred);
             SocketFlags flags = inOutFlags != null ? *inOutFlags : 0;
             SocketError error;
 
@@ -632,7 +665,7 @@ namespace NativeSockets
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveFromVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in6* socketAddress)
         {
-            int bytesTransferred;
+            Unsafe.SkipInit(out int bytesTransferred);
             SocketFlags flags = inOutFlags != null ? *inOutFlags : 0;
             SocketError error;
 

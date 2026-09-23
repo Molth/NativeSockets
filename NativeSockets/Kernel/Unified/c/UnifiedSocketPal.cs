@@ -313,6 +313,40 @@ namespace NativeSockets
                 _GetNameIpv6 = &FreeBsdSocketPal.GetNameIpv6;
             }
 
+            else
+            {
+                _GetLastSocketError = &NotSupportedSocketPal.GetLastSocketError;
+                _Startup = &NotSupportedSocketPal.Startup;
+                _Cleanup = &NotSupportedSocketPal.Cleanup;
+                _Create = &NotSupportedSocketPal.Create;
+                _Close = &NotSupportedSocketPal.Close;
+                _BindIpv4 = &NotSupportedSocketPal.BindIpv4;
+                _BindIpv6 = &NotSupportedSocketPal.BindIpv6;
+                _ConnectIpv4 = &NotSupportedSocketPal.ConnectIpv4;
+                _ConnectIpv6 = &NotSupportedSocketPal.ConnectIpv6;
+                _SetOption = &NotSupportedSocketPal.SetOption;
+                _GetOption = &NotSupportedSocketPal.GetOption;
+                _SetRawOption = &NotSupportedSocketPal.SetRawOption;
+                _GetRawOption = &NotSupportedSocketPal.GetRawOption;
+                _SetBlocking = &NotSupportedSocketPal.SetBlocking;
+                _Poll = &NotSupportedSocketPal.Poll;
+                _PollFlags = &NotSupportedSocketPal.PollFlags;
+                _Send = &NotSupportedSocketPal.Send;
+                _SendToIpv4 = &NotSupportedSocketPal.SendToIpv4;
+                _SendToIpv6 = &NotSupportedSocketPal.SendToIpv6;
+                _Receive = &NotSupportedSocketPal.Receive;
+                _ReceiveFromIpv4 = &NotSupportedSocketPal.ReceiveFromIpv4;
+                _ReceiveFromIpv6 = &NotSupportedSocketPal.ReceiveFromIpv6;
+                _SendVectored = &NotSupportedSocketPal.SendVectored;
+                _SendToVectoredIpv4 = &NotSupportedSocketPal.SendToVectoredIpv4;
+                _SendToVectoredIpv6 = &NotSupportedSocketPal.SendToVectoredIpv6;
+                _ReceiveVectored = &NotSupportedSocketPal.ReceiveVectored;
+                _ReceiveFromVectoredIpv4 = &NotSupportedSocketPal.ReceiveFromVectoredIpv4;
+                _ReceiveFromVectoredIpv6 = &NotSupportedSocketPal.ReceiveFromVectoredIpv6;
+                _GetNameIpv4 = &NotSupportedSocketPal.GetNameIpv4;
+                _GetNameIpv6 = &NotSupportedSocketPal.GetNameIpv6;
+            }
+
             IsSupported = IsWindows() || IsLinux() || IsOsx() || IsFreeBsd();
 
             return;
