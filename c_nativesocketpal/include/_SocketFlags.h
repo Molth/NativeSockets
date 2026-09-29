@@ -15,21 +15,22 @@ typedef enum _SocketFlags
     _SOCKET_FLAGS_TRUNCATED = 256,
     _SOCKET_FLAGS_CONTROL_DATA_TRUNCATED = 512,
     _SOCKET_FLAGS_BROADCAST = 1024,
+    _SOCKET_FLAGS_MULTICAST = 2048,
     _SOCKET_FLAGS_PARTIAL = 32768
 } _SocketFlags;
 
-#ifndef _WIN32
-
 /// <summary>
-///     Converts a managed <see cref="SocketFlags" /> value to its native unix integer representation.
+///     Converts a managed <see cref="SocketFlags" /> value to its native integer representation.
 /// </summary>
+/// <param name="flags">The managed flags.</param>
+/// <returns>The native integer value.</returns>
 i32 _ToNativeSocketFlags(i32 flags);
 
 /// <summary>
-///     Converts a native unix socket flag integer value to a managed <see cref="SocketFlags" />.
+///     Converts a native socket flag integer value to a managed <see cref="SocketFlags" />.
 /// </summary>
+/// <param name="native_flags">The native integer value.</param>
+/// <returns>The managed <see cref="SocketFlags" /> value.</returns>
 i32 _FromNativeSocketFlags(i32 native_flags);
-
-#endif
 
 #endif

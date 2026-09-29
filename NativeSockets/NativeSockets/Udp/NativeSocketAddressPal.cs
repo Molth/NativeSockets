@@ -19,7 +19,7 @@ namespace NativeSockets
         ///     a socket address string. The longest possible output (an expanded Ipv6 ip with a
         ///     scope id and port) is well under this size.
         /// </summary>
-        public const int FORMAT_MAX_CHARS = 256;
+        public const int MAX_STACKALLOC_FORMAT_CHARS = 256;
 
         /// <summary>
         ///     Tries to parse an <see cref="IPEndPoint" /> string into a <see cref="NativeSocketAddress" />.
@@ -377,12 +377,12 @@ namespace NativeSockets
 
                     if (socketAddress.Family == AddressFamily.InterNetwork)
                     {
-                        socketAddress.CopyToWithoutFamily(destination.AsSpan(), 8);
+                        SocketAddressPal.CopyToBytesWithoutFamily(destination.AsSpan(), socketAddress, 8);
                         SpanHelpers.Set(ref Unsafe.Add(ref Unsafe.As<NativeSocketAddress, byte>(ref destination), 8), 0, 20);
                     }
                     else
                     {
-                        socketAddress.CopyToWithoutFamily(destination.AsSpan(), 28);
+                        SocketAddressPal.CopyToBytesWithoutFamily(destination.AsSpan(), socketAddress, 28);
                     }
 
                     return SocketError.Success;
@@ -408,7 +408,7 @@ namespace NativeSockets
             if (!IpAddressParser.TryParseIpv4(ip, MemoryMarshalHelpers.AsBytes(ref __socketAddress_native).Slice(4, 4)))
                 return SocketError.InvalidArgument;
 
-            SetFromIpv4(ref destination, ref __socketAddress_native, port);
+            SetFromSocketAddressIpv4(ref destination, ref __socketAddress_native, port);
             return SocketError.Success;
         }
 
@@ -447,7 +447,7 @@ namespace NativeSockets
             if (!IpAddressParser.TryParseIpv6(ip, MemoryMarshalHelpers.AsBytes(ref __socketAddress_native).Slice(8, 16)))
                 return SocketError.InvalidArgument;
 
-            SetFromIpv6(ref destination, ref __socketAddress_native, port, scopeId);
+            SetFromSocketAddressIpv6(ref destination, ref __socketAddress_native, port, scopeId);
             return SocketError.Success;
         }
 
@@ -459,7 +459,7 @@ namespace NativeSockets
         /// <param name="__socketAddress_native">The source Ipv4 socket address.</param>
         /// <param name="port">The port number in host byte order.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void SetFromIpv4(ref NativeSocketAddress destination, ref sockaddr_in4 __socketAddress_native, ushort port)
+        private static void SetFromSocketAddressIpv4(ref NativeSocketAddress destination, ref sockaddr_in4 __socketAddress_native, ushort port)
         {
             __socketAddress_native.sin4_family = SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V4;
             __socketAddress_native.sin4_port = WinSock2.HOST_TO_NET_16(port);
@@ -476,7 +476,7 @@ namespace NativeSockets
         /// <param name="port">The port number in host byte order.</param>
         /// <param name="scopeId">The Ipv6 scope id.</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void SetFromIpv6(ref NativeSocketAddress destination, ref sockaddr_in6 __socketAddress_native, ushort port, uint scopeId)
+        private static void SetFromSocketAddressIpv6(ref NativeSocketAddress destination, ref sockaddr_in6 __socketAddress_native, ushort port, uint scopeId)
         {
             __socketAddress_native.sin6_family = SocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
             __socketAddress_native.sin6_port = WinSock2.HOST_TO_NET_16(port);

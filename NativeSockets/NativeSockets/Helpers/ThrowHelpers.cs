@@ -16,11 +16,11 @@ namespace NativeSockets
     internal static class ThrowHelpers
     {
         /// <summary>
-        ///     Throws a <see cref="NotSupportedException" />.
+        ///     Throws a <see cref="PlatformNotSupportedException" />.
         /// </summary>
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void ThrowNotSupportedException() => throw new NotSupportedException();
+        public static void ThrowPlatformNotSupportedException() => throw new PlatformNotSupportedException();
 
         /// <summary>
         ///     Throws an <see cref="ArgumentOutOfRangeException" /> if <paramref name="value" /> is greater than or equal
@@ -70,6 +70,18 @@ namespace NativeSockets
         }
 
         /// <summary>
+        ///     Throws an <see cref="ArgumentNullException" /> if <paramref name="argument" /> is null.
+        /// </summary>
+        /// <param name="argument">The reference type argument to validate as non-null.</param>
+        /// <param name="paramName">The name of the parameter with which <paramref name="argument" /> corresponds.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void ThrowIfNull<T>(T? argument, ExceptionArgument paramName) where T : class
+        {
+            if (argument == null)
+                throw new ArgumentNullException(GetArgumentName(paramName), SR.ArgumentNull_MustBeNotNull);
+        }
+
+        /// <summary>
         ///     Returns the argument name string associated with the specified <see cref="ExceptionArgument" /> value.
         /// </summary>
         /// <param name="argument">The <see cref="ExceptionArgument" /> value to convert.</param>
@@ -79,6 +91,7 @@ namespace NativeSockets
             ExceptionArgument.alignment => "alignment",
             ExceptionArgument.length => "length",
             ExceptionArgument.index => "index",
+            ExceptionArgument.socket => "socket",
             _ => null
         };
     }

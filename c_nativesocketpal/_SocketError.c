@@ -104,6 +104,10 @@ i32 _FromNativeErrno(i32 e)
         return _SOCKET_ERROR_HOST_DOWN;
     case EHOSTUNREACH:
         return _SOCKET_ERROR_HOST_UNREACHABLE;
+#ifdef ENODATA
+    case ENODATA:
+        return _SOCKET_ERROR_NO_DATA;
+#endif
 #ifdef EPROCLIM
     case EPROCLIM:
         return _SOCKET_ERROR_PROCESS_LIMIT;

@@ -1,0 +1,57 @@
+using System;
+using System.Net.Sockets;
+using System.Runtime.InteropServices;
+
+// ReSharper disable ALL
+
+namespace NativeSockets
+{
+    /// <summary>
+    ///     Contains the function pointers of the selected socket extensions implementation.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    internal unsafe struct SocketExtensionsImpl
+    {
+        /// <summary>
+        ///     Polls a socket for pending events.
+        /// </summary>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        public delegate* managed<Socket, int, SelectModeFlags, out SelectModeFlags, SocketError> PollFlags;
+
+        /// <summary>
+        ///     Sends data to a socket address.
+        /// </summary>
+        /// <returns>The number of bytes sent, or -1 on error.</returns>
+        public delegate* managed<Socket, ReadOnlySpan<byte>, SocketFlags, in NativeSocketAddress, out SocketError, int> SendTo;
+
+        /// <summary>
+        ///     Receives data from a socket address, filling the provided socket address.
+        /// </summary>
+        /// <returns>The number of bytes received, or -1 on error.</returns>
+        public delegate* managed<Socket, Span<byte>, SocketFlags, ref NativeSocketAddress, out SocketError, int> ReceiveFrom;
+
+        /// <summary>
+        ///     Sends data from multiple buffers on a connected socket.
+        /// </summary>
+        /// <returns>The number of bytes sent, or -1 on error.</returns>
+        public delegate* managed<Socket, ReadOnlySpan<NativeIoSlice>, SocketFlags, out SocketError, int> SendVectored;
+
+        /// <summary>
+        ///     Sends data from multiple buffers to a socket address.
+        /// </summary>
+        /// <returns>The number of bytes sent, or -1 on error.</returns>
+        public delegate* managed<Socket, ReadOnlySpan<NativeIoSlice>, SocketFlags, in NativeSocketAddress, out SocketError, int> SendToVectored;
+
+        /// <summary>
+        ///     Receives data into multiple buffers on a connected socket.
+        /// </summary>
+        /// <returns>The number of bytes received, or -1 on error.</returns>
+        public delegate* managed<Socket, Span<NativeIoSlice>, ref SocketFlags, out SocketError, int> ReceiveVectored;
+
+        /// <summary>
+        ///     Receives data into multiple buffers from a socket address.
+        /// </summary>
+        /// <returns>The number of bytes received, or -1 on error.</returns>
+        public delegate* managed<Socket, Span<NativeIoSlice>, ref SocketFlags, ref NativeSocketAddress, out SocketError, int> ReceiveFromVectored;
+    }
+}

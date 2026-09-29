@@ -7,9 +7,9 @@ using System.Runtime.CompilerServices;
 namespace NativeSockets
 {
     /// <summary>
-    ///     Provides extension methods for <see cref="SocketAddress" />.
+    ///     Provides methods for <see cref="SocketAddress" />.
     /// </summary>
-    internal static class SocketAddressExtensions
+    internal static class SocketAddressPal
     {
         /// <summary>
         ///     Copies raw address data from a byte span into a <see cref="SocketAddress" />.
@@ -26,7 +26,7 @@ namespace NativeSockets
         ///     or when <paramref name="source" /> is shorter than <paramref name="size" />.
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void CopyFromWithoutFamily(this SocketAddress destination, ReadOnlySpan<byte> source, int size)
+        public static void CopyToSocketAddressWithoutFamily(SocketAddress destination, ReadOnlySpan<byte> source, int size)
         {
 #if NET8_0_OR_GREATER
             source.Slice(2, size - 2).CopyTo(destination.Buffer.Span.Slice(2, size - 2));
@@ -40,8 +40,8 @@ namespace NativeSockets
         ///     Copies raw address data from a <see cref="SocketAddress" /> into a byte span.
         ///     The first two bytes of the source are assumed to be the address family and are skipped.
         /// </summary>
-        /// <param name="source">The source <see cref="SocketAddress" /> containing the address data.</param>
         /// <param name="destination">The destination byte span to receive the raw address data.</param>
+        /// <param name="source">The source <see cref="SocketAddress" /> containing the address data.</param>
         /// <param name="size">
         ///     The total number of bytes to copy, including the address family prefix.
         ///     Must match the size of the socket address.
@@ -51,7 +51,7 @@ namespace NativeSockets
         ///     or when <paramref name="source" /> is shorter than <paramref name="size" />.
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void CopyToWithoutFamily(this SocketAddress source, Span<byte> destination, int size)
+        public static void CopyToBytesWithoutFamily(Span<byte> destination, SocketAddress source, int size)
         {
 #if NET8_0_OR_GREATER
             source.Buffer.Span.Slice(2, size - 2).CopyTo(destination.Slice(2, size - 2));

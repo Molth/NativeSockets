@@ -125,7 +125,7 @@ namespace NativeSockets
         /// </summary>
         /// <param name="index">The array index element of the desired information.</param>
         /// <returns>The value of the specified index element in the underlying buffer.</returns>
-        /// <exception cref="System.ArgumentOutOfRangeException">The specified index does not exist in the buffer.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">The specified index does not exist in the buffer.</exception>
         public byte this[int index]
         {
             readonly get
@@ -155,7 +155,7 @@ namespace NativeSockets
         /// </summary>
         private readonly string GetDebugView()
         {
-            Span<char> chars = stackalloc char[NativeSocketAddressPal.FORMAT_MAX_CHARS];
+            Span<char> chars = stackalloc char[NativeSocketAddressPal.MAX_STACKALLOC_FORMAT_CHARS];
             NativeSocketAddressPal.FormatDebugView(ref chars, this);
             return chars.ToString();
         }
@@ -233,7 +233,7 @@ namespace NativeSockets
         /// </summary>
         public readonly override string ToString()
         {
-            Span<char> chars = stackalloc char[NativeSocketAddressPal.FORMAT_MAX_CHARS];
+            Span<char> chars = stackalloc char[NativeSocketAddressPal.MAX_STACKALLOC_FORMAT_CHARS];
             SocketError error = NativeSocketAddressPal.FormatAsIpEndPoint(ref chars, this);
             return error == SocketError.Success ? chars.ToString() : error.ToString();
         }

@@ -1,4 +1,5 @@
-﻿using System.Net.Sockets;
+﻿using System;
+using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 
 // ReSharper disable ALL
@@ -19,6 +20,10 @@ namespace NativeSockets
         ///     Retrieves the last socket error code from the underlying platform.
         /// </summary>
         /// <returns>The last <see cref="SocketError" />.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetLastSocketError() => SocketPal.GetLastSocketError();
 
@@ -26,6 +31,10 @@ namespace NativeSockets
         ///     Starts up the platform-specific socket subsystem.
         /// </summary>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Startup() => SocketPal.Startup();
 
@@ -33,6 +42,10 @@ namespace NativeSockets
         ///     Cleans up the platform-specific socket subsystem.
         /// </summary>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Cleanup() => SocketPal.Cleanup();
     }

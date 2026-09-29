@@ -1,8 +1,5 @@
 using System;
 using System.Globalization;
-#if !NET5_0_OR_GREATER
-using System.Runtime.InteropServices;
-#endif
 
 // ReSharper disable ALL
 
@@ -22,19 +19,7 @@ namespace NativeSockets
         /// <summary>
         ///     Initializes a new instance of this class.
         /// </summary>
-        static InterfaceInfoPal()
-        {
-            _InterfaceNameToIndex = IsWindows() ? &WindowsInterfaceInfoPal.InterfaceNameToIndex : &UnixInterfaceInfoPal.InterfaceNameToIndex;
-
-            return;
-
-            static bool IsWindows() =>
-#if NET5_0_OR_GREATER
-                OperatingSystem.IsWindows();
-#else
-                RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-#endif
-        }
+        static InterfaceInfoPal() => _InterfaceNameToIndex = OsName.IsWindows() ? &WindowsInterfaceInfoPal.InterfaceNameToIndex : &UnixInterfaceInfoPal.InterfaceNameToIndex;
 
         /// <summary>
         ///     Attempts to parse an Ipv6 scope id from the specified text,

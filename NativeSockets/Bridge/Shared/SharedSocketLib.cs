@@ -50,10 +50,13 @@ namespace NativeSockets
         ///     Creates a native socket handle.
         /// </summary>
         /// <param name="ipv6">Non-zero for Ipv6; 0 for Ipv4.</param>
-        /// <param name="socket">When this method returns, contains the native socket handle, or -1 on error.</param>
+        /// <param name="socket">
+        ///     Pointer to a value that, when this method returns,
+        ///     contains the native socket handle, or -1 on error.
+        /// </param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_Create", CallingConvention = CALLING_CONVENTION)]
-        public static extern SocketError Create(int ipv6, out nint socket);
+        public static extern SocketError Create(int ipv6, nint* socket);
 
         /// <summary>
         ///     Closes a native socket handle.
@@ -109,12 +112,29 @@ namespace NativeSockets
         /// <param name="length">The length of the option value in bytes.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         /// <remarks>
-        ///     The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
-        ///     platform equivalents by the underlying socket layer. The <paramref name="value" /> bytes are
-        ///     passed through unmodified; the platform interprets the buffer according to the mapped option.
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
+        ///                 platform equivalents by the underlying socket layer.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 The <paramref name="value" /> bytes are passed through unmodified; the platform interprets the
+        ///                 buffer according to the mapped option.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Behavior is not guaranteed to be consistent across platforms; only the mapping of
+        ///                 <paramref name="level" /> and <paramref name="name" /> is guaranteed.
+        ///             </description>
+        ///         </item>
+        ///     </list>
         /// </remarks>
         [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_SetOption", CallingConvention = CALLING_CONVENTION)]
-        public static extern SocketError SetOption(nint socket, SocketOptionLevel level, SocketOptionName name, byte* value, int length);
+        public static extern SocketError SetOption(nint socket, SocketOptionLevel level, SocketOptionName name, void* value, int length);
 
         /// <summary>
         ///     Gets a socket option.
@@ -126,12 +146,29 @@ namespace NativeSockets
         /// <param name="length">Pointer to the length of the buffer; on output, the actual size of the option.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         /// <remarks>
-        ///     The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
-        ///     platform equivalents by the underlying socket layer. The <paramref name="value" /> buffer is
-        ///     passed through unmodified; the platform populates the buffer according to the mapped option.
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
+        ///                 platform equivalents by the underlying socket layer.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 The <paramref name="value" /> buffer is passed through unmodified; the platform populates the
+        ///                 buffer according to the mapped option.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Behavior is not guaranteed to be consistent across platforms; only the mapping of
+        ///                 <paramref name="level" /> and <paramref name="name" /> is guaranteed.
+        ///             </description>
+        ///         </item>
+        ///     </list>
         /// </remarks>
         [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_GetOption", CallingConvention = CALLING_CONVENTION)]
-        public static extern SocketError GetOption(nint socket, SocketOptionLevel level, SocketOptionName name, byte* value, int* length);
+        public static extern SocketError GetOption(nint socket, SocketOptionLevel level, SocketOptionName name, void* value, int* length);
 
         /// <summary>
         ///     Sets a socket option.
@@ -143,7 +180,7 @@ namespace NativeSockets
         /// <param name="length">The length of the option value in bytes.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_SetRawOption", CallingConvention = CALLING_CONVENTION)]
-        public static extern SocketError SetRawOption(nint socket, int level, int name, byte* value, int length);
+        public static extern SocketError SetRawOption(nint socket, int level, int name, void* value, int length);
 
         /// <summary>
         ///     Gets a socket option.
@@ -155,7 +192,7 @@ namespace NativeSockets
         /// <param name="length">Pointer to the length of the buffer; on output, the actual size of the option.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_GetRawOption", CallingConvention = CALLING_CONVENTION)]
-        public static extern SocketError GetRawOption(nint socket, int level, int name, byte* value, int* length);
+        public static extern SocketError GetRawOption(nint socket, int level, int name, void* value, int* length);
 
         /// <summary>
         ///     Sets a socket's blocking mode.
@@ -172,10 +209,13 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="microseconds">The timeout in microseconds.</param>
         /// <param name="mode">The select mode.</param>
-        /// <param name="status">When this method returns, contains non-zero if the socket is ready, 0 otherwise.</param>
+        /// <param name="status">
+        ///     Pointer to a value that, when this method returns,
+        ///     contains non-zero if the socket is ready, 0 otherwise.
+        /// </param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_Poll", CallingConvention = CALLING_CONVENTION)]
-        public static extern SocketError Poll(nint socket, int microseconds, SelectMode mode, out int status);
+        public static extern SocketError Poll(nint socket, int microseconds, SelectMode mode, int* status);
 
         /// <summary>
         ///     Polls a socket for pending events.
@@ -183,165 +223,10 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="microseconds">The timeout in microseconds.</param>
         /// <param name="inFlags">The select mode.</param>
-        /// <param name="outFlags">When this method returns, contains the poll result flags.</param>
+        /// <param name="outFlags">Pointer to a value that, when this method returns, contains the poll result flags.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_PollFlags", CallingConvention = CALLING_CONVENTION)]
-        public static extern SocketError PollFlags(nint socket, int microseconds, SelectModeFlags inFlags, out SelectModeFlags outFlags);
-
-        /// <summary>
-        ///     Sends data on a connected socket.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="buffer">Pointer to the data buffer.</param>
-        /// <param name="length">Length of the buffer in bytes.</param>
-        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <returns>The number of bytes sent, or -1 on error.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_Send", CallingConvention = CALLING_CONVENTION)]
-        public static extern int Send(nint socket, void* buffer, int length, SocketFlags socketFlags);
-
-        /// <summary>
-        ///     Sends data to an Ipv4 socket address.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="buffer">Pointer to the data buffer.</param>
-        /// <param name="length">Length of the buffer.</param>
-        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <param name="socketAddress">Pointer to the destination Ipv4 socket address.</param>
-        /// <returns>The number of bytes sent, or -1 on error.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_SendToIpv4", CallingConvention = CALLING_CONVENTION)]
-        public static extern int SendToIpv4(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in4* socketAddress);
-
-        /// <summary>
-        ///     Sends data to an Ipv6 socket address.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="buffer">Pointer to the data buffer.</param>
-        /// <param name="length">Length of the buffer.</param>
-        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <param name="socketAddress">Pointer to the destination Ipv6 socket address.</param>
-        /// <returns>The number of bytes sent, or -1 on error.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_SendToIpv6", CallingConvention = CALLING_CONVENTION)]
-        public static extern int SendToIpv6(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in6* socketAddress);
-
-        /// <summary>
-        ///     Receives data on a connected socket.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="buffer">Pointer to the receive buffer.</param>
-        /// <param name="length">Length of the buffer.</param>
-        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <returns>The number of bytes received, or -1 on error.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_Receive", CallingConvention = CALLING_CONVENTION)]
-        public static extern int Receive(nint socket, void* buffer, int length, SocketFlags socketFlags);
-
-        /// <summary>
-        ///     Receives data from an Ipv4 socket address, filling the provided socket address.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="buffer">Pointer to the receive buffer.</param>
-        /// <param name="length">Length of the buffer.</param>
-        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
-        /// <returns>The number of bytes received, or -1 on error.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_ReceiveFromIpv4", CallingConvention = CALLING_CONVENTION)]
-        public static extern int ReceiveFromIpv4(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in4* socketAddress);
-
-        /// <summary>
-        ///     Receives data from an Ipv6 socket address, filling the provided socket address.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="buffer">Pointer to the receive buffer.</param>
-        /// <param name="length">Length of the buffer.</param>
-        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
-        /// <returns>The number of bytes received, or -1 on error.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_ReceiveFromIpv6", CallingConvention = CALLING_CONVENTION)]
-        public static extern int ReceiveFromIpv6(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in6* socketAddress);
-
-        /// <summary>
-        ///     Sends data from multiple buffers on a connected socket.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
-        /// <param name="bufferCount">The number of buffers.</param>
-        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <returns>The number of bytes sent, or -1 on error.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_SendVectored", CallingConvention = CALLING_CONVENTION)]
-        public static extern int SendVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags);
-
-        /// <summary>
-        ///     Sends data from multiple buffers to an Ipv4 socket address.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
-        /// <param name="bufferCount">The number of buffers.</param>
-        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <param name="socketAddress">Pointer to the destination Ipv4 socket address.</param>
-        /// <returns>The number of bytes sent, or -1 on error.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_SendToVectoredIpv4", CallingConvention = CALLING_CONVENTION)]
-        public static extern int SendToVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in4* socketAddress);
-
-        /// <summary>
-        ///     Sends data from multiple buffers to an Ipv6 socket address.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
-        /// <param name="bufferCount">The number of buffers.</param>
-        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <param name="socketAddress">Pointer to the destination Ipv6 socket address.</param>
-        /// <returns>The number of bytes sent, or -1 on error.</returns>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_SendToVectoredIpv6", CallingConvention = CALLING_CONVENTION)]
-        public static extern int SendToVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in6* socketAddress);
-
-        /// <summary>
-        ///     Receives data into multiple buffers on a connected socket.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
-        /// <param name="bufferCount">The number of buffers.</param>
-        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
-        /// <returns>The number of bytes received, or -1 on error.</returns>
-        /// <remarks>
-        ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
-        ///     the operation is considered failed and returns <c>-1</c>,
-        ///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
-        /// </remarks>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_ReceiveVectored", CallingConvention = CALLING_CONVENTION)]
-        public static extern int ReceiveVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags);
-
-        /// <summary>
-        ///     Receives data into multiple buffers from an Ipv4 socket address.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
-        /// <param name="bufferCount">The number of buffers.</param>
-        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
-        /// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
-        /// <returns>The number of bytes received, or -1 on error.</returns>
-        /// <remarks>
-        ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
-        ///     the operation is considered failed and returns <c>-1</c>,
-        ///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
-        /// </remarks>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_ReceiveFromVectoredIpv4", CallingConvention = CALLING_CONVENTION)]
-        public static extern int ReceiveFromVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in4* socketAddress);
-
-        /// <summary>
-        ///     Receives data into multiple buffers from an Ipv6 socket address.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
-        /// <param name="bufferCount">The number of buffers.</param>
-        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
-        /// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
-        /// <returns>The number of bytes received, or -1 on error.</returns>
-        /// <remarks>
-        ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
-        ///     the operation is considered failed and returns <c>-1</c>,
-        ///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
-        /// </remarks>
-        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_ReceiveFromVectoredIpv6", CallingConvention = CALLING_CONVENTION)]
-        public static extern int ReceiveFromVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in6* socketAddress);
+        public static extern SocketError PollFlags(nint socket, int microseconds, SelectModeFlags inFlags, SelectModeFlags* outFlags);
 
         /// <summary>
         ///     Gets the local name (socket address) of an Ipv4 socket.
@@ -360,5 +245,526 @@ namespace NativeSockets
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_GetNameIpv6", CallingConvention = CALLING_CONVENTION)]
         public static extern SocketError GetNameIpv6(nint socket, sockaddr_in6* socketAddress);
+
+        /// <summary>
+        ///     Sends data on a connected socket.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="buffer">Pointer to the data buffer.</param>
+        /// <param name="length">Length of the buffer in bytes.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
+        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_Send", CallingConvention = CALLING_CONVENTION)]
+        public static extern IoResult Send(nint socket, void* buffer, int length, SocketFlags socketFlags);
+
+        /// <summary>
+        ///     Sends data to an Ipv4 socket address.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="buffer">Pointer to the data buffer.</param>
+        /// <param name="length">Length of the buffer.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
+        /// <param name="socketAddress">Pointer to the destination Ipv4 socket address.</param>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
+        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_SendToIpv4", CallingConvention = CALLING_CONVENTION)]
+        public static extern IoResult SendToIpv4(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in4* socketAddress);
+
+        /// <summary>
+        ///     Sends data to an Ipv6 socket address.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="buffer">Pointer to the data buffer.</param>
+        /// <param name="length">Length of the buffer.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
+        /// <param name="socketAddress">Pointer to the destination Ipv6 socket address.</param>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
+        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_SendToIpv6", CallingConvention = CALLING_CONVENTION)]
+        public static extern IoResult SendToIpv6(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in6* socketAddress);
+
+        /// <summary>
+        ///     Receives data on a connected socket.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="buffer">Pointer to the receive buffer.</param>
+        /// <param name="length">Length of the buffer.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
+        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_Receive", CallingConvention = CALLING_CONVENTION)]
+        public static extern IoResult Receive(nint socket, void* buffer, int length, SocketFlags socketFlags);
+
+        /// <summary>
+        ///     Receives data from an Ipv4 socket address, filling the provided socket address.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="buffer">Pointer to the receive buffer.</param>
+        /// <param name="length">Length of the buffer.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
+        /// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
+        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_ReceiveFromIpv4", CallingConvention = CALLING_CONVENTION)]
+        public static extern IoResult ReceiveFromIpv4(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in4* socketAddress);
+
+        /// <summary>
+        ///     Receives data from an Ipv6 socket address, filling the provided socket address.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="buffer">Pointer to the receive buffer.</param>
+        /// <param name="length">Length of the buffer.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
+        /// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
+        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_ReceiveFromIpv6", CallingConvention = CALLING_CONVENTION)]
+        public static extern IoResult ReceiveFromIpv6(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in6* socketAddress);
+
+        /// <summary>
+        ///     Sends data from multiple buffers on a connected socket.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
+        /// <param name="bufferCount">The number of buffers.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
+        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_SendVectored", CallingConvention = CALLING_CONVENTION)]
+        public static extern IoResult SendVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags);
+
+        /// <summary>
+        ///     Sends data from multiple buffers to an Ipv4 socket address.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
+        /// <param name="bufferCount">The number of buffers.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
+        /// <param name="socketAddress">Pointer to the destination Ipv4 socket address.</param>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
+        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_SendToVectoredIpv4", CallingConvention = CALLING_CONVENTION)]
+        public static extern IoResult SendToVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in4* socketAddress);
+
+        /// <summary>
+        ///     Sends data from multiple buffers to an Ipv6 socket address.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
+        /// <param name="bufferCount">The number of buffers.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
+        /// <param name="socketAddress">Pointer to the destination Ipv6 socket address.</param>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
+        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_SendToVectoredIpv6", CallingConvention = CALLING_CONVENTION)]
+        public static extern IoResult SendToVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in6* socketAddress);
+
+        /// <summary>
+        ///     Receives data into multiple buffers on a connected socket.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
+        /// <param name="bufferCount">The number of buffers.</param>
+        /// <param name="inOutFlags">
+        ///     Pointer to a value that, when this method returns,
+        ///     contains the flags returned by the receive operation.
+        /// </param>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
+        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_ReceiveVectored", CallingConvention = CALLING_CONVENTION)]
+        public static extern IoResult ReceiveVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags);
+
+        /// <summary>
+        ///     Receives data into multiple buffers from an Ipv4 socket address.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
+        /// <param name="bufferCount">The number of buffers.</param>
+        /// <param name="inOutFlags">
+        ///     Pointer to a value that, when this method returns,
+        ///     contains the flags returned by the receive operation.
+        /// </param>
+        /// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
+        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_ReceiveFromVectoredIpv4", CallingConvention = CALLING_CONVENTION)]
+        public static extern IoResult ReceiveFromVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in4* socketAddress);
+
+        /// <summary>
+        ///     Receives data into multiple buffers from an Ipv6 socket address.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
+        /// <param name="bufferCount">The number of buffers.</param>
+        /// <param name="inOutFlags">
+        ///     Pointer to a value that, when this method returns,
+        ///     contains the flags returned by the receive operation.
+        /// </param>
+        /// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
+        [DllImport(DLL_NAME_NATIVESOCKETPAL, EntryPoint = "_ReceiveFromVectoredIpv6", CallingConvention = CALLING_CONVENTION)]
+        public static extern IoResult ReceiveFromVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in6* socketAddress);
     }
 }

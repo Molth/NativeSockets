@@ -23,6 +23,9 @@
 
 #endif
 
+#include "_WinSock2.c"
+#include "_SocketFlags.c"
+
 #ifdef _WIN32
 
 #include "_win32.c"
@@ -32,7 +35,6 @@
 #include "_SelectMode.c"
 #include "_SelectModeFlags.c"
 #include "_SocketError.c"
-#include "_SocketFlags.c"
 #include "_SocketOptionLevel.c"
 #include "_SocketOptionName.c"
 

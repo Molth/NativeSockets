@@ -159,7 +159,7 @@ namespace NativeSockets
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         public static SocketError TryFormat(in this NativeSocketAddress socketAddress, ref Span<char> destination)
         {
-            Span<char> chars = stackalloc char[NativeSocketAddressPal.FORMAT_MAX_CHARS];
+            Span<char> chars = stackalloc char[NativeSocketAddressPal.MAX_STACKALLOC_FORMAT_CHARS];
             SocketError error = NativeSocketAddressPal.FormatAsIpEndPoint(ref chars, socketAddress);
             if (error != SocketError.Success)
                 return error;
@@ -250,7 +250,7 @@ namespace NativeSockets
             }
 
             result = new SocketAddress(socketAddress.Family);
-            result.CopyFromWithoutFamily(socketAddress.AsReadOnlySpan(), socketAddress.IsIpv4 ? 8 : 28);
+            SocketAddressPal.CopyToSocketAddressWithoutFamily(result, socketAddress.AsReadOnlySpan(), socketAddress.IsIpv4 ? 8 : 28);
             return SocketError.Success;
         }
     }

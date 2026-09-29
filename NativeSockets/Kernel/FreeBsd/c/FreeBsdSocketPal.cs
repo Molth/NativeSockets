@@ -1,9 +1,4 @@
-﻿#if NET5_0_OR_GREATER
-using System;
-#else
-using System.Runtime.InteropServices;
-#endif
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using static NativeSockets.UnixSocketLib;
 using static NativeSockets.BsdSocketLib;
@@ -42,19 +37,14 @@ namespace NativeSockets
         /// <summary>
         ///     Gets a value indicating whether any platform-specific implementation is supported.
         /// </summary>
-        public static bool IsSupported { get; } =
-#if NET5_0_OR_GREATER
-            OperatingSystem.IsFreeBSD();
-#else
-            RuntimeInformation.IsOSPlatform(OSPlatform.Create("FREEBSD"));
-#endif
+        public static bool IsSupported { get; } = OsName.IsFreeBsd();
 
         /// <summary>
         ///     Retrieves the last socket error code from the underlying platform.
         /// </summary>
         /// <returns>The last <see cref="SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetLastSocketError() => GetLastError();
+        public static SocketError GetLastSocketError() => __GetLastSocketError();
 
         /// <summary>
         ///     Starts up the platform-specific socket subsystem.
@@ -185,12 +175,29 @@ namespace NativeSockets
         /// <param name="length">The length of the option value in bytes.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         /// <remarks>
-        ///     The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
-        ///     platform equivalents by the underlying socket layer. The <paramref name="value" /> bytes are
-        ///     passed through unmodified; the platform interprets the buffer according to the mapped option.
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
+        ///                 platform equivalents by the underlying socket layer.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 The <paramref name="value" /> bytes are passed through unmodified; the platform interprets the
+        ///                 buffer according to the mapped option.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Behavior is not guaranteed to be consistent across platforms; only the mapping of
+        ///                 <paramref name="level" /> and <paramref name="name" /> is guaranteed.
+        ///             </description>
+        ///         </item>
+        ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetOption(nint socket, SocketOptionLevel level, SocketOptionName name, byte* value, int length)
+        public static SocketError SetOption(nint socket, SocketOptionLevel level, SocketOptionName name, void* value, int length)
         {
             int errno = __setsockopt((int)socket, level, name, value, (uint)length);
             return errno == 0 ? SocketError.Success : GetLastSocketError();
@@ -206,12 +213,29 @@ namespace NativeSockets
         /// <param name="length">Pointer to the length of the buffer; on output, the actual size of the option.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         /// <remarks>
-        ///     The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
-        ///     platform equivalents by the underlying socket layer. The <paramref name="value" /> buffer is
-        ///     passed through unmodified; the platform populates the buffer according to the mapped option.
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
+        ///                 platform equivalents by the underlying socket layer.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 The <paramref name="value" /> buffer is passed through unmodified; the platform populates the
+        ///                 buffer according to the mapped option.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Behavior is not guaranteed to be consistent across platforms; only the mapping of
+        ///                 <paramref name="level" /> and <paramref name="name" /> is guaranteed.
+        ///             </description>
+        ///         </item>
+        ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetOption(nint socket, SocketOptionLevel level, SocketOptionName name, byte* value, int* length)
+        public static SocketError GetOption(nint socket, SocketOptionLevel level, SocketOptionName name, void* value, int* length)
         {
             int errno = __getsockopt((int)socket, level, name, value, (uint*)length);
             return errno == 0 ? SocketError.Success : GetLastSocketError();
@@ -227,7 +251,7 @@ namespace NativeSockets
         /// <param name="length">The length of the option value in bytes.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetRawOption(nint socket, int level, int name, byte* value, int length)
+        public static SocketError SetRawOption(nint socket, int level, int name, void* value, int length)
         {
             int errno = _setsockopt((int)socket, level, name, value, (uint)length);
             return errno == 0 ? SocketError.Success : GetLastSocketError();
@@ -243,7 +267,7 @@ namespace NativeSockets
         /// <param name="length">Pointer to the length of the buffer; on output, the actual size of the option.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetRawOption(nint socket, int level, int name, byte* value, int* length)
+        public static SocketError GetRawOption(nint socket, int level, int name, void* value, int* length)
         {
             int errno = _getsockopt((int)socket, level, name, value, (uint*)length);
             return errno == 0 ? SocketError.Success : GetLastSocketError();
@@ -372,341 +396,6 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Sends data on a connected socket.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="buffer">Pointer to the data buffer.</param>
-        /// <param name="length">Length of the buffer in bytes.</param>
-        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <returns>The number of bytes sent, or -1 on error.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Send(nint socket, void* buffer, int length, SocketFlags socketFlags)
-        {
-            int num = (int)__send((int)socket, (byte*)buffer, (nuint)length, socketFlags);
-            return num;
-        }
-
-        /// <summary>
-        ///     Sends data to an Ipv4 socket address.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="buffer">Pointer to the data buffer.</param>
-        /// <param name="length">Length of the buffer.</param>
-        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <param name="socketAddress">Pointer to the destination Ipv4 socket address.</param>
-        /// <returns>The number of bytes sent, or -1 on error.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendToIpv4(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in4* socketAddress)
-        {
-            if (socketAddress != null)
-                return (int)__sendto((int)socket, (byte*)buffer, (nuint)length, socketFlags, (sockaddr*)socketAddress, (uint)sizeof(sockaddr_in4));
-
-            int num = Send(socket, (byte*)buffer, length, socketFlags);
-            return num;
-        }
-
-        /// <summary>
-        ///     Sends data to an Ipv6 socket address.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="buffer">Pointer to the data buffer.</param>
-        /// <param name="length">Length of the buffer.</param>
-        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <param name="socketAddress">Pointer to the destination Ipv6 socket address.</param>
-        /// <returns>The number of bytes sent, or -1 on error.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendToIpv6(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in6* socketAddress)
-        {
-            if (socketAddress != null)
-                return (int)__sendto((int)socket, (byte*)buffer, (nuint)length, socketFlags, (sockaddr*)socketAddress, (uint)sizeof(sockaddr_in6));
-
-            int num = Send(socket, (byte*)buffer, length, socketFlags);
-            return num;
-        }
-
-        /// <summary>
-        ///     Receives data on a connected socket.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="buffer">Pointer to the receive buffer.</param>
-        /// <param name="length">Length of the buffer.</param>
-        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <returns>The number of bytes received, or -1 on error.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Receive(nint socket, void* buffer, int length, SocketFlags socketFlags)
-        {
-            int num = (int)__recv((int)socket, (byte*)buffer, (nuint)length, socketFlags);
-            return num;
-        }
-
-        /// <summary>
-        ///     Receives data from an Ipv4 socket address, filling the provided socket address.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="buffer">Pointer to the receive buffer.</param>
-        /// <param name="length">Length of the buffer.</param>
-        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
-        /// <returns>The number of bytes received, or -1 on error.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveFromIpv4(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in4* socketAddress)
-        {
-            Unsafe.SkipInit(out sockaddr_in4 storage);
-            uint socketAddressSize = (uint)sizeof(sockaddr_in4);
-
-            int num = (int)__recvfrom((int)socket, (byte*)buffer, (nuint)length, socketFlags, (sockaddr*)&storage, &socketAddressSize);
-
-            if (num >= 0 && socketAddress != null)
-                *socketAddress = storage;
-
-            return num;
-        }
-
-        /// <summary>
-        ///     Receives data from an Ipv6 socket address, filling the provided socket address.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="buffer">Pointer to the receive buffer.</param>
-        /// <param name="length">Length of the buffer.</param>
-        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
-        /// <returns>The number of bytes received, or -1 on error.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveFromIpv6(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in6* socketAddress)
-        {
-            Unsafe.SkipInit(out sockaddr_in6 storage);
-            uint socketAddressSize = (uint)sizeof(sockaddr_in6);
-
-            int num = (int)__recvfrom((int)socket, (byte*)buffer, (nuint)length, socketFlags, (sockaddr*)&storage, &socketAddressSize);
-
-            if (num >= 0 && socketAddress != null)
-                *socketAddress = storage;
-
-            return num;
-        }
-
-        /// <summary>
-        ///     Sends data from multiple buffers on a connected socket.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
-        /// <param name="bufferCount">The number of buffers.</param>
-        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <returns>The number of bytes sent, or -1 on error.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags)
-        {
-            msghdr msg = new msghdr();
-            msg.msg_iovlen = __get_msg_iovlen(bufferCount);
-
-            int num;
-
-            using (NativeScopedArray<iovec> __buffers_native = Build(stackalloc iovec[16], buffers, bufferCount))
-            {
-                msg.msg_iov = __buffers_native.Buffer;
-                num = (int)__sendmsg((int)socket, &msg, socketFlags);
-            }
-
-            return num;
-        }
-
-        /// <summary>
-        ///     Sends data from multiple buffers to an Ipv4 socket address.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
-        /// <param name="bufferCount">The number of buffers.</param>
-        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <param name="socketAddress">Pointer to the destination Ipv4 socket address.</param>
-        /// <returns>The number of bytes sent, or -1 on error.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendToVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in4* socketAddress)
-        {
-            if (socketAddress != null)
-            {
-                msghdr msg = new msghdr();
-                msg.msg_name = socketAddress;
-                msg.msg_namelen = (uint)sizeof(sockaddr_in4);
-                msg.msg_iovlen = __get_msg_iovlen(bufferCount);
-
-                int num;
-
-                using (NativeScopedArray<iovec> __buffers_native = Build(stackalloc iovec[16], buffers, bufferCount))
-                {
-                    msg.msg_iov = __buffers_native.Buffer;
-                    num = (int)__sendmsg((int)socket, &msg, socketFlags);
-                }
-
-                return num;
-            }
-
-            return SendVectored(socket, buffers, bufferCount, socketFlags);
-        }
-
-        /// <summary>
-        ///     Sends data from multiple buffers to an Ipv6 socket address.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
-        /// <param name="bufferCount">The number of buffers.</param>
-        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <param name="socketAddress">Pointer to the destination Ipv6 socket address.</param>
-        /// <returns>The number of bytes sent, or -1 on error.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendToVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in6* socketAddress)
-        {
-            if (socketAddress != null)
-            {
-                msghdr msg = new msghdr();
-                msg.msg_name = socketAddress;
-                msg.msg_namelen = (uint)sizeof(sockaddr_in6);
-                msg.msg_iovlen = __get_msg_iovlen(bufferCount);
-
-                int num;
-
-                using (NativeScopedArray<iovec> __buffers_native = Build(stackalloc iovec[16], buffers, bufferCount))
-                {
-                    msg.msg_iov = __buffers_native.Buffer;
-                    num = (int)__sendmsg((int)socket, &msg, socketFlags);
-                }
-
-                return num;
-            }
-
-            return SendVectored(socket, buffers, bufferCount, socketFlags);
-        }
-
-        /// <summary>
-        ///     Receives data into multiple buffers on a connected socket.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
-        /// <param name="bufferCount">The number of buffers.</param>
-        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
-        /// <returns>The number of bytes received, or -1 on error.</returns>
-        /// <remarks>
-        ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
-        ///     the operation is considered failed and returns <c>-1</c>,
-        ///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
-        /// </remarks>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags)
-        {
-            msghdr msg = new msghdr();
-            msg.msg_iovlen = __get_msg_iovlen(bufferCount);
-
-            SocketFlags flags = inOutFlags != null ? *inOutFlags : 0;
-
-            int num;
-
-            using (NativeScopedArray<iovec> __buffers_native = Build(stackalloc iovec[16], buffers, bufferCount))
-            {
-                msg.msg_iov = __buffers_native.Buffer;
-                num = (int)__recvmsg((int)socket, &msg, flags);
-            }
-
-            if (inOutFlags != null)
-                *inOutFlags = (SocketFlags)msg.msg_flags;
-
-            if (msg.msg_flags != 0)
-                return -1;
-
-            return num;
-        }
-
-        /// <summary>
-        ///     Receives data into multiple buffers from an Ipv4 socket address.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
-        /// <param name="bufferCount">The number of buffers.</param>
-        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
-        /// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
-        /// <returns>The number of bytes received, or -1 on error.</returns>
-        /// <remarks>
-        ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
-        ///     the operation is considered failed and returns <c>-1</c>,
-        ///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
-        /// </remarks>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveFromVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in4* socketAddress)
-        {
-            Unsafe.SkipInit(out sockaddr_in4 storage);
-
-            msghdr msg = new msghdr();
-            msg.msg_name = &storage;
-            msg.msg_namelen = (uint)sizeof(sockaddr_in4);
-            msg.msg_iovlen = __get_msg_iovlen(bufferCount);
-
-            SocketFlags flags = inOutFlags != null ? *inOutFlags : 0;
-
-            int num;
-
-            using (NativeScopedArray<iovec> __buffers_native = Build(stackalloc iovec[16], buffers, bufferCount))
-            {
-                msg.msg_iov = __buffers_native.Buffer;
-                num = (int)__recvmsg((int)socket, &msg, flags);
-            }
-
-            if (inOutFlags != null)
-                *inOutFlags = (SocketFlags)msg.msg_flags;
-
-            if (msg.msg_flags != 0)
-                return -1;
-
-            if (num >= 0 && socketAddress != null)
-                *socketAddress = storage;
-
-            return num;
-        }
-
-        /// <summary>
-        ///     Receives data into multiple buffers from an Ipv6 socket address.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
-        /// <param name="bufferCount">The number of buffers.</param>
-        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
-        /// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
-        /// <returns>The number of bytes received, or -1 on error.</returns>
-        /// <remarks>
-        ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
-        ///     the operation is considered failed and returns <c>-1</c>,
-        ///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
-        /// </remarks>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveFromVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in6* socketAddress)
-        {
-            Unsafe.SkipInit(out sockaddr_in6 storage);
-
-            msghdr msg = new msghdr();
-            msg.msg_name = &storage;
-            msg.msg_namelen = (uint)sizeof(sockaddr_in6);
-            msg.msg_iovlen = __get_msg_iovlen(bufferCount);
-
-            SocketFlags flags = inOutFlags != null ? *inOutFlags : 0;
-
-            int num;
-
-            using (NativeScopedArray<iovec> __buffers_native = Build(stackalloc iovec[16], buffers, bufferCount))
-            {
-                msg.msg_iov = __buffers_native.Buffer;
-                num = (int)__recvmsg((int)socket, &msg, flags);
-            }
-
-            if (inOutFlags != null)
-                *inOutFlags = (SocketFlags)msg.msg_flags;
-
-            if (msg.msg_flags != 0)
-                return -1;
-
-            if (num >= 0 && socketAddress != null)
-                *socketAddress = storage;
-
-            return num;
-        }
-
-        /// <summary>
         ///     Gets the local name (socket address) of an Ipv4 socket.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
@@ -744,6 +433,895 @@ namespace NativeSockets
                 *socketAddress = storage;
 
             return errno == 0 ? SocketError.Success : GetLastSocketError();
+        }
+
+        /// <summary>
+        ///     Sends data on a connected socket.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="buffer">Pointer to the data buffer.</param>
+        /// <param name="length">Length of the buffer in bytes.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IoResult Send(nint socket, void* buffer, int length, SocketFlags socketFlags)
+        {
+            int num = (int)__send((int)socket, buffer, (nuint)length, socketFlags);
+
+            IoResult result;
+
+            if (num >= 0)
+            {
+                result.BytesTransferred = num;
+                result.SocketError = SocketError.Success;
+            }
+            else
+            {
+                result.BytesTransferred = -1;
+                result.SocketError = GetLastSocketError();
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        ///     Sends data to an Ipv4 socket address.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="buffer">Pointer to the data buffer.</param>
+        /// <param name="length">Length of the buffer.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
+        /// <param name="socketAddress">Pointer to the destination Ipv4 socket address.</param>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IoResult SendToIpv4(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in4* socketAddress)
+        {
+            if (socketAddress != null)
+            {
+                int num = (int)__sendto((int)socket, buffer, (nuint)length, socketFlags, (sockaddr*)socketAddress, (uint)sizeof(sockaddr_in4));
+
+                IoResult result;
+
+                if (num >= 0)
+                {
+                    result.BytesTransferred = num;
+                    result.SocketError = SocketError.Success;
+                }
+                else
+                {
+                    result.BytesTransferred = -1;
+                    result.SocketError = GetLastSocketError();
+                }
+
+                return result;
+            }
+
+            return Send(socket, buffer, length, socketFlags);
+        }
+
+        /// <summary>
+        ///     Sends data to an Ipv6 socket address.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="buffer">Pointer to the data buffer.</param>
+        /// <param name="length">Length of the buffer.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
+        /// <param name="socketAddress">Pointer to the destination Ipv6 socket address.</param>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IoResult SendToIpv6(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in6* socketAddress)
+        {
+            if (socketAddress != null)
+            {
+                int num = (int)__sendto((int)socket, buffer, (nuint)length, socketFlags, (sockaddr*)socketAddress, (uint)sizeof(sockaddr_in6));
+
+                IoResult result;
+
+                if (num >= 0)
+                {
+                    result.BytesTransferred = num;
+                    result.SocketError = SocketError.Success;
+                }
+                else
+                {
+                    result.BytesTransferred = -1;
+                    result.SocketError = GetLastSocketError();
+                }
+
+                return result;
+            }
+
+            return Send(socket, buffer, length, socketFlags);
+        }
+
+        /// <summary>
+        ///     Receives data on a connected socket.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="buffer">Pointer to the receive buffer.</param>
+        /// <param name="length">Length of the buffer.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IoResult Receive(nint socket, void* buffer, int length, SocketFlags socketFlags)
+        {
+            int num = (int)__recv((int)socket, buffer, (nuint)length, socketFlags);
+
+            IoResult result;
+
+            if (num >= 0)
+            {
+                result.BytesTransferred = num;
+                result.SocketError = SocketError.Success;
+            }
+            else
+            {
+                result.BytesTransferred = -1;
+                result.SocketError = GetLastSocketError();
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        ///     Receives data from an Ipv4 socket address, filling the provided socket address.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="buffer">Pointer to the receive buffer.</param>
+        /// <param name="length">Length of the buffer.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
+        /// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IoResult ReceiveFromIpv4(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in4* socketAddress)
+        {
+            Unsafe.SkipInit(out sockaddr_in4 storage);
+            uint socketAddressSize = (uint)sizeof(sockaddr_in4);
+
+            int num = (int)__recvfrom((int)socket, buffer, (nuint)length, socketFlags, (sockaddr*)&storage, &socketAddressSize);
+
+            IoResult result;
+
+            if (num >= 0)
+            {
+                if (socketAddress != null)
+                    *socketAddress = storage;
+
+                result.BytesTransferred = num;
+                result.SocketError = SocketError.Success;
+            }
+            else
+            {
+                result.BytesTransferred = -1;
+                result.SocketError = GetLastSocketError();
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        ///     Receives data from an Ipv6 socket address, filling the provided socket address.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="buffer">Pointer to the receive buffer.</param>
+        /// <param name="length">Length of the buffer.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
+        /// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IoResult ReceiveFromIpv6(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in6* socketAddress)
+        {
+            Unsafe.SkipInit(out sockaddr_in6 storage);
+            uint socketAddressSize = (uint)sizeof(sockaddr_in6);
+
+            int num = (int)__recvfrom((int)socket, buffer, (nuint)length, socketFlags, (sockaddr*)&storage, &socketAddressSize);
+
+            IoResult result;
+
+            if (num >= 0)
+            {
+                if (socketAddress != null)
+                    *socketAddress = storage;
+
+                result.BytesTransferred = num;
+                result.SocketError = SocketError.Success;
+            }
+            else
+            {
+                result.BytesTransferred = -1;
+                result.SocketError = GetLastSocketError();
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        ///     Sends data from multiple buffers on a connected socket.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
+        /// <param name="bufferCount">The number of buffers.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IoResult SendVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags)
+        {
+            msghdr msg = new msghdr();
+            msg.msg_iovlen = __get_msg_iovlen(bufferCount);
+
+            int num;
+
+            using (NativeScopedArray<iovec> __buffers_native = Build(stackalloc iovec[WinSock2.MAX_STACKALLOC_VECTORED_BUFFERS], buffers, bufferCount))
+            {
+                msg.msg_iov = __buffers_native.Buffer;
+                num = (int)__sendmsg((int)socket, &msg, socketFlags);
+            }
+
+            IoResult result;
+
+            if (num >= 0)
+            {
+                result.BytesTransferred = num;
+                result.SocketError = SocketError.Success;
+            }
+            else
+            {
+                result.BytesTransferred = -1;
+                result.SocketError = GetLastSocketError();
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        ///     Sends data from multiple buffers to an Ipv4 socket address.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
+        /// <param name="bufferCount">The number of buffers.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
+        /// <param name="socketAddress">Pointer to the destination Ipv4 socket address.</param>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IoResult SendToVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in4* socketAddress)
+        {
+            if (socketAddress != null)
+            {
+                msghdr msg = new msghdr();
+                msg.msg_name = socketAddress;
+                msg.msg_namelen = (uint)sizeof(sockaddr_in4);
+                msg.msg_iovlen = __get_msg_iovlen(bufferCount);
+
+                int num;
+
+                using (NativeScopedArray<iovec> __buffers_native = Build(stackalloc iovec[WinSock2.MAX_STACKALLOC_VECTORED_BUFFERS], buffers, bufferCount))
+                {
+                    msg.msg_iov = __buffers_native.Buffer;
+                    num = (int)__sendmsg((int)socket, &msg, socketFlags);
+                }
+
+                IoResult result;
+
+                if (num >= 0)
+                {
+                    result.BytesTransferred = num;
+                    result.SocketError = SocketError.Success;
+                }
+                else
+                {
+                    result.BytesTransferred = -1;
+                    result.SocketError = GetLastSocketError();
+                }
+
+                return result;
+            }
+
+            return SendVectored(socket, buffers, bufferCount, socketFlags);
+        }
+
+        /// <summary>
+        ///     Sends data from multiple buffers to an Ipv6 socket address.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
+        /// <param name="bufferCount">The number of buffers.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
+        /// <param name="socketAddress">Pointer to the destination Ipv6 socket address.</param>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IoResult SendToVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in6* socketAddress)
+        {
+            if (socketAddress != null)
+            {
+                msghdr msg = new msghdr();
+                msg.msg_name = socketAddress;
+                msg.msg_namelen = (uint)sizeof(sockaddr_in6);
+                msg.msg_iovlen = __get_msg_iovlen(bufferCount);
+
+                int num;
+
+                using (NativeScopedArray<iovec> __buffers_native = Build(stackalloc iovec[WinSock2.MAX_STACKALLOC_VECTORED_BUFFERS], buffers, bufferCount))
+                {
+                    msg.msg_iov = __buffers_native.Buffer;
+                    num = (int)__sendmsg((int)socket, &msg, socketFlags);
+                }
+
+                IoResult result;
+
+                if (num >= 0)
+                {
+                    result.BytesTransferred = num;
+                    result.SocketError = SocketError.Success;
+                }
+                else
+                {
+                    result.BytesTransferred = -1;
+                    result.SocketError = GetLastSocketError();
+                }
+
+                return result;
+            }
+
+            return SendVectored(socket, buffers, bufferCount, socketFlags);
+        }
+
+        /// <summary>
+        ///     Receives data into multiple buffers on a connected socket.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
+        /// <param name="bufferCount">The number of buffers.</param>
+        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IoResult ReceiveVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags)
+        {
+            msghdr msg = new msghdr();
+            msg.msg_iovlen = __get_msg_iovlen(bufferCount);
+
+            SocketFlags flags = inOutFlags != null ? *inOutFlags : 0;
+
+            int num;
+
+            using (NativeScopedArray<iovec> __buffers_native = Build(stackalloc iovec[WinSock2.MAX_STACKALLOC_VECTORED_BUFFERS], buffers, bufferCount))
+            {
+                msg.msg_iov = __buffers_native.Buffer;
+                num = (int)__recvmsg((int)socket, &msg, flags);
+            }
+
+            IoResult result;
+
+            if (num >= 0)
+            {
+                if (inOutFlags != null)
+                    *inOutFlags = (SocketFlags)msg.msg_flags;
+
+                result.BytesTransferred = num;
+                result.SocketError = SocketError.Success;
+            }
+            else
+            {
+                result.BytesTransferred = -1;
+                result.SocketError = GetLastSocketError();
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        ///     Receives data into multiple buffers from an Ipv4 socket address.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
+        /// <param name="bufferCount">The number of buffers.</param>
+        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
+        /// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IoResult ReceiveFromVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in4* socketAddress)
+        {
+            Unsafe.SkipInit(out sockaddr_in4 storage);
+
+            msghdr msg = new msghdr();
+            msg.msg_name = &storage;
+            msg.msg_namelen = (uint)sizeof(sockaddr_in4);
+            msg.msg_iovlen = __get_msg_iovlen(bufferCount);
+
+            SocketFlags flags = inOutFlags != null ? *inOutFlags : 0;
+
+            int num;
+
+            using (NativeScopedArray<iovec> __buffers_native = Build(stackalloc iovec[WinSock2.MAX_STACKALLOC_VECTORED_BUFFERS], buffers, bufferCount))
+            {
+                msg.msg_iov = __buffers_native.Buffer;
+                num = (int)__recvmsg((int)socket, &msg, flags);
+            }
+
+            IoResult result;
+
+            if (num >= 0)
+            {
+                if (inOutFlags != null)
+                    *inOutFlags = (SocketFlags)msg.msg_flags;
+
+                if (socketAddress != null)
+                    *socketAddress = storage;
+
+                result.BytesTransferred = num;
+                result.SocketError = SocketError.Success;
+            }
+            else
+            {
+                result.BytesTransferred = -1;
+                result.SocketError = GetLastSocketError();
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        ///     Receives data into multiple buffers from an Ipv6 socket address.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
+        /// <param name="bufferCount">The number of buffers.</param>
+        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
+        /// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IoResult ReceiveFromVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in6* socketAddress)
+        {
+            Unsafe.SkipInit(out sockaddr_in6 storage);
+
+            msghdr msg = new msghdr();
+            msg.msg_name = &storage;
+            msg.msg_namelen = (uint)sizeof(sockaddr_in6);
+            msg.msg_iovlen = __get_msg_iovlen(bufferCount);
+
+            SocketFlags flags = inOutFlags != null ? *inOutFlags : 0;
+
+            int num;
+
+            using (NativeScopedArray<iovec> __buffers_native = Build(stackalloc iovec[WinSock2.MAX_STACKALLOC_VECTORED_BUFFERS], buffers, bufferCount))
+            {
+                msg.msg_iov = __buffers_native.Buffer;
+                num = (int)__recvmsg((int)socket, &msg, flags);
+            }
+
+            IoResult result;
+
+            if (num >= 0)
+            {
+                if (inOutFlags != null)
+                    *inOutFlags = (SocketFlags)msg.msg_flags;
+
+                if (socketAddress != null)
+                    *socketAddress = storage;
+
+                result.BytesTransferred = num;
+                result.SocketError = SocketError.Success;
+            }
+            else
+            {
+                result.BytesTransferred = -1;
+                result.SocketError = GetLastSocketError();
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        ///     Creates a <see cref="SocketPalImpl" /> populated with this platform's socket operations.
+        /// </summary>
+        /// <returns>A <see cref="SocketPalImpl" /> containing this platform's socket operations.</returns>
+        public static SocketPalImpl GetImpl()
+        {
+            SocketPalImpl impl;
+            impl.ADDRESS_FAMILY_INTER_NETWORK_V4 = ADDRESS_FAMILY_INTER_NETWORK_V4;
+            impl.ADDRESS_FAMILY_INTER_NETWORK_V6 = ADDRESS_FAMILY_INTER_NETWORK_V6;
+            impl.GetLastSocketError = &GetLastSocketError;
+            impl.Startup = &Startup;
+            impl.Cleanup = &Cleanup;
+            impl.Create = &Create;
+            impl.Close = &Close;
+            impl.BindIpv4 = &BindIpv4;
+            impl.BindIpv6 = &BindIpv6;
+            impl.ConnectIpv4 = &ConnectIpv4;
+            impl.ConnectIpv6 = &ConnectIpv6;
+            impl.SetOption = &SetOption;
+            impl.GetOption = &GetOption;
+            impl.SetRawOption = &SetRawOption;
+            impl.GetRawOption = &GetRawOption;
+            impl.SetBlocking = &SetBlocking;
+            impl.Poll = &Poll;
+            impl.PollFlags = &PollFlags;
+            impl.GetNameIpv4 = &GetNameIpv4;
+            impl.GetNameIpv6 = &GetNameIpv6;
+            impl.Send = &Send;
+            impl.SendToIpv4 = &SendToIpv4;
+            impl.SendToIpv6 = &SendToIpv6;
+            impl.Receive = &Receive;
+            impl.ReceiveFromIpv4 = &ReceiveFromIpv4;
+            impl.ReceiveFromIpv6 = &ReceiveFromIpv6;
+            impl.SendVectored = &SendVectored;
+            impl.SendToVectoredIpv4 = &SendToVectoredIpv4;
+            impl.SendToVectoredIpv6 = &SendToVectoredIpv6;
+            impl.ReceiveVectored = &ReceiveVectored;
+            impl.ReceiveFromVectoredIpv4 = &ReceiveFromVectoredIpv4;
+            impl.ReceiveFromVectoredIpv6 = &ReceiveFromVectoredIpv6;
+            return impl;
         }
     }
 }

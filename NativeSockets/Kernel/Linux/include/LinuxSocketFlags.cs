@@ -12,55 +12,43 @@ namespace NativeSockets
     internal static class LinuxSocketFlags
     {
         /// <summary>
-        ///     Native flag indicating the message was truncated.
+        ///     Flag for out‑of‑band data.
         /// </summary>
-        private const int MSG_TRUNC = 0x0020;
+        private const int MSG_OOB = 0x0001;
 
         /// <summary>
-        ///     Native flag indicating non‑blocking operation (do not wait).
+        ///     Flag for peeking at the message.
         /// </summary>
-        private const int MSG_DONTWAIT = 0x0040;
+        private const int MSG_PEEK = 0x0002;
 
         /// <summary>
-        ///     Native flag indicating control data was truncated.
+        ///     Flag for bypassing routing.
+        /// </summary>
+        private const int MSG_DONTROUTE = 0x0004;
+
+        /// <summary>
+        ///     Flag indicating control data was truncated.
         /// </summary>
         private const int MSG_CTRUNC = 0x0008;
 
         /// <summary>
-        ///     Bitmask of all managed <see cref="SocketFlags" /> values that are supported for conversion to native Linux flags.
+        ///     Flag indicating the message was truncated.
         /// </summary>
-        private const int SUPPORTED_MANAGED_FLAGS_MASK = 0
-                                                         | SF_MSG_ERRQUEUE
-                                                         | SF_MSG_OOB
-                                                         | SF_MSG_PEEK
-                                                         | SF_MSG_DONTWAIT
-                                                         | SF_MSG_DONTROUTE
-                                                         | SF_MSG_TRUNC
-                                                         | SF_MSG_CTRUNC;
-
-        /// <summary>
-        ///     Bitmask of all native Linux socket flag values that are supported for conversion back to managed flags.
-        /// </summary>
-        private const int SUPPORTED_NATIVE_FLAGS_MASK = SF_MSG_OOB | SF_MSG_DONTROUTE | MSG_TRUNC | MSG_CTRUNC;
+        private const int MSG_TRUNC = 0x0020;
 
         /// <summary>
         ///     Converts a managed <see cref="SocketFlags" /> value to its native Linux integer representation.
         /// </summary>
-        /// <param name="palFlags">The managed flags.</param>
+        /// <param name="stdFlags">The managed flags.</param>
         /// <returns>The native integer value.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ToNativeSocketFlags(SocketFlags palFlags)
+        public static int ToNativeSocketFlags(SocketFlags stdFlags)
         {
-            int flags = (int)palFlags;
+            int flags = (int)stdFlags;
 
-            if ((flags & ~SUPPORTED_MANAGED_FLAGS_MASK) != 0)
-                return 0;
-
-            int platformFlags = (flags & SF_MSG_ERRQUEUE)
-                                | (flags & SF_MSG_OOB)
-                                | (flags & SF_MSG_PEEK)
-                                | (flags & SF_MSG_DONTROUTE)
-                                | ((flags & SF_MSG_DONTWAIT) == 0 ? 0 : MSG_DONTWAIT)
+            int platformFlags = ((flags & SF_MSG_OOB) == 0 ? 0 : MSG_OOB)
+                                | ((flags & SF_MSG_PEEK) == 0 ? 0 : MSG_PEEK)
+                                | ((flags & SF_MSG_DONTROUTE) == 0 ? 0 : MSG_DONTROUTE)
                                 | ((flags & SF_MSG_TRUNC) == 0 ? 0 : MSG_TRUNC)
                                 | ((flags & SF_MSG_CTRUNC) == 0 ? 0 : MSG_CTRUNC);
 
@@ -70,17 +58,16 @@ namespace NativeSockets
         /// <summary>
         ///     Converts a native Linux socket flag integer value to a managed <see cref="SocketFlags" />.
         /// </summary>
-        /// <param name="platformFlags">The native integer value.</param>
+        /// <param name="nativeFlags">The native integer value.</param>
         /// <returns>The managed <see cref="SocketFlags" /> value.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketFlags FromNativeSocketFlags(int platformFlags)
+        public static SocketFlags FromNativeSocketFlags(int nativeFlags)
         {
-            platformFlags &= SUPPORTED_NATIVE_FLAGS_MASK;
-
-            int result = (platformFlags & SF_MSG_OOB) |
-                         (platformFlags & SF_MSG_DONTROUTE) |
-                         ((platformFlags & MSG_TRUNC) == 0 ? 0 : SF_MSG_TRUNC) |
-                         ((platformFlags & MSG_CTRUNC) == 0 ? 0 : SF_MSG_CTRUNC);
+            int result = ((nativeFlags & MSG_OOB) == 0 ? 0 : SF_MSG_OOB) |
+                         ((nativeFlags & MSG_PEEK) == 0 ? 0 : SF_MSG_PEEK) |
+                         ((nativeFlags & MSG_DONTROUTE) == 0 ? 0 : SF_MSG_DONTROUTE) |
+                         ((nativeFlags & MSG_TRUNC) == 0 ? 0 : SF_MSG_TRUNC) |
+                         ((nativeFlags & MSG_CTRUNC) == 0 ? 0 : SF_MSG_CTRUNC);
 
             return (SocketFlags)result;
         }

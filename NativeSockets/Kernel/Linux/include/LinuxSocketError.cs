@@ -16,7 +16,7 @@ namespace NativeSockets
         /// </summary>
         /// <returns>The last <see cref="SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetLastError()
+        public static SocketError __GetLastSocketError()
         {
             int errno = _errno();
             return FromNativeErrno(errno);
@@ -32,25 +32,24 @@ namespace NativeSockets
             0 => SocketError.Success,
             1 => SocketError.AccessDenied,
             2 => SocketError.AddressNotAvailable,
-            125 => SocketError.OperationAborted,
-            115 => SocketError.InProgress,
             4 => SocketError.Interrupted,
             6 => SocketError.HostNotFound,
             9 => SocketError.OperationAborted,
+            11 => SocketError.WouldBlock,
+            12 => SocketError.NoBufferSpaceAvailable,
             13 => SocketError.AccessDenied,
             14 => SocketError.Fault,
-            12 => SocketError.NoBufferSpaceAvailable,
             22 => SocketError.InvalidArgument,
             23 => SocketError.TooManyOpenSockets,
             24 => SocketError.TooManyOpenSockets,
-            11 => SocketError.WouldBlock,
-            114 => SocketError.AlreadyInProgress,
+            32 => SocketError.Shutdown,
+            61 => SocketError.NoData,
+            71 => SocketError.ProtocolNotSupported,
             88 => SocketError.NotSocket,
             89 => SocketError.DestinationAddressRequired,
             90 => SocketError.MessageSize,
             91 => SocketError.ProtocolType,
             92 => SocketError.ProtocolOption,
-            71 => SocketError.ProtocolNotSupported,
             93 => SocketError.ProtocolNotSupported,
             94 => SocketError.SocketNotSupported,
             95 => SocketError.OperationNotSupported,
@@ -66,13 +65,14 @@ namespace NativeSockets
             105 => SocketError.NoBufferSpaceAvailable,
             106 => SocketError.IsConnected,
             107 => SocketError.NotConnected,
-            32 => SocketError.Shutdown,
+            108 => SocketError.Shutdown,
             110 => SocketError.TimedOut,
             111 => SocketError.ConnectionRefused,
             112 => SocketError.HostDown,
             113 => SocketError.HostUnreachable,
-            108 => SocketError.Disconnecting,
-            61 => SocketError.NoData,
+            114 => SocketError.AlreadyInProgress,
+            115 => SocketError.InProgress,
+            125 => SocketError.OperationAborted,
             _ => SocketError.SocketError
         };
     }

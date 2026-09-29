@@ -34,11 +34,6 @@
 - **Same API as NativeSockets** – seamless switching between managed and native backends.
 - **Complete UDP support** – create, bind, connect, send, receive, and poll sockets.
 - **Ipv4 and Ipv6** with dual‑mode support.
-- **Allocation‑free extension methods** for `System.Net.Sockets.Socket`:
-    - `SendTo` – send data without temporary allocations.
-    - `ReceiveFrom` – receive data and capture the remote endpoint without allocations.
-    - `SendToVectored` – send data from multiple buffers without temporary allocations.
-    - `ReceiveFromVectored` – receive data into multiple buffers and capture the remote endpoint without allocations.
 - **Scatter/gather I/O** – Efficient vectored send and receive operations.
 
 ---

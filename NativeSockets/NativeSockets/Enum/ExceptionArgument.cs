@@ -10,6 +10,7 @@ namespace NativeSockets
         alignment,
         length,
         index,
+        socket,
 
         _dummy
     }

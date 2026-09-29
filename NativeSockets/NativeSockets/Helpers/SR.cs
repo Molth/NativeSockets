@@ -9,6 +9,8 @@ namespace NativeSockets
     {
         public const string Argument_AlignmentMustBePow2 = "AlignmentMustBePow2";
 
+        public const string ArgumentNull_MustBeNotNull = "MustBeNotNull";
+
         public const string ArgumentOutOfRange_MustBeLess = "MustBeLess";
         public const string ArgumentOutOfRange_MustBeNonNegative = "MustBeNonNegative";
     }

@@ -86,7 +86,7 @@ namespace NativeSockets
         /// <param name="__optionLength_native">The length of the option value in bytes.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [DllImport(DLL_NAME_LIBC, EntryPoint = "setsockopt", CallingConvention = CALLING_CONVENTION, SetLastError = true)]
-        public static extern int _setsockopt(int __socketHandle_native, int __optionLevel_native, int __optionName_native, byte* __optionValue_native, uint __optionLength_native);
+        public static extern int _setsockopt(int __socketHandle_native, int __optionLevel_native, int __optionName_native, void* __optionValue_native, uint __optionLength_native);
 
         /// <summary>
         ///     Gets a socket option.
@@ -98,7 +98,7 @@ namespace NativeSockets
         /// <param name="__optionLength_native">Pointer to the size of the buffer; on output, the actual size of the option.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         [DllImport(DLL_NAME_LIBC, EntryPoint = "getsockopt", CallingConvention = CALLING_CONVENTION, SetLastError = true)]
-        public static extern int _getsockopt(int __socketHandle_native, int __optionLevel_native, int __optionName_native, byte* __optionValue_native, uint* __optionLength_native);
+        public static extern int _getsockopt(int __socketHandle_native, int __optionLevel_native, int __optionName_native, void* __optionValue_native, uint* __optionLength_native);
 
         /// <summary>
         ///     Sends data on a connected socket.
@@ -109,7 +109,7 @@ namespace NativeSockets
         /// <param name="__socketFlags_native">The socket flags for the send operation.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [DllImport(DLL_NAME_LIBC, EntryPoint = "send", CallingConvention = CALLING_CONVENTION, SetLastError = true)]
-        public static extern nint _send(int __socketHandle_native, byte* __pinnedBuffer_native, nuint __len_native, int __socketFlags_native);
+        public static extern nint _send(int __socketHandle_native, void* __pinnedBuffer_native, nuint __len_native, int __socketFlags_native);
 
         /// <summary>
         ///     Receives data on a connected socket.
@@ -120,7 +120,7 @@ namespace NativeSockets
         /// <param name="__socketFlags_native">The socket flags for the receive operation.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [DllImport(DLL_NAME_LIBC, EntryPoint = "recv", CallingConvention = CALLING_CONVENTION, SetLastError = true)]
-        public static extern nint _recv(int __socketHandle_native, byte* __pinnedBuffer_native, nuint __len_native, int __socketFlags_native);
+        public static extern nint _recv(int __socketHandle_native, void* __pinnedBuffer_native, nuint __len_native, int __socketFlags_native);
 
         /// <summary>
         ///     Sends data to a specified destination address.
@@ -133,7 +133,7 @@ namespace NativeSockets
         /// <param name="__socketAddressSize_native">Size of the destination socket address.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [DllImport(DLL_NAME_LIBC, EntryPoint = "sendto", CallingConvention = CALLING_CONVENTION, SetLastError = true)]
-        public static extern nint _sendto(int __socketHandle_native, byte* __pinnedBuffer_native, nuint __len_native, int __socketFlags_native, sockaddr* __socketAddress_native, uint __socketAddressSize_native);
+        public static extern nint _sendto(int __socketHandle_native, void* __pinnedBuffer_native, nuint __len_native, int __socketFlags_native, sockaddr* __socketAddress_native, uint __socketAddressSize_native);
 
         /// <summary>
         ///     Receives data from a socket and captures the source address.
@@ -149,7 +149,7 @@ namespace NativeSockets
         /// </param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [DllImport(DLL_NAME_LIBC, EntryPoint = "recvfrom", CallingConvention = CALLING_CONVENTION, SetLastError = true)]
-        public static extern nint _recvfrom(int __socketHandle_native, byte* __pinnedBuffer_native, nuint __len_native, int __socketFlags_native, sockaddr* __socketAddress_native, uint* __socketAddressSize_native);
+        public static extern nint _recvfrom(int __socketHandle_native, void* __pinnedBuffer_native, nuint __len_native, int __socketFlags_native, sockaddr* __socketAddress_native, uint* __socketAddressSize_native);
 
         /// <summary>
         ///     Sends data from multiple buffers using a socket.

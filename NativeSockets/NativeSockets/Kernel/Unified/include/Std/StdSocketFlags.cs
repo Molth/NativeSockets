@@ -34,15 +34,5 @@ namespace NativeSockets
         ///     Flag indicating control data was truncated.
         /// </summary>
         public const int SF_MSG_CTRUNC = (int)SocketFlags.ControlDataTruncated;
-
-        /// <summary>
-        ///     Extended flag for non‑blocking operation.
-        /// </summary>
-        public const int SF_MSG_DONTWAIT = 0x1000;
-
-        /// <summary>
-        ///     Extended flag for error queue.
-        /// </summary>
-        public const int SF_MSG_ERRQUEUE = 0x2000;
     }
 }

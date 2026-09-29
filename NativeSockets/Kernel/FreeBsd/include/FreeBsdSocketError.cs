@@ -16,7 +16,7 @@ namespace NativeSockets
         /// </summary>
         /// <returns>The last <see cref="SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetLastError()
+        public static SocketError __GetLastSocketError()
         {
             int errno = _errno();
             return FromNativeErrno(errno);
@@ -35,9 +35,9 @@ namespace NativeSockets
             4 => SocketError.Interrupted,
             6 => SocketError.HostNotFound,
             9 => SocketError.OperationAborted,
+            12 => SocketError.NoBufferSpaceAvailable,
             13 => SocketError.AccessDenied,
             14 => SocketError.Fault,
-            12 => SocketError.NoBufferSpaceAvailable,
             22 => SocketError.InvalidArgument,
             23 => SocketError.TooManyOpenSockets,
             24 => SocketError.TooManyOpenSockets,
@@ -50,7 +50,6 @@ namespace NativeSockets
             40 => SocketError.MessageSize,
             41 => SocketError.ProtocolType,
             42 => SocketError.ProtocolOption,
-            92 => SocketError.ProtocolNotSupported,
             43 => SocketError.ProtocolNotSupported,
             44 => SocketError.SocketNotSupported,
             45 => SocketError.OperationNotSupported,
@@ -66,13 +65,14 @@ namespace NativeSockets
             55 => SocketError.NoBufferSpaceAvailable,
             56 => SocketError.IsConnected,
             57 => SocketError.NotConnected,
-            58 => SocketError.Disconnecting,
+            58 => SocketError.Shutdown,
             60 => SocketError.TimedOut,
             61 => SocketError.ConnectionRefused,
             64 => SocketError.HostDown,
             65 => SocketError.HostUnreachable,
             67 => SocketError.ProcessLimit,
             85 => SocketError.OperationAborted,
+            92 => SocketError.ProtocolNotSupported,
             _ => SocketError.SocketError
         };
     }

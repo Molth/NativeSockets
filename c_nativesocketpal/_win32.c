@@ -10,7 +10,6 @@ static void _MicrosecondsToTimeValue(i64 microseconds, struct timeval *socketTim
     const i64 microcnv = 1000000;
     i64 quotient = microseconds / microcnv;
     i64 remainder = microseconds - quotient * microcnv;
-    memset(socketTime, 0, sizeof(struct timeval));
     socketTime->tv_sec = (i32)quotient;
     socketTime->tv_usec = (i32)remainder;
 }
@@ -87,13 +86,13 @@ i32 _Create(i32 ipv6, isize *out_socket)
 {
     i32 family = ipv6 ? _AF_INET_6 : _AF_INET_4;
     SOCKET s = WSASocketW(family, SOCK_DGRAM, IPPROTO_UDP, NULL, 0, 1 | 128);
+    *out_socket = (isize)s;
     if (s != -1)
     {
-        DWORD dwBytesReturned = 0;
         BOOL bNewBehavior = FALSE;
+        DWORD dwBytesReturned;
         WSAIoctl(s, SIO_UDP_CONNRESET, &bNewBehavior, sizeof(BOOL), NULL, 0, &dwBytesReturned, NULL, NULL);
     }
-    *out_socket = (isize)s;
     return (s == -1) ? _GetLastSocketError() : _SOCKET_ERROR_SUCCESS;
 }
 
@@ -188,9 +187,26 @@ i32 _ConnectIpv6(isize socket, _sockaddr_in6 *socketAddress)
 /// <param name="length">The length of the option value in bytes.</param>
 /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
 /// <remarks>
-///     The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
-///     platform equivalents by the underlying socket layer. The <paramref name="value" /> bytes are
-///     passed through unmodified; the platform interprets the buffer according to the mapped option.
+///     <list type="bullet">
+///         <item>
+///             <description>
+///                 The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
+///                 platform equivalents by the underlying socket layer.
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 The <paramref name="value" /> bytes are passed through unmodified; the platform interprets the
+///                 buffer according to the mapped option.
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 Behavior is not guaranteed to be consistent across platforms; only the mapping of
+///                 <paramref name="level" /> and <paramref name="name" /> is guaranteed.
+///             </description>
+///         </item>
+///     </list>
 /// </remarks>
 i32 _SetOption(isize socket, i32 level, i32 name, u8 *value, i32 length)
 {
@@ -208,9 +224,26 @@ i32 _SetOption(isize socket, i32 level, i32 name, u8 *value, i32 length)
 /// <param name="length">Pointer to the length of the buffer; on output, the actual size of the option.</param>
 /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
 /// <remarks>
-///     The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
-///     platform equivalents by the underlying socket layer. The <paramref name="value" /> buffer is
-///     passed through unmodified; the platform populates the buffer according to the mapped option.
+///     <list type="bullet">
+///         <item>
+///             <description>
+///                 The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
+///                 platform equivalents by the underlying socket layer.
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 The <paramref name="value" /> buffer is passed through unmodified; the platform populates the
+///                 buffer according to the mapped option.
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 Behavior is not guaranteed to be consistent across platforms; only the mapping of
+///                 <paramref name="level" /> and <paramref name="name" /> is guaranteed.
+///             </description>
+///         </item>
+///     </list>
 /// </remarks>
 i32 _GetOption(isize socket, i32 level, i32 name, u8 *value, i32 *length)
 {
@@ -277,9 +310,10 @@ i32 _Poll(isize socket, i32 microseconds, i32 mode, i32 *status)
     i32 result;
     if (microseconds != -1)
     {
-        struct timeval tv;
-        _MicrosecondsToTimeValue(microseconds, &tv);
-        result = select(0, (mode == _SELECT_MODE_SELECT_READ) ? (fd_set *)fdset : NULL, (mode == _SELECT_MODE_SELECT_WRITE) ? (fd_set *)fdset : NULL, (mode == _SELECT_MODE_SELECT_ERROR) ? (fd_set *)fdset : NULL, &tv);
+        struct timeval socketTime;
+        memset(&socketTime, 0, sizeof(struct timeval));
+        _MicrosecondsToTimeValue(microseconds, &socketTime);
+        result = select(0, (mode == _SELECT_MODE_SELECT_READ) ? (fd_set *)fdset : NULL, (mode == _SELECT_MODE_SELECT_WRITE) ? (fd_set *)fdset : NULL, (mode == _SELECT_MODE_SELECT_ERROR) ? (fd_set *)fdset : NULL, &socketTime);
     }
     else
     {
@@ -340,9 +374,10 @@ i32 _PollFlags(isize socket, i32 microseconds, i32 inFlags, i32 *outFlags)
     i32 result;
     if (microseconds != -1)
     {
-        struct timeval tv;
-        _MicrosecondsToTimeValue(microseconds, &tv);
-        result = select(0, (fd_set *)readFds, (fd_set *)writeFds, (fd_set *)errorFds, &tv);
+        struct timeval socketTime;
+        memset(&socketTime, 0, sizeof(struct timeval));
+        _MicrosecondsToTimeValue(microseconds, &socketTime);
+        result = select(0, (fd_set *)readFds, (fd_set *)writeFds, (fd_set *)errorFds, &socketTime);
     }
     else
     {
@@ -366,338 +401,6 @@ i32 _PollFlags(isize socket, i32 microseconds, i32 inFlags, i32 *outFlags)
         *outFlags |= _SELECT_MODE_FLAGS_ERROR;
     }
     return _SOCKET_ERROR_SUCCESS;
-}
-
-/// <summary>
-///     Sends data on a connected socket.
-/// </summary>
-/// <param name="socket">The socket handle.</param>
-/// <param name="buffer">Pointer to the data buffer.</param>
-/// <param name="length">Length of the buffer in bytes.</param>
-/// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-/// <returns>The number of bytes sent, or -1 on error.</returns>
-i32 _Send(isize socket, void *buffer, i32 length, i32 socketFlags)
-{
-    return (i32)send((SOCKET)socket, (const u8 *)buffer, length, socketFlags);
-}
-
-/// <summary>
-///     Sends data to an Ipv4 socket address.
-/// </summary>
-/// <param name="socket">The socket handle.</param>
-/// <param name="buffer">Pointer to the data buffer.</param>
-/// <param name="length">Length of the buffer.</param>
-/// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-/// <param name="socketAddress">Pointer to the destination Ipv4 socket address.</param>
-/// <returns>The number of bytes sent, or -1 on error.</returns>
-i32 _SendToIpv4(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in4 *socketAddress)
-{
-    if (socketAddress != NULL)
-    {
-        return (i32)sendto((SOCKET)socket, (const u8 *)buffer, length, socketFlags, (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in4));
-    }
-    return _Send(socket, buffer, length, socketFlags);
-}
-
-/// <summary>
-///     Sends data to an Ipv6 socket address.
-/// </summary>
-/// <param name="socket">The socket handle.</param>
-/// <param name="buffer">Pointer to the data buffer.</param>
-/// <param name="length">Length of the buffer.</param>
-/// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-/// <param name="socketAddress">Pointer to the destination Ipv6 socket address.</param>
-/// <returns>The number of bytes sent, or -1 on error.</returns>
-i32 _SendToIpv6(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in6 *socketAddress)
-{
-    if (socketAddress != NULL)
-    {
-        return (i32)sendto((SOCKET)socket, (const u8 *)buffer, length, socketFlags, (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in6));
-    }
-    return _Send(socket, buffer, length, socketFlags);
-}
-
-/// <summary>
-///     Receives data on a connected socket.
-/// </summary>
-/// <param name="socket">The socket handle.</param>
-/// <param name="buffer">Pointer to the receive buffer.</param>
-/// <param name="length">Length of the buffer.</param>
-/// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-/// <returns>The number of bytes received, or -1 on error.</returns>
-i32 _Receive(isize socket, void *buffer, i32 length, i32 socketFlags)
-{
-    return (i32)recv((SOCKET)socket, (u8 *)buffer, length, socketFlags);
-}
-
-/// <summary>
-///     Receives data from an Ipv4 socket address, filling the provided socket address.
-/// </summary>
-/// <param name="socket">The socket handle.</param>
-/// <param name="buffer">Pointer to the receive buffer.</param>
-/// <param name="length">Length of the buffer.</param>
-/// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-/// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
-/// <returns>The number of bytes received, or -1 on error.</returns>
-i32 _ReceiveFromIpv4(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in4 *socketAddress)
-{
-    _sockaddr_in4 storage;
-    _socklen_t addr_len = sizeof(_sockaddr_in4);
-    i32 result = (i32)recvfrom((SOCKET)socket, (u8 *)buffer, length, socketFlags, (struct sockaddr *)&storage, &addr_len);
-    if (result >= 0 && socketAddress != NULL)
-    {
-        *socketAddress = storage;
-    }
-    return result;
-}
-
-/// <summary>
-///     Receives data from an Ipv6 socket address, filling the provided socket address.
-/// </summary>
-/// <param name="socket">The socket handle.</param>
-/// <param name="buffer">Pointer to the receive buffer.</param>
-/// <param name="length">Length of the buffer.</param>
-/// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-/// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
-/// <returns>The number of bytes received, or -1 on error.</returns>
-i32 _ReceiveFromIpv6(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in6 *socketAddress)
-{
-    _sockaddr_in6 storage;
-    _socklen_t addr_len = sizeof(_sockaddr_in6);
-    i32 result = (i32)recvfrom((SOCKET)socket, (u8 *)buffer, length, socketFlags, (struct sockaddr *)&storage, &addr_len);
-    if (result >= 0 && socketAddress != NULL)
-    {
-        *socketAddress = storage;
-    }
-    return result;
-}
-
-/// <summary>
-///     Sends data from multiple buffers on a connected socket.
-/// </summary>
-/// <param name="socket">The socket handle.</param>
-/// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
-/// <param name="bufferCount">The number of buffers.</param>
-/// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-/// <returns>The number of bytes sent, or -1 on error.</returns>
-i32 _SendVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags)
-{
-    WSABUF wsabufs[16];
-    WSABUF *pwsabufs = (bufferCount <= 16) ? wsabufs : (WSABUF *)malloc(sizeof(WSABUF) * bufferCount);
-    if (pwsabufs == NULL)
-    {
-        WSASetLastError(WSAENOBUFS);
-        return -1;
-    }
-    _Build(buffers, bufferCount, pwsabufs);
-    i32 bytesSent = 0;
-    i32 result = WSASend((SOCKET)socket, (LPWSABUF)pwsabufs, bufferCount, &bytesSent, socketFlags, NULL, NULL);
-    if (pwsabufs != wsabufs)
-    {
-        free(pwsabufs);
-    }
-    return (result == 0) ? bytesSent : -1;
-}
-
-/// <summary>
-///     Sends data from multiple buffers to an Ipv4 socket address.
-/// </summary>
-/// <param name="socket">The socket handle.</param>
-/// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
-/// <param name="bufferCount">The number of buffers.</param>
-/// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-/// <param name="socketAddress">Pointer to the destination Ipv4 socket address.</param>
-/// <returns>The number of bytes sent, or -1 on error.</returns>
-i32 _SendToVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags, _sockaddr_in4 *socketAddress)
-{
-    if (socketAddress != NULL)
-    {
-        WSABUF wsabufs[16];
-        WSABUF *pwsabufs = (bufferCount <= 16) ? wsabufs : (WSABUF *)malloc(sizeof(WSABUF) * bufferCount);
-        if (pwsabufs == NULL)
-        {
-            WSASetLastError(WSAENOBUFS);
-            return -1;
-        }
-        _Build(buffers, bufferCount, pwsabufs);
-        i32 bytesSent = 0;
-        i32 result = WSASendTo((SOCKET)socket, (LPWSABUF)pwsabufs, bufferCount, &bytesSent, socketFlags, (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in4), NULL, NULL);
-        if (pwsabufs != wsabufs)
-        {
-            free(pwsabufs);
-        }
-        return (result == 0) ? bytesSent : -1;
-    }
-    return _SendVectored(socket, buffers, bufferCount, socketFlags);
-}
-
-/// <summary>
-///     Sends data from multiple buffers to an Ipv6 socket address.
-/// </summary>
-/// <param name="socket">The socket handle.</param>
-/// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
-/// <param name="bufferCount">The number of buffers.</param>
-/// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-/// <param name="socketAddress">Pointer to the destination Ipv6 socket address.</param>
-/// <returns>The number of bytes sent, or -1 on error.</returns>
-i32 _SendToVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags, _sockaddr_in6 *socketAddress)
-{
-    if (socketAddress != NULL)
-    {
-        WSABUF wsabufs[16];
-        WSABUF *pwsabufs = (bufferCount <= 16) ? wsabufs : (WSABUF *)malloc(sizeof(WSABUF) * bufferCount);
-        if (pwsabufs == NULL)
-        {
-            WSASetLastError(WSAENOBUFS);
-            return -1;
-        }
-        _Build(buffers, bufferCount, pwsabufs);
-        i32 bytesSent = 0;
-        i32 result = WSASendTo((SOCKET)socket, (LPWSABUF)pwsabufs, bufferCount, &bytesSent, socketFlags, (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in6), NULL, NULL);
-        if (pwsabufs != wsabufs)
-        {
-            free(pwsabufs);
-        }
-        return (result == 0) ? bytesSent : -1;
-    }
-    return _SendVectored(socket, buffers, bufferCount, socketFlags);
-}
-
-/// <summary>
-///     Receives data into multiple buffers on a connected socket.
-/// </summary>
-/// <param name="socket">The socket handle.</param>
-/// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
-/// <param name="bufferCount">The number of buffers.</param>
-/// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
-/// <returns>The number of bytes received, or -1 on error.</returns>
-/// <remarks>
-///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
-///     the operation is considered failed and returns <c>-1</c>,
-///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
-/// </remarks>
-i32 _ReceiveVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *inOutFlags)
-{
-    WSABUF wsabufs[16];
-    WSABUF *pwsabufs = (bufferCount <= 16) ? wsabufs : (WSABUF *)malloc(sizeof(WSABUF) * bufferCount);
-    if (pwsabufs == NULL)
-    {
-        WSASetLastError(WSAENOBUFS);
-        return -1;
-    }
-    _Build(buffers, bufferCount, pwsabufs);
-    i32 bytesRecv = 0;
-    DWORD flags = (inOutFlags != NULL) ? *inOutFlags : 0;
-    i32 result = WSARecv((SOCKET)socket, (LPWSABUF)pwsabufs, bufferCount, &bytesRecv, &flags, NULL, NULL);
-    if (pwsabufs != wsabufs)
-    {
-        free(pwsabufs);
-    }
-    if (inOutFlags != NULL)
-    {
-        *inOutFlags = (i32)flags;
-    }
-    if (result != 0)
-    {
-        return -1;
-    }
-    return bytesRecv;
-}
-
-/// <summary>
-///     Receives data into multiple buffers from an Ipv4 socket address.
-/// </summary>
-/// <param name="socket">The socket handle.</param>
-/// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
-/// <param name="bufferCount">The number of buffers.</param>
-/// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
-/// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
-/// <returns>The number of bytes received, or -1 on error.</returns>
-/// <remarks>
-///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
-///     the operation is considered failed and returns <c>-1</c>,
-///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
-/// </remarks>
-i32 _ReceiveFromVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *inOutFlags, _sockaddr_in4 *socketAddress)
-{
-    _sockaddr_in4 storage;
-    WSABUF wsabufs[16];
-    WSABUF *pwsabufs = (bufferCount <= 16) ? wsabufs : (WSABUF *)malloc(sizeof(WSABUF) * bufferCount);
-    if (pwsabufs == NULL)
-    {
-        WSASetLastError(WSAENOBUFS);
-        return -1;
-    }
-    _Build(buffers, bufferCount, pwsabufs);
-    i32 bytesRecv = 0;
-    DWORD flags = (inOutFlags != NULL) ? *inOutFlags : 0;
-    INT addr_len = sizeof(_sockaddr_in4);
-    i32 result = WSARecvFrom((SOCKET)socket, (LPWSABUF)pwsabufs, bufferCount, &bytesRecv, &flags, (struct sockaddr *)&storage, &addr_len, NULL, NULL);
-    if (pwsabufs != wsabufs)
-    {
-        free(pwsabufs);
-    }
-    if (inOutFlags != NULL)
-    {
-        *inOutFlags = (i32)flags;
-    }
-    if (result != 0)
-    {
-        return -1;
-    }
-    if (socketAddress != NULL)
-    {
-        *socketAddress = storage;
-    }
-    return bytesRecv;
-}
-
-/// <summary>
-///     Receives data into multiple buffers from an Ipv6 socket address.
-/// </summary>
-/// <param name="socket">The socket handle.</param>
-/// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
-/// <param name="bufferCount">The number of buffers.</param>
-/// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
-/// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
-/// <returns>The number of bytes received, or -1 on error.</returns>
-/// <remarks>
-///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
-///     the operation is considered failed and returns <c>-1</c>,
-///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
-/// </remarks>
-i32 _ReceiveFromVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *inOutFlags, _sockaddr_in6 *socketAddress)
-{
-    _sockaddr_in6 storage;
-    WSABUF wsabufs[16];
-    WSABUF *pwsabufs = (bufferCount <= 16) ? wsabufs : (WSABUF *)malloc(sizeof(WSABUF) * bufferCount);
-    if (pwsabufs == NULL)
-    {
-        WSASetLastError(WSAENOBUFS);
-        return -1;
-    }
-    _Build(buffers, bufferCount, pwsabufs);
-    i32 bytesRecv = 0;
-    DWORD flags = (inOutFlags != NULL) ? *inOutFlags : 0;
-    INT addr_len = sizeof(_sockaddr_in6);
-    i32 result = WSARecvFrom((SOCKET)socket, (LPWSABUF)pwsabufs, bufferCount, &bytesRecv, &flags, (struct sockaddr *)&storage, &addr_len, NULL, NULL);
-    if (pwsabufs != wsabufs)
-    {
-        free(pwsabufs);
-    }
-    if (inOutFlags != NULL)
-    {
-        *inOutFlags = (i32)flags;
-    }
-    if (result != 0)
-    {
-        return -1;
-    }
-    if (socketAddress != NULL)
-    {
-        *socketAddress = storage;
-    }
-    return bytesRecv;
 }
 
 /// <summary>
@@ -734,6 +437,843 @@ i32 _GetNameIpv6(isize socket, _sockaddr_in6 *socketAddress)
         *socketAddress = storage;
     }
     return (result == 0) ? _SOCKET_ERROR_SUCCESS : _GetLastSocketError();
+}
+
+/// <summary>
+///     Sends data on a connected socket.
+/// </summary>
+/// <param name="socket">The socket handle.</param>
+/// <param name="buffer">Pointer to the data buffer.</param>
+/// <param name="length">Length of the buffer in bytes.</param>
+/// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
+/// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+/// <remarks>
+///     Only the following flag values are honored:
+///     <list type="bullet">
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.OutOfBand" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.Peek" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.DontRoute" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.Truncated" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.ControlDataTruncated" />
+///             </description>
+///         </item>
+///     </list>
+///     Any other flags are silently ignored.
+/// </remarks>
+_IoResult _Send(isize socket, void *buffer, i32 length, i32 socketFlags)
+{
+    i32 num = (i32)send((SOCKET)socket, (const u8 *)buffer, length, _ToNativeSocketFlags(socketFlags));
+    _IoResult result;
+    if (num >= 0)
+    {
+        result.BytesTransferred = num;
+        result.SocketError = _SOCKET_ERROR_SUCCESS;
+    }
+    else
+    {
+        result.BytesTransferred = -1;
+        result.SocketError = _GetLastSocketError();
+    }
+    return result;
+}
+
+/// <summary>
+///     Sends data to an Ipv4 socket address.
+/// </summary>
+/// <param name="socket">The socket handle.</param>
+/// <param name="buffer">Pointer to the data buffer.</param>
+/// <param name="length">Length of the buffer.</param>
+/// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
+/// <param name="socketAddress">Pointer to the destination Ipv4 socket address.</param>
+/// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+/// <remarks>
+///     Only the following flag values are honored:
+///     <list type="bullet">
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.OutOfBand" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.Peek" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.DontRoute" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.Truncated" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.ControlDataTruncated" />
+///             </description>
+///         </item>
+///     </list>
+///     Any other flags are silently ignored.
+/// </remarks>
+_IoResult _SendToIpv4(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in4 *socketAddress)
+{
+    if (socketAddress != NULL)
+    {
+        i32 num = (i32)sendto((SOCKET)socket, (const u8 *)buffer, length, _ToNativeSocketFlags(socketFlags), (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in4));
+        _IoResult result;
+        if (num >= 0)
+        {
+            result.BytesTransferred = num;
+            result.SocketError = _SOCKET_ERROR_SUCCESS;
+        }
+        else
+        {
+            result.BytesTransferred = -1;
+            result.SocketError = _GetLastSocketError();
+        }
+        return result;
+    }
+    return _Send(socket, buffer, length, socketFlags);
+}
+
+/// <summary>
+///     Sends data to an Ipv6 socket address.
+/// </summary>
+/// <param name="socket">The socket handle.</param>
+/// <param name="buffer">Pointer to the data buffer.</param>
+/// <param name="length">Length of the buffer.</param>
+/// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
+/// <param name="socketAddress">Pointer to the destination Ipv6 socket address.</param>
+/// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+/// <remarks>
+///     Only the following flag values are honored:
+///     <list type="bullet">
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.OutOfBand" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.Peek" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.DontRoute" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.Truncated" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.ControlDataTruncated" />
+///             </description>
+///         </item>
+///     </list>
+///     Any other flags are silently ignored.
+/// </remarks>
+_IoResult _SendToIpv6(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in6 *socketAddress)
+{
+    if (socketAddress != NULL)
+    {
+        i32 num = (i32)sendto((SOCKET)socket, (const u8 *)buffer, length, _ToNativeSocketFlags(socketFlags), (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in6));
+        _IoResult result;
+        if (num >= 0)
+        {
+            result.BytesTransferred = num;
+            result.SocketError = _SOCKET_ERROR_SUCCESS;
+        }
+        else
+        {
+            result.BytesTransferred = -1;
+            result.SocketError = _GetLastSocketError();
+        }
+        return result;
+    }
+    return _Send(socket, buffer, length, socketFlags);
+}
+
+/// <summary>
+///     Receives data on a connected socket.
+/// </summary>
+/// <param name="socket">The socket handle.</param>
+/// <param name="buffer">Pointer to the receive buffer.</param>
+/// <param name="length">Length of the buffer.</param>
+/// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
+/// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+/// <remarks>
+///     Only the following flag values are honored:
+///     <list type="bullet">
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.OutOfBand" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.Peek" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.DontRoute" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.Truncated" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.ControlDataTruncated" />
+///             </description>
+///         </item>
+///     </list>
+///     Any other flags are silently ignored.
+/// </remarks>
+_IoResult _Receive(isize socket, void *buffer, i32 length, i32 socketFlags)
+{
+    i32 num = (i32)recv((SOCKET)socket, (u8 *)buffer, length, _ToNativeSocketFlags(socketFlags));
+    _IoResult result;
+    if (num >= 0)
+    {
+        result.BytesTransferred = num;
+        result.SocketError = _SOCKET_ERROR_SUCCESS;
+    }
+    else
+    {
+        result.BytesTransferred = -1;
+        result.SocketError = _GetLastSocketError();
+    }
+    return result;
+}
+
+/// <summary>
+///     Receives data from an Ipv4 socket address, filling the provided socket address.
+/// </summary>
+/// <param name="socket">The socket handle.</param>
+/// <param name="buffer">Pointer to the receive buffer.</param>
+/// <param name="length">Length of the buffer.</param>
+/// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
+/// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
+/// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+/// <remarks>
+///     Only the following flag values are honored:
+///     <list type="bullet">
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.OutOfBand" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.Peek" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.DontRoute" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.Truncated" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.ControlDataTruncated" />
+///             </description>
+///         </item>
+///     </list>
+///     Any other flags are silently ignored.
+/// </remarks>
+_IoResult _ReceiveFromIpv4(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in4 *socketAddress)
+{
+    _sockaddr_in4 storage;
+    _socklen_t addr_len = sizeof(_sockaddr_in4);
+    i32 num = (i32)recvfrom((SOCKET)socket, (u8 *)buffer, length, _ToNativeSocketFlags(socketFlags), (struct sockaddr *)&storage, &addr_len);
+    _IoResult result;
+    if (num >= 0)
+    {
+        if (socketAddress != NULL)
+        {
+            *socketAddress = storage;
+        }
+        result.BytesTransferred = num;
+        result.SocketError = _SOCKET_ERROR_SUCCESS;
+    }
+    else
+    {
+        result.BytesTransferred = -1;
+        result.SocketError = _GetLastSocketError();
+    }
+    return result;
+}
+
+/// <summary>
+///     Receives data from an Ipv6 socket address, filling the provided socket address.
+/// </summary>
+/// <param name="socket">The socket handle.</param>
+/// <param name="buffer">Pointer to the receive buffer.</param>
+/// <param name="length">Length of the buffer.</param>
+/// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
+/// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
+/// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+/// <remarks>
+///     Only the following flag values are honored:
+///     <list type="bullet">
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.OutOfBand" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.Peek" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.DontRoute" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.Truncated" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.ControlDataTruncated" />
+///             </description>
+///         </item>
+///     </list>
+///     Any other flags are silently ignored.
+/// </remarks>
+_IoResult _ReceiveFromIpv6(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in6 *socketAddress)
+{
+    _sockaddr_in6 storage;
+    _socklen_t addr_len = sizeof(_sockaddr_in6);
+    i32 num = (i32)recvfrom((SOCKET)socket, (u8 *)buffer, length, _ToNativeSocketFlags(socketFlags), (struct sockaddr *)&storage, &addr_len);
+    _IoResult result;
+    if (num >= 0)
+    {
+        if (socketAddress != NULL)
+        {
+            *socketAddress = storage;
+        }
+        result.BytesTransferred = num;
+        result.SocketError = _SOCKET_ERROR_SUCCESS;
+    }
+    else
+    {
+        result.BytesTransferred = -1;
+        result.SocketError = _GetLastSocketError();
+    }
+    return result;
+}
+
+/// <summary>
+///     Sends data from multiple buffers on a connected socket.
+/// </summary>
+/// <param name="socket">The socket handle.</param>
+/// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
+/// <param name="bufferCount">The number of buffers.</param>
+/// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
+/// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+/// <remarks>
+///     Only the following flag values are honored:
+///     <list type="bullet">
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.OutOfBand" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.Peek" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.DontRoute" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.Truncated" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.ControlDataTruncated" />
+///             </description>
+///         </item>
+///     </list>
+///     Any other flags are silently ignored.
+/// </remarks>
+_IoResult _SendVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags)
+{
+    i32 bytesSent;
+    i32 error;
+    WSABUF wsabufs[MAX_STACKALLOC_VECTORED_BUFFERS];
+    WSABUF *pwsabufs = (bufferCount <= MAX_STACKALLOC_VECTORED_BUFFERS) ? wsabufs : (WSABUF *)malloc(sizeof(WSABUF) * bufferCount);
+    if (pwsabufs == NULL)
+    {
+        WSASetLastError(WSAENOBUFS);
+        _IoResult oom_result;
+        oom_result.BytesTransferred = -1;
+        oom_result.SocketError = _GetLastSocketError();
+        return oom_result;
+    }
+    _Build(buffers, bufferCount, pwsabufs);
+    error = WSASend((SOCKET)socket, (LPWSABUF)pwsabufs, bufferCount, &bytesSent, _ToNativeSocketFlags(socketFlags), NULL, NULL);
+    if (pwsabufs != wsabufs)
+    {
+        free(pwsabufs);
+    }
+    _IoResult result;
+    if (error == 0)
+    {
+        result.BytesTransferred = bytesSent;
+        result.SocketError = _SOCKET_ERROR_SUCCESS;
+    }
+    else
+    {
+        result.BytesTransferred = -1;
+        result.SocketError = _GetLastSocketError();
+    }
+    return result;
+}
+
+/// <summary>
+///     Sends data from multiple buffers to an Ipv4 socket address.
+/// </summary>
+/// <param name="socket">The socket handle.</param>
+/// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
+/// <param name="bufferCount">The number of buffers.</param>
+/// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
+/// <param name="socketAddress">Pointer to the destination Ipv4 socket address.</param>
+/// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+/// <remarks>
+///     Only the following flag values are honored:
+///     <list type="bullet">
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.OutOfBand" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.Peek" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.DontRoute" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.Truncated" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.ControlDataTruncated" />
+///             </description>
+///         </item>
+///     </list>
+///     Any other flags are silently ignored.
+/// </remarks>
+_IoResult _SendToVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags, _sockaddr_in4 *socketAddress)
+{
+    if (socketAddress != NULL)
+    {
+        i32 bytesSent;
+        i32 error;
+        WSABUF wsabufs[MAX_STACKALLOC_VECTORED_BUFFERS];
+        WSABUF *pwsabufs = (bufferCount <= MAX_STACKALLOC_VECTORED_BUFFERS) ? wsabufs : (WSABUF *)malloc(sizeof(WSABUF) * bufferCount);
+        if (pwsabufs == NULL)
+        {
+            WSASetLastError(WSAENOBUFS);
+            _IoResult oom_result;
+            oom_result.BytesTransferred = -1;
+            oom_result.SocketError = _GetLastSocketError();
+            return oom_result;
+        }
+        _Build(buffers, bufferCount, pwsabufs);
+        error = WSASendTo((SOCKET)socket, (LPWSABUF)pwsabufs, bufferCount, &bytesSent, _ToNativeSocketFlags(socketFlags), (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in4), NULL, NULL);
+        if (pwsabufs != wsabufs)
+        {
+            free(pwsabufs);
+        }
+        _IoResult result;
+        if (error == 0)
+        {
+            result.BytesTransferred = bytesSent;
+            result.SocketError = _SOCKET_ERROR_SUCCESS;
+        }
+        else
+        {
+            result.BytesTransferred = -1;
+            result.SocketError = _GetLastSocketError();
+        }
+        return result;
+    }
+    return _SendVectored(socket, buffers, bufferCount, socketFlags);
+}
+
+/// <summary>
+///     Sends data from multiple buffers to an Ipv6 socket address.
+/// </summary>
+/// <param name="socket">The socket handle.</param>
+/// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
+/// <param name="bufferCount">The number of buffers.</param>
+/// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
+/// <param name="socketAddress">Pointer to the destination Ipv6 socket address.</param>
+/// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+/// <remarks>
+///     Only the following flag values are honored:
+///     <list type="bullet">
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.OutOfBand" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.Peek" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.DontRoute" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.Truncated" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.ControlDataTruncated" />
+///             </description>
+///         </item>
+///     </list>
+///     Any other flags are silently ignored.
+/// </remarks>
+_IoResult _SendToVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags, _sockaddr_in6 *socketAddress)
+{
+    if (socketAddress != NULL)
+    {
+        i32 bytesSent;
+        i32 error;
+        WSABUF wsabufs[MAX_STACKALLOC_VECTORED_BUFFERS];
+        WSABUF *pwsabufs = (bufferCount <= MAX_STACKALLOC_VECTORED_BUFFERS) ? wsabufs : (WSABUF *)malloc(sizeof(WSABUF) * bufferCount);
+        if (pwsabufs == NULL)
+        {
+            WSASetLastError(WSAENOBUFS);
+            _IoResult oom_result;
+            oom_result.BytesTransferred = -1;
+            oom_result.SocketError = _GetLastSocketError();
+            return oom_result;
+        }
+        _Build(buffers, bufferCount, pwsabufs);
+        error = WSASendTo((SOCKET)socket, (LPWSABUF)pwsabufs, bufferCount, &bytesSent, _ToNativeSocketFlags(socketFlags), (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in6), NULL, NULL);
+        if (pwsabufs != wsabufs)
+        {
+            free(pwsabufs);
+        }
+        _IoResult result;
+        if (error == 0)
+        {
+            result.BytesTransferred = bytesSent;
+            result.SocketError = _SOCKET_ERROR_SUCCESS;
+        }
+        else
+        {
+            result.BytesTransferred = -1;
+            result.SocketError = _GetLastSocketError();
+        }
+        return result;
+    }
+    return _SendVectored(socket, buffers, bufferCount, socketFlags);
+}
+
+/// <summary>
+///     Receives data into multiple buffers on a connected socket.
+/// </summary>
+/// <param name="socket">The socket handle.</param>
+/// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
+/// <param name="bufferCount">The number of buffers.</param>
+/// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
+/// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+/// <remarks>
+///     Only the following flag values are honored:
+///     <list type="bullet">
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.OutOfBand" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.Peek" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.DontRoute" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.Truncated" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.ControlDataTruncated" />
+///             </description>
+///         </item>
+///     </list>
+///     Any other flags are silently ignored.
+/// </remarks>
+_IoResult _ReceiveVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *inOutFlags)
+{
+    i32 bytesRecv;
+    DWORD flags = (inOutFlags != NULL) ? (DWORD)_ToNativeSocketFlags(*inOutFlags) : 0;
+    i32 error;
+    WSABUF wsabufs[MAX_STACKALLOC_VECTORED_BUFFERS];
+    WSABUF *pwsabufs = (bufferCount <= MAX_STACKALLOC_VECTORED_BUFFERS) ? wsabufs : (WSABUF *)malloc(sizeof(WSABUF) * bufferCount);
+    if (pwsabufs == NULL)
+    {
+        WSASetLastError(WSAENOBUFS);
+        _IoResult oom_result;
+        oom_result.BytesTransferred = -1;
+        oom_result.SocketError = _GetLastSocketError();
+        return oom_result;
+    }
+    _Build(buffers, bufferCount, pwsabufs);
+    error = WSARecv((SOCKET)socket, (LPWSABUF)pwsabufs, bufferCount, &bytesRecv, &flags, NULL, NULL);
+    if (pwsabufs != wsabufs)
+    {
+        free(pwsabufs);
+    }
+    _IoResult result;
+    if (error == 0)
+    {
+        if (inOutFlags != NULL)
+        {
+            *inOutFlags = (i32)_FromNativeSocketFlags((i32)flags);
+        }
+        result.BytesTransferred = bytesRecv;
+        result.SocketError = _SOCKET_ERROR_SUCCESS;
+    }
+    else
+    {
+        result.BytesTransferred = -1;
+        result.SocketError = _GetLastSocketError();
+    }
+    return result;
+}
+
+/// <summary>
+///     Receives data into multiple buffers from an Ipv4 socket address.
+/// </summary>
+/// <param name="socket">The socket handle.</param>
+/// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
+/// <param name="bufferCount">The number of buffers.</param>
+/// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
+/// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
+/// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+/// <remarks>
+///     Only the following flag values are honored:
+///     <list type="bullet">
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.OutOfBand" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.Peek" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.DontRoute" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.Truncated" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.ControlDataTruncated" />
+///             </description>
+///         </item>
+///     </list>
+///     Any other flags are silently ignored.
+/// </remarks>
+_IoResult _ReceiveFromVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *inOutFlags, _sockaddr_in4 *socketAddress)
+{
+    i32 bytesRecv;
+    DWORD flags = (inOutFlags != NULL) ? (DWORD)_ToNativeSocketFlags(*inOutFlags) : 0;
+    i32 error;
+    _sockaddr_in4 storage;
+    INT addr_len = sizeof(_sockaddr_in4);
+    WSABUF wsabufs[MAX_STACKALLOC_VECTORED_BUFFERS];
+    WSABUF *pwsabufs = (bufferCount <= MAX_STACKALLOC_VECTORED_BUFFERS) ? wsabufs : (WSABUF *)malloc(sizeof(WSABUF) * bufferCount);
+    if (pwsabufs == NULL)
+    {
+        WSASetLastError(WSAENOBUFS);
+        _IoResult oom_result;
+        oom_result.BytesTransferred = -1;
+        oom_result.SocketError = _GetLastSocketError();
+        return oom_result;
+    }
+    _Build(buffers, bufferCount, pwsabufs);
+    error = WSARecvFrom((SOCKET)socket, (LPWSABUF)pwsabufs, bufferCount, &bytesRecv, &flags, (struct sockaddr *)&storage, &addr_len, NULL, NULL);
+    if (pwsabufs != wsabufs)
+    {
+        free(pwsabufs);
+    }
+    _IoResult result;
+    if (error == 0)
+    {
+        if (inOutFlags != NULL)
+        {
+            *inOutFlags = (i32)_FromNativeSocketFlags((i32)flags);
+        }
+        if (socketAddress != NULL)
+        {
+            *socketAddress = storage;
+        }
+        result.BytesTransferred = bytesRecv;
+        result.SocketError = _SOCKET_ERROR_SUCCESS;
+    }
+    else
+    {
+        result.BytesTransferred = -1;
+        result.SocketError = _GetLastSocketError();
+    }
+    return result;
+}
+
+/// <summary>
+///     Receives data into multiple buffers from an Ipv6 socket address.
+/// </summary>
+/// <param name="socket">The socket handle.</param>
+/// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
+/// <param name="bufferCount">The number of buffers.</param>
+/// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
+/// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
+/// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+/// <remarks>
+///     Only the following flag values are honored:
+///     <list type="bullet">
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.OutOfBand" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.Peek" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.DontRoute" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.Truncated" />
+///             </description>
+///         </item>
+///         <item>
+///             <description>
+///                 <see cref="SocketFlags.ControlDataTruncated" />
+///             </description>
+///         </item>
+///     </list>
+///     Any other flags are silently ignored.
+/// </remarks>
+_IoResult _ReceiveFromVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *inOutFlags, _sockaddr_in6 *socketAddress)
+{
+    i32 bytesRecv;
+    DWORD flags = (inOutFlags != NULL) ? (DWORD)_ToNativeSocketFlags(*inOutFlags) : 0;
+    i32 error;
+    _sockaddr_in6 storage;
+    INT addr_len = sizeof(_sockaddr_in6);
+    WSABUF wsabufs[MAX_STACKALLOC_VECTORED_BUFFERS];
+    WSABUF *pwsabufs = (bufferCount <= MAX_STACKALLOC_VECTORED_BUFFERS) ? wsabufs : (WSABUF *)malloc(sizeof(WSABUF) * bufferCount);
+    if (pwsabufs == NULL)
+    {
+        WSASetLastError(WSAENOBUFS);
+        _IoResult oom_result;
+        oom_result.BytesTransferred = -1;
+        oom_result.SocketError = _GetLastSocketError();
+        return oom_result;
+    }
+    _Build(buffers, bufferCount, pwsabufs);
+    error = WSARecvFrom((SOCKET)socket, (LPWSABUF)pwsabufs, bufferCount, &bytesRecv, &flags, (struct sockaddr *)&storage, &addr_len, NULL, NULL);
+    if (pwsabufs != wsabufs)
+    {
+        free(pwsabufs);
+    }
+    _IoResult result;
+    if (error == 0)
+    {
+        if (inOutFlags != NULL)
+        {
+            *inOutFlags = (i32)_FromNativeSocketFlags((i32)flags);
+        }
+        if (socketAddress != NULL)
+        {
+            *socketAddress = storage;
+        }
+        result.BytesTransferred = bytesRecv;
+        result.SocketError = _SOCKET_ERROR_SUCCESS;
+    }
+    else
+    {
+        result.BytesTransferred = -1;
+        result.SocketError = _GetLastSocketError();
+    }
+    return result;
 }
 
 #endif

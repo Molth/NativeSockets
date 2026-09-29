@@ -1,4 +1,5 @@
-﻿using System.Net.Sockets;
+﻿using System;
+using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 
 // ReSharper disable ALL
@@ -11,361 +12,53 @@ namespace NativeSockets
     internal static unsafe class UnifiedSocketPal
     {
         /// <summary>
-        ///     Retrieves the last socket error code from the underlying platform.
+        ///     The platform-specific socket pal implementation selected during initialization.
         /// </summary>
-        private static readonly delegate* managed<SocketError> _GetLastSocketError;
-
-        /// <summary>
-        ///     Starts up the platform-specific socket subsystem.
-        /// </summary>
-        private static readonly delegate* managed<SocketError> _Startup;
-
-        /// <summary>
-        ///     Cleans up the platform-specific socket subsystem.
-        /// </summary>
-        private static readonly delegate* managed<SocketError> _Cleanup;
-
-        /// <summary>
-        ///     Creates a native socket handle for the specified address family (Ipv4 or Ipv6).
-        /// </summary>
-        private static readonly delegate* managed<bool, out nint, SocketError> _Create;
-
-        /// <summary>
-        ///     Closes a native socket handle.
-        /// </summary>
-        private static readonly delegate* managed<nint, SocketError> _Close;
-
-        /// <summary>
-        ///     Binds a socket to an Ipv4 socket address.
-        /// </summary>
-        private static readonly delegate* managed<nint, sockaddr_in4*, SocketError> _BindIpv4;
-
-        /// <summary>
-        ///     Binds a socket to an Ipv6 socket address.
-        /// </summary>
-        private static readonly delegate* managed<nint, sockaddr_in6*, SocketError> _BindIpv6;
-
-        /// <summary>
-        ///     Connects a socket to an Ipv4 socket address.
-        /// </summary>
-        private static readonly delegate* managed<nint, sockaddr_in4*, SocketError> _ConnectIpv4;
-
-        /// <summary>
-        ///     Connects a socket to an Ipv6 socket address.
-        /// </summary>
-        private static readonly delegate* managed<nint, sockaddr_in6*, SocketError> _ConnectIpv6;
-
-        /// <summary>
-        ///     Sets a socket option.
-        /// </summary>
-        private static readonly delegate* managed<nint, SocketOptionLevel, SocketOptionName, byte*, int, SocketError> _SetOption;
-
-        /// <summary>
-        ///     Gets a socket option.
-        /// </summary>
-        private static readonly delegate* managed<nint, SocketOptionLevel, SocketOptionName, byte*, int*, SocketError> _GetOption;
-
-        /// <summary>
-        ///     Sets a socket option.
-        /// </summary>
-        private static readonly delegate* managed<nint, int, int, byte*, int, SocketError> _SetRawOption;
-
-        /// <summary>
-        ///     Gets a socket option.
-        /// </summary>
-        private static readonly delegate* managed<nint, int, int, byte*, int*, SocketError> _GetRawOption;
-
-        /// <summary>
-        ///     Sets a socket's blocking mode.
-        /// </summary>
-        private static readonly delegate* managed<nint, bool, SocketError> _SetBlocking;
-
-        /// <summary>
-        ///     Polls a socket for pending events.
-        /// </summary>
-        private static readonly delegate* managed<nint, int, SelectMode, out bool, SocketError> _Poll;
-
-        /// <summary>
-        ///     Polls a socket for pending events.
-        /// </summary>
-        private static readonly delegate* managed<nint, int, SelectModeFlags, out SelectModeFlags, SocketError> _PollFlags;
-
-        /// <summary>
-        ///     Sends data on a connected socket.
-        /// </summary>
-        private static readonly delegate* managed<nint, void*, int, SocketFlags, int> _Send;
-
-        /// <summary>
-        ///     Sends data to an Ipv4 socket address.
-        /// </summary>
-        private static readonly delegate* managed<nint, void*, int, SocketFlags, sockaddr_in4*, int> _SendToIpv4;
-
-        /// <summary>
-        ///     Sends data to an Ipv6 socket address.
-        /// </summary>
-        private static readonly delegate* managed<nint, void*, int, SocketFlags, sockaddr_in6*, int> _SendToIpv6;
-
-        /// <summary>
-        ///     Receives data on a connected socket.
-        /// </summary>
-        private static readonly delegate* managed<nint, void*, int, SocketFlags, int> _Receive;
-
-        /// <summary>
-        ///     Receives data from an Ipv4 socket address, filling the provided socket address.
-        /// </summary>
-        private static readonly delegate* managed<nint, void*, int, SocketFlags, sockaddr_in4*, int> _ReceiveFromIpv4;
-
-        /// <summary>
-        ///     Receives data from an Ipv6 socket address, filling the provided socket address.
-        /// </summary>
-        private static readonly delegate* managed<nint, void*, int, SocketFlags, sockaddr_in6*, int> _ReceiveFromIpv6;
-
-        /// <summary>
-        ///     Sends data from multiple buffers on a connected socket.
-        /// </summary>
-        private static readonly delegate* managed<nint, NativeIoSlice*, int, SocketFlags, int> _SendVectored;
-
-        /// <summary>
-        ///     Sends data from multiple buffers to an Ipv4 socket address.
-        /// </summary>
-        private static readonly delegate* managed<nint, NativeIoSlice*, int, SocketFlags, sockaddr_in4*, int> _SendToVectoredIpv4;
-
-        /// <summary>
-        ///     Sends data from multiple buffers to an Ipv6 socket address.
-        /// </summary>
-        private static readonly delegate* managed<nint, NativeIoSlice*, int, SocketFlags, sockaddr_in6*, int> _SendToVectoredIpv6;
-
-        /// <summary>
-        ///     Receives data into multiple buffers on a connected socket.
-        /// </summary>
-        private static readonly delegate* managed<nint, NativeIoSlice*, int, SocketFlags*, int> _ReceiveVectored;
-
-        /// <summary>
-        ///     Receives data into multiple buffers from an Ipv4 socket address.
-        /// </summary>
-        private static readonly delegate* managed<nint, NativeIoSlice*, int, SocketFlags*, sockaddr_in4*, int> _ReceiveFromVectoredIpv4;
-
-        /// <summary>
-        ///     Receives data into multiple buffers from an Ipv6 socket address.
-        /// </summary>
-        private static readonly delegate* managed<nint, NativeIoSlice*, int, SocketFlags*, sockaddr_in6*, int> _ReceiveFromVectoredIpv6;
-
-        /// <summary>
-        ///     Gets the local name (socket address) of an Ipv4 socket.
-        /// </summary>
-        private static readonly delegate* managed<nint, sockaddr_in4*, SocketError> _GetNameIpv4;
-
-        /// <summary>
-        ///     Gets the local name (socket address) of an Ipv6 socket.
-        /// </summary>
-        private static readonly delegate* managed<nint, sockaddr_in6*, SocketError> _GetNameIpv6;
+        private static readonly SocketPalImpl Impl;
 
         /// <summary>
         ///     Initializes a new instance of this class.
         /// </summary>
         static UnifiedSocketPal()
         {
-            if (IsWindows())
+            SocketPalImpl impl;
+            bool isSupported = true;
+
+            if (WindowsSocketPal.IsSupported)
             {
-                ADDRESS_FAMILY_INTER_NETWORK_V4 = WindowsSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V4;
-                ADDRESS_FAMILY_INTER_NETWORK_V6 = WindowsSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
-
-                _GetLastSocketError = &WindowsSocketPal.GetLastSocketError;
-                _Startup = &WindowsSocketPal.Startup;
-                _Cleanup = &WindowsSocketPal.Cleanup;
-                _Create = &WindowsSocketPal.Create;
-                _Close = &WindowsSocketPal.Close;
-                _BindIpv4 = &WindowsSocketPal.BindIpv4;
-                _BindIpv6 = &WindowsSocketPal.BindIpv6;
-                _ConnectIpv4 = &WindowsSocketPal.ConnectIpv4;
-                _ConnectIpv6 = &WindowsSocketPal.ConnectIpv6;
-                _SetOption = &WindowsSocketPal.SetOption;
-                _GetOption = &WindowsSocketPal.GetOption;
-                _SetRawOption = &WindowsSocketPal.SetRawOption;
-                _GetRawOption = &WindowsSocketPal.GetRawOption;
-                _SetBlocking = &WindowsSocketPal.SetBlocking;
-                _Poll = &WindowsSocketPal.Poll;
-                _PollFlags = &WindowsSocketPal.PollFlags;
-                _Send = &WindowsSocketPal.Send;
-                _SendToIpv4 = &WindowsSocketPal.SendToIpv4;
-                _SendToIpv6 = &WindowsSocketPal.SendToIpv6;
-                _Receive = &WindowsSocketPal.Receive;
-                _ReceiveFromIpv4 = &WindowsSocketPal.ReceiveFromIpv4;
-                _ReceiveFromIpv6 = &WindowsSocketPal.ReceiveFromIpv6;
-                _SendVectored = &WindowsSocketPal.SendVectored;
-                _SendToVectoredIpv4 = &WindowsSocketPal.SendToVectoredIpv4;
-                _SendToVectoredIpv6 = &WindowsSocketPal.SendToVectoredIpv6;
-                _ReceiveVectored = &WindowsSocketPal.ReceiveVectored;
-                _ReceiveFromVectoredIpv4 = &WindowsSocketPal.ReceiveFromVectoredIpv4;
-                _ReceiveFromVectoredIpv6 = &WindowsSocketPal.ReceiveFromVectoredIpv6;
-                _GetNameIpv4 = &WindowsSocketPal.GetNameIpv4;
-                _GetNameIpv6 = &WindowsSocketPal.GetNameIpv6;
+                impl = WindowsSocketPal.GetImpl();
             }
-
-            else if (IsLinux())
+            else if (LinuxSocketPal.IsSupported)
             {
-                ADDRESS_FAMILY_INTER_NETWORK_V4 = LinuxSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V4;
-                ADDRESS_FAMILY_INTER_NETWORK_V6 = LinuxSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
-
-                _GetLastSocketError = &LinuxSocketPal.GetLastSocketError;
-                _Startup = &LinuxSocketPal.Startup;
-                _Cleanup = &LinuxSocketPal.Cleanup;
-                _Create = &LinuxSocketPal.Create;
-                _Close = &LinuxSocketPal.Close;
-                _BindIpv4 = &LinuxSocketPal.BindIpv4;
-                _BindIpv6 = &LinuxSocketPal.BindIpv6;
-                _ConnectIpv4 = &LinuxSocketPal.ConnectIpv4;
-                _ConnectIpv6 = &LinuxSocketPal.ConnectIpv6;
-                _SetOption = &LinuxSocketPal.SetOption;
-                _GetOption = &LinuxSocketPal.GetOption;
-                _SetRawOption = &LinuxSocketPal.SetRawOption;
-                _GetRawOption = &LinuxSocketPal.GetRawOption;
-                _SetBlocking = &LinuxSocketPal.SetBlocking;
-                _Poll = &LinuxSocketPal.Poll;
-                _PollFlags = &LinuxSocketPal.PollFlags;
-                _Send = &LinuxSocketPal.Send;
-                _SendToIpv4 = &LinuxSocketPal.SendToIpv4;
-                _SendToIpv6 = &LinuxSocketPal.SendToIpv6;
-                _Receive = &LinuxSocketPal.Receive;
-                _ReceiveFromIpv4 = &LinuxSocketPal.ReceiveFromIpv4;
-                _ReceiveFromIpv6 = &LinuxSocketPal.ReceiveFromIpv6;
-                _SendVectored = &LinuxSocketPal.SendVectored;
-                _SendToVectoredIpv4 = &LinuxSocketPal.SendToVectoredIpv4;
-                _SendToVectoredIpv6 = &LinuxSocketPal.SendToVectoredIpv6;
-                _ReceiveVectored = &LinuxSocketPal.ReceiveVectored;
-                _ReceiveFromVectoredIpv4 = &LinuxSocketPal.ReceiveFromVectoredIpv4;
-                _ReceiveFromVectoredIpv6 = &LinuxSocketPal.ReceiveFromVectoredIpv6;
-                _GetNameIpv4 = &LinuxSocketPal.GetNameIpv4;
-                _GetNameIpv6 = &LinuxSocketPal.GetNameIpv6;
+                impl = LinuxSocketPal.GetImpl();
             }
-
-            else if (IsOsx())
+            else if (AppleSocketPal.IsSupported)
             {
-                ADDRESS_FAMILY_INTER_NETWORK_V4 = OsxSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V4;
-                ADDRESS_FAMILY_INTER_NETWORK_V6 = OsxSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
-
-                _GetLastSocketError = &OsxSocketPal.GetLastSocketError;
-                _Startup = &OsxSocketPal.Startup;
-                _Cleanup = &OsxSocketPal.Cleanup;
-                _Create = &OsxSocketPal.Create;
-                _Close = &OsxSocketPal.Close;
-                _BindIpv4 = &OsxSocketPal.BindIpv4;
-                _BindIpv6 = &OsxSocketPal.BindIpv6;
-                _ConnectIpv4 = &OsxSocketPal.ConnectIpv4;
-                _ConnectIpv6 = &OsxSocketPal.ConnectIpv6;
-                _SetOption = &OsxSocketPal.SetOption;
-                _GetOption = &OsxSocketPal.GetOption;
-                _SetRawOption = &OsxSocketPal.SetRawOption;
-                _GetRawOption = &OsxSocketPal.GetRawOption;
-                _SetBlocking = &OsxSocketPal.SetBlocking;
-                _Poll = &OsxSocketPal.Poll;
-                _PollFlags = &OsxSocketPal.PollFlags;
-                _Send = &OsxSocketPal.Send;
-                _SendToIpv4 = &OsxSocketPal.SendToIpv4;
-                _SendToIpv6 = &OsxSocketPal.SendToIpv6;
-                _Receive = &OsxSocketPal.Receive;
-                _ReceiveFromIpv4 = &OsxSocketPal.ReceiveFromIpv4;
-                _ReceiveFromIpv6 = &OsxSocketPal.ReceiveFromIpv6;
-                _SendVectored = &OsxSocketPal.SendVectored;
-                _SendToVectoredIpv4 = &OsxSocketPal.SendToVectoredIpv4;
-                _SendToVectoredIpv6 = &OsxSocketPal.SendToVectoredIpv6;
-                _ReceiveVectored = &OsxSocketPal.ReceiveVectored;
-                _ReceiveFromVectoredIpv4 = &OsxSocketPal.ReceiveFromVectoredIpv4;
-                _ReceiveFromVectoredIpv6 = &OsxSocketPal.ReceiveFromVectoredIpv6;
-                _GetNameIpv4 = &OsxSocketPal.GetNameIpv4;
-                _GetNameIpv6 = &OsxSocketPal.GetNameIpv6;
+                impl = AppleSocketPal.GetImpl();
             }
-
-            else if (IsFreeBsd())
+            else if (FreeBsdSocketPal.IsSupported)
             {
-                ADDRESS_FAMILY_INTER_NETWORK_V4 = FreeBsdSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V4;
-                ADDRESS_FAMILY_INTER_NETWORK_V6 = FreeBsdSocketPal.ADDRESS_FAMILY_INTER_NETWORK_V6;
-
-                _GetLastSocketError = &FreeBsdSocketPal.GetLastSocketError;
-                _Startup = &FreeBsdSocketPal.Startup;
-                _Cleanup = &FreeBsdSocketPal.Cleanup;
-                _Create = &FreeBsdSocketPal.Create;
-                _Close = &FreeBsdSocketPal.Close;
-                _BindIpv4 = &FreeBsdSocketPal.BindIpv4;
-                _BindIpv6 = &FreeBsdSocketPal.BindIpv6;
-                _ConnectIpv4 = &FreeBsdSocketPal.ConnectIpv4;
-                _ConnectIpv6 = &FreeBsdSocketPal.ConnectIpv6;
-                _SetOption = &FreeBsdSocketPal.SetOption;
-                _GetOption = &FreeBsdSocketPal.GetOption;
-                _SetRawOption = &FreeBsdSocketPal.SetRawOption;
-                _GetRawOption = &FreeBsdSocketPal.GetRawOption;
-                _SetBlocking = &FreeBsdSocketPal.SetBlocking;
-                _Poll = &FreeBsdSocketPal.Poll;
-                _PollFlags = &FreeBsdSocketPal.PollFlags;
-                _Send = &FreeBsdSocketPal.Send;
-                _SendToIpv4 = &FreeBsdSocketPal.SendToIpv4;
-                _SendToIpv6 = &FreeBsdSocketPal.SendToIpv6;
-                _Receive = &FreeBsdSocketPal.Receive;
-                _ReceiveFromIpv4 = &FreeBsdSocketPal.ReceiveFromIpv4;
-                _ReceiveFromIpv6 = &FreeBsdSocketPal.ReceiveFromIpv6;
-                _SendVectored = &FreeBsdSocketPal.SendVectored;
-                _SendToVectoredIpv4 = &FreeBsdSocketPal.SendToVectoredIpv4;
-                _SendToVectoredIpv6 = &FreeBsdSocketPal.SendToVectoredIpv6;
-                _ReceiveVectored = &FreeBsdSocketPal.ReceiveVectored;
-                _ReceiveFromVectoredIpv4 = &FreeBsdSocketPal.ReceiveFromVectoredIpv4;
-                _ReceiveFromVectoredIpv6 = &FreeBsdSocketPal.ReceiveFromVectoredIpv6;
-                _GetNameIpv4 = &FreeBsdSocketPal.GetNameIpv4;
-                _GetNameIpv6 = &FreeBsdSocketPal.GetNameIpv6;
+                impl = FreeBsdSocketPal.GetImpl();
             }
-
             else
             {
-                _GetLastSocketError = &NotSupportedSocketPal.GetLastSocketError;
-                _Startup = &NotSupportedSocketPal.Startup;
-                _Cleanup = &NotSupportedSocketPal.Cleanup;
-                _Create = &NotSupportedSocketPal.Create;
-                _Close = &NotSupportedSocketPal.Close;
-                _BindIpv4 = &NotSupportedSocketPal.BindIpv4;
-                _BindIpv6 = &NotSupportedSocketPal.BindIpv6;
-                _ConnectIpv4 = &NotSupportedSocketPal.ConnectIpv4;
-                _ConnectIpv6 = &NotSupportedSocketPal.ConnectIpv6;
-                _SetOption = &NotSupportedSocketPal.SetOption;
-                _GetOption = &NotSupportedSocketPal.GetOption;
-                _SetRawOption = &NotSupportedSocketPal.SetRawOption;
-                _GetRawOption = &NotSupportedSocketPal.GetRawOption;
-                _SetBlocking = &NotSupportedSocketPal.SetBlocking;
-                _Poll = &NotSupportedSocketPal.Poll;
-                _PollFlags = &NotSupportedSocketPal.PollFlags;
-                _Send = &NotSupportedSocketPal.Send;
-                _SendToIpv4 = &NotSupportedSocketPal.SendToIpv4;
-                _SendToIpv6 = &NotSupportedSocketPal.SendToIpv6;
-                _Receive = &NotSupportedSocketPal.Receive;
-                _ReceiveFromIpv4 = &NotSupportedSocketPal.ReceiveFromIpv4;
-                _ReceiveFromIpv6 = &NotSupportedSocketPal.ReceiveFromIpv6;
-                _SendVectored = &NotSupportedSocketPal.SendVectored;
-                _SendToVectoredIpv4 = &NotSupportedSocketPal.SendToVectoredIpv4;
-                _SendToVectoredIpv6 = &NotSupportedSocketPal.SendToVectoredIpv6;
-                _ReceiveVectored = &NotSupportedSocketPal.ReceiveVectored;
-                _ReceiveFromVectoredIpv4 = &NotSupportedSocketPal.ReceiveFromVectoredIpv4;
-                _ReceiveFromVectoredIpv6 = &NotSupportedSocketPal.ReceiveFromVectoredIpv6;
-                _GetNameIpv4 = &NotSupportedSocketPal.GetNameIpv4;
-                _GetNameIpv6 = &NotSupportedSocketPal.GetNameIpv6;
+                impl = DummySocketPal.GetImpl();
+                isSupported = false;
             }
 
-            IsSupported = IsWindows() || IsLinux() || IsOsx() || IsFreeBsd();
-
-            return;
-
-            static bool IsWindows() => WindowsSocketPal.IsSupported;
-            static bool IsLinux() => LinuxSocketPal.IsSupported;
-            static bool IsOsx() => OsxSocketPal.IsSupported;
-            static bool IsFreeBsd() => FreeBsdSocketPal.IsSupported;
+            Impl = impl;
+            IsSupported = isSupported;
         }
 
         /// <summary>
         ///     Gets the address family value for Ipv4 used by the current platform.
         /// </summary>
-        public static ushort ADDRESS_FAMILY_INTER_NETWORK_V4 { get; }
+        public static ushort ADDRESS_FAMILY_INTER_NETWORK_V4 => Impl.ADDRESS_FAMILY_INTER_NETWORK_V4;
 
         /// <summary>
         ///     Gets the address family value for Ipv6 used by the current platform.
         /// </summary>
-        public static ushort ADDRESS_FAMILY_INTER_NETWORK_V6 { get; }
+        public static ushort ADDRESS_FAMILY_INTER_NETWORK_V6 => Impl.ADDRESS_FAMILY_INTER_NETWORK_V6;
 
         /// <summary>
         ///     Gets a value indicating whether any platform-specific implementation is supported.
@@ -376,22 +69,34 @@ namespace NativeSockets
         ///     Retrieves the last socket error code from the underlying platform.
         /// </summary>
         /// <returns>The last <see cref="SocketError" />.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetLastSocketError() => _GetLastSocketError();
+        public static SocketError GetLastSocketError() => Impl.GetLastSocketError();
 
         /// <summary>
         ///     Starts up the platform-specific socket subsystem.
         /// </summary>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError Startup() => _Startup();
+        public static SocketError Startup() => Impl.Startup();
 
         /// <summary>
         ///     Cleans up the platform-specific socket subsystem.
         /// </summary>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError Cleanup() => _Cleanup();
+        public static SocketError Cleanup() => Impl.Cleanup();
 
         /// <summary>
         ///     Creates a native socket handle.
@@ -399,16 +104,24 @@ namespace NativeSockets
         /// <param name="ipv6">true to create an Ipv6 socket; false for Ipv4.</param>
         /// <param name="socket">When this method returns, contains the native socket handle, or -1 on error.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError Create(bool ipv6, out nint socket) => _Create(ipv6, out socket);
+        public static SocketError Create(bool ipv6, out nint socket) => Impl.Create(ipv6, out socket);
 
         /// <summary>
         ///     Closes a native socket handle.
         /// </summary>
         /// <param name="socket">The native socket handle to close.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError Close(nint socket) => _Close(socket);
+        public static SocketError Close(nint socket) => Impl.Close(socket);
 
         /// <summary>
         ///     Binds a socket to an Ipv4 socket address.
@@ -416,8 +129,12 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="socketAddress">Pointer to the Ipv4 socket address.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError BindIpv4(nint socket, sockaddr_in4* socketAddress) => _BindIpv4(socket, socketAddress);
+        public static SocketError BindIpv4(nint socket, sockaddr_in4* socketAddress) => Impl.BindIpv4(socket, socketAddress);
 
         /// <summary>
         ///     Binds a socket to an Ipv6 socket address.
@@ -425,8 +142,12 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="socketAddress">Pointer to the Ipv6 socket address.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError BindIpv6(nint socket, sockaddr_in6* socketAddress) => _BindIpv6(socket, socketAddress);
+        public static SocketError BindIpv6(nint socket, sockaddr_in6* socketAddress) => Impl.BindIpv6(socket, socketAddress);
 
         /// <summary>
         ///     Connects a socket to an Ipv4 socket address.
@@ -434,8 +155,12 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="socketAddress">Pointer to the Ipv4 socket address.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError ConnectIpv4(nint socket, sockaddr_in4* socketAddress) => _ConnectIpv4(socket, socketAddress);
+        public static SocketError ConnectIpv4(nint socket, sockaddr_in4* socketAddress) => Impl.ConnectIpv4(socket, socketAddress);
 
         /// <summary>
         ///     Connects a socket to an Ipv6 socket address.
@@ -443,8 +168,12 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="socketAddress">Pointer to the Ipv6 socket address.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError ConnectIpv6(nint socket, sockaddr_in6* socketAddress) => _ConnectIpv6(socket, socketAddress);
+        public static SocketError ConnectIpv6(nint socket, sockaddr_in6* socketAddress) => Impl.ConnectIpv6(socket, socketAddress);
 
         /// <summary>
         ///     Sets a socket option.
@@ -455,13 +184,34 @@ namespace NativeSockets
         /// <param name="value">Pointer to the option value.</param>
         /// <param name="length">The length of the option value in bytes.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         /// <remarks>
-        ///     The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
-        ///     platform equivalents by the underlying socket layer. The <paramref name="value" /> bytes are
-        ///     passed through unmodified; the platform interprets the buffer according to the mapped option.
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
+        ///                 platform equivalents by the underlying socket layer.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 The <paramref name="value" /> bytes are passed through unmodified; the platform interprets the
+        ///                 buffer according to the mapped option.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Behavior is not guaranteed to be consistent across platforms; only the mapping of
+        ///                 <paramref name="level" /> and <paramref name="name" /> is guaranteed.
+        ///             </description>
+        ///         </item>
+        ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetOption(nint socket, SocketOptionLevel level, SocketOptionName name, byte* value, int length) => _SetOption(socket, level, name, value, length);
+        public static SocketError SetOption(nint socket, SocketOptionLevel level, SocketOptionName name, void* value, int length) => Impl.SetOption(socket, level, name, value, length);
 
         /// <summary>
         ///     Gets a socket option.
@@ -472,13 +222,34 @@ namespace NativeSockets
         /// <param name="value">Pointer to a buffer to receive the option value.</param>
         /// <param name="length">Pointer to the length of the buffer; on output, the actual size of the option.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         /// <remarks>
-        ///     The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
-        ///     platform equivalents by the underlying socket layer. The <paramref name="value" /> buffer is
-        ///     passed through unmodified; the platform populates the buffer according to the mapped option.
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
+        ///                 platform equivalents by the underlying socket layer.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 The <paramref name="value" /> buffer is passed through unmodified; the platform populates the
+        ///                 buffer according to the mapped option.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Behavior is not guaranteed to be consistent across platforms; only the mapping of
+        ///                 <paramref name="level" /> and <paramref name="name" /> is guaranteed.
+        ///             </description>
+        ///         </item>
+        ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetOption(nint socket, SocketOptionLevel level, SocketOptionName name, byte* value, int* length) => _GetOption(socket, level, name, value, length);
+        public static SocketError GetOption(nint socket, SocketOptionLevel level, SocketOptionName name, void* value, int* length) => Impl.GetOption(socket, level, name, value, length);
 
         /// <summary>
         ///     Sets a socket option.
@@ -489,8 +260,12 @@ namespace NativeSockets
         /// <param name="value">Pointer to the option value.</param>
         /// <param name="length">The length of the option value in bytes.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetRawOption(nint socket, int level, int name, byte* value, int length) => _SetRawOption(socket, level, name, value, length);
+        public static SocketError SetRawOption(nint socket, int level, int name, void* value, int length) => Impl.SetRawOption(socket, level, name, value, length);
 
         /// <summary>
         ///     Gets a socket option.
@@ -501,8 +276,12 @@ namespace NativeSockets
         /// <param name="value">Pointer to a buffer to receive the option value.</param>
         /// <param name="length">Pointer to the length of the buffer; on output, the actual size of the option.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetRawOption(nint socket, int level, int name, byte* value, int* length) => _GetRawOption(socket, level, name, value, length);
+        public static SocketError GetRawOption(nint socket, int level, int name, void* value, int* length) => Impl.GetRawOption(socket, level, name, value, length);
 
         /// <summary>
         ///     Sets a socket's blocking mode.
@@ -510,8 +289,12 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="blocking">true for blocking; false for non-blocking.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError SetBlocking(nint socket, bool blocking) => _SetBlocking(socket, blocking);
+        public static SocketError SetBlocking(nint socket, bool blocking) => Impl.SetBlocking(socket, blocking);
 
         /// <summary>
         ///     Polls a socket for pending events.
@@ -521,8 +304,12 @@ namespace NativeSockets
         /// <param name="mode">The select mode.</param>
         /// <param name="status">When this method returns, contains true if the socket is ready, false otherwise.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError Poll(nint socket, int microseconds, SelectMode mode, out bool status) => _Poll(socket, microseconds, mode, out status);
+        public static SocketError Poll(nint socket, int microseconds, SelectMode mode, out bool status) => Impl.Poll(socket, microseconds, mode, out status);
 
         /// <summary>
         ///     Polls a socket for pending events.
@@ -532,8 +319,38 @@ namespace NativeSockets
         /// <param name="inFlags">The select mode.</param>
         /// <param name="outFlags">When this method returns, contains the poll result flags.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError PollFlags(nint socket, int microseconds, SelectModeFlags inFlags, out SelectModeFlags outFlags) => _PollFlags(socket, microseconds, inFlags, out outFlags);
+        public static SocketError PollFlags(nint socket, int microseconds, SelectModeFlags inFlags, out SelectModeFlags outFlags) => Impl.PollFlags(socket, microseconds, inFlags, out outFlags);
+
+        /// <summary>
+        ///     Gets the local name (socket address) of an Ipv4 socket.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="socketAddress">Pointer to the Ipv4 socket address to receive the name.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError GetNameIpv4(nint socket, sockaddr_in4* socketAddress) => Impl.GetNameIpv4(socket, socketAddress);
+
+        /// <summary>
+        ///     Gets the local name (socket address) of an Ipv6 socket.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="socketAddress">Pointer to the Ipv6 socket address to receive the name.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError GetNameIpv6(nint socket, sockaddr_in6* socketAddress) => Impl.GetNameIpv6(socket, socketAddress);
 
         /// <summary>
         ///     Sends data on a connected socket.
@@ -542,9 +359,44 @@ namespace NativeSockets
         /// <param name="buffer">Pointer to the data buffer.</param>
         /// <param name="length">Length of the buffer in bytes.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <returns>The number of bytes sent, or -1 on error.</returns>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Send(nint socket, void* buffer, int length, SocketFlags socketFlags) => _Send(socket, buffer, length, socketFlags);
+        public static IoResult Send(nint socket, void* buffer, int length, SocketFlags socketFlags) => Impl.Send(socket, buffer, length, socketFlags);
 
         /// <summary>
         ///     Sends data to an Ipv4 socket address.
@@ -554,9 +406,44 @@ namespace NativeSockets
         /// <param name="length">Length of the buffer.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">Pointer to the destination Ipv4 socket address.</param>
-        /// <returns>The number of bytes sent, or -1 on error.</returns>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendToIpv4(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in4* socketAddress) => _SendToIpv4(socket, buffer, length, socketFlags, socketAddress);
+        public static IoResult SendToIpv4(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in4* socketAddress) => Impl.SendToIpv4(socket, buffer, length, socketFlags, socketAddress);
 
         /// <summary>
         ///     Sends data to an Ipv6 socket address.
@@ -566,9 +453,44 @@ namespace NativeSockets
         /// <param name="length">Length of the buffer.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">Pointer to the destination Ipv6 socket address.</param>
-        /// <returns>The number of bytes sent, or -1 on error.</returns>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendToIpv6(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in6* socketAddress) => _SendToIpv6(socket, buffer, length, socketFlags, socketAddress);
+        public static IoResult SendToIpv6(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in6* socketAddress) => Impl.SendToIpv6(socket, buffer, length, socketFlags, socketAddress);
 
         /// <summary>
         ///     Receives data on a connected socket.
@@ -577,9 +499,44 @@ namespace NativeSockets
         /// <param name="buffer">Pointer to the receive buffer.</param>
         /// <param name="length">Length of the buffer.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <returns>The number of bytes received, or -1 on error.</returns>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Receive(nint socket, void* buffer, int length, SocketFlags socketFlags) => _Receive(socket, buffer, length, socketFlags);
+        public static IoResult Receive(nint socket, void* buffer, int length, SocketFlags socketFlags) => Impl.Receive(socket, buffer, length, socketFlags);
 
         /// <summary>
         ///     Receives data from an Ipv4 socket address, filling the provided socket address.
@@ -589,9 +546,44 @@ namespace NativeSockets
         /// <param name="length">Length of the buffer.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
-        /// <returns>The number of bytes received, or -1 on error.</returns>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveFromIpv4(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in4* socketAddress) => _ReceiveFromIpv4(socket, buffer, length, socketFlags, socketAddress);
+        public static IoResult ReceiveFromIpv4(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in4* socketAddress) => Impl.ReceiveFromIpv4(socket, buffer, length, socketFlags, socketAddress);
 
         /// <summary>
         ///     Receives data from an Ipv6 socket address, filling the provided socket address.
@@ -601,9 +593,44 @@ namespace NativeSockets
         /// <param name="length">Length of the buffer.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
-        /// <returns>The number of bytes received, or -1 on error.</returns>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveFromIpv6(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in6* socketAddress) => _ReceiveFromIpv6(socket, buffer, length, socketFlags, socketAddress);
+        public static IoResult ReceiveFromIpv6(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in6* socketAddress) => Impl.ReceiveFromIpv6(socket, buffer, length, socketFlags, socketAddress);
 
         /// <summary>
         ///     Sends data from multiple buffers on a connected socket.
@@ -612,9 +639,44 @@ namespace NativeSockets
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
         /// <param name="bufferCount">The number of buffers.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <returns>The number of bytes sent, or -1 on error.</returns>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags) => _SendVectored(socket, buffers, bufferCount, socketFlags);
+        public static IoResult SendVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags) => Impl.SendVectored(socket, buffers, bufferCount, socketFlags);
 
         /// <summary>
         ///     Sends data from multiple buffers to an Ipv4 socket address.
@@ -624,9 +686,44 @@ namespace NativeSockets
         /// <param name="bufferCount">The number of buffers.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">Pointer to the destination Ipv4 socket address.</param>
-        /// <returns>The number of bytes sent, or -1 on error.</returns>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendToVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in4* socketAddress) => _SendToVectoredIpv4(socket, buffers, bufferCount, socketFlags, socketAddress);
+        public static IoResult SendToVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in4* socketAddress) => Impl.SendToVectoredIpv4(socket, buffers, bufferCount, socketFlags, socketAddress);
 
         /// <summary>
         ///     Sends data from multiple buffers to an Ipv6 socket address.
@@ -636,9 +733,44 @@ namespace NativeSockets
         /// <param name="bufferCount">The number of buffers.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">Pointer to the destination Ipv6 socket address.</param>
-        /// <returns>The number of bytes sent, or -1 on error.</returns>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendToVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in6* socketAddress) => _SendToVectoredIpv6(socket, buffers, bufferCount, socketFlags, socketAddress);
+        public static IoResult SendToVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in6* socketAddress) => Impl.SendToVectoredIpv6(socket, buffers, bufferCount, socketFlags, socketAddress);
 
         /// <summary>
         ///     Receives data into multiple buffers on a connected socket.
@@ -647,14 +779,44 @@ namespace NativeSockets
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
         /// <param name="bufferCount">The number of buffers.</param>
         /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
-        /// <returns>The number of bytes received, or -1 on error.</returns>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         /// <remarks>
-        ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
-        ///     the operation is considered failed and returns <c>-1</c>,
-        ///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags) => _ReceiveVectored(socket, buffers, bufferCount, inOutFlags);
+        public static IoResult ReceiveVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags) => Impl.ReceiveVectored(socket, buffers, bufferCount, inOutFlags);
 
         /// <summary>
         ///     Receives data into multiple buffers from an Ipv4 socket address.
@@ -664,14 +826,44 @@ namespace NativeSockets
         /// <param name="bufferCount">The number of buffers.</param>
         /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
-        /// <returns>The number of bytes received, or -1 on error.</returns>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         /// <remarks>
-        ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
-        ///     the operation is considered failed and returns <c>-1</c>,
-        ///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveFromVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in4* socketAddress) => _ReceiveFromVectoredIpv4(socket, buffers, bufferCount, inOutFlags, socketAddress);
+        public static IoResult ReceiveFromVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in4* socketAddress) => Impl.ReceiveFromVectoredIpv4(socket, buffers, bufferCount, inOutFlags, socketAddress);
 
         /// <summary>
         ///     Receives data into multiple buffers from an Ipv6 socket address.
@@ -681,31 +873,43 @@ namespace NativeSockets
         /// <param name="bufferCount">The number of buffers.</param>
         /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
-        /// <returns>The number of bytes received, or -1 on error.</returns>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         /// <remarks>
-        ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
-        ///     the operation is considered failed and returns <c>-1</c>,
-        ///     even if <c>GetLastSocketError</c> returns <see cref="SocketError.Success" />.
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveFromVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in6* socketAddress) => _ReceiveFromVectoredIpv6(socket, buffers, bufferCount, inOutFlags, socketAddress);
-
-        /// <summary>
-        ///     Gets the local name (socket address) of an Ipv4 socket.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="socketAddress">Pointer to the Ipv4 socket address to receive the name.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetNameIpv4(nint socket, sockaddr_in4* socketAddress) => _GetNameIpv4(socket, socketAddress);
-
-        /// <summary>
-        ///     Gets the local name (socket address) of an Ipv6 socket.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="socketAddress">Pointer to the Ipv6 socket address to receive the name.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetNameIpv6(nint socket, sockaddr_in6* socketAddress) => _GetNameIpv6(socket, socketAddress);
+        public static IoResult ReceiveFromVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in6* socketAddress) => Impl.ReceiveFromVectoredIpv6(socket, buffers, bufferCount, inOutFlags, socketAddress);
     }
 }

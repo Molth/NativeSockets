@@ -13,6 +13,11 @@ namespace NativeSockets
     internal static class WinSock2
     {
         /// <summary>
+        ///     Gets the maximum number of vectored buffers that can be stack-allocated for vectored socket operations.
+        /// </summary>
+        public const int MAX_STACKALLOC_VECTORED_BUFFERS = 32;
+
+        /// <summary>
         ///     Gets a pre‑computed Ipv4‑mapped Ipv6 ip prefix.
         /// </summary>
         private static ReadOnlySpan<byte> AF_INET_4_MAPPED_AF_INET_6_PREFIX => new byte[12] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFF, 0xFF };

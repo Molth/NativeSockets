@@ -22,7 +22,7 @@ namespace NativeSockets
         /// <param name="__utf8_interfaceName_native">Pointer to a null-terminated UTF‑8 interface name string.</param>
         /// <returns>The interface index on success; 0 on failure, with the error code available via errno.</returns>
         [DllImport(DLL_NAME_LIBC, EntryPoint = "if_nametoindex", CallingConvention = CALLING_CONVENTION, SetLastError = true)]
-        private static extern uint _if_nametoindex(byte* __utf8_interfaceName_native);
+        private static extern uint _if_nametoindex(void* __utf8_interfaceName_native);
 
         /// <summary>
         ///     Resolves a network interface name to its interface index, which is used as the Ipv6 scope id

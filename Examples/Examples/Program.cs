@@ -46,7 +46,7 @@ namespace Examples
                     var error = socket.PollFlags(0, SelectModeFlags.SelectRead, out var outFlags);
                     if (error == SocketError.Success && (outFlags & SelectModeFlags.SelectRead) != 0)
                     {
-                        var received = socket.ReceiveFrom(buffer, SocketFlags.None, ref socketAddress);
+                        var received = socket.ReceiveFrom(buffer, SocketFlags.None, ref socketAddress, out _);
                         if (received >= 0)
                         {
                             var receivedText = Encoding.UTF8.GetString(buffer, 0, received);
@@ -55,7 +55,7 @@ namespace Examples
 
                             var reply = $"[Server]: {receivedText}";
                             var replyData = Encoding.UTF8.GetBytes(reply);
-                            socket.SendTo(replyData, SocketFlags.None, socketAddress);
+                            socket.SendTo(replyData, SocketFlags.None, socketAddress, out _);
                         }
                     }
                 }
@@ -88,12 +88,12 @@ namespace Examples
                 while (true)
                 {
                     var sendBuffer = Encoding.UTF8.GetBytes($"Hello world! {counter++}");
-                    socket.SendTo(sendBuffer, SocketFlags.None, serverAddress);
+                    socket.SendTo(sendBuffer, SocketFlags.None, serverAddress, out _);
                     try
                     {
                         if (new NativeSocket(socket).Poll(0, SelectMode.SelectRead, out var status) == SocketError.Success && status)
                         {
-                            var received = socket.ReceiveFrom(receiveBuffer, SocketFlags.None, ref socketAddress);
+                            var received = socket.ReceiveFrom(receiveBuffer, SocketFlags.None, ref socketAddress, out _);
                             if (received >= 0)
                             {
                                 var receivedText = Encoding.UTF8.GetString(receiveBuffer, 0, received);

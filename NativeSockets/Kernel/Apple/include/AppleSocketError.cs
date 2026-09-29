@@ -9,14 +9,14 @@ namespace NativeSockets
     /// <summary>
     ///     Provides platform-specific error handling for sockets.
     /// </summary>
-    internal static class OsxSocketError
+    internal static class AppleSocketError
     {
         /// <summary>
         ///     Retrieves the last socket error code from the underlying platform.
         /// </summary>
         /// <returns>The last <see cref="SocketError" />.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetLastError()
+        public static SocketError __GetLastSocketError()
         {
             int errno = _errno();
             return FromNativeErrno(errno);
@@ -35,9 +35,9 @@ namespace NativeSockets
             4 => SocketError.Interrupted,
             6 => SocketError.HostNotFound,
             9 => SocketError.OperationAborted,
+            12 => SocketError.NoBufferSpaceAvailable,
             13 => SocketError.AccessDenied,
             14 => SocketError.Fault,
-            12 => SocketError.NoBufferSpaceAvailable,
             22 => SocketError.InvalidArgument,
             23 => SocketError.TooManyOpenSockets,
             24 => SocketError.TooManyOpenSockets,
@@ -50,7 +50,6 @@ namespace NativeSockets
             40 => SocketError.MessageSize,
             41 => SocketError.ProtocolType,
             42 => SocketError.ProtocolOption,
-            100 => SocketError.ProtocolNotSupported,
             43 => SocketError.ProtocolNotSupported,
             44 => SocketError.SocketNotSupported,
             45 => SocketError.OperationNotSupported,
@@ -66,7 +65,7 @@ namespace NativeSockets
             55 => SocketError.NoBufferSpaceAvailable,
             56 => SocketError.IsConnected,
             57 => SocketError.NotConnected,
-            58 => SocketError.Disconnecting,
+            58 => SocketError.Shutdown,
             60 => SocketError.TimedOut,
             61 => SocketError.ConnectionRefused,
             64 => SocketError.HostDown,
@@ -74,6 +73,7 @@ namespace NativeSockets
             67 => SocketError.ProcessLimit,
             89 => SocketError.OperationAborted,
             96 => SocketError.NoData,
+            100 => SocketError.ProtocolNotSupported,
             102 => SocketError.OperationNotSupported,
             _ => SocketError.SocketError
         };

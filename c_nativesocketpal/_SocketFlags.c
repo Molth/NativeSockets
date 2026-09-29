@@ -1,14 +1,42 @@
 #ifndef _SOCKETFLAGS_C
 #define _SOCKETFLAGS_C
 
-#ifndef _WIN32
-
 #include "include/_SocketFlags.h"
+
+#ifdef _WIN32
+
+#define _SOCKET_FLAGS_SUPPORTED_MASK (_SOCKET_FLAGS_OUT_OF_BAND | \
+                                      _SOCKET_FLAGS_PEEK |        \
+                                      _SOCKET_FLAGS_DONT_ROUTE |  \
+                                      _SOCKET_FLAGS_TRUNCATED |   \
+                                      _SOCKET_FLAGS_CONTROL_DATA_TRUNCATED)
+
+/// <summary>
+///     Converts a managed <see cref="SocketFlags" /> value to its native integer representation.
+/// </summary>
+/// <param name="flags">The managed flags.</param>
+/// <returns>The native integer value.</returns>
+i32 _ToNativeSocketFlags(i32 flags)
+{
+    return flags & _SOCKET_FLAGS_SUPPORTED_MASK;
+}
+
+/// <summary>
+///     Converts a native socket flag integer value to a managed <see cref="SocketFlags" />.
+/// </summary>
+/// <param name="native_flags">The native integer value.</param>
+/// <returns>The managed <see cref="SocketFlags" /> value.</returns>
+i32 _FromNativeSocketFlags(i32 native_flags)
+{
+    return native_flags & _SOCKET_FLAGS_SUPPORTED_MASK;
+}
+
+#else
 
 #include <sys/socket.h>
 
 /// <summary>
-///     Converts a managed <see cref="SocketFlags" /> value to its native unix integer representation.
+///     Converts a managed <see cref="SocketFlags" /> value to its native integer representation.
 /// </summary>
 /// <param name="flags">The managed flags.</param>
 /// <returns>The native integer value.</returns>
@@ -43,7 +71,7 @@ i32 _ToNativeSocketFlags(i32 flags)
 }
 
 /// <summary>
-///     Converts a native unix socket flag integer value to a managed <see cref="SocketFlags" />.
+///     Converts a native socket flag integer value to a managed <see cref="SocketFlags" />.
 /// </summary>
 /// <param name="native_flags">The native integer value.</param>
 /// <returns>The managed <see cref="SocketFlags" /> value.</returns>

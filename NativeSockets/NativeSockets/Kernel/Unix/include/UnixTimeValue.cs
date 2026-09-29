@@ -8,16 +8,16 @@ namespace NativeSockets
     ///     Represents a time value used with select and other functions.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    internal struct TimeValue
+    internal struct UnixTimeValue
     {
         /// <summary>
         ///     The number of seconds.
         /// </summary>
-        public int Seconds;
+        public nint Seconds;
 
         /// <summary>
         ///     The number of microseconds.
         /// </summary>
-        public int Microseconds;
+        public nint Microseconds;
     }
 }

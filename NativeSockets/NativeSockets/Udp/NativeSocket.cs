@@ -73,6 +73,10 @@ namespace NativeSockets
         ///     or an invalid socket with handle -1 on error.
         /// </param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Create(bool ipv6, out NativeSocket result)
         {
@@ -82,11 +86,27 @@ namespace NativeSockets
         }
 
         /// <summary>
+        ///     Closes a native socket handle.
+        /// </summary>
+        /// <param name="socket">The native socket handle to close.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError Close(NativeSocket socket) => SocketPal.Close(socket);
+
+        /// <summary>
         ///     Performs application-defined tasks associated with freeing,
         ///     releasing, or resetting unmanaged resources.
         /// </summary>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Dispose() => SocketPal.Close(this);
+        public void Dispose() => Close(this);
 
         /// <summary>
         ///     Implicitly converts a <see cref="NativeSocket" /> to its native handle.

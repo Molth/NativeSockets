@@ -26,74 +26,77 @@ namespace NativeSockets
         /// </summary>
         /// <param name="level">The socket option level, which determines the namespace of the option name.</param>
         /// <param name="name">The managed socket option name.</param>
-        /// <returns>The native integer value for the socket option name.</returns>
+        /// <returns>
+        ///     The native integer value for the socket option name, or -1 when the option is not supported
+        ///     on Linux. Returning -1 guarantees that the subsequent option call fails instead of passing
+        ///     through an unmapped value that could behave unexpectedly.
+        /// </returns>
         public static int ToNativeSocketOptionName(SocketOptionLevel level, SocketOptionName name) => level switch
         {
             SocketOptionLevel.Socket => name switch
             {
-                SocketOptionName.AcceptConnection => 30,
+                SocketOptionName.Debug => 1,
                 SocketOptionName.ReuseAddress => 2,
-                SocketOptionName.KeepAlive => 9,
+                SocketOptionName.ExclusiveAddressUse => 2,
+                SocketOptionName.Type => 3,
+                SocketOptionName.Error => 4,
                 SocketOptionName.DontRoute => 5,
                 SocketOptionName.Broadcast => 6,
-                SocketOptionName.Linger => 13,
-                SocketOptionName.OutOfBandInline => 10,
                 SocketOptionName.SendBuffer => 7,
                 SocketOptionName.ReceiveBuffer => 8,
-                SocketOptionName.SendLowWater => 19,
+                SocketOptionName.KeepAlive => 9,
+                SocketOptionName.OutOfBandInline => 10,
+                SocketOptionName.Linger => 13,
+                SocketOptionName.ReuseUnicastPort => 15,
                 SocketOptionName.ReceiveLowWater => 18,
-                SocketOptionName.SendTimeout => 21,
+                SocketOptionName.SendLowWater => 19,
                 SocketOptionName.ReceiveTimeout => 20,
-                SocketOptionName.Error => 4,
-                SocketOptionName.Type => 3,
-                _ => (int)name
+                SocketOptionName.SendTimeout => 21,
+                SocketOptionName.AcceptConnection => 30,
+                _ => -1
             },
             SocketOptionLevel.IP => name switch
             {
-                SocketOptionName.IPOptions => 4,
-                SocketOptionName.HeaderIncluded => 3,
                 SocketOptionName.TypeOfService => 1,
                 SocketOptionName.IpTimeToLive => 2,
+                SocketOptionName.HeaderIncluded => 3,
+                SocketOptionName.IPOptions => 4,
+                SocketOptionName.PacketInformation => 8,
+                SocketOptionName.DontFragment => 10,
                 SocketOptionName.MulticastInterface => 32,
                 SocketOptionName.MulticastTimeToLive => 33,
                 SocketOptionName.MulticastLoopback => 34,
                 SocketOptionName.AddMembership => 35,
                 SocketOptionName.DropMembership => 36,
-                SocketOptionName.DontFragment => 14,
-                SocketOptionName.PacketInformation => 8,
+                SocketOptionName.UnblockSource => 37,
+                SocketOptionName.BlockSource => 38,
                 SocketOptionName.AddSourceMembership => 39,
                 SocketOptionName.DropSourceMembership => 40,
-                SocketOptionName.BlockSource => 38,
-                SocketOptionName.UnblockSource => 37,
-                _ => (int)name
+                _ => -1
             },
             SocketOptionLevel.IPv6 => name switch
             {
-                SocketOptionName.IPv6Only => 26,
                 SocketOptionName.HopLimit => 16,
                 SocketOptionName.MulticastInterface => 17,
                 SocketOptionName.MulticastTimeToLive => 18,
                 SocketOptionName.MulticastLoopback => 19,
                 SocketOptionName.AddMembership => 20,
                 SocketOptionName.DropMembership => 21,
+                SocketOptionName.IPv6Only => 26,
                 SocketOptionName.PacketInformation => 49,
-                SocketOptionName.IpTimeToLive => 16,
-                _ => (int)name
+                _ => -1
             },
             SocketOptionLevel.Tcp => name switch
             {
-                SocketOptionName.DontRoute => 6,
+                SocketOptionName.NoDelay => 1,
                 SO_TCP_KEEPALIVE_TIME => 4,
                 SocketOptionName.BlockSource => 5,
+                SocketOptionName.DontRoute => 6,
                 SocketOptionName.AddSourceMembership => 23,
-                _ => (int)name
+                _ => -1
             },
-            SocketOptionLevel.Udp => name switch
-            {
-                SocketOptionName.NoChecksum => 101,
-                _ => (int)name
-            },
-            _ => (int)name
+            SocketOptionLevel.Udp => -1,
+            _ => -1
         };
     }
 }

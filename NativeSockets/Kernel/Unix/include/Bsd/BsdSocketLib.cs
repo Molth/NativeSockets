@@ -19,7 +19,7 @@ namespace NativeSockets
     {
         /// <summary>
         ///     ioctl request that sets or clears the non-blocking flag on a file descriptor (FIONBIO).
-        ///     Equals _IOW('f', 126, int) on BSD and macOS.
+        ///     Equals _IOW('f', 126, int) on BSD and Apple.
         /// </summary>
         public const nuint FIONBIO = 0x8004667E;
 
@@ -40,7 +40,7 @@ namespace NativeSockets
         /// <param name="__len_native">The length of the buffer in bytes.</param>
         /// <param name="socketFlags">The socket flags for the send operation.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
-        public static nint __send(int __socketHandle_native, byte* __pinnedBuffer_native, nuint __len_native, SocketFlags socketFlags) => _send(__socketHandle_native, __pinnedBuffer_native, __len_native, ToNativeSocketFlags(socketFlags));
+        public static nint __send(int __socketHandle_native, void* __pinnedBuffer_native, nuint __len_native, SocketFlags socketFlags) => _send(__socketHandle_native, __pinnedBuffer_native, __len_native, ToNativeSocketFlags(socketFlags));
 
         /// <summary>
         ///     Receives data on a connected socket.
@@ -50,7 +50,7 @@ namespace NativeSockets
         /// <param name="__len_native">The length of the buffer in bytes.</param>
         /// <param name="socketFlags">The socket flags for the receive operation.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
-        public static nint __recv(int __socketHandle_native, byte* __pinnedBuffer_native, nuint __len_native, SocketFlags socketFlags) => _recv(__socketHandle_native, __pinnedBuffer_native, __len_native, ToNativeSocketFlags(socketFlags));
+        public static nint __recv(int __socketHandle_native, void* __pinnedBuffer_native, nuint __len_native, SocketFlags socketFlags) => _recv(__socketHandle_native, __pinnedBuffer_native, __len_native, ToNativeSocketFlags(socketFlags));
 
         /// <summary>
         ///     Sends data to a specified destination address.
@@ -62,7 +62,7 @@ namespace NativeSockets
         /// <param name="__socketAddress_native">Pointer to the destination socket address.</param>
         /// <param name="__socketAddressSize_native">Size of the destination socket address.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
-        public static nint __sendto(int __socketHandle_native, byte* __pinnedBuffer_native, nuint __len_native, SocketFlags socketFlags, sockaddr* __socketAddress_native, uint __socketAddressSize_native) => _sendto(__socketHandle_native, __pinnedBuffer_native, __len_native, ToNativeSocketFlags(socketFlags), __socketAddress_native, __socketAddressSize_native);
+        public static nint __sendto(int __socketHandle_native, void* __pinnedBuffer_native, nuint __len_native, SocketFlags socketFlags, sockaddr* __socketAddress_native, uint __socketAddressSize_native) => _sendto(__socketHandle_native, __pinnedBuffer_native, __len_native, ToNativeSocketFlags(socketFlags), __socketAddress_native, __socketAddressSize_native);
 
         /// <summary>
         ///     Receives data from a socket and captures the source address.
@@ -77,7 +77,7 @@ namespace NativeSockets
         ///     output the actual address size.
         /// </param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
-        public static nint __recvfrom(int __socketHandle_native, byte* __pinnedBuffer_native, nuint __len_native, SocketFlags socketFlags, sockaddr* __socketAddress_native, uint* __socketAddressSize_native) => _recvfrom(__socketHandle_native, __pinnedBuffer_native, __len_native, ToNativeSocketFlags(socketFlags), __socketAddress_native, __socketAddressSize_native);
+        public static nint __recvfrom(int __socketHandle_native, void* __pinnedBuffer_native, nuint __len_native, SocketFlags socketFlags, sockaddr* __socketAddress_native, uint* __socketAddressSize_native) => _recvfrom(__socketHandle_native, __pinnedBuffer_native, __len_native, ToNativeSocketFlags(socketFlags), __socketAddress_native, __socketAddressSize_native);
 
         /// <summary>
         ///     Sends data from multiple buffers using a socket.

@@ -18,6 +18,10 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="dualMode">true to enable dual-mode; false to disable.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError SetDualMode(this NativeSocket socket, bool dualMode)
         {
@@ -26,11 +30,178 @@ namespace NativeSockets
         }
 
         /// <summary>
+        ///     Sets whether the socket allows its local socket address to be reused.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="reuseAddress">true to allow the local socket address to be reused; false to disallow.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError SetReuseAddress(this NativeSocket socket, bool reuseAddress)
+        {
+            int optionValue = reuseAddress ? 1 : 0;
+
+            if (!OsName.IsWindows())
+            {
+                SocketError error = socket.SetOption(SocketOptionLevel.Socket, SocketOptionName.ReuseUnicastPort, MemoryMarshalHelpers.AsReadOnlyBytes(ref optionValue));
+                if (error != SocketError.Success)
+                    return error;
+            }
+
+            return socket.SetOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, MemoryMarshalHelpers.AsReadOnlyBytes(ref optionValue));
+        }
+
+        /// <summary>
+        ///     Sets whether the socket should not fragment packets.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="dontFragment">true to not fragment packets; false otherwise.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError SetDontFragment(this NativeSocket socket, bool dontFragment)
+        {
+            int optionValue = dontFragment ? OsName.IsLinux() ? 2 : 1 : 0;
+            return socket.SetOption(SocketOptionLevel.IP, SocketOptionName.DontFragment, MemoryMarshalHelpers.AsReadOnlyBytes(ref optionValue));
+        }
+
+        /// <summary>
+        ///     Sets whether the socket should not route packets.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="dontRoute">true to not route packets; false otherwise.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError SetDontRoute(this NativeSocket socket, bool dontRoute)
+        {
+            int optionValue = dontRoute ? 1 : 0;
+            return socket.SetOption(SocketOptionLevel.Socket, SocketOptionName.DontRoute, MemoryMarshalHelpers.AsReadOnlyBytes(ref optionValue));
+        }
+
+        /// <summary>
+        ///     Sets whether the socket can send broadcast packets.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="enableBroadcast">true to enable broadcasting; false to disable.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError SetEnableBroadcast(this NativeSocket socket, bool enableBroadcast)
+        {
+            int optionValue = enableBroadcast ? 1 : 0;
+            return socket.SetOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, MemoryMarshalHelpers.AsReadOnlyBytes(ref optionValue));
+        }
+
+        /// <summary>
+        ///     Sets the time-to-live value for the socket.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="ttl">The time-to-live value.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError SetTtl(this NativeSocket socket, int ttl) => socket.IsIpv4 ? socket.SetOption(SocketOptionLevel.IP, SocketOptionName.IpTimeToLive, MemoryMarshalHelpers.AsReadOnlyBytes(ref ttl)) : socket.SetOption(SocketOptionLevel.IPv6, SocketOptionName.HopLimit, MemoryMarshalHelpers.AsReadOnlyBytes(ref ttl));
+
+        /// <summary>
+        ///     Sets the size of the send buffer for the socket.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="sendBufferSize">The size of the send buffer, in bytes.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError SetSendBufferSize(this NativeSocket socket, int sendBufferSize) => socket.SetOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer, MemoryMarshalHelpers.AsReadOnlyBytes(ref sendBufferSize));
+
+        /// <summary>
+        ///     Sets the size of the receive buffer for the socket.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="receiveBufferSize">The size of the receive buffer, in bytes.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError SetReceiveBufferSize(this NativeSocket socket, int receiveBufferSize) => socket.SetOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, MemoryMarshalHelpers.AsReadOnlyBytes(ref receiveBufferSize));
+
+        /// <summary>
+        ///     Sets the send timeout for the socket.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="milliseconds">The send timeout in milliseconds.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError SetSendTimeout(this NativeSocket socket, int milliseconds)
+        {
+            if (!OsName.IsWindows())
+            {
+                UnixTimeValue timeout = new UnixTimeValue();
+                UnixNativeLib.MillisecondsToTimeValue(milliseconds, ref timeout);
+
+                return socket.SetOption(SocketOptionLevel.Socket, SocketOptionName.SendTimeout, MemoryMarshalHelpers.AsReadOnlyBytes(ref timeout));
+            }
+
+            return socket.SetOption(SocketOptionLevel.Socket, SocketOptionName.SendTimeout, MemoryMarshalHelpers.AsReadOnlyBytes(ref milliseconds));
+        }
+
+        /// <summary>
+        ///     Sets the receive timeout for the socket.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="milliseconds">The receive timeout in milliseconds.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError SetReceiveTimeout(this NativeSocket socket, int milliseconds)
+        {
+            if (!OsName.IsWindows())
+            {
+                UnixTimeValue timeout = new UnixTimeValue();
+                UnixNativeLib.MillisecondsToTimeValue(milliseconds, ref timeout);
+
+                return socket.SetOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, MemoryMarshalHelpers.AsReadOnlyBytes(ref timeout));
+            }
+
+            return socket.SetOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveTimeout, MemoryMarshalHelpers.AsReadOnlyBytes(ref milliseconds));
+        }
+
+        /// <summary>
         ///     Binds a socket to a socket address.
         /// </summary>
         /// <param name="socket">The socket handle.</param>
-        /// <param name="socketAddress">The address to bind to.</param>
+        /// <param name="socketAddress">The socket address to bind to.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Bind(this NativeSocket socket, NativeSocketAddress socketAddress) => socket.IsIpv4 ? SocketPal.BindIpv4(socket, (sockaddr_in4*)&socketAddress) : SocketPal.BindIpv6(socket, (sockaddr_in6*)&socketAddress);
 
@@ -40,6 +211,10 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="socketAddress">The socket address to connect to.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Connect(this NativeSocket socket, NativeSocketAddress socketAddress) => socket.IsIpv4 ? SocketPal.ConnectIpv4(socket, (sockaddr_in4*)&socketAddress) : SocketPal.ConnectIpv6(socket, (sockaddr_in6*)&socketAddress);
 
@@ -51,15 +226,36 @@ namespace NativeSockets
         /// <param name="name">The option name.</param>
         /// <param name="value">The option value.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         /// <remarks>
-        ///     The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
-        ///     platform equivalents by the underlying socket layer. The <paramref name="value" /> bytes are
-        ///     passed through unmodified; the platform interprets the buffer according to the mapped option.
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
+        ///                 platform equivalents by the underlying socket layer.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 The <paramref name="value" /> bytes are passed through unmodified; the platform interprets the
+        ///                 buffer according to the mapped option.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Behavior is not guaranteed to be consistent across platforms; only the mapping of
+        ///                 <paramref name="level" /> and <paramref name="name" /> is guaranteed.
+        ///             </description>
+        ///         </item>
+        ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError SetOption(this NativeSocket socket, SocketOptionLevel level, SocketOptionName name, ReadOnlySpan<byte> value)
         {
-            fixed (byte* pValue = &MemoryMarshal.GetReference(value))
+            fixed (void* pValue = &MemoryMarshal.GetReference(value))
             {
                 return SocketPal.SetOption(socket, level, name, pValue, value.Length);
             }
@@ -73,17 +269,38 @@ namespace NativeSockets
         /// <param name="name">The option name.</param>
         /// <param name="value">The buffer to receive the option value.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         /// <remarks>
-        ///     The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
-        ///     platform equivalents by the underlying socket layer. The <paramref name="value" /> buffer is
-        ///     passed through unmodified; the platform populates the buffer according to the mapped option.
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 The <paramref name="level" /> and <paramref name="name" /> values are mapped to their native
+        ///                 platform equivalents by the underlying socket layer.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 The <paramref name="value" /> buffer is passed through unmodified; the platform populates the
+        ///                 buffer according to the mapped option.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Behavior is not guaranteed to be consistent across platforms; only the mapping of
+        ///                 <paramref name="level" /> and <paramref name="name" /> is guaranteed.
+        ///             </description>
+        ///         </item>
+        ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetOption(this NativeSocket socket, SocketOptionLevel level, SocketOptionName name, ref Span<byte> value)
         {
             int length = value.Length;
             SocketError error;
-            fixed (byte* pValue = &MemoryMarshal.GetReference(value))
+            fixed (void* pValue = &MemoryMarshal.GetReference(value))
             {
                 error = SocketPal.GetOption(socket, level, name, pValue, &length);
             }
@@ -102,10 +319,14 @@ namespace NativeSockets
         /// <param name="name">The option name.</param>
         /// <param name="value">The option value.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError SetRawOption(this NativeSocket socket, int level, int name, ReadOnlySpan<byte> value)
         {
-            fixed (byte* pValue = &MemoryMarshal.GetReference(value))
+            fixed (void* pValue = &MemoryMarshal.GetReference(value))
             {
                 return SocketPal.SetRawOption(socket, level, name, pValue, value.Length);
             }
@@ -119,12 +340,16 @@ namespace NativeSockets
         /// <param name="name">The option name.</param>
         /// <param name="value">The buffer to receive the option value.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError GetRawOption(this NativeSocket socket, int level, int name, ref Span<byte> value)
         {
             int length = value.Length;
             SocketError error;
-            fixed (byte* pValue = &MemoryMarshal.GetReference(value))
+            fixed (void* pValue = &MemoryMarshal.GetReference(value))
             {
                 error = SocketPal.GetRawOption(socket, level, name, pValue, &length);
             }
@@ -141,6 +366,10 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="blocking">true for blocking; false for non-blocking.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError SetBlocking(this NativeSocket socket, bool blocking) => SocketPal.SetBlocking(socket, blocking);
 
@@ -152,6 +381,10 @@ namespace NativeSockets
         /// <param name="mode">The select mode.</param>
         /// <param name="status">When this method returns, contains true if the socket is ready, false otherwise.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError Poll(this NativeSocket socket, int microseconds, SelectMode mode, out bool status) => SocketPal.Poll(socket, microseconds, mode, out status);
 
@@ -163,8 +396,37 @@ namespace NativeSockets
         /// <param name="inFlags">The select mode.</param>
         /// <param name="outFlags">When this method returns, contains the poll result flags.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError PollFlags(this NativeSocket socket, int microseconds, SelectModeFlags inFlags, out SelectModeFlags outFlags) => SocketPal.PollFlags(socket, microseconds, inFlags, out outFlags);
+
+        /// <summary>
+        ///     Gets the local name (socket address) of a socket.
+        /// </summary>
+        /// <param name="socket">The socket handle.</param>
+        /// <param name="socketAddress">The socket address to receive the local name into.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError GetName(this NativeSocket socket, ref NativeSocketAddress socketAddress)
+        {
+            SocketError result;
+            fixed (void* pAddress = &socketAddress)
+            {
+                result = socket.IsIpv4 ? SocketPal.GetNameIpv4(socket.Handle, (sockaddr_in4*)pAddress) : SocketPal.GetNameIpv6(socket.Handle, (sockaddr_in6*)pAddress);
+            }
+
+            if (result == SocketError.Success && socket.IsIpv4)
+                SpanHelpers.Set(ref Unsafe.Add(ref Unsafe.As<NativeSocketAddress, byte>(ref socketAddress), 16), 0, 12);
+
+            return result;
+        }
 
         /// <summary>
         ///     Sends data on a connected socket.
@@ -172,9 +434,44 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffer">The data buffer.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <returns>The number of bytes sent, or -1 on error.</returns>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Send(this NativeSocket socket, ReadOnlySpan<byte> buffer, SocketFlags socketFlags = SocketFlags.None)
+        public static IoResult Send(this NativeSocket socket, ReadOnlySpan<byte> buffer, SocketFlags socketFlags)
         {
             fixed (void* pBuffer = &MemoryMarshal.GetReference(buffer))
             {
@@ -187,23 +484,48 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffer">The data buffer.</param>
-        /// <param name="socketAddress">The destination socket address.</param>
-        /// <returns>The number of bytes sent, or -1 on error.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendTo(this NativeSocket socket, ReadOnlySpan<byte> buffer, in NativeSocketAddress socketAddress) => socket.SendTo(buffer, SocketFlags.None, socketAddress);
-
-        /// <summary>
-        ///     Sends data to a socket address.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="buffer">The data buffer.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">The destination socket address.</param>
-        /// <returns>The number of bytes sent, or -1 on error.</returns>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendTo(this NativeSocket socket, ReadOnlySpan<byte> buffer, SocketFlags socketFlags, in NativeSocketAddress socketAddress)
+        public static IoResult SendTo(this NativeSocket socket, ReadOnlySpan<byte> buffer, SocketFlags socketFlags, in NativeSocketAddress socketAddress)
         {
-            fixed (byte* pBuffer = &MemoryMarshal.GetReference(buffer))
+            fixed (void* pBuffer = &MemoryMarshal.GetReference(buffer))
             {
                 fixed (void* pAddress = &socketAddress)
                 {
@@ -218,9 +540,44 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffer">The receive buffer.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <returns>The number of bytes received, or -1 on error.</returns>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Receive(this NativeSocket socket, Span<byte> buffer, SocketFlags socketFlags = SocketFlags.None)
+        public static IoResult Receive(this NativeSocket socket, Span<byte> buffer, SocketFlags socketFlags)
         {
             fixed (void* pBuffer = &MemoryMarshal.GetReference(buffer))
             {
@@ -233,24 +590,49 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffer">The receive buffer.</param>
-        /// <param name="socketAddress">The sender's socket address.</param>
-        /// <returns>The number of bytes received, or -1 on error.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveFrom(this NativeSocket socket, Span<byte> buffer, ref NativeSocketAddress socketAddress) => socket.ReceiveFrom(buffer, SocketFlags.None, ref socketAddress);
-
-        /// <summary>
-        ///     Receives data from a socket address, filling the provided socket address.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="buffer">The receive buffer.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">The sender's socket address.</param>
-        /// <returns>The number of bytes received, or -1 on error.</returns>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveFrom(this NativeSocket socket, Span<byte> buffer, SocketFlags socketFlags, ref NativeSocketAddress socketAddress)
+        public static IoResult ReceiveFrom(this NativeSocket socket, Span<byte> buffer, SocketFlags socketFlags, ref NativeSocketAddress socketAddress)
         {
-            int result;
-            fixed (byte* pBuffer = &MemoryMarshal.GetReference(buffer))
+            IoResult result;
+            fixed (void* pBuffer = &MemoryMarshal.GetReference(buffer))
             {
                 fixed (void* pAddress = &socketAddress)
                 {
@@ -258,7 +640,7 @@ namespace NativeSockets
                 }
             }
 
-            if (socket.IsIpv4 && result >= 0)
+            if (socket.IsIpv4 && result.SocketError == SocketError.Success)
                 SpanHelpers.Set(ref Unsafe.Add(ref Unsafe.As<NativeSocketAddress, byte>(ref socketAddress), 16), 0, 12);
 
             return result;
@@ -270,9 +652,44 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">The array of <see cref="NativeIoSlice" />.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <returns>The number of bytes sent, or -1 on error.</returns>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendVectored(this NativeSocket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags = SocketFlags.None)
+        public static IoResult SendVectored(this NativeSocket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags)
         {
             fixed (NativeIoSlice* pBuffer = &MemoryMarshal.GetReference(buffers))
             {
@@ -285,21 +702,46 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">The array of <see cref="NativeIoSlice" />.</param>
-        /// <param name="socketAddress">The destination socket address.</param>
-        /// <returns>The number of bytes sent, or -1 on error.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendToVectored(this NativeSocket socket, ReadOnlySpan<NativeIoSlice> buffers, in NativeSocketAddress socketAddress) => socket.SendToVectored(buffers, SocketFlags.None, socketAddress);
-
-        /// <summary>
-        ///     Sends data from multiple buffers to a socket address.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="buffers">The array of <see cref="NativeIoSlice" />.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">The destination socket address.</param>
-        /// <returns>The number of bytes sent, or -1 on error.</returns>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendToVectored(this NativeSocket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags, in NativeSocketAddress socketAddress)
+        public static IoResult SendToVectored(this NativeSocket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags, in NativeSocketAddress socketAddress)
         {
             fixed (NativeIoSlice* pBuffer = &MemoryMarshal.GetReference(buffers))
             {
@@ -315,29 +757,45 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">The array of <see cref="NativeIoSlice" />.</param>
-        /// <returns>The number of bytes received, or -1 on error.</returns>
-        /// <remarks>
-        ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
-        ///     the operation is considered failed and returns <c>-1</c>,
-        ///     even if <see cref="NativeSocketPal.GetLastSocketError" /> returns <see cref="SocketError.Success" />.
-        /// </remarks>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveVectored(this NativeSocket socket, Span<NativeIoSlice> buffers) => socket.ReceiveVectored(buffers, ref Unsafe.NullRef<SocketFlags>());
-
-        /// <summary>
-        ///     Receives data into multiple buffers on a connected socket.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="buffers">The array of <see cref="NativeIoSlice" />.</param>
         /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
-        /// <returns>The number of bytes received, or -1 on error.</returns>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         /// <remarks>
-        ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
-        ///     the operation is considered failed and returns <c>-1</c>,
-        ///     even if <see cref="NativeSocketPal.GetLastSocketError" /> returns <see cref="SocketError.Success" />.
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveVectored(this NativeSocket socket, Span<NativeIoSlice> buffers, ref SocketFlags inOutFlags)
+        public static IoResult ReceiveVectored(this NativeSocket socket, Span<NativeIoSlice> buffers, ref SocketFlags inOutFlags)
         {
             fixed (NativeIoSlice* pBuffer = &MemoryMarshal.GetReference(buffers))
             {
@@ -353,33 +811,48 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">The array of <see cref="NativeIoSlice" />.</param>
-        /// <param name="socketAddress">The sender's socket address.</param>
-        /// <returns>The number of bytes received, or -1 on error.</returns>
-        /// <remarks>
-        ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
-        ///     the operation is considered failed and returns <c>-1</c>,
-        ///     even if <see cref="NativeSocketPal.GetLastSocketError" /> returns <see cref="SocketError.Success" />.
-        /// </remarks>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveFromVectored(this NativeSocket socket, Span<NativeIoSlice> buffers, ref NativeSocketAddress socketAddress) => socket.ReceiveFromVectored(buffers, ref Unsafe.NullRef<SocketFlags>(), ref socketAddress);
-
-        /// <summary>
-        ///     Receives data into multiple buffers from a socket address.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="buffers">The array of <see cref="NativeIoSlice" />.</param>
         /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <param name="socketAddress">The sender's socket address.</param>
-        /// <returns>The number of bytes received, or -1 on error.</returns>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
         /// <remarks>
-        ///     If the <c>inOutFlags</c> returned by the receive operation is not equal to <c>0</c>,
-        ///     the operation is considered failed and returns <c>-1</c>,
-        ///     even if <see cref="NativeSocketPal.GetLastSocketError" /> returns <see cref="SocketError.Success" />.
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveFromVectored(this NativeSocket socket, Span<NativeIoSlice> buffers, ref SocketFlags inOutFlags, ref NativeSocketAddress socketAddress)
+        public static IoResult ReceiveFromVectored(this NativeSocket socket, Span<NativeIoSlice> buffers, ref SocketFlags inOutFlags, ref NativeSocketAddress socketAddress)
         {
-            int result;
+            IoResult result;
             fixed (NativeIoSlice* pBuffer = &MemoryMarshal.GetReference(buffers))
             {
                 fixed (void* pAddress = &socketAddress)
@@ -391,28 +864,7 @@ namespace NativeSockets
                 }
             }
 
-            if (socket.IsIpv4 && result >= 0)
-                SpanHelpers.Set(ref Unsafe.Add(ref Unsafe.As<NativeSocketAddress, byte>(ref socketAddress), 16), 0, 12);
-
-            return result;
-        }
-
-        /// <summary>
-        ///     Gets the local name (socket address) of a socket.
-        /// </summary>
-        /// <param name="socket">The socket handle.</param>
-        /// <param name="socketAddress">The socket address to receive the local name into.</param>
-        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetName(this NativeSocket socket, ref NativeSocketAddress socketAddress)
-        {
-            SocketError result;
-            fixed (void* pAddress = &socketAddress)
-            {
-                result = socket.IsIpv4 ? SocketPal.GetNameIpv4(socket.Handle, (sockaddr_in4*)pAddress) : SocketPal.GetNameIpv6(socket.Handle, (sockaddr_in6*)pAddress);
-            }
-
-            if (result == SocketError.Success && socket.IsIpv4)
+            if (socket.IsIpv4 && result.SocketError == SocketError.Success)
                 SpanHelpers.Set(ref Unsafe.Add(ref Unsafe.As<NativeSocketAddress, byte>(ref socketAddress), 16), 0, 12);
 
             return result;
