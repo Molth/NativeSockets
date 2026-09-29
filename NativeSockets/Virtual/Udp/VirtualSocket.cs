@@ -43,7 +43,7 @@ namespace NativeSockets
         /// <summary>
         ///     Gets a value that indicates whether this has been allocated or initialized.
         /// </summary>
-        public bool IsCreated => VirtualSocketPal.IsCreated(this);
+        public bool IsCreated => (IsIpv4 || IsIpv6) && VirtualSocketPal.IsCreated(this);
 
         /// <summary>
         ///     Gets the native socket handle.
