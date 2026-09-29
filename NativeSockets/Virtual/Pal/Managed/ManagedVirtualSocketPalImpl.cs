@@ -641,32 +641,24 @@ namespace NativeSockets
         /// </remarks>
         public static IoResult Send(Socket socket, ReadOnlySpan<byte> buffer, SocketFlags socketFlags)
         {
-            IoResult result;
-
             try
             {
                 int num = socket.Send(buffer, WindowsSocketFlags.ToNativeSocketFlags(socketFlags), out SocketError socketError);
 
-                result.BytesTransferred = num >= 0 ? num : -1;
-                result.SocketError = socketError;
+                return new IoResult(num >= 0 ? num : -1, socketError);
             }
             catch (SocketException ex)
             {
-                result.BytesTransferred = -1;
-                result.SocketError = ex.SocketErrorCode;
+                return new IoResult(-1, ex.SocketErrorCode);
             }
             catch (ObjectDisposedException)
             {
-                result.BytesTransferred = -1;
-                result.SocketError = SocketError.NotSocket;
+                return new IoResult(-1, SocketError.NotSocket);
             }
             catch
             {
-                result.BytesTransferred = -1;
-                result.SocketError = SocketError.SocketError;
+                return new IoResult(-1, SocketError.SocketError);
             }
-
-            return result;
         }
 
         /// <summary>
@@ -709,32 +701,24 @@ namespace NativeSockets
         /// </remarks>
         public static IoResult Receive(Socket socket, Span<byte> buffer, SocketFlags socketFlags)
         {
-            IoResult result;
-
             try
             {
                 int num = socket.Receive(buffer, WindowsSocketFlags.ToNativeSocketFlags(socketFlags), out SocketError socketError);
 
-                result.BytesTransferred = num >= 0 ? num : -1;
-                result.SocketError = socketError;
+                return new IoResult(num >= 0 ? num : -1, socketError);
             }
             catch (SocketException ex)
             {
-                result.BytesTransferred = -1;
-                result.SocketError = ex.SocketErrorCode;
+                return new IoResult(-1, ex.SocketErrorCode);
             }
             catch (ObjectDisposedException)
             {
-                result.BytesTransferred = -1;
-                result.SocketError = SocketError.NotSocket;
+                return new IoResult(-1, SocketError.NotSocket);
             }
             catch
             {
-                result.BytesTransferred = -1;
-                result.SocketError = SocketError.SocketError;
+                return new IoResult(-1, SocketError.SocketError);
             }
-
-            return result;
         }
     }
 }

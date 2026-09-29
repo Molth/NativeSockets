@@ -86,14 +86,8 @@ namespace NativeSockets
         /// </remarks>
         public static IoResult SendTo(Socket socket, ReadOnlySpan<byte> buffer, SocketFlags socketFlags, in NativeSocketAddress socketAddress)
         {
-            IoResult result;
-
             if (socket.AddressFamily != socketAddress.Family)
-            {
-                result.BytesTransferred = -1;
-                result.SocketError = SocketError.AddressFamilyNotSupported;
-                return result;
-            }
+                return new IoResult(-1, SocketError.AddressFamilyNotSupported);
 
             SocketAddress address = GetSendToAddress(socketAddress);
 
@@ -101,34 +95,20 @@ namespace NativeSockets
             {
                 int num = socket.SendTo(buffer, WindowsSocketFlags.ToNativeSocketFlags(socketFlags), address);
 
-                if (num >= 0)
-                {
-                    result.BytesTransferred = num;
-                    result.SocketError = SocketError.Success;
-                }
-                else
-                {
-                    result.BytesTransferred = -1;
-                    result.SocketError = SocketError.SocketError;
-                }
+                return num >= 0 ? new IoResult(num, SocketError.Success) : new IoResult(-1, SocketError.SocketError);
             }
             catch (SocketException ex)
             {
-                result.BytesTransferred = -1;
-                result.SocketError = ex.SocketErrorCode;
+                return new IoResult(-1, ex.SocketErrorCode);
             }
             catch (ObjectDisposedException)
             {
-                result.BytesTransferred = -1;
-                result.SocketError = SocketError.NotSocket;
+                return new IoResult(-1, SocketError.NotSocket);
             }
             catch
             {
-                result.BytesTransferred = -1;
-                result.SocketError = SocketError.SocketError;
+                return new IoResult(-1, SocketError.SocketError);
             }
-
-            return result;
         }
 
         /// <summary>
@@ -172,8 +152,6 @@ namespace NativeSockets
         /// </remarks>
         public static IoResult ReceiveFrom(Socket socket, Span<byte> buffer, SocketFlags socketFlags, ref NativeSocketAddress socketAddress)
         {
-            IoResult result;
-
             SocketAddress address = GetReceiveFromAddress(socket.AddressFamily);
 
             try
@@ -184,32 +162,23 @@ namespace NativeSockets
                 {
                     NativeSocketAddress.FromSocketAddress(address, out socketAddress);
 
-                    result.BytesTransferred = num;
-                    result.SocketError = SocketError.Success;
+                    return new IoResult(num, SocketError.Success);
                 }
-                else
-                {
-                    result.BytesTransferred = -1;
-                    result.SocketError = SocketError.SocketError;
-                }
+
+                return new IoResult(-1, SocketError.SocketError);
             }
             catch (SocketException ex)
             {
-                result.BytesTransferred = -1;
-                result.SocketError = ex.SocketErrorCode;
+                return new IoResult(-1, ex.SocketErrorCode);
             }
             catch (ObjectDisposedException)
             {
-                result.BytesTransferred = -1;
-                result.SocketError = SocketError.NotSocket;
+                return new IoResult(-1, SocketError.NotSocket);
             }
             catch
             {
-                result.BytesTransferred = -1;
-                result.SocketError = SocketError.SocketError;
+                return new IoResult(-1, SocketError.SocketError);
             }
-
-            return result;
         }
 
         /// <summary>
@@ -252,8 +221,6 @@ namespace NativeSockets
         /// </remarks>
         public static IoResult SendVectored(Socket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags)
         {
-            IoResult result;
-
             byte[]? array;
             ReadOnlySpan<byte> buffer;
 
@@ -279,31 +246,25 @@ namespace NativeSockets
             {
                 int num = socket.Send(buffer, WindowsSocketFlags.ToNativeSocketFlags(socketFlags), out SocketError socketError);
 
-                result.BytesTransferred = num >= 0 ? num : -1;
-                result.SocketError = socketError;
+                return new IoResult(num >= 0 ? num : -1, socketError);
             }
             catch (SocketException ex)
             {
-                result.BytesTransferred = -1;
-                result.SocketError = ex.SocketErrorCode;
+                return new IoResult(-1, ex.SocketErrorCode);
             }
             catch (ObjectDisposedException)
             {
-                result.BytesTransferred = -1;
-                result.SocketError = SocketError.NotSocket;
+                return new IoResult(-1, SocketError.NotSocket);
             }
             catch
             {
-                result.BytesTransferred = -1;
-                result.SocketError = SocketError.SocketError;
+                return new IoResult(-1, SocketError.SocketError);
             }
             finally
             {
                 if (array is { Length: > 0 })
                     ArrayPool<byte>.Shared.Return(array);
             }
-
-            return result;
         }
 
         /// <summary>
@@ -347,14 +308,8 @@ namespace NativeSockets
         /// </remarks>
         public static IoResult SendToVectored(Socket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags, in NativeSocketAddress socketAddress)
         {
-            IoResult result;
-
             if (socket.AddressFamily != socketAddress.Family)
-            {
-                result.BytesTransferred = -1;
-                result.SocketError = SocketError.AddressFamilyNotSupported;
-                return result;
-            }
+                return new IoResult(-1, SocketError.AddressFamilyNotSupported);
 
             SocketAddress address = GetSendToAddress(socketAddress);
 
@@ -383,39 +338,25 @@ namespace NativeSockets
             {
                 int num = socket.SendTo(buffer, WindowsSocketFlags.ToNativeSocketFlags(socketFlags), address);
 
-                if (num >= 0)
-                {
-                    result.BytesTransferred = num;
-                    result.SocketError = SocketError.Success;
-                }
-                else
-                {
-                    result.BytesTransferred = -1;
-                    result.SocketError = SocketError.SocketError;
-                }
+                return num >= 0 ? new IoResult(num, SocketError.Success) : new IoResult(-1, SocketError.SocketError);
             }
             catch (SocketException ex)
             {
-                result.BytesTransferred = -1;
-                result.SocketError = ex.SocketErrorCode;
+                return new IoResult(-1, ex.SocketErrorCode);
             }
             catch (ObjectDisposedException)
             {
-                result.BytesTransferred = -1;
-                result.SocketError = SocketError.NotSocket;
+                return new IoResult(-1, SocketError.NotSocket);
             }
             catch
             {
-                result.BytesTransferred = -1;
-                result.SocketError = SocketError.SocketError;
+                return new IoResult(-1, SocketError.SocketError);
             }
             finally
             {
                 if (array is { Length: > 0 })
                     ArrayPool<byte>.Shared.Return(array);
             }
-
-            return result;
         }
 
         /// <summary>
@@ -458,8 +399,6 @@ namespace NativeSockets
         /// </remarks>
         public static IoResult ReceiveVectored(Socket socket, Span<NativeIoSlice> buffers, ref SocketFlags inOutFlags)
         {
-            IoResult result;
-
             Span<byte> buffer;
             byte[]? array;
 
@@ -492,37 +431,28 @@ namespace NativeSockets
                     if (!Unsafe.IsNullRef(ref inOutFlags))
                         inOutFlags = 0;
 
-                    result.BytesTransferred = num;
-                }
-                else
-                {
-                    result.BytesTransferred = -1;
+                    return new IoResult(num, socketError);
                 }
 
-                result.SocketError = socketError;
+                return new IoResult(-1, socketError);
             }
             catch (SocketException ex)
             {
-                result.BytesTransferred = -1;
-                result.SocketError = ex.SocketErrorCode;
+                return new IoResult(-1, ex.SocketErrorCode);
             }
             catch (ObjectDisposedException)
             {
-                result.BytesTransferred = -1;
-                result.SocketError = SocketError.NotSocket;
+                return new IoResult(-1, SocketError.NotSocket);
             }
             catch
             {
-                result.BytesTransferred = -1;
-                result.SocketError = SocketError.SocketError;
+                return new IoResult(-1, SocketError.SocketError);
             }
             finally
             {
                 if (array is { Length: > 0 })
                     ArrayPool<byte>.Shared.Return(array);
             }
-
-            return result;
         }
 
         /// <summary>
@@ -566,8 +496,6 @@ namespace NativeSockets
         /// </remarks>
         public static IoResult ReceiveFromVectored(Socket socket, Span<NativeIoSlice> buffers, ref SocketFlags inOutFlags, ref NativeSocketAddress socketAddress)
         {
-            IoResult result;
-
             SocketAddress address = GetReceiveFromAddress(socket.AddressFamily);
 
             Span<byte> buffer;
@@ -604,37 +532,28 @@ namespace NativeSockets
 
                     NativeSocketAddress.FromSocketAddress(address, out socketAddress);
 
-                    result.BytesTransferred = num;
-                    result.SocketError = SocketError.Success;
+                    return new IoResult(num, SocketError.Success);
                 }
-                else
-                {
-                    result.BytesTransferred = -1;
-                    result.SocketError = SocketError.SocketError;
-                }
+
+                return new IoResult(-1, SocketError.SocketError);
             }
             catch (SocketException ex)
             {
-                result.BytesTransferred = -1;
-                result.SocketError = ex.SocketErrorCode;
+                return new IoResult(-1, ex.SocketErrorCode);
             }
             catch (ObjectDisposedException)
             {
-                result.BytesTransferred = -1;
-                result.SocketError = SocketError.NotSocket;
+                return new IoResult(-1, SocketError.NotSocket);
             }
             catch
             {
-                result.BytesTransferred = -1;
-                result.SocketError = SocketError.SocketError;
+                return new IoResult(-1, SocketError.SocketError);
             }
             finally
             {
                 if (array is { Length: > 0 })
                     ArrayPool<byte>.Shared.Return(array);
             }
-
-            return result;
         }
 
         /// <summary>

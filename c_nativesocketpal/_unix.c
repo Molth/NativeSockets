@@ -69,7 +69,7 @@ i32 _Cleanup(void)
 /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
 i32 _Create(i32 ipv6, isize *out_socket)
 {
-    i32 family = ipv6 ? _AF_INET_6 : _AF_INET_4;
+    i32 family = (ipv6) ? _AF_INET_6 : _AF_INET_4;
     i32 s = socket(family, SOCK_DGRAM, IPPROTO_UDP);
     *out_socket = (isize)s;
     return (s == -1) ? _GetLastSocketError() : _SOCKET_ERROR_SUCCESS;
@@ -272,7 +272,7 @@ i32 _GetRawOption(isize socket, i32 level, i32 name, u8 *value, i32 *length)
 /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
 i32 _SetBlocking(isize socket, i32 blocking)
 {
-    i32 nonBlocking = blocking ? 0 : 1;
+    i32 nonBlocking = (blocking) ? 0 : 1;
     i32 result = ioctl((i32)socket, FIONBIO, &nonBlocking);
     return (result == 0) ? _SOCKET_ERROR_SUCCESS : _GetLastSocketError();
 }
@@ -457,18 +457,7 @@ _IoResult _Send(isize socket, void *buffer, i32 length, i32 socketFlags)
 {
     i32 native_flags = _ToNativeSocketFlags(socketFlags);
     i32 num = (i32)send((i32)socket, buffer, (usize)length, native_flags);
-    _IoResult result;
-    if (num >= 0)
-    {
-        result.BytesTransferred = num;
-        result.SocketError = _SOCKET_ERROR_SUCCESS;
-    }
-    else
-    {
-        result.BytesTransferred = -1;
-        result.SocketError = _GetLastSocketError();
-    }
-    return result;
+    return (num >= 0) ? _IoResult_new(num, _SOCKET_ERROR_SUCCESS) : _IoResult_new(-1, _GetLastSocketError());
 }
 
 /// <summary>
@@ -517,18 +506,7 @@ _IoResult _SendToIpv4(isize socket, void *buffer, i32 length, i32 socketFlags, _
     {
         i32 native_flags = _ToNativeSocketFlags(socketFlags);
         i32 num = (i32)sendto((i32)socket, buffer, (usize)length, native_flags, (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in4));
-        _IoResult result;
-        if (num >= 0)
-        {
-            result.BytesTransferred = num;
-            result.SocketError = _SOCKET_ERROR_SUCCESS;
-        }
-        else
-        {
-            result.BytesTransferred = -1;
-            result.SocketError = _GetLastSocketError();
-        }
-        return result;
+        return (num >= 0) ? _IoResult_new(num, _SOCKET_ERROR_SUCCESS) : _IoResult_new(-1, _GetLastSocketError());
     }
     return _Send(socket, buffer, length, socketFlags);
 }
@@ -579,18 +557,7 @@ _IoResult _SendToIpv6(isize socket, void *buffer, i32 length, i32 socketFlags, _
     {
         i32 native_flags = _ToNativeSocketFlags(socketFlags);
         i32 num = (i32)sendto((i32)socket, buffer, (usize)length, native_flags, (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in6));
-        _IoResult result;
-        if (num >= 0)
-        {
-            result.BytesTransferred = num;
-            result.SocketError = _SOCKET_ERROR_SUCCESS;
-        }
-        else
-        {
-            result.BytesTransferred = -1;
-            result.SocketError = _GetLastSocketError();
-        }
-        return result;
+        return (num >= 0) ? _IoResult_new(num, _SOCKET_ERROR_SUCCESS) : _IoResult_new(-1, _GetLastSocketError());
     }
     return _Send(socket, buffer, length, socketFlags);
 }
@@ -638,18 +605,7 @@ _IoResult _Receive(isize socket, void *buffer, i32 length, i32 socketFlags)
 {
     i32 native_flags = _ToNativeSocketFlags(socketFlags);
     i32 num = (i32)recv((i32)socket, buffer, (usize)length, native_flags);
-    _IoResult result;
-    if (num >= 0)
-    {
-        result.BytesTransferred = num;
-        result.SocketError = _SOCKET_ERROR_SUCCESS;
-    }
-    else
-    {
-        result.BytesTransferred = -1;
-        result.SocketError = _GetLastSocketError();
-    }
-    return result;
+    return (num >= 0) ? _IoResult_new(num, _SOCKET_ERROR_SUCCESS) : _IoResult_new(-1, _GetLastSocketError());
 }
 
 /// <summary>
@@ -698,22 +654,15 @@ _IoResult _ReceiveFromIpv4(isize socket, void *buffer, i32 length, i32 socketFla
     _socklen_t addr_len = sizeof(_sockaddr_in4);
     i32 native_flags = _ToNativeSocketFlags(socketFlags);
     i32 num = (i32)recvfrom((i32)socket, buffer, (usize)length, native_flags, (struct sockaddr *)&storage, &addr_len);
-    _IoResult result;
     if (num >= 0)
     {
         if (socketAddress != NULL)
         {
             *socketAddress = storage;
         }
-        result.BytesTransferred = num;
-        result.SocketError = _SOCKET_ERROR_SUCCESS;
+        return _IoResult_new(num, _SOCKET_ERROR_SUCCESS);
     }
-    else
-    {
-        result.BytesTransferred = -1;
-        result.SocketError = _GetLastSocketError();
-    }
-    return result;
+    return _IoResult_new(-1, _GetLastSocketError());
 }
 
 /// <summary>
@@ -762,22 +711,15 @@ _IoResult _ReceiveFromIpv6(isize socket, void *buffer, i32 length, i32 socketFla
     _socklen_t addr_len = sizeof(_sockaddr_in6);
     i32 native_flags = _ToNativeSocketFlags(socketFlags);
     i32 num = (i32)recvfrom((i32)socket, buffer, (usize)length, native_flags, (struct sockaddr *)&storage, &addr_len);
-    _IoResult result;
     if (num >= 0)
     {
         if (socketAddress != NULL)
         {
             *socketAddress = storage;
         }
-        result.BytesTransferred = num;
-        result.SocketError = _SOCKET_ERROR_SUCCESS;
+        return _IoResult_new(num, _SOCKET_ERROR_SUCCESS);
     }
-    else
-    {
-        result.BytesTransferred = -1;
-        result.SocketError = _GetLastSocketError();
-    }
-    return result;
+    return _IoResult_new(-1, _GetLastSocketError());
 }
 
 /// <summary>
@@ -831,10 +773,7 @@ _IoResult _SendVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCount, 
     if (piovecs == NULL)
     {
         errno = ENOMEM;
-        _IoResult oom_result;
-        oom_result.BytesTransferred = -1;
-        oom_result.SocketError = _GetLastSocketError();
-        return oom_result;
+        return _IoResult_new(-1, _GetLastSocketError());
     }
     _Build(buffers, bufferCount, piovecs);
     msg.msg_iov = (struct iovec *)piovecs;
@@ -843,18 +782,7 @@ _IoResult _SendVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCount, 
     {
         free(piovecs);
     }
-    _IoResult result;
-    if (num >= 0)
-    {
-        result.BytesTransferred = num;
-        result.SocketError = _SOCKET_ERROR_SUCCESS;
-    }
-    else
-    {
-        result.BytesTransferred = -1;
-        result.SocketError = _GetLastSocketError();
-    }
-    return result;
+    return (num >= 0) ? _IoResult_new(num, _SOCKET_ERROR_SUCCESS) : _IoResult_new(-1, _GetLastSocketError());
 }
 
 /// <summary>
@@ -913,10 +841,7 @@ _IoResult _SendToVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferC
         if (piovecs == NULL)
         {
             errno = ENOMEM;
-            _IoResult oom_result;
-            oom_result.BytesTransferred = -1;
-            oom_result.SocketError = _GetLastSocketError();
-            return oom_result;
+            return _IoResult_new(-1, _GetLastSocketError());
         }
         _Build(buffers, bufferCount, piovecs);
         msg.msg_iov = (struct iovec *)piovecs;
@@ -925,18 +850,7 @@ _IoResult _SendToVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferC
         {
             free(piovecs);
         }
-        _IoResult result;
-        if (num >= 0)
-        {
-            result.BytesTransferred = num;
-            result.SocketError = _SOCKET_ERROR_SUCCESS;
-        }
-        else
-        {
-            result.BytesTransferred = -1;
-            result.SocketError = _GetLastSocketError();
-        }
-        return result;
+        return (num >= 0) ? _IoResult_new(num, _SOCKET_ERROR_SUCCESS) : _IoResult_new(-1, _GetLastSocketError());
     }
     return _SendVectored(socket, buffers, bufferCount, socketFlags);
 }
@@ -997,10 +911,7 @@ _IoResult _SendToVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferC
         if (piovecs == NULL)
         {
             errno = ENOMEM;
-            _IoResult oom_result;
-            oom_result.BytesTransferred = -1;
-            oom_result.SocketError = _GetLastSocketError();
-            return oom_result;
+            return _IoResult_new(-1, _GetLastSocketError());
         }
         _Build(buffers, bufferCount, piovecs);
         msg.msg_iov = (struct iovec *)piovecs;
@@ -1009,18 +920,7 @@ _IoResult _SendToVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferC
         {
             free(piovecs);
         }
-        _IoResult result;
-        if (num >= 0)
-        {
-            result.BytesTransferred = num;
-            result.SocketError = _SOCKET_ERROR_SUCCESS;
-        }
-        else
-        {
-            result.BytesTransferred = -1;
-            result.SocketError = _GetLastSocketError();
-        }
-        return result;
+        return (num >= 0) ? _IoResult_new(num, _SOCKET_ERROR_SUCCESS) : _IoResult_new(-1, _GetLastSocketError());
     }
     return _SendVectored(socket, buffers, bufferCount, socketFlags);
 }
@@ -1076,10 +976,7 @@ _IoResult _ReceiveVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCoun
     if (piovecs == NULL)
     {
         errno = ENOMEM;
-        _IoResult oom_result;
-        oom_result.BytesTransferred = -1;
-        oom_result.SocketError = _GetLastSocketError();
-        return oom_result;
+        return _IoResult_new(-1, _GetLastSocketError());
     }
     _Build(buffers, bufferCount, piovecs);
     msg.msg_iov = (struct iovec *)piovecs;
@@ -1088,22 +985,15 @@ _IoResult _ReceiveVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCoun
     {
         free(piovecs);
     }
-    _IoResult result;
     if (num >= 0)
     {
         if (inOutFlags != NULL)
         {
             *inOutFlags = _FromNativeSocketFlags(msg.msg_flags);
         }
-        result.BytesTransferred = num;
-        result.SocketError = _SOCKET_ERROR_SUCCESS;
+        return _IoResult_new(num, _SOCKET_ERROR_SUCCESS);
     }
-    else
-    {
-        result.BytesTransferred = -1;
-        result.SocketError = _GetLastSocketError();
-    }
-    return result;
+    return _IoResult_new(-1, _GetLastSocketError());
 }
 
 /// <summary>
@@ -1161,10 +1051,7 @@ _IoResult _ReceiveFromVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bu
     if (piovecs == NULL)
     {
         errno = ENOMEM;
-        _IoResult oom_result;
-        oom_result.BytesTransferred = -1;
-        oom_result.SocketError = _GetLastSocketError();
-        return oom_result;
+        return _IoResult_new(-1, _GetLastSocketError());
     }
     _Build(buffers, bufferCount, piovecs);
     msg.msg_iov = (struct iovec *)piovecs;
@@ -1173,7 +1060,6 @@ _IoResult _ReceiveFromVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bu
     {
         free(piovecs);
     }
-    _IoResult result;
     if (num >= 0)
     {
         if (inOutFlags != NULL)
@@ -1184,15 +1070,9 @@ _IoResult _ReceiveFromVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bu
         {
             *socketAddress = storage;
         }
-        result.BytesTransferred = num;
-        result.SocketError = _SOCKET_ERROR_SUCCESS;
+        return _IoResult_new(num, _SOCKET_ERROR_SUCCESS);
     }
-    else
-    {
-        result.BytesTransferred = -1;
-        result.SocketError = _GetLastSocketError();
-    }
-    return result;
+    return _IoResult_new(-1, _GetLastSocketError());
 }
 
 /// <summary>
@@ -1250,10 +1130,7 @@ _IoResult _ReceiveFromVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bu
     if (piovecs == NULL)
     {
         errno = ENOMEM;
-        _IoResult oom_result;
-        oom_result.BytesTransferred = -1;
-        oom_result.SocketError = _GetLastSocketError();
-        return oom_result;
+        return _IoResult_new(-1, _GetLastSocketError());
     }
     _Build(buffers, bufferCount, piovecs);
     msg.msg_iov = (struct iovec *)piovecs;
@@ -1262,7 +1139,6 @@ _IoResult _ReceiveFromVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bu
     {
         free(piovecs);
     }
-    _IoResult result;
     if (num >= 0)
     {
         if (inOutFlags != NULL)
@@ -1273,15 +1149,9 @@ _IoResult _ReceiveFromVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bu
         {
             *socketAddress = storage;
         }
-        result.BytesTransferred = num;
-        result.SocketError = _SOCKET_ERROR_SUCCESS;
+        return _IoResult_new(num, _SOCKET_ERROR_SUCCESS);
     }
-    else
-    {
-        result.BytesTransferred = -1;
-        result.SocketError = _GetLastSocketError();
-    }
-    return result;
+    return _IoResult_new(-1, _GetLastSocketError());
 }
 
 #endif

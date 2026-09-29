@@ -478,20 +478,7 @@ namespace NativeSockets
         {
             int num = (int)__send((int)socket, buffer, (nuint)length, socketFlags);
 
-            IoResult result;
-
-            if (num >= 0)
-            {
-                result.BytesTransferred = num;
-                result.SocketError = SocketError.Success;
-            }
-            else
-            {
-                result.BytesTransferred = -1;
-                result.SocketError = GetLastSocketError();
-            }
-
-            return result;
+            return num >= 0 ? new IoResult(num, SocketError.Success) : new IoResult(-1, GetLastSocketError());
         }
 
         /// <summary>
@@ -541,20 +528,7 @@ namespace NativeSockets
             {
                 int num = (int)__sendto((int)socket, buffer, (nuint)length, socketFlags, (sockaddr*)socketAddress, (uint)sizeof(sockaddr_in4));
 
-                IoResult result;
-
-                if (num >= 0)
-                {
-                    result.BytesTransferred = num;
-                    result.SocketError = SocketError.Success;
-                }
-                else
-                {
-                    result.BytesTransferred = -1;
-                    result.SocketError = GetLastSocketError();
-                }
-
-                return result;
+                return num >= 0 ? new IoResult(num, SocketError.Success) : new IoResult(-1, GetLastSocketError());
             }
 
             return Send(socket, buffer, length, socketFlags);
@@ -607,20 +581,7 @@ namespace NativeSockets
             {
                 int num = (int)__sendto((int)socket, buffer, (nuint)length, socketFlags, (sockaddr*)socketAddress, (uint)sizeof(sockaddr_in6));
 
-                IoResult result;
-
-                if (num >= 0)
-                {
-                    result.BytesTransferred = num;
-                    result.SocketError = SocketError.Success;
-                }
-                else
-                {
-                    result.BytesTransferred = -1;
-                    result.SocketError = GetLastSocketError();
-                }
-
-                return result;
+                return num >= 0 ? new IoResult(num, SocketError.Success) : new IoResult(-1, GetLastSocketError());
             }
 
             return Send(socket, buffer, length, socketFlags);
@@ -670,20 +631,7 @@ namespace NativeSockets
         {
             int num = (int)__recv((int)socket, buffer, (nuint)length, socketFlags);
 
-            IoResult result;
-
-            if (num >= 0)
-            {
-                result.BytesTransferred = num;
-                result.SocketError = SocketError.Success;
-            }
-            else
-            {
-                result.BytesTransferred = -1;
-                result.SocketError = GetLastSocketError();
-            }
-
-            return result;
+            return num >= 0 ? new IoResult(num, SocketError.Success) : new IoResult(-1, GetLastSocketError());
         }
 
         /// <summary>
@@ -734,23 +682,15 @@ namespace NativeSockets
 
             int num = (int)__recvfrom((int)socket, buffer, (nuint)length, socketFlags, (sockaddr*)&storage, &socketAddressSize);
 
-            IoResult result;
-
             if (num >= 0)
             {
                 if (socketAddress != null)
                     *socketAddress = storage;
 
-                result.BytesTransferred = num;
-                result.SocketError = SocketError.Success;
-            }
-            else
-            {
-                result.BytesTransferred = -1;
-                result.SocketError = GetLastSocketError();
+                return new IoResult(num, SocketError.Success);
             }
 
-            return result;
+            return new IoResult(-1, GetLastSocketError());
         }
 
         /// <summary>
@@ -801,23 +741,15 @@ namespace NativeSockets
 
             int num = (int)__recvfrom((int)socket, buffer, (nuint)length, socketFlags, (sockaddr*)&storage, &socketAddressSize);
 
-            IoResult result;
-
             if (num >= 0)
             {
                 if (socketAddress != null)
                     *socketAddress = storage;
 
-                result.BytesTransferred = num;
-                result.SocketError = SocketError.Success;
-            }
-            else
-            {
-                result.BytesTransferred = -1;
-                result.SocketError = GetLastSocketError();
+                return new IoResult(num, SocketError.Success);
             }
 
-            return result;
+            return new IoResult(-1, GetLastSocketError());
         }
 
         /// <summary>
@@ -873,20 +805,7 @@ namespace NativeSockets
                 num = (int)__sendmsg((int)socket, &msg, socketFlags);
             }
 
-            IoResult result;
-
-            if (num >= 0)
-            {
-                result.BytesTransferred = num;
-                result.SocketError = SocketError.Success;
-            }
-            else
-            {
-                result.BytesTransferred = -1;
-                result.SocketError = GetLastSocketError();
-            }
-
-            return result;
+            return num >= 0 ? new IoResult(num, SocketError.Success) : new IoResult(-1, GetLastSocketError());
         }
 
         /// <summary>
@@ -947,20 +866,7 @@ namespace NativeSockets
                     num = (int)__sendmsg((int)socket, &msg, socketFlags);
                 }
 
-                IoResult result;
-
-                if (num >= 0)
-                {
-                    result.BytesTransferred = num;
-                    result.SocketError = SocketError.Success;
-                }
-                else
-                {
-                    result.BytesTransferred = -1;
-                    result.SocketError = GetLastSocketError();
-                }
-
-                return result;
+                return num >= 0 ? new IoResult(num, SocketError.Success) : new IoResult(-1, GetLastSocketError());
             }
 
             return SendVectored(socket, buffers, bufferCount, socketFlags);
@@ -1024,20 +930,7 @@ namespace NativeSockets
                     num = (int)__sendmsg((int)socket, &msg, socketFlags);
                 }
 
-                IoResult result;
-
-                if (num >= 0)
-                {
-                    result.BytesTransferred = num;
-                    result.SocketError = SocketError.Success;
-                }
-                else
-                {
-                    result.BytesTransferred = -1;
-                    result.SocketError = GetLastSocketError();
-                }
-
-                return result;
+                return num >= 0 ? new IoResult(num, SocketError.Success) : new IoResult(-1, GetLastSocketError());
             }
 
             return SendVectored(socket, buffers, bufferCount, socketFlags);
@@ -1098,23 +991,15 @@ namespace NativeSockets
                 num = (int)__recvmsg((int)socket, &msg, flags);
             }
 
-            IoResult result;
-
             if (num >= 0)
             {
                 if (inOutFlags != null)
                     *inOutFlags = (SocketFlags)msg.msg_flags;
 
-                result.BytesTransferred = num;
-                result.SocketError = SocketError.Success;
-            }
-            else
-            {
-                result.BytesTransferred = -1;
-                result.SocketError = GetLastSocketError();
+                return new IoResult(num, SocketError.Success);
             }
 
-            return result;
+            return new IoResult(-1, GetLastSocketError());
         }
 
         /// <summary>
@@ -1177,8 +1062,6 @@ namespace NativeSockets
                 num = (int)__recvmsg((int)socket, &msg, flags);
             }
 
-            IoResult result;
-
             if (num >= 0)
             {
                 if (inOutFlags != null)
@@ -1187,16 +1070,10 @@ namespace NativeSockets
                 if (socketAddress != null)
                     *socketAddress = storage;
 
-                result.BytesTransferred = num;
-                result.SocketError = SocketError.Success;
-            }
-            else
-            {
-                result.BytesTransferred = -1;
-                result.SocketError = GetLastSocketError();
+                return new IoResult(num, SocketError.Success);
             }
 
-            return result;
+            return new IoResult(-1, GetLastSocketError());
         }
 
         /// <summary>
@@ -1259,8 +1136,6 @@ namespace NativeSockets
                 num = (int)__recvmsg((int)socket, &msg, flags);
             }
 
-            IoResult result;
-
             if (num >= 0)
             {
                 if (inOutFlags != null)
@@ -1269,16 +1144,10 @@ namespace NativeSockets
                 if (socketAddress != null)
                     *socketAddress = storage;
 
-                result.BytesTransferred = num;
-                result.SocketError = SocketError.Success;
-            }
-            else
-            {
-                result.BytesTransferred = -1;
-                result.SocketError = GetLastSocketError();
+                return new IoResult(num, SocketError.Success);
             }
 
-            return result;
+            return new IoResult(-1, GetLastSocketError());
         }
 
         /// <summary>

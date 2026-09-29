@@ -129,7 +129,7 @@ extern "C"
 
         /// <summary>
         ///     The socket error that occurred,
-        ///     or <see cref="SocketError.Success" /> if the operation succeeded.
+        ///     or <see cref="System.Net.Sockets.SocketError.Success" /> if the operation succeeded.
         /// </summary>
         i32 SocketError;
     } _IoResult;

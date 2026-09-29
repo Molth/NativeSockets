@@ -390,7 +390,7 @@ namespace NativeSockets
         {
             SocketError error = socket.TryGetSocket(out Socket? s);
             if (error != SocketError.Success)
-                return new IoResult { BytesTransferred = -1, SocketError = error };
+                return new IoResult(-1, error);
 
             return ManagedVirtualSocketPalImpl.Send(s!, buffer, socketFlags);
         }
@@ -437,7 +437,7 @@ namespace NativeSockets
         {
             SocketError error = socket.TryGetSocket(out Socket? s);
             if (error != SocketError.Success)
-                return new IoResult { BytesTransferred = -1, SocketError = error };
+                return new IoResult(-1, error);
 
             return ManagedVirtualSocketPalImpl.Receive(s!, buffer, socketFlags);
         }
@@ -485,7 +485,7 @@ namespace NativeSockets
         {
             SocketError error = socket.TryGetSocket(out Socket? s);
             if (error != SocketError.Success)
-                return new IoResult { BytesTransferred = -1, SocketError = error };
+                return new IoResult(-1, error);
 
             return ManagedVirtualSocketPalImpl.SendTo(s!, buffer, socketFlags, socketAddress);
         }
@@ -533,7 +533,7 @@ namespace NativeSockets
         {
             SocketError error = socket.TryGetSocket(out Socket? s);
             if (error != SocketError.Success)
-                return new IoResult { BytesTransferred = -1, SocketError = error };
+                return new IoResult(-1, error);
 
             return ManagedVirtualSocketPalImpl.ReceiveFrom(s!, buffer, socketFlags, ref socketAddress);
         }
@@ -580,7 +580,7 @@ namespace NativeSockets
         {
             SocketError error = socket.TryGetSocket(out Socket? s);
             if (error != SocketError.Success)
-                return new IoResult { BytesTransferred = -1, SocketError = error };
+                return new IoResult(-1, error);
 
             return ManagedVirtualSocketPalImpl.SendVectored(s!, buffers, socketFlags);
         }
@@ -628,7 +628,7 @@ namespace NativeSockets
         {
             SocketError error = socket.TryGetSocket(out Socket? s);
             if (error != SocketError.Success)
-                return new IoResult { BytesTransferred = -1, SocketError = error };
+                return new IoResult(-1, error);
 
             return ManagedVirtualSocketPalImpl.SendToVectored(s!, buffers, socketFlags, socketAddress);
         }
@@ -675,7 +675,7 @@ namespace NativeSockets
         {
             SocketError error = socket.TryGetSocket(out Socket? s);
             if (error != SocketError.Success)
-                return new IoResult { BytesTransferred = -1, SocketError = error };
+                return new IoResult(-1, error);
 
             return ManagedVirtualSocketPalImpl.ReceiveVectored(s!, buffers, ref inOutFlags);
         }
@@ -723,7 +723,7 @@ namespace NativeSockets
         {
             SocketError error = socket.TryGetSocket(out Socket? s);
             if (error != SocketError.Success)
-                return new IoResult { BytesTransferred = -1, SocketError = error };
+                return new IoResult(-1, error);
 
             return ManagedVirtualSocketPalImpl.ReceiveFromVectored(s!, buffers, ref inOutFlags, ref socketAddress);
         }

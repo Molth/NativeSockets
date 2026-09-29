@@ -209,6 +209,37 @@ namespace NativeSockets
         /// <param name="buffer">The data buffer.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IoResult Send(VirtualSocket socket, ReadOnlySpan<byte> buffer, SocketFlags socketFlags) => Impl.Send(socket, buffer, socketFlags);
 
@@ -219,6 +250,37 @@ namespace NativeSockets
         /// <param name="buffer">The receive buffer.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IoResult Receive(VirtualSocket socket, Span<byte> buffer, SocketFlags socketFlags) => Impl.Receive(socket, buffer, socketFlags);
 
@@ -230,6 +292,37 @@ namespace NativeSockets
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">The destination socket address.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IoResult SendTo(VirtualSocket socket, ReadOnlySpan<byte> buffer, SocketFlags socketFlags, in NativeSocketAddress socketAddress) => Impl.SendTo(socket, buffer, socketFlags, socketAddress);
 
@@ -241,6 +334,37 @@ namespace NativeSockets
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">The sender's socket address.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IoResult ReceiveFrom(VirtualSocket socket, Span<byte> buffer, SocketFlags socketFlags, ref NativeSocketAddress socketAddress) => Impl.ReceiveFrom(socket, buffer, socketFlags, ref socketAddress);
 
@@ -251,6 +375,37 @@ namespace NativeSockets
         /// <param name="buffers">The array of <see cref="NativeIoSlice" />.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IoResult SendVectored(VirtualSocket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags) => Impl.SendVectored(socket, buffers, socketFlags);
 
@@ -262,6 +417,37 @@ namespace NativeSockets
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">The destination socket address.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IoResult SendToVectored(VirtualSocket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags, in NativeSocketAddress socketAddress) => Impl.SendToVectored(socket, buffers, socketFlags, socketAddress);
 
@@ -272,6 +458,37 @@ namespace NativeSockets
         /// <param name="buffers">The array of <see cref="NativeIoSlice" />.</param>
         /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IoResult ReceiveVectored(VirtualSocket socket, Span<NativeIoSlice> buffers, ref SocketFlags inOutFlags) => Impl.ReceiveVectored(socket, buffers, ref inOutFlags);
 
@@ -283,6 +500,37 @@ namespace NativeSockets
         /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
         /// <param name="socketAddress">The sender's socket address.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
+        /// <remarks>
+        ///     Only the following flag values are honored:
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Peek" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.DontRoute" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.Truncated" />
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///             </description>
+        ///         </item>
+        ///     </list>
+        ///     Any other flags are silently ignored.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IoResult ReceiveFromVectored(VirtualSocket socket, Span<NativeIoSlice> buffers, ref SocketFlags inOutFlags, ref NativeSocketAddress socketAddress) => Impl.ReceiveFromVectored(socket, buffers, ref inOutFlags, ref socketAddress);
     }

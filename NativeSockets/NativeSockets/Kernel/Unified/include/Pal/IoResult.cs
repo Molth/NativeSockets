@@ -13,18 +13,33 @@ namespace NativeSockets
     ///     and the socket error that occurred.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    public struct IoResult : IEquatable<IoResult>
+    public readonly struct IoResult : IEquatable<IoResult>
     {
         /// <summary>
         ///     The number of bytes transferred by the operation.
         /// </summary>
-        public int BytesTransferred;
+        public readonly int BytesTransferred;
 
         /// <summary>
         ///     The socket error that occurred,
-        ///     or <see cref="SocketError.Success" /> if the operation succeeded.
+        ///     or <see cref="System.Net.Sockets.SocketError.Success" /> if the operation succeeded.
         /// </summary>
-        public SocketError SocketError;
+        public readonly SocketError SocketError;
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="IoResult" /> structure.
+        /// </summary>
+        /// <param name="bytesTransferred">The number of bytes transferred by the operation.</param>
+        /// <param name="socketError">
+        ///     The socket error that occurred,
+        ///     or <see cref="System.Net.Sockets.SocketError.Success" /> if the operation succeeded.
+        /// </param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IoResult(int bytesTransferred, SocketError socketError)
+        {
+            BytesTransferred = bytesTransferred;
+            SocketError = socketError;
+        }
 
         /// <summary>
         ///     Indicates whether the current object is equal to another object.
