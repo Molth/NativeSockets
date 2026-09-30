@@ -44,3 +44,24 @@
 - The correct binary is loaded automatically at runtime – no extra installation or configuration is needed.
 - Just add the package and use the same API as you would with the original NativeSockets.
 - You can build binaries using [GitHub Actions](https://github.com/Molth/NativeSockets/actions).
+
+---
+
+## VirtualSocket
+
+A unified socket type that automatically picks the best available backend at runtime:
+
+- When `NativeSocketPal.IsSupported` is `true`, `VirtualSocket` is backed by the native socket implementation.
+- Otherwise it transparently falls back to `System.Net.Sockets.Socket`.
+
+### Key Points
+
+- No manual `NativeSocketPal.Startup` / `NativeSocketPal.Cleanup` calls are required – the underlying socket subsystem is managed automatically.
+- The send/receive API mirrors the native socket API and returns an `IoResult` (byte count plus `SocketError`).
+- `SocketFlags` are restricted: send operations honor only `None` and `DontRoute`; receive operations honor only `None` and `Peek`. Any other flags are silently ignored.
+- For vectored receive operations, truncated data is reported as `IoResult.Err` with `SocketError.MessageSize`, even when the underlying operation succeeded.
+
+### Notes
+
+- On the managed fallback path, a `SendTo` that triggers an implicit bind leaves the socket actually bound, but `LocalEndPoint` cannot be queried and throws. This only occurs on .NET 8 and later, because the `SendTo(ReadOnlySpan<byte>, SocketFlags, SocketAddress)` overload does not set the underlying `_rightEndPoint` field. In that state `GetName` reports an error even though the datagram was delivered.
+- The managed fallback path carries the overhead of `System.Net.Sockets`; prefer the native backend when performance matters.

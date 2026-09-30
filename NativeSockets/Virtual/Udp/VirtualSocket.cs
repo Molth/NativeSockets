@@ -129,15 +129,9 @@ namespace NativeSockets
                 return SocketError.NotSocket;
             }
 
-            GCHandle gcHandle = GCHandle.FromIntPtr(_handle);
-            if (!gcHandle.IsAllocated)
-            {
-                socket = default;
-                return SocketError.NotSocket;
-            }
-
             try
             {
+                GCHandle gcHandle = GCHandle.FromIntPtr(_handle);
                 socket = (Socket?)gcHandle.Target;
                 return socket != null ? SocketError.Success : SocketError.NotSocket;
             }

@@ -56,12 +56,12 @@ namespace NativeSockets
             }
             catch (SocketException ex)
             {
-                socket = new VirtualSocket(-1, addressFamily);
+                socket = new VirtualSocket(0, addressFamily);
                 return ex.SocketErrorCode;
             }
             catch
             {
-                socket = new VirtualSocket(-1, addressFamily);
+                socket = new VirtualSocket(0, addressFamily);
                 return SocketError.SocketError;
             }
         }
