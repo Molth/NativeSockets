@@ -54,6 +54,12 @@ namespace NativeSockets
         ///                 impact on performance.
         ///             </description>
         ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///                 thrown; always check the returned socket error instead of ignoring or discarding it.
+        ///             </description>
+        ///         </item>
         ///     </list>
         /// </remarks>
         public static IoResult SendTo(Socket socket, ReadOnlySpan<byte> buffer, SocketFlags socketFlags, in NativeSocketAddress socketAddress)
@@ -115,6 +121,12 @@ namespace NativeSockets
         ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
         ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
         ///                 impact on performance.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///                 thrown; always check the returned socket error instead of ignoring or discarding it.
         ///             </description>
         ///         </item>
         ///     </list>
@@ -180,6 +192,12 @@ namespace NativeSockets
         ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
         ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
         ///                 impact on performance.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///                 thrown; always check the returned socket error instead of ignoring or discarding it.
         ///             </description>
         ///         </item>
         ///     </list>
@@ -256,6 +274,12 @@ namespace NativeSockets
         ///                 impact on performance.
         ///             </description>
         ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///                 thrown; always check the returned socket error instead of ignoring or discarding it.
+        ///             </description>
+        ///         </item>
         ///     </list>
         /// </remarks>
         public static IoResult SendToVectored(Socket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags, in NativeSocketAddress socketAddress)
@@ -328,6 +352,12 @@ namespace NativeSockets
         ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
         ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
         ///                 impact on performance.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///                 thrown; always check the returned socket error instead of ignoring or discarding it.
         ///             </description>
         ///         </item>
         ///     </list>
@@ -409,6 +439,12 @@ namespace NativeSockets
         ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
         ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
         ///                 impact on performance.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///                 thrown; always check the returned socket error instead of ignoring or discarding it.
         ///             </description>
         ///         </item>
         ///     </list>

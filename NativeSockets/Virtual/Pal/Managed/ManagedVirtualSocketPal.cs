@@ -31,6 +31,10 @@ namespace NativeSockets
         /// <param name="ipv6">true to create an Ipv6 socket; false for Ipv4.</param>
         /// <param name="socket">When this method returns, contains the created virtual socket.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError Create(bool ipv6, out VirtualSocket socket)
         {
             AddressFamily addressFamily = ipv6 ? AddressFamily.InterNetworkV6 : AddressFamily.InterNetwork;
@@ -71,6 +75,10 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The virtual socket.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError Close(VirtualSocket socket)
         {
             SocketError error = socket.TryGetSocket(out Socket? s);
@@ -98,6 +106,10 @@ namespace NativeSockets
         /// <param name="socket">The virtual socket.</param>
         /// <param name="dualMode">true to enable dual-mode; false to disable.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError SetDualMode(VirtualSocket socket, bool dualMode)
         {
             SocketError error = socket.TryGetSocket(out Socket? s);
@@ -113,6 +125,10 @@ namespace NativeSockets
         /// <param name="socket">The virtual socket.</param>
         /// <param name="reuseAddress">true to allow the local socket address to be reused; false to disallow.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError SetReuseAddress(VirtualSocket socket, bool reuseAddress)
         {
             SocketError error = socket.TryGetSocket(out Socket? s);
@@ -128,6 +144,10 @@ namespace NativeSockets
         /// <param name="socket">The virtual socket.</param>
         /// <param name="dontFragment">true to not fragment packets; false otherwise.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError SetDontFragment(VirtualSocket socket, bool dontFragment)
         {
             SocketError error = socket.TryGetSocket(out Socket? s);
@@ -143,6 +163,10 @@ namespace NativeSockets
         /// <param name="socket">The virtual socket.</param>
         /// <param name="dontRoute">true to not route packets; false otherwise.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError SetDontRoute(VirtualSocket socket, bool dontRoute)
         {
             SocketError error = socket.TryGetSocket(out Socket? s);
@@ -158,6 +182,10 @@ namespace NativeSockets
         /// <param name="socket">The virtual socket.</param>
         /// <param name="enableBroadcast">true to enable broadcasting; false to disable.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError SetEnableBroadcast(VirtualSocket socket, bool enableBroadcast)
         {
             SocketError error = socket.TryGetSocket(out Socket? s);
@@ -173,6 +201,10 @@ namespace NativeSockets
         /// <param name="socket">The virtual socket.</param>
         /// <param name="ttl">The time-to-live value.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError SetTtl(VirtualSocket socket, int ttl)
         {
             SocketError error = socket.TryGetSocket(out Socket? s);
@@ -188,6 +220,10 @@ namespace NativeSockets
         /// <param name="socket">The virtual socket.</param>
         /// <param name="sendBufferSize">The size of the send buffer, in bytes.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError SetSendBufferSize(VirtualSocket socket, int sendBufferSize)
         {
             SocketError error = socket.TryGetSocket(out Socket? s);
@@ -203,6 +239,10 @@ namespace NativeSockets
         /// <param name="socket">The virtual socket.</param>
         /// <param name="receiveBufferSize">The size of the receive buffer, in bytes.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError SetReceiveBufferSize(VirtualSocket socket, int receiveBufferSize)
         {
             SocketError error = socket.TryGetSocket(out Socket? s);
@@ -218,6 +258,10 @@ namespace NativeSockets
         /// <param name="socket">The virtual socket.</param>
         /// <param name="milliseconds">The send timeout in milliseconds.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError SetSendTimeout(VirtualSocket socket, int milliseconds)
         {
             SocketError error = socket.TryGetSocket(out Socket? s);
@@ -233,6 +277,10 @@ namespace NativeSockets
         /// <param name="socket">The virtual socket.</param>
         /// <param name="milliseconds">The receive timeout in milliseconds.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError SetReceiveTimeout(VirtualSocket socket, int milliseconds)
         {
             SocketError error = socket.TryGetSocket(out Socket? s);
@@ -248,6 +296,10 @@ namespace NativeSockets
         /// <param name="socket">The virtual socket.</param>
         /// <param name="socketAddress">The socket address to bind to.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError Bind(VirtualSocket socket, NativeSocketAddress socketAddress)
         {
             SocketError error = socket.TryGetSocket(out Socket? s);
@@ -263,6 +315,10 @@ namespace NativeSockets
         /// <param name="socket">The virtual socket.</param>
         /// <param name="socketAddress">The socket address to connect to.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError Connect(VirtualSocket socket, NativeSocketAddress socketAddress)
         {
             SocketError error = socket.TryGetSocket(out Socket? s);
@@ -278,6 +334,10 @@ namespace NativeSockets
         /// <param name="socket">The virtual socket.</param>
         /// <param name="blocking">true for blocking; false for non-blocking.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError SetBlocking(VirtualSocket socket, bool blocking)
         {
             SocketError error = socket.TryGetSocket(out Socket? s);
@@ -295,6 +355,10 @@ namespace NativeSockets
         /// <param name="mode">The select mode.</param>
         /// <param name="status">When this method returns, contains true if the socket is ready, false otherwise.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError Poll(VirtualSocket socket, int microseconds, SelectMode mode, out bool status)
         {
             SocketError error = socket.TryGetSocket(out Socket? s);
@@ -315,6 +379,10 @@ namespace NativeSockets
         /// <param name="inFlags">The select mode.</param>
         /// <param name="outFlags">When this method returns, contains the poll result flags.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError PollFlags(VirtualSocket socket, int microseconds, SelectModeFlags inFlags, out SelectModeFlags outFlags)
         {
             SocketError error = socket.TryGetSocket(out Socket? s);
@@ -334,10 +402,22 @@ namespace NativeSockets
         /// <param name="socketAddress">The socket address to receive the local name into.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         /// <remarks>
-        ///     There is a known bug in the underlying managed socket: after a <c>SendTo</c> that
-        ///     triggers an implicit bind, the socket is actually bound, but <c>LocalEndPoint</c>
-        ///     cannot be queried and throws. In that state this method reports an error even though
-        ///     the datagram was delivered successfully.
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 There is a known bug in the underlying managed socket: after a <c>SendTo</c> that
+        ///                 triggers an implicit bind, the socket is actually bound, but <c>LocalEndPoint</c>
+        ///                 cannot be queried and throws. In that state this method reports an error even though
+        ///                 the datagram was delivered successfully.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///                 thrown; always check the returned socket error instead of ignoring or discarding it.
+        ///             </description>
+        ///         </item>
+        ///     </list>
         /// </remarks>
         public static SocketError GetName(VirtualSocket socket, ref NativeSocketAddress socketAddress)
         {
@@ -369,6 +449,12 @@ namespace NativeSockets
         ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
         ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
         ///                 impact on performance.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///                 thrown; always check the returned socket error instead of ignoring or discarding it.
         ///             </description>
         ///         </item>
         ///     </list>
@@ -403,6 +489,12 @@ namespace NativeSockets
         ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
         ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
         ///                 impact on performance.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///                 thrown; always check the returned socket error instead of ignoring or discarding it.
         ///             </description>
         ///         </item>
         ///     </list>
@@ -440,6 +532,12 @@ namespace NativeSockets
         ///                 impact on performance.
         ///             </description>
         ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///                 thrown; always check the returned socket error instead of ignoring or discarding it.
+        ///             </description>
+        ///         </item>
         ///     </list>
         /// </remarks>
         public static IoResult SendTo(VirtualSocket socket, ReadOnlySpan<byte> buffer, SocketFlags socketFlags, in NativeSocketAddress socketAddress)
@@ -475,6 +573,12 @@ namespace NativeSockets
         ///                 impact on performance.
         ///             </description>
         ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///                 thrown; always check the returned socket error instead of ignoring or discarding it.
+        ///             </description>
+        ///         </item>
         ///     </list>
         /// </remarks>
         public static IoResult ReceiveFrom(VirtualSocket socket, Span<byte> buffer, SocketFlags socketFlags, ref NativeSocketAddress socketAddress)
@@ -507,6 +611,12 @@ namespace NativeSockets
         ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
         ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
         ///                 impact on performance.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///                 thrown; always check the returned socket error instead of ignoring or discarding it.
         ///             </description>
         ///         </item>
         ///     </list>
@@ -544,6 +654,12 @@ namespace NativeSockets
         ///                 impact on performance.
         ///             </description>
         ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///                 thrown; always check the returned socket error instead of ignoring or discarding it.
+        ///             </description>
+        ///         </item>
         ///     </list>
         /// </remarks>
         public static IoResult SendToVectored(VirtualSocket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags, in NativeSocketAddress socketAddress)
@@ -576,6 +692,12 @@ namespace NativeSockets
         ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
         ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
         ///                 impact on performance.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///                 thrown; always check the returned socket error instead of ignoring or discarding it.
         ///             </description>
         ///         </item>
         ///     </list>
@@ -611,6 +733,12 @@ namespace NativeSockets
         ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
         ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
         ///                 impact on performance.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///                 thrown; always check the returned socket error instead of ignoring or discarding it.
         ///             </description>
         ///         </item>
         ///     </list>

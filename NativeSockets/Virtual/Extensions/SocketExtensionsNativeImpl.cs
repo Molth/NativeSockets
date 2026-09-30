@@ -15,6 +15,20 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket.</param>
         /// <param name="microseconds">The timeout in microseconds.</param>
+        /// <param name="mode">The select mode.</param>
+        /// <param name="status">When this method returns, contains true if the socket is ready, false otherwise.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="PlatformNotSupportedException">
+        ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
+        ///     <see langword="false" />.
+        /// </exception>
+        public static SocketError Poll(Socket socket, int microseconds, SelectMode mode, out bool status) => NativeVirtualSocketPal.Poll(new VirtualSocket(socket), microseconds, mode, out status);
+
+        /// <summary>
+        ///     Polls a socket for pending events.
+        /// </summary>
+        /// <param name="socket">The socket.</param>
+        /// <param name="microseconds">The timeout in microseconds.</param>
         /// <param name="inFlags">The select mode.</param>
         /// <param name="outFlags">When this method returns, contains the poll result flags.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
@@ -199,6 +213,7 @@ namespace NativeSockets
         public static SocketExtensionsImpl GetImpl()
         {
             SocketExtensionsImpl impl;
+            impl.Poll = &Poll;
             impl.PollFlags = &PollFlags;
             impl.SendTo = &SendTo;
             impl.ReceiveFrom = &ReceiveFrom;

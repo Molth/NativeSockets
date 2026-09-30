@@ -13,7 +13,7 @@ namespace NativeSockets
     internal static class BinaryPrimitivesHelpers
     {
         /// <summary>
-        ///     Write a <see cref="T:System.UInt16" /> into a span of bytes,
+        ///     Write a <see cref="UInt16" /> into a span of bytes,
         ///     as big endian.
         /// </summary>
         /// <param name="destination">The span of bytes where the value is to be written.</param>
@@ -28,7 +28,7 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Write a <see cref="T:System.UInt32" /> into a span of bytes,
+        ///     Write a <see cref="UInt32" /> into a span of bytes,
         ///     as big endian.
         /// </summary>
         /// <param name="destination">The span of bytes where the value is to be written.</param>
@@ -43,7 +43,7 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Reads a <see cref="T:System.UInt16" /> from the given location,
+        ///     Reads a <see cref="UInt16" /> from the given location,
         ///     as big endian.
         /// </summary>
         /// <param name="source">The read-only span to read.</param>
@@ -58,7 +58,7 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Reads a <see cref="T:System.Int32" /> from the given location,
+        ///     Reads a <see cref="Int32" /> from the given location,
         ///     as big endian.
         /// </summary>
         /// <param name="source">The read-only span to read.</param>
@@ -73,7 +73,7 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Reads a <see cref="T:System.UInt32" /> from the given location,
+        ///     Reads a <see cref="UInt32" /> from the given location,
         ///     as little endian.
         /// </summary>
         /// <param name="source">The read-only span to read.</param>
@@ -88,7 +88,7 @@ namespace NativeSockets
         }
 
         /// <summary>
-        ///     Reads a <see cref="T:System.UInt64" /> from the given location,
+        ///     Reads a <see cref="UInt64" /> from the given location,
         ///     as little endian.
         /// </summary>
         /// <param name="source">The read-only span to read.</param>

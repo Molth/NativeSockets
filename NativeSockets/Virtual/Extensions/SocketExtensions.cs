@@ -26,10 +26,36 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket.</param>
         /// <param name="microseconds">The timeout in microseconds.</param>
+        /// <param name="mode">The select mode.</param>
+        /// <param name="status">When this method returns, contains true if the socket is ready, false otherwise.</param>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="socket" /> is null.</exception>
+        /// <remarks>
+        ///     When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///     caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///     the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static SocketError Poll(this Socket socket, int microseconds, SelectMode mode, out bool status)
+        {
+            ThrowHelpers.ThrowIfNull(socket, ExceptionArgument.socket);
+            return Impl.Poll(socket, microseconds, mode, out status);
+        }
+
+        /// <summary>
+        ///     Polls a socket for pending events.
+        /// </summary>
+        /// <param name="socket">The socket.</param>
+        /// <param name="microseconds">The timeout in microseconds.</param>
         /// <param name="inFlags">The select mode.</param>
         /// <param name="outFlags">When this method returns, contains the poll result flags.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="socket" /> is null.</exception>
+        /// <remarks>
+        ///     When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///     caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///     the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static SocketError PollFlags(this Socket socket, int microseconds, SelectModeFlags inFlags, out SelectModeFlags outFlags)
         {
@@ -48,8 +74,29 @@ namespace NativeSockets
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="socket" /> is null.</exception>
         /// <remarks>
-        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
-        ///     Any other flags are silently ignored.
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
+        ///                 Any other flags are silently ignored.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" /> and the socket is
+        ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
+        ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
+        ///                 impact on performance.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///                 caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///                 the returned socket error instead of ignoring or discarding it.
+        ///             </description>
+        ///         </item>
+        ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int SendTo(this Socket socket, ReadOnlySpan<byte> buffer, SocketFlags socketFlags, in NativeSocketAddress socketAddress, out SocketError socketError)
@@ -69,8 +116,29 @@ namespace NativeSockets
         /// <returns>The number of bytes received, or -1 on error.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="socket" /> is null.</exception>
         /// <remarks>
-        ///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
-        ///     Any other flags are silently ignored.
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
+        ///                 Any other flags are silently ignored.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" /> and the socket is
+        ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
+        ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
+        ///                 impact on performance.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///                 caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///                 the returned socket error instead of ignoring or discarding it.
+        ///             </description>
+        ///         </item>
+        ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int ReceiveFrom(this Socket socket, Span<byte> buffer, SocketFlags socketFlags, ref NativeSocketAddress socketAddress, out SocketError socketError)
@@ -89,8 +157,29 @@ namespace NativeSockets
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="socket" /> is null.</exception>
         /// <remarks>
-        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
-        ///     Any other flags are silently ignored.
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
+        ///                 Any other flags are silently ignored.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" /> and the socket is
+        ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
+        ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
+        ///                 impact on performance.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///                 caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///                 the returned socket error instead of ignoring or discarding it.
+        ///             </description>
+        ///         </item>
+        ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int SendVectored(this Socket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags, out SocketError socketError)
@@ -110,8 +199,29 @@ namespace NativeSockets
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="socket" /> is null.</exception>
         /// <remarks>
-        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
-        ///     Any other flags are silently ignored.
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
+        ///                 Any other flags are silently ignored.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" /> and the socket is
+        ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
+        ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
+        ///                 impact on performance.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///                 caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///                 the returned socket error instead of ignoring or discarding it.
+        ///             </description>
+        ///         </item>
+        ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int SendToVectored(this Socket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags, in NativeSocketAddress socketAddress, out SocketError socketError)
@@ -142,6 +252,21 @@ namespace NativeSockets
         ///                 If the data was truncated, returns <see cref="IoResult.Err" /> with
         ///                 <see cref="SocketError.MessageSize" />,
         ///                 even if the underlying operation succeeded.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" /> and the socket is
+        ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
+        ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
+        ///                 impact on performance.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///                 caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///                 the returned socket error instead of ignoring or discarding it.
         ///             </description>
         ///         </item>
         ///     </list>
@@ -176,6 +301,21 @@ namespace NativeSockets
         ///                 If the data was truncated, returns <see cref="IoResult.Err" /> with
         ///                 <see cref="SocketError.MessageSize" />,
         ///                 even if the underlying operation succeeded.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" /> and the socket is
+        ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
+        ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
+        ///                 impact on performance.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///                 caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///                 the returned socket error instead of ignoring or discarding it.
         ///             </description>
         ///         </item>
         ///     </list>

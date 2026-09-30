@@ -16,6 +16,12 @@ namespace NativeSockets
         ///     Polls a socket for pending events.
         /// </summary>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        public delegate* managed<Socket, int, SelectMode, out bool, SocketError> Poll;
+
+        /// <summary>
+        ///     Polls a socket for pending events.
+        /// </summary>
+        /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         public delegate* managed<Socket, int, SelectModeFlags, out SelectModeFlags, SocketError> PollFlags;
 
         /// <summary>

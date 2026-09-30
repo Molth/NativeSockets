@@ -34,6 +34,10 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The managed socket.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError Close(Socket socket)
         {
             try
@@ -61,6 +65,10 @@ namespace NativeSockets
         /// <param name="socket">The managed socket.</param>
         /// <param name="dualMode">true to enable dual-mode; false to disable.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError SetDualMode(Socket socket, bool dualMode)
         {
             try
@@ -88,6 +96,10 @@ namespace NativeSockets
         /// <param name="socket">The managed socket.</param>
         /// <param name="reuseAddress">true to allow the local socket address to be reused; false to disallow.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError SetReuseAddress(Socket socket, bool reuseAddress)
         {
             try
@@ -115,6 +127,10 @@ namespace NativeSockets
         /// <param name="socket">The managed socket.</param>
         /// <param name="dontFragment">true to not fragment packets; false otherwise.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError SetDontFragment(Socket socket, bool dontFragment)
         {
             try
@@ -146,6 +162,10 @@ namespace NativeSockets
         /// <param name="socket">The managed socket.</param>
         /// <param name="dontRoute">true to not route packets; false otherwise.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError SetDontRoute(Socket socket, bool dontRoute)
         {
             try
@@ -173,6 +193,10 @@ namespace NativeSockets
         /// <param name="socket">The managed socket.</param>
         /// <param name="enableBroadcast">true to enable broadcasting; false to disable.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError SetEnableBroadcast(Socket socket, bool enableBroadcast)
         {
             try
@@ -200,6 +224,10 @@ namespace NativeSockets
         /// <param name="socket">The managed socket.</param>
         /// <param name="ttl">The time-to-live value.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError SetTtl(Socket socket, int ttl)
         {
             try
@@ -231,6 +259,10 @@ namespace NativeSockets
         /// <param name="socket">The managed socket.</param>
         /// <param name="sendBufferSize">The size of the send buffer, in bytes.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError SetSendBufferSize(Socket socket, int sendBufferSize)
         {
             try
@@ -262,6 +294,10 @@ namespace NativeSockets
         /// <param name="socket">The managed socket.</param>
         /// <param name="receiveBufferSize">The size of the receive buffer, in bytes.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError SetReceiveBufferSize(Socket socket, int receiveBufferSize)
         {
             try
@@ -293,6 +329,10 @@ namespace NativeSockets
         /// <param name="socket">The managed socket.</param>
         /// <param name="milliseconds">The send timeout in milliseconds.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError SetSendTimeout(Socket socket, int milliseconds)
         {
             try
@@ -324,6 +364,10 @@ namespace NativeSockets
         /// <param name="socket">The managed socket.</param>
         /// <param name="milliseconds">The receive timeout in milliseconds.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError SetReceiveTimeout(Socket socket, int milliseconds)
         {
             try
@@ -355,6 +399,10 @@ namespace NativeSockets
         /// <param name="socket">The managed socket.</param>
         /// <param name="socketAddress">The socket address to bind to.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError Bind(Socket socket, NativeSocketAddress socketAddress)
         {
             SocketError error = socketAddress.ToIpEndPoint(out IPEndPoint? ipEndPoint);
@@ -390,6 +438,10 @@ namespace NativeSockets
         /// <param name="socket">The managed socket.</param>
         /// <param name="socketAddress">The socket address to connect to.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError Connect(Socket socket, NativeSocketAddress socketAddress)
         {
             SocketError error = socketAddress.ToIpEndPoint(out IPEndPoint? ipEndPoint);
@@ -429,6 +481,10 @@ namespace NativeSockets
         /// <param name="socket">The managed socket.</param>
         /// <param name="blocking">true for blocking; false for non-blocking.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError SetBlocking(Socket socket, bool blocking)
         {
             try
@@ -458,6 +514,10 @@ namespace NativeSockets
         /// <param name="mode">The select mode.</param>
         /// <param name="status">When this method returns, contains true if the socket is ready, false otherwise.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError Poll(Socket socket, int microseconds, SelectMode mode, out bool status)
         {
             try
@@ -495,6 +555,10 @@ namespace NativeSockets
         /// <param name="inFlags">The select mode.</param>
         /// <param name="outFlags">When this method returns, contains the poll result flags.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///     thrown; always check the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         public static SocketError PollFlags(Socket socket, int microseconds, SelectModeFlags inFlags, out SelectModeFlags outFlags)
         {
             List<Socket>? checkRead;
@@ -574,12 +638,24 @@ namespace NativeSockets
         /// <param name="socketAddress">The socket address to receive the local name into.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         /// <remarks>
-        ///     This failure only occurs on .NET 8 and later, because the <c>SendTo</c> overload
-        ///     <c>SendTo(ReadOnlySpan&lt;byte&gt;, SocketFlags, SocketAddress)</c> added in .NET 8
-        ///     does not set the underlying <c>_rightEndPoint</c> field. After a <c>SendTo</c> that
-        ///     triggers an implicit bind, the socket is actually bound, but <c>LocalEndPoint</c>
-        ///     cannot be queried and throws. In that state this method reports an error even though
-        ///     the datagram was delivered successfully.
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 This failure only occurs on .NET 8 and later, because the <c>SendTo</c> overload
+        ///                 <c>SendTo(ReadOnlySpan&lt;byte&gt;, SocketFlags, SocketAddress)</c> added in .NET 8
+        ///                 does not set the underlying <c>_rightEndPoint</c> field. After a <c>SendTo</c> that
+        ///                 triggers an implicit bind, the socket is actually bound, but <c>LocalEndPoint</c>
+        ///                 cannot be queried and throws. In that state this method reports an error even though
+        ///                 the datagram was delivered successfully.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///                 thrown; always check the returned socket error instead of ignoring or discarding it.
+        ///             </description>
+        ///         </item>
+        ///     </list>
         /// </remarks>
         public static SocketError GetName(Socket socket, ref NativeSocketAddress socketAddress)
         {
@@ -623,6 +699,12 @@ namespace NativeSockets
         ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
         ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
         ///                 impact on performance.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///                 thrown; always check the returned socket error instead of ignoring or discarding it.
         ///             </description>
         ///         </item>
         ///     </list>
@@ -670,6 +752,12 @@ namespace NativeSockets
         ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
         ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
         ///                 impact on performance.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///                 thrown; always check the returned socket error instead of ignoring or discarding it.
         ///             </description>
         ///         </item>
         ///     </list>

@@ -93,7 +93,7 @@ namespace NativeSockets
         public static SocketError Close(nint socket)
         {
             SocketError error = _closesocket(socket);
-            return error == 0 ? SocketError.Success : GetLastSocketError();
+            return error == SocketError.Success ? SocketError.Success : GetLastSocketError();
         }
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace NativeSockets
                 error = _bind(socket, (sockaddr*)&__socketAddress_native, sizeof(sockaddr_in4));
             }
 
-            return error == 0 ? SocketError.Success : GetLastSocketError();
+            return error == SocketError.Success ? SocketError.Success : GetLastSocketError();
         }
 
         /// <summary>
@@ -145,7 +145,7 @@ namespace NativeSockets
                 error = _bind(socket, (sockaddr*)&__socketAddress_native, sizeof(sockaddr_in6));
             }
 
-            return error == 0 ? SocketError.Success : GetLastSocketError();
+            return error == SocketError.Success ? SocketError.Success : GetLastSocketError();
         }
 
         /// <summary>
@@ -158,7 +158,7 @@ namespace NativeSockets
         public static SocketError ConnectIpv4(nint socket, sockaddr_in4* socketAddress)
         {
             SocketError error = _WSAConnect(socket, (sockaddr*)socketAddress, sizeof(sockaddr_in4), 0, 0, 0, 0);
-            return error == 0 ? SocketError.Success : GetLastSocketError();
+            return error == SocketError.Success ? SocketError.Success : GetLastSocketError();
         }
 
         /// <summary>
@@ -171,7 +171,7 @@ namespace NativeSockets
         public static SocketError ConnectIpv6(nint socket, sockaddr_in6* socketAddress)
         {
             SocketError error = _WSAConnect(socket, (sockaddr*)socketAddress, sizeof(sockaddr_in6), 0, 0, 0, 0);
-            return error == 0 ? SocketError.Success : GetLastSocketError();
+            return error == SocketError.Success ? SocketError.Success : GetLastSocketError();
         }
 
         /// <summary>
@@ -209,7 +209,7 @@ namespace NativeSockets
         public static SocketError SetOption(nint socket, SocketOptionLevel level, SocketOptionName name, void* value, int length)
         {
             SocketError error = _setsockopt(socket, level, name, value, length);
-            return error == 0 ? SocketError.Success : GetLastSocketError();
+            return error == SocketError.Success ? SocketError.Success : GetLastSocketError();
         }
 
         /// <summary>
@@ -247,7 +247,7 @@ namespace NativeSockets
         public static SocketError GetOption(nint socket, SocketOptionLevel level, SocketOptionName name, void* value, int* length)
         {
             SocketError error = _getsockopt(socket, level, name, value, length);
-            return error == 0 ? SocketError.Success : GetLastSocketError();
+            return error == SocketError.Success ? SocketError.Success : GetLastSocketError();
         }
 
         /// <summary>
@@ -285,7 +285,7 @@ namespace NativeSockets
         {
             int intBlocking = blocking ? 0 : 1;
             SocketError error = _ioctlsocket(socket, unchecked((int)0x8004667E), &intBlocking);
-            return error == 0 ? SocketError.Success : GetLastSocketError();
+            return error == SocketError.Success ? SocketError.Success : GetLastSocketError();
         }
 
         /// <summary>
@@ -419,7 +419,7 @@ namespace NativeSockets
             if (error == SocketError.Success && socketAddress != null)
                 *socketAddress = storage;
 
-            return error == 0 ? SocketError.Success : GetLastSocketError();
+            return error == SocketError.Success ? SocketError.Success : GetLastSocketError();
         }
 
         /// <summary>
@@ -439,7 +439,7 @@ namespace NativeSockets
             if (error == SocketError.Success && socketAddress != null)
                 *socketAddress = storage;
 
-            return error == 0 ? SocketError.Success : GetLastSocketError();
+            return error == SocketError.Success ? SocketError.Success : GetLastSocketError();
         }
 
         /// <summary>

@@ -52,7 +52,7 @@
 A unified socket type that automatically picks the best available backend at runtime:
 
 - When `NativeSocketPal.IsSupported` is `true`, `VirtualSocket` is backed by the native socket implementation.
-- Otherwise it transparently falls back to `System.Net.Sockets.Socket`.
+- Otherwise, it transparently falls back to `System.Net.Sockets.Socket`.
 
 ### Key Points
 

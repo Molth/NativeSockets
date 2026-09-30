@@ -127,8 +127,14 @@ namespace NativeSockets
         /// <summary>
         ///     Tries to get the managed <see cref="Socket" /> backing this virtual socket.
         /// </summary>
-        /// <param name="socket">When this method returns, contains the managed socket, or null if it could not be retrieved.</param>
-        /// <returns><see cref="SocketError.Success" /> if the managed socket was retrieved; otherwise an error code.</returns>
+        /// <param name="socket">
+        ///     When this method returns, contains the managed socket,
+        ///     or null if it could not be retrieved.
+        /// </param>
+        /// <returns>
+        ///     <see cref="SocketError.Success" /> if the managed socket was retrieved;
+        ///     otherwise an error code.
+        /// </returns>
         internal SocketError TryGetSocket(out Socket? socket)
         {
             if (_handle == 0)

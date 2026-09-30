@@ -20,8 +20,20 @@ namespace NativeSockets
         /// <param name="socketError">When this method returns, contains the error code of the operation.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         /// <remarks>
-        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
-        ///     Any other flags are silently ignored.
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
+        ///                 Any other flags are silently ignored.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///                 thrown; always check the returned socket error instead of ignoring or discarding it.
+        ///             </description>
+        ///         </item>
+        ///     </list>
         /// </remarks>
         public static int SendTo(Socket socket, ReadOnlySpan<byte> buffer, SocketFlags socketFlags, in NativeSocketAddress socketAddress, out SocketError socketError)
         {
@@ -40,8 +52,20 @@ namespace NativeSockets
         /// <param name="socketError">When this method returns, contains the error code of the operation.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         /// <remarks>
-        ///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
-        ///     Any other flags are silently ignored.
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
+        ///                 Any other flags are silently ignored.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///                 thrown; always check the returned socket error instead of ignoring or discarding it.
+        ///             </description>
+        ///         </item>
+        ///     </list>
         /// </remarks>
         public static int ReceiveFrom(Socket socket, Span<byte> buffer, SocketFlags socketFlags, ref NativeSocketAddress socketAddress, out SocketError socketError)
         {
@@ -59,8 +83,20 @@ namespace NativeSockets
         /// <param name="socketError">When this method returns, contains the error code of the operation.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         /// <remarks>
-        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
-        ///     Any other flags are silently ignored.
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
+        ///                 Any other flags are silently ignored.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///                 thrown; always check the returned socket error instead of ignoring or discarding it.
+        ///             </description>
+        ///         </item>
+        ///     </list>
         /// </remarks>
         public static int SendVectored(Socket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags, out SocketError socketError)
         {
@@ -79,8 +115,20 @@ namespace NativeSockets
         /// <param name="socketError">When this method returns, contains the error code of the operation.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         /// <remarks>
-        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
-        ///     Any other flags are silently ignored.
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
+        ///                 Any other flags are silently ignored.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///                 thrown; always check the returned socket error instead of ignoring or discarding it.
+        ///             </description>
+        ///         </item>
+        ///     </list>
         /// </remarks>
         public static int SendToVectored(Socket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags, in NativeSocketAddress socketAddress, out SocketError socketError)
         {
@@ -98,8 +146,20 @@ namespace NativeSockets
         /// <param name="socketError">When this method returns, contains the error code of the operation.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         /// <remarks>
-        ///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
-        ///     Any other flags are silently ignored.
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
+        ///                 Any other flags are silently ignored.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///                 thrown; always check the returned socket error instead of ignoring or discarding it.
+        ///             </description>
+        ///         </item>
+        ///     </list>
         /// </remarks>
         public static int ReceiveVectored(Socket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags, out SocketError socketError)
         {
@@ -118,8 +178,20 @@ namespace NativeSockets
         /// <param name="socketError">When this method returns, contains the error code of the operation.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         /// <remarks>
-        ///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
-        ///     Any other flags are silently ignored.
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
+        ///                 Any other flags are silently ignored.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
+        ///                 thrown; always check the returned socket error instead of ignoring or discarding it.
+        ///             </description>
+        ///         </item>
+        ///     </list>
         /// </remarks>
         public static int ReceiveFromVectored(Socket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags, ref NativeSocketAddress socketAddress, out SocketError socketError)
         {
@@ -135,6 +207,7 @@ namespace NativeSockets
         public static SocketExtensionsImpl GetImpl()
         {
             SocketExtensionsImpl impl;
+            impl.Poll = &ManagedVirtualSocketPalImpl.Poll;
             impl.PollFlags = &ManagedVirtualSocketPalImpl.PollFlags;
             impl.SendTo = &SendTo;
             impl.ReceiveFrom = &ReceiveFrom;
