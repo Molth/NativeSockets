@@ -36,6 +36,6 @@ namespace NativeSockets
         /// <param name="nativeFlags">The native integer value.</param>
         /// <returns>The managed <see cref="SocketFlags" /> value.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketFlags FromNativeReceiveSocketFlags(SocketFlags nativeFlags) => nativeFlags & (SocketFlags)(SF_MSG_PEEK | SF_MSG_TRUNC | SF_MSG_PARTIAL);
+        public static SocketFlags FromNativeReceiveSocketFlags(SocketFlags nativeFlags) => nativeFlags & (SocketFlags)SF_MSG_PARTIAL;
     }
 }

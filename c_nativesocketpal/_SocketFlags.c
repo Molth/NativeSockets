@@ -35,7 +35,7 @@ i32 _ToNativeReceiveSocketFlags(i32 flags)
 /// <returns>The managed <see cref="SocketFlags" /> value.</returns>
 i32 _FromNativeReceiveSocketFlags(i32 native_flags)
 {
-    return native_flags & (_SOCKET_FLAGS_PEEK | _SOCKET_FLAGS_TRUNCATED | _SOCKET_FLAGS_PARTIAL);
+    return native_flags & _SOCKET_FLAGS_PARTIAL;
 }
 
 #else
