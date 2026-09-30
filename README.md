@@ -115,3 +115,4 @@ A unified socket type that automatically picks the best available backend at run
 
 - On the managed fallback path, a `SendTo` that triggers an implicit bind leaves the socket actually bound, but `LocalEndPoint` cannot be queried and throws. This only occurs on .NET 8 and later, because the `SendTo(ReadOnlySpan<byte>, SocketFlags, SocketAddress)` overload does not set the underlying `_rightEndPoint` field. In that state `GetName` reports an error even though the datagram was delivered.
 - The managed fallback path carries the overhead of `System.Net.Sockets`; prefer the native backend when performance matters.
+- When `NativeSocketPal.IsSupported` is `false` and the socket is non-blocking, consider polling with `Poll` or `PollFlags` before sending or receiving, because frequent `SocketError.WouldBlock` exceptions have a severe impact on performance.

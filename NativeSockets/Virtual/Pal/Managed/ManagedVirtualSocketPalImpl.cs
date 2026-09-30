@@ -610,8 +610,22 @@ namespace NativeSockets
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
-        ///     Any other flags are silently ignored.
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
+        ///                 Any other flags are silently ignored.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" /> and the socket is
+        ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
+        ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
+        ///                 impact on performance.
+        ///             </description>
+        ///         </item>
+        ///     </list>
         /// </remarks>
         public static IoResult Send(Socket socket, ReadOnlySpan<byte> buffer, SocketFlags socketFlags)
         {
@@ -643,8 +657,22 @@ namespace NativeSockets
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
-        ///     Any other flags are silently ignored.
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
+        ///                 Any other flags are silently ignored.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" /> and the socket is
+        ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
+        ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
+        ///                 impact on performance.
+        ///             </description>
+        ///         </item>
+        ///     </list>
         /// </remarks>
         public static IoResult Receive(Socket socket, Span<byte> buffer, SocketFlags socketFlags)
         {

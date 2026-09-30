@@ -25,6 +25,14 @@ namespace NativeSockets
     ///                 the socket falls back to <see cref="Socket" />.
     ///             </description>
     ///         </item>
+    ///         <item>
+    ///             <description>
+    ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" /> and the socket is
+    ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
+    ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
+    ///                 impact on performance.
+    ///             </description>
+    ///         </item>
     ///     </list>
     /// </remarks>
     [StructLayout(LayoutKind.Sequential)]
@@ -132,7 +140,7 @@ namespace NativeSockets
             try
             {
                 GCHandle gcHandle = GCHandle.FromIntPtr(_handle);
-                socket = (Socket?)gcHandle.Target;
+                socket = gcHandle.Target as Socket;
                 return socket != null ? SocketError.Success : SocketError.NotSocket;
             }
             catch
