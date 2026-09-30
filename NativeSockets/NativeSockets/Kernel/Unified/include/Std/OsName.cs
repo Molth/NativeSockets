@@ -81,11 +81,13 @@ namespace NativeSockets
         public static bool IsLinux() =>
 #if NET5_0_OR_GREATER
             OperatingSystem.IsLinux() ||
-            OperatingSystem.IsAndroid();
+            OperatingSystem.IsAndroid() ||
 #else
             RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ||
-            RuntimeInformation.IsOSPlatform(OSPlatform.Create("ANDROID"));
+            RuntimeInformation.IsOSPlatform(OSPlatform.Create("ANDROID")) ||
 #endif
+            RuntimeInformation.IsOSPlatform(OSPlatform.Create("MAGICOS")) ||
+            RuntimeInformation.IsOSPlatform(OSPlatform.Create("HARMONYOS"));
 
         /// <summary>
         ///     Gets a value indicating whether the current platform is Windows.

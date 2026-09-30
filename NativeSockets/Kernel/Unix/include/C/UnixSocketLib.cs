@@ -106,7 +106,7 @@ namespace NativeSockets
         /// <param name="__socketHandle_native">The native socket handle.</param>
         /// <param name="__pinnedBuffer_native">Pointer to the buffer containing the data to send.</param>
         /// <param name="__len_native">The length of the buffer in bytes.</param>
-        /// <param name="__socketFlags_native">The socket flags for the send operation.</param>
+        /// <param name="__socketFlags_native">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [DllImport(DLL_NAME_LIBC, EntryPoint = "send", CallingConvention = CALLING_CONVENTION, SetLastError = true)]
         public static extern nint _send(int __socketHandle_native, void* __pinnedBuffer_native, nuint __len_native, int __socketFlags_native);
@@ -117,7 +117,7 @@ namespace NativeSockets
         /// <param name="__socketHandle_native">The native socket handle.</param>
         /// <param name="__pinnedBuffer_native">Pointer to the buffer where received data will be stored.</param>
         /// <param name="__len_native">The length of the buffer in bytes.</param>
-        /// <param name="__socketFlags_native">The socket flags for the receive operation.</param>
+        /// <param name="__socketFlags_native">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [DllImport(DLL_NAME_LIBC, EntryPoint = "recv", CallingConvention = CALLING_CONVENTION, SetLastError = true)]
         public static extern nint _recv(int __socketHandle_native, void* __pinnedBuffer_native, nuint __len_native, int __socketFlags_native);
@@ -128,7 +128,7 @@ namespace NativeSockets
         /// <param name="__socketHandle_native">The native socket handle.</param>
         /// <param name="__pinnedBuffer_native">Pointer to the buffer containing the data to send.</param>
         /// <param name="__len_native">The length of the buffer in bytes.</param>
-        /// <param name="__socketFlags_native">The socket flags for the send operation.</param>
+        /// <param name="__socketFlags_native">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="__socketAddress_native">Pointer to the destination socket address.</param>
         /// <param name="__socketAddressSize_native">Size of the destination socket address.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
@@ -141,7 +141,7 @@ namespace NativeSockets
         /// <param name="__socketHandle_native">The native socket handle.</param>
         /// <param name="__pinnedBuffer_native">Pointer to the buffer where received data will be stored.</param>
         /// <param name="__len_native">The maximum length of the buffer in bytes.</param>
-        /// <param name="__socketFlags_native">The socket flags for the receive operation.</param>
+        /// <param name="__socketFlags_native">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="__socketAddress_native">Pointer to a buffer that receives the source address.</param>
         /// <param name="__socketAddressSize_native">
         ///     Pointer to the size of the address buffer; on input holds the buffer size, on
@@ -156,7 +156,7 @@ namespace NativeSockets
         /// </summary>
         /// <param name="__socketHandle_native">The socket file descriptor.</param>
         /// <param name="__msg_native">Pointer to a msghdr structure describing the message.</param>
-        /// <param name="__socketFlags_native">Flags for the send operation.</param>
+        /// <param name="__socketFlags_native">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [DllImport(DLL_NAME_LIBC, EntryPoint = "sendmsg", CallingConvention = CALLING_CONVENTION, SetLastError = true)]
         public static extern nint _sendmsg(int __socketHandle_native, void* __msg_native, int __socketFlags_native);
@@ -166,7 +166,7 @@ namespace NativeSockets
         /// </summary>
         /// <param name="__socketHandle_native">The socket file descriptor.</param>
         /// <param name="__msg_native">Pointer to a msghdr structure that will receive the message.</param>
-        /// <param name="__socketFlags_native">Flags for the receive operation.</param>
+        /// <param name="__socketFlags_native">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [DllImport(DLL_NAME_LIBC, EntryPoint = "recvmsg", CallingConvention = CALLING_CONVENTION, SetLastError = true)]
         public static extern nint _recvmsg(int __socketHandle_native, void* __msg_native, int __socketFlags_native);

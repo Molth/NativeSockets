@@ -3,7 +3,6 @@ using System;
 using System.Buffers;
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.CompilerServices;
 
 // ReSharper disable ALL
 
@@ -54,60 +53,33 @@ namespace NativeSockets
         /// <param name="socketAddress">The destination socket address.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         public static IoResult SendTo(Socket socket, ReadOnlySpan<byte> buffer, SocketFlags socketFlags, in NativeSocketAddress socketAddress)
         {
             if (socket.AddressFamily != socketAddress.Family)
-                return new IoResult(-1, SocketError.AddressFamilyNotSupported);
+                return IoResult.Err(SocketError.AddressFamilyNotSupported);
 
             SocketAddress address = GetSendToAddress(socketAddress);
 
             try
             {
-                int num = socket.SendTo(buffer, WindowsSocketFlags.ToNativeSocketFlags(socketFlags), address);
+                int num = socket.SendTo(buffer, WindowsSocketFlags.ToNativeSendSocketFlags(socketFlags), address);
 
-                return num >= 0 ? new IoResult(num, SocketError.Success) : new IoResult(-1, SocketError.SocketError);
+                return num >= 0 ? IoResult.Ok(num) : IoResult.Err(SocketError.SocketError);
             }
             catch (SocketException ex)
             {
-                return new IoResult(-1, ex.SocketErrorCode);
+                return IoResult.Err(ex.SocketErrorCode);
             }
             catch (ObjectDisposedException)
             {
-                return new IoResult(-1, SocketError.NotSocket);
+                return IoResult.Err(SocketError.NotSocket);
             }
             catch
             {
-                return new IoResult(-1, SocketError.SocketError);
+                return IoResult.Err(SocketError.SocketError);
             }
         }
 
@@ -120,34 +92,7 @@ namespace NativeSockets
         /// <param name="socketAddress">The sender's socket address.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         public static IoResult ReceiveFrom(Socket socket, Span<byte> buffer, SocketFlags socketFlags, ref NativeSocketAddress socketAddress)
@@ -156,28 +101,28 @@ namespace NativeSockets
 
             try
             {
-                int num = socket.ReceiveFrom(buffer, WindowsSocketFlags.ToNativeSocketFlags(socketFlags), address);
+                int num = socket.ReceiveFrom(buffer, WindowsSocketFlags.ToNativeReceiveSocketFlags(socketFlags), address);
 
                 if (num >= 0)
                 {
                     NativeSocketAddress.FromSocketAddress(address, out socketAddress);
 
-                    return new IoResult(num, SocketError.Success);
+                    return IoResult.Ok(num);
                 }
 
-                return new IoResult(-1, SocketError.SocketError);
+                return IoResult.Err(SocketError.SocketError);
             }
             catch (SocketException ex)
             {
-                return new IoResult(-1, ex.SocketErrorCode);
+                return IoResult.Err(ex.SocketErrorCode);
             }
             catch (ObjectDisposedException)
             {
-                return new IoResult(-1, SocketError.NotSocket);
+                return IoResult.Err(SocketError.NotSocket);
             }
             catch
             {
-                return new IoResult(-1, SocketError.SocketError);
+                return IoResult.Err(SocketError.SocketError);
             }
         }
 
@@ -189,34 +134,7 @@ namespace NativeSockets
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         public static IoResult SendVectored(Socket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags)
@@ -237,28 +155,28 @@ namespace NativeSockets
                     break;
 
                 default:
-                    Build(buffers, out array, out int bufferLength);
+                    BuildSendBuffer(buffers, out array, out int bufferLength);
                     buffer = array.AsSpan(0, bufferLength);
                     break;
             }
 
             try
             {
-                int num = socket.Send(buffer, WindowsSocketFlags.ToNativeSocketFlags(socketFlags), out SocketError socketError);
+                int num = socket.Send(buffer, WindowsSocketFlags.ToNativeSendSocketFlags(socketFlags), out SocketError socketError);
 
-                return new IoResult(num >= 0 ? num : -1, socketError);
+                return socketError == SocketError.Success ? IoResult.Ok(num) : IoResult.Err(socketError);
             }
             catch (SocketException ex)
             {
-                return new IoResult(-1, ex.SocketErrorCode);
+                return IoResult.Err(ex.SocketErrorCode);
             }
             catch (ObjectDisposedException)
             {
-                return new IoResult(-1, SocketError.NotSocket);
+                return IoResult.Err(SocketError.NotSocket);
             }
             catch
             {
-                return new IoResult(-1, SocketError.SocketError);
+                return IoResult.Err(SocketError.SocketError);
             }
             finally
             {
@@ -276,40 +194,13 @@ namespace NativeSockets
         /// <param name="socketAddress">The destination socket address.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         public static IoResult SendToVectored(Socket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags, in NativeSocketAddress socketAddress)
         {
             if (socket.AddressFamily != socketAddress.Family)
-                return new IoResult(-1, SocketError.AddressFamilyNotSupported);
+                return IoResult.Err(SocketError.AddressFamilyNotSupported);
 
             SocketAddress address = GetSendToAddress(socketAddress);
 
@@ -329,28 +220,28 @@ namespace NativeSockets
                     break;
 
                 default:
-                    Build(buffers, out array, out int bufferLength);
+                    BuildSendBuffer(buffers, out array, out int bufferLength);
                     buffer = array.AsSpan(0, bufferLength);
                     break;
             }
 
             try
             {
-                int num = socket.SendTo(buffer, WindowsSocketFlags.ToNativeSocketFlags(socketFlags), address);
+                int num = socket.SendTo(buffer, WindowsSocketFlags.ToNativeSendSocketFlags(socketFlags), address);
 
-                return num >= 0 ? new IoResult(num, SocketError.Success) : new IoResult(-1, SocketError.SocketError);
+                return num >= 0 ? IoResult.Ok(num) : IoResult.Err(SocketError.SocketError);
             }
             catch (SocketException ex)
             {
-                return new IoResult(-1, ex.SocketErrorCode);
+                return IoResult.Err(ex.SocketErrorCode);
             }
             catch (ObjectDisposedException)
             {
-                return new IoResult(-1, SocketError.NotSocket);
+                return IoResult.Err(SocketError.NotSocket);
             }
             catch
             {
-                return new IoResult(-1, SocketError.SocketError);
+                return IoResult.Err(SocketError.SocketError);
             }
             finally
             {
@@ -364,40 +255,13 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The managed socket.</param>
         /// <param name="buffers">The array of <see cref="NativeIoSlice" />.</param>
-        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
-        public static IoResult ReceiveVectored(Socket socket, Span<NativeIoSlice> buffers, ref SocketFlags inOutFlags)
+        public static IoResult ReceiveVectored(Socket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags)
         {
             Span<byte> buffer;
             byte[]? array;
@@ -415,38 +279,35 @@ namespace NativeSockets
                     break;
 
                 default:
-                    Build(buffers, out array, out int bufferLength);
+                    RentBuffer(buffers, out array, out int bufferLength);
                     buffer = array.AsSpan(0, bufferLength);
                     break;
             }
 
             try
             {
-                int num = socket.Receive(buffer, Unsafe.IsNullRef(ref inOutFlags) ? 0 : WindowsSocketFlags.ToNativeSocketFlags(inOutFlags), out SocketError socketError);
+                int num = socket.Receive(buffer, WindowsSocketFlags.ToNativeReceiveSocketFlags(socketFlags), out SocketError socketError);
 
-                if (num >= 0)
+                if (socketError == SocketError.Success)
                 {
-                    CopyReceived(array, buffer, num, buffers);
+                    CopyReceived(array, buffers, buffer.Slice(0, num));
 
-                    if (!Unsafe.IsNullRef(ref inOutFlags))
-                        inOutFlags = 0;
-
-                    return new IoResult(num, socketError);
+                    return IoResult.Ok(num);
                 }
 
-                return new IoResult(-1, socketError);
+                return IoResult.Err(socketError);
             }
             catch (SocketException ex)
             {
-                return new IoResult(-1, ex.SocketErrorCode);
+                return IoResult.Err(ex.SocketErrorCode);
             }
             catch (ObjectDisposedException)
             {
-                return new IoResult(-1, SocketError.NotSocket);
+                return IoResult.Err(SocketError.NotSocket);
             }
             catch
             {
-                return new IoResult(-1, SocketError.SocketError);
+                return IoResult.Err(SocketError.SocketError);
             }
             finally
             {
@@ -460,41 +321,14 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The managed socket.</param>
         /// <param name="buffers">The array of <see cref="NativeIoSlice" />.</param>
-        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">The sender's socket address.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
-        public static IoResult ReceiveFromVectored(Socket socket, Span<NativeIoSlice> buffers, ref SocketFlags inOutFlags, ref NativeSocketAddress socketAddress)
+        public static IoResult ReceiveFromVectored(Socket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags, ref NativeSocketAddress socketAddress)
         {
             SocketAddress address = GetReceiveFromAddress(socket.AddressFamily);
 
@@ -514,97 +348,42 @@ namespace NativeSockets
                     break;
 
                 default:
-                    Build(buffers, out array, out int bufferLength);
+                    RentBuffer(buffers, out array, out int bufferLength);
                     buffer = array.AsSpan(0, bufferLength);
                     break;
             }
 
             try
             {
-                int num = socket.ReceiveFrom(buffer, Unsafe.IsNullRef(ref inOutFlags) ? 0 : WindowsSocketFlags.ToNativeSocketFlags(inOutFlags), address);
+                int num = socket.ReceiveFrom(buffer, WindowsSocketFlags.ToNativeReceiveSocketFlags(socketFlags), address);
 
                 if (num >= 0)
                 {
-                    CopyReceived(array, buffer, num, buffers);
-
-                    if (!Unsafe.IsNullRef(ref inOutFlags))
-                        inOutFlags = 0;
+                    CopyReceived(array, buffers, buffer.Slice(0, num));
 
                     NativeSocketAddress.FromSocketAddress(address, out socketAddress);
 
-                    return new IoResult(num, SocketError.Success);
+                    return IoResult.Ok(num);
                 }
 
-                return new IoResult(-1, SocketError.SocketError);
+                return IoResult.Err(SocketError.SocketError);
             }
             catch (SocketException ex)
             {
-                return new IoResult(-1, ex.SocketErrorCode);
+                return IoResult.Err(ex.SocketErrorCode);
             }
             catch (ObjectDisposedException)
             {
-                return new IoResult(-1, SocketError.NotSocket);
+                return IoResult.Err(SocketError.NotSocket);
             }
             catch
             {
-                return new IoResult(-1, SocketError.SocketError);
+                return IoResult.Err(SocketError.SocketError);
             }
             finally
             {
                 if (array is { Length: > 0 })
                     ArrayPool<byte>.Shared.Return(array);
-            }
-        }
-
-        /// <summary>
-        ///     Copies the buffers into a single pooled array.
-        /// </summary>
-        /// <param name="buffers">The array of <see cref="NativeIoSlice" />.</param>
-        /// <param name="array">When this method returns, contains the pooled array holding the combined buffers.</param>
-        /// <param name="bufferLength">When this method returns, contains the total length of the combined buffers.</param>
-        private static void Build(ReadOnlySpan<NativeIoSlice> buffers, out byte[] array, out int bufferLength)
-        {
-            bufferLength = 0;
-            for (int i = 0; i < buffers.Length; ++i)
-                bufferLength += buffers[i].Length;
-
-            if (bufferLength == 0)
-            {
-                array = Array.Empty<byte>();
-                return;
-            }
-
-            array = ArrayPool<byte>.Shared.Rent(bufferLength);
-            Span<byte> span = array.AsSpan(0, bufferLength);
-
-            int offset = 0;
-            for (int i = 0; i < buffers.Length; ++i)
-            {
-                buffers[i].AsReadOnlySpan().CopyTo(span.Slice(offset));
-                offset += buffers[i].Length;
-            }
-        }
-
-        /// <summary>
-        ///     Copies the received bytes from the pooled array back into the buffers.
-        /// </summary>
-        /// <param name="array">The pooled array holding the received bytes, or null when a single buffer was used.</param>
-        /// <param name="buffer">The received bytes.</param>
-        /// <param name="received">The number of bytes received.</param>
-        /// <param name="buffers">The array of <see cref="NativeIoSlice" />.</param>
-        private static void CopyReceived(byte[]? array, ReadOnlySpan<byte> buffer, int received, Span<NativeIoSlice> buffers)
-        {
-            if (array == null)
-                return;
-
-            int offset = 0;
-            int remaining = received;
-            for (int i = 0; i < buffers.Length && remaining > 0; ++i)
-            {
-                int length = Math.Min(buffers[i].Length, remaining);
-                buffer.Slice(offset, length).CopyTo(buffers[i].AsSpan());
-                offset += length;
-                remaining -= length;
             }
         }
     }

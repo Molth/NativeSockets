@@ -356,41 +356,14 @@ namespace NativeSockets
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         public static IoResult Send(VirtualSocket socket, ReadOnlySpan<byte> buffer, SocketFlags socketFlags)
         {
             SocketError error = socket.TryGetSocket(out Socket? s);
             if (error != SocketError.Success)
-                return new IoResult(-1, error);
+                return IoResult.Err(error);
 
             return ManagedVirtualSocketPalImpl.Send(s!, buffer, socketFlags);
         }
@@ -403,41 +376,14 @@ namespace NativeSockets
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         public static IoResult Receive(VirtualSocket socket, Span<byte> buffer, SocketFlags socketFlags)
         {
             SocketError error = socket.TryGetSocket(out Socket? s);
             if (error != SocketError.Success)
-                return new IoResult(-1, error);
+                return IoResult.Err(error);
 
             return ManagedVirtualSocketPalImpl.Receive(s!, buffer, socketFlags);
         }
@@ -451,41 +397,14 @@ namespace NativeSockets
         /// <param name="socketAddress">The destination socket address.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         public static IoResult SendTo(VirtualSocket socket, ReadOnlySpan<byte> buffer, SocketFlags socketFlags, in NativeSocketAddress socketAddress)
         {
             SocketError error = socket.TryGetSocket(out Socket? s);
             if (error != SocketError.Success)
-                return new IoResult(-1, error);
+                return IoResult.Err(error);
 
             return ManagedVirtualSocketPalImpl.SendTo(s!, buffer, socketFlags, socketAddress);
         }
@@ -499,41 +418,14 @@ namespace NativeSockets
         /// <param name="socketAddress">The sender's socket address.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         public static IoResult ReceiveFrom(VirtualSocket socket, Span<byte> buffer, SocketFlags socketFlags, ref NativeSocketAddress socketAddress)
         {
             SocketError error = socket.TryGetSocket(out Socket? s);
             if (error != SocketError.Success)
-                return new IoResult(-1, error);
+                return IoResult.Err(error);
 
             return ManagedVirtualSocketPalImpl.ReceiveFrom(s!, buffer, socketFlags, ref socketAddress);
         }
@@ -546,41 +438,14 @@ namespace NativeSockets
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         public static IoResult SendVectored(VirtualSocket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags)
         {
             SocketError error = socket.TryGetSocket(out Socket? s);
             if (error != SocketError.Success)
-                return new IoResult(-1, error);
+                return IoResult.Err(error);
 
             return ManagedVirtualSocketPalImpl.SendVectored(s!, buffers, socketFlags);
         }
@@ -594,41 +459,14 @@ namespace NativeSockets
         /// <param name="socketAddress">The destination socket address.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         public static IoResult SendToVectored(VirtualSocket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags, in NativeSocketAddress socketAddress)
         {
             SocketError error = socket.TryGetSocket(out Socket? s);
             if (error != SocketError.Success)
-                return new IoResult(-1, error);
+                return IoResult.Err(error);
 
             return ManagedVirtualSocketPalImpl.SendToVectored(s!, buffers, socketFlags, socketAddress);
         }
@@ -638,46 +476,19 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The virtual socket.</param>
         /// <param name="buffers">The array of <see cref="NativeIoSlice" />.</param>
-        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
-        public static IoResult ReceiveVectored(VirtualSocket socket, Span<NativeIoSlice> buffers, ref SocketFlags inOutFlags)
+        public static IoResult ReceiveVectored(VirtualSocket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags)
         {
             SocketError error = socket.TryGetSocket(out Socket? s);
             if (error != SocketError.Success)
-                return new IoResult(-1, error);
+                return IoResult.Err(error);
 
-            return ManagedVirtualSocketPalImpl.ReceiveVectored(s!, buffers, ref inOutFlags);
+            return ManagedVirtualSocketPalImpl.ReceiveVectored(s!, buffers, socketFlags);
         }
 
         /// <summary>
@@ -685,47 +496,20 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The virtual socket.</param>
         /// <param name="buffers">The array of <see cref="NativeIoSlice" />.</param>
-        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">The sender's socket address.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
-        public static IoResult ReceiveFromVectored(VirtualSocket socket, Span<NativeIoSlice> buffers, ref SocketFlags inOutFlags, ref NativeSocketAddress socketAddress)
+        public static IoResult ReceiveFromVectored(VirtualSocket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags, ref NativeSocketAddress socketAddress)
         {
             SocketError error = socket.TryGetSocket(out Socket? s);
             if (error != SocketError.Success)
-                return new IoResult(-1, error);
+                return IoResult.Err(error);
 
-            return ManagedVirtualSocketPalImpl.ReceiveFromVectored(s!, buffers, ref inOutFlags, ref socketAddress);
+            return ManagedVirtualSocketPalImpl.ReceiveFromVectored(s!, buffers, socketFlags, ref socketAddress);
         }
 
         /// <summary>

@@ -440,34 +440,7 @@ namespace NativeSockets
         ///     <see langword="false" />.
         /// </exception>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -492,34 +465,7 @@ namespace NativeSockets
         ///     <see langword="false" />.
         /// </exception>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -546,34 +492,7 @@ namespace NativeSockets
         ///     <see langword="false" />.
         /// </exception>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -598,34 +517,7 @@ namespace NativeSockets
         ///     <see langword="false" />.
         /// </exception>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -658,34 +550,7 @@ namespace NativeSockets
         ///     <see langword="false" />.
         /// </exception>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -710,34 +575,7 @@ namespace NativeSockets
         ///     <see langword="false" />.
         /// </exception>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -757,52 +595,35 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">The array of <see cref="NativeIoSlice" />.</param>
-        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <exception cref="PlatformNotSupportedException">
         ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
         ///     <see langword="false" />.
         /// </exception>
         /// <remarks>
-        ///     Only the following flag values are honored:
         ///     <list type="bullet">
         ///         <item>
         ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///                 Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
+        ///                 Any other flags are silently ignored.
         ///             </description>
         ///         </item>
         ///         <item>
         ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///                 If the data was truncated, returns <see cref="IoResult.Err" /> with
+        ///                 <see cref="SocketError.MessageSize" />,
+        ///                 even if the underlying operation succeeded.
         ///             </description>
         ///         </item>
         ///     </list>
-        ///     Any other flags are silently ignored.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IoResult ReceiveVectored(this NativeSocket socket, Span<NativeIoSlice> buffers, ref SocketFlags inOutFlags)
+        public static IoResult ReceiveVectored(this NativeSocket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags)
         {
             fixed (NativeIoSlice* pBuffer = &MemoryMarshal.GetReference(buffers))
             {
-                fixed (SocketFlags* pFlags = &inOutFlags)
-                {
-                    return SocketPal.ReceiveVectored(socket.Handle, pBuffer, buffers.Length, pFlags);
-                }
+                return SocketPal.ReceiveVectored(socket.Handle, pBuffer, buffers.Length, socketFlags);
             }
         }
 
@@ -811,7 +632,7 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">The array of <see cref="NativeIoSlice" />.</param>
-        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">The sender's socket address.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <exception cref="PlatformNotSupportedException">
@@ -819,48 +640,31 @@ namespace NativeSockets
         ///     <see langword="false" />.
         /// </exception>
         /// <remarks>
-        ///     Only the following flag values are honored:
         ///     <list type="bullet">
         ///         <item>
         ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///                 Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
+        ///                 Any other flags are silently ignored.
         ///             </description>
         ///         </item>
         ///         <item>
         ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///                 If the data was truncated, returns <see cref="IoResult.Err" /> with
+        ///                 <see cref="SocketError.MessageSize" />,
+        ///                 even if the underlying operation succeeded.
         ///             </description>
         ///         </item>
         ///     </list>
-        ///     Any other flags are silently ignored.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IoResult ReceiveFromVectored(this NativeSocket socket, Span<NativeIoSlice> buffers, ref SocketFlags inOutFlags, ref NativeSocketAddress socketAddress)
+        public static IoResult ReceiveFromVectored(this NativeSocket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags, ref NativeSocketAddress socketAddress)
         {
             IoResult result;
             fixed (NativeIoSlice* pBuffer = &MemoryMarshal.GetReference(buffers))
             {
                 fixed (void* pAddress = &socketAddress)
                 {
-                    fixed (SocketFlags* pFlags = &inOutFlags)
-                    {
-                        result = socket.IsIpv4 ? SocketPal.ReceiveFromVectoredIpv4(socket.Handle, pBuffer, buffers.Length, pFlags, (sockaddr_in4*)pAddress) : SocketPal.ReceiveFromVectoredIpv6(socket.Handle, pBuffer, buffers.Length, pFlags, (sockaddr_in6*)pAddress);
-                    }
+                    result = socket.IsIpv4 ? SocketPal.ReceiveFromVectoredIpv4(socket.Handle, pBuffer, buffers.Length, socketFlags, (sockaddr_in4*)pAddress) : SocketPal.ReceiveFromVectoredIpv6(socket.Handle, pBuffer, buffers.Length, socketFlags, (sockaddr_in6*)pAddress);
                 }
             }
 

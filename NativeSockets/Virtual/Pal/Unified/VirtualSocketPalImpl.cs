@@ -139,34 +139,7 @@ namespace NativeSockets
         /// </summary>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         public delegate* managed<VirtualSocket, ReadOnlySpan<byte>, SocketFlags, IoResult> Send;
@@ -176,34 +149,7 @@ namespace NativeSockets
         /// </summary>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         public delegate* managed<VirtualSocket, Span<byte>, SocketFlags, IoResult> Receive;
@@ -213,34 +159,7 @@ namespace NativeSockets
         /// </summary>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         public delegate* managed<VirtualSocket, ReadOnlySpan<byte>, SocketFlags, in NativeSocketAddress, IoResult> SendTo;
@@ -250,34 +169,7 @@ namespace NativeSockets
         /// </summary>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         public delegate* managed<VirtualSocket, Span<byte>, SocketFlags, ref NativeSocketAddress, IoResult> ReceiveFrom;
@@ -287,34 +179,7 @@ namespace NativeSockets
         /// </summary>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         public delegate* managed<VirtualSocket, ReadOnlySpan<NativeIoSlice>, SocketFlags, IoResult> SendVectored;
@@ -324,34 +189,7 @@ namespace NativeSockets
         /// </summary>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         public delegate* managed<VirtualSocket, ReadOnlySpan<NativeIoSlice>, SocketFlags, in NativeSocketAddress, IoResult> SendToVectored;
@@ -361,73 +199,45 @@ namespace NativeSockets
         /// </summary>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
         ///     <list type="bullet">
         ///         <item>
         ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///                 Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
+        ///                 Any other flags are silently ignored.
         ///             </description>
         ///         </item>
         ///         <item>
         ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///                 If the data was truncated, returns <see cref="IoResult.Err" /> with
+        ///                 <see cref="SocketError.MessageSize" />,
+        ///                 even if the underlying operation succeeded.
         ///             </description>
         ///         </item>
         ///     </list>
-        ///     Any other flags are silently ignored.
         /// </remarks>
-        public delegate* managed<VirtualSocket, Span<NativeIoSlice>, ref SocketFlags, IoResult> ReceiveVectored;
+        public delegate* managed<VirtualSocket, Span<NativeIoSlice>, SocketFlags, IoResult> ReceiveVectored;
 
         /// <summary>
         ///     Receives data into multiple buffers from a socket address.
         /// </summary>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
         ///     <list type="bullet">
         ///         <item>
         ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///                 Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
+        ///                 Any other flags are silently ignored.
         ///             </description>
         ///         </item>
         ///         <item>
         ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///                 If the data was truncated, returns <see cref="IoResult.Err" /> with
+        ///                 <see cref="SocketError.MessageSize" />,
+        ///                 even if the underlying operation succeeded.
         ///             </description>
         ///         </item>
         ///     </list>
-        ///     Any other flags are silently ignored.
         /// </remarks>
-        public delegate* managed<VirtualSocket, Span<NativeIoSlice>, ref SocketFlags, ref NativeSocketAddress, IoResult> ReceiveFromVectored;
+        public delegate* managed<VirtualSocket, Span<NativeIoSlice>, SocketFlags, ref NativeSocketAddress, IoResult> ReceiveFromVectored;
     }
 }

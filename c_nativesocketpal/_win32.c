@@ -448,40 +448,13 @@ i32 _GetNameIpv6(isize socket, _sockaddr_in6 *socketAddress)
 /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
 /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
 /// <remarks>
-///     Only the following flag values are honored:
-///     <list type="bullet">
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.OutOfBand" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.Peek" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.DontRoute" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.Truncated" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.ControlDataTruncated" />
-///             </description>
-///         </item>
-///     </list>
+///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
 ///     Any other flags are silently ignored.
 /// </remarks>
 _IoResult _Send(isize socket, void *buffer, i32 length, i32 socketFlags)
 {
-    i32 num = (i32)send((SOCKET)socket, (const u8 *)buffer, length, _ToNativeSocketFlags(socketFlags));
-    return (num >= 0) ? _IoResult_new(num, _SOCKET_ERROR_SUCCESS) : _IoResult_new(-1, _GetLastSocketError());
+    i32 num = (i32)send((SOCKET)socket, buffer, length, _ToNativeSendSocketFlags(socketFlags));
+    return (num >= 0) ? _IoResult_Ok(num) : _IoResult_Err(_GetLastSocketError());
 }
 
 /// <summary>
@@ -494,42 +467,15 @@ _IoResult _Send(isize socket, void *buffer, i32 length, i32 socketFlags)
 /// <param name="socketAddress">Pointer to the destination Ipv4 socket address.</param>
 /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
 /// <remarks>
-///     Only the following flag values are honored:
-///     <list type="bullet">
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.OutOfBand" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.Peek" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.DontRoute" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.Truncated" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.ControlDataTruncated" />
-///             </description>
-///         </item>
-///     </list>
+///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
 ///     Any other flags are silently ignored.
 /// </remarks>
 _IoResult _SendToIpv4(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in4 *socketAddress)
 {
     if (socketAddress != NULL)
     {
-        i32 num = (i32)sendto((SOCKET)socket, (const u8 *)buffer, length, _ToNativeSocketFlags(socketFlags), (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in4));
-        return (num >= 0) ? _IoResult_new(num, _SOCKET_ERROR_SUCCESS) : _IoResult_new(-1, _GetLastSocketError());
+        i32 num = (i32)sendto((SOCKET)socket, buffer, length, _ToNativeSendSocketFlags(socketFlags), (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in4));
+        return (num >= 0) ? _IoResult_Ok(num) : _IoResult_Err(_GetLastSocketError());
     }
     return _Send(socket, buffer, length, socketFlags);
 }
@@ -544,42 +490,15 @@ _IoResult _SendToIpv4(isize socket, void *buffer, i32 length, i32 socketFlags, _
 /// <param name="socketAddress">Pointer to the destination Ipv6 socket address.</param>
 /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
 /// <remarks>
-///     Only the following flag values are honored:
-///     <list type="bullet">
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.OutOfBand" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.Peek" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.DontRoute" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.Truncated" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.ControlDataTruncated" />
-///             </description>
-///         </item>
-///     </list>
+///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
 ///     Any other flags are silently ignored.
 /// </remarks>
 _IoResult _SendToIpv6(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in6 *socketAddress)
 {
     if (socketAddress != NULL)
     {
-        i32 num = (i32)sendto((SOCKET)socket, (const u8 *)buffer, length, _ToNativeSocketFlags(socketFlags), (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in6));
-        return (num >= 0) ? _IoResult_new(num, _SOCKET_ERROR_SUCCESS) : _IoResult_new(-1, _GetLastSocketError());
+        i32 num = (i32)sendto((SOCKET)socket, buffer, length, _ToNativeSendSocketFlags(socketFlags), (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in6));
+        return (num >= 0) ? _IoResult_Ok(num) : _IoResult_Err(_GetLastSocketError());
     }
     return _Send(socket, buffer, length, socketFlags);
 }
@@ -593,40 +512,13 @@ _IoResult _SendToIpv6(isize socket, void *buffer, i32 length, i32 socketFlags, _
 /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
 /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
 /// <remarks>
-///     Only the following flag values are honored:
-///     <list type="bullet">
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.OutOfBand" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.Peek" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.DontRoute" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.Truncated" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.ControlDataTruncated" />
-///             </description>
-///         </item>
-///     </list>
+///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
 ///     Any other flags are silently ignored.
 /// </remarks>
 _IoResult _Receive(isize socket, void *buffer, i32 length, i32 socketFlags)
 {
-    i32 num = (i32)recv((SOCKET)socket, (u8 *)buffer, length, _ToNativeSocketFlags(socketFlags));
-    return (num >= 0) ? _IoResult_new(num, _SOCKET_ERROR_SUCCESS) : _IoResult_new(-1, _GetLastSocketError());
+    i32 num = (i32)recv((SOCKET)socket, buffer, length, _ToNativeReceiveSocketFlags(socketFlags));
+    return (num >= 0) ? _IoResult_Ok(num) : _IoResult_Err(_GetLastSocketError());
 }
 
 /// <summary>
@@ -639,50 +531,23 @@ _IoResult _Receive(isize socket, void *buffer, i32 length, i32 socketFlags)
 /// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
 /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
 /// <remarks>
-///     Only the following flag values are honored:
-///     <list type="bullet">
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.OutOfBand" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.Peek" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.DontRoute" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.Truncated" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.ControlDataTruncated" />
-///             </description>
-///         </item>
-///     </list>
+///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
 ///     Any other flags are silently ignored.
 /// </remarks>
 _IoResult _ReceiveFromIpv4(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in4 *socketAddress)
 {
     _sockaddr_in4 storage;
     _socklen_t addr_len = sizeof(_sockaddr_in4);
-    i32 num = (i32)recvfrom((SOCKET)socket, (u8 *)buffer, length, _ToNativeSocketFlags(socketFlags), (struct sockaddr *)&storage, &addr_len);
+    i32 num = (i32)recvfrom((SOCKET)socket, buffer, length, _ToNativeReceiveSocketFlags(socketFlags), (struct sockaddr *)&storage, &addr_len);
     if (num >= 0)
     {
         if (socketAddress != NULL)
         {
             *socketAddress = storage;
         }
-        return _IoResult_new(num, _SOCKET_ERROR_SUCCESS);
+        return _IoResult_Ok(num);
     }
-    return _IoResult_new(-1, _GetLastSocketError());
+    return _IoResult_Err(_GetLastSocketError());
 }
 
 /// <summary>
@@ -695,50 +560,23 @@ _IoResult _ReceiveFromIpv4(isize socket, void *buffer, i32 length, i32 socketFla
 /// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
 /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
 /// <remarks>
-///     Only the following flag values are honored:
-///     <list type="bullet">
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.OutOfBand" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.Peek" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.DontRoute" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.Truncated" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.ControlDataTruncated" />
-///             </description>
-///         </item>
-///     </list>
+///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
 ///     Any other flags are silently ignored.
 /// </remarks>
 _IoResult _ReceiveFromIpv6(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in6 *socketAddress)
 {
     _sockaddr_in6 storage;
     _socklen_t addr_len = sizeof(_sockaddr_in6);
-    i32 num = (i32)recvfrom((SOCKET)socket, (u8 *)buffer, length, _ToNativeSocketFlags(socketFlags), (struct sockaddr *)&storage, &addr_len);
+    i32 num = (i32)recvfrom((SOCKET)socket, buffer, length, _ToNativeReceiveSocketFlags(socketFlags), (struct sockaddr *)&storage, &addr_len);
     if (num >= 0)
     {
         if (socketAddress != NULL)
         {
             *socketAddress = storage;
         }
-        return _IoResult_new(num, _SOCKET_ERROR_SUCCESS);
+        return _IoResult_Ok(num);
     }
-    return _IoResult_new(-1, _GetLastSocketError());
+    return _IoResult_Err(_GetLastSocketError());
 }
 
 /// <summary>
@@ -750,34 +588,7 @@ _IoResult _ReceiveFromIpv6(isize socket, void *buffer, i32 length, i32 socketFla
 /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
 /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
 /// <remarks>
-///     Only the following flag values are honored:
-///     <list type="bullet">
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.OutOfBand" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.Peek" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.DontRoute" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.Truncated" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.ControlDataTruncated" />
-///             </description>
-///         </item>
-///     </list>
+///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
 ///     Any other flags are silently ignored.
 /// </remarks>
 _IoResult _SendVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags)
@@ -789,15 +600,15 @@ _IoResult _SendVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCount, 
     if (pwsabufs == NULL)
     {
         WSASetLastError(WSAENOBUFS);
-        return _IoResult_new(-1, _GetLastSocketError());
+        return _IoResult_Err(_GetLastSocketError());
     }
     _Build(buffers, bufferCount, pwsabufs);
-    error = WSASend((SOCKET)socket, (LPWSABUF)pwsabufs, bufferCount, &bytesSent, _ToNativeSocketFlags(socketFlags), NULL, NULL);
+    error = WSASend((SOCKET)socket, (LPWSABUF)pwsabufs, bufferCount, &bytesSent, _ToNativeSendSocketFlags(socketFlags), NULL, NULL);
     if (pwsabufs != wsabufs)
     {
         free(pwsabufs);
     }
-    return (error == 0) ? _IoResult_new(bytesSent, _SOCKET_ERROR_SUCCESS) : _IoResult_new(-1, _GetLastSocketError());
+    return (error == 0) ? _IoResult_Ok(bytesSent) : _IoResult_Err(_GetLastSocketError());
 }
 
 /// <summary>
@@ -810,34 +621,7 @@ _IoResult _SendVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCount, 
 /// <param name="socketAddress">Pointer to the destination Ipv4 socket address.</param>
 /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
 /// <remarks>
-///     Only the following flag values are honored:
-///     <list type="bullet">
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.OutOfBand" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.Peek" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.DontRoute" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.Truncated" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.ControlDataTruncated" />
-///             </description>
-///         </item>
-///     </list>
+///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
 ///     Any other flags are silently ignored.
 /// </remarks>
 _IoResult _SendToVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags, _sockaddr_in4 *socketAddress)
@@ -851,15 +635,15 @@ _IoResult _SendToVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferC
         if (pwsabufs == NULL)
         {
             WSASetLastError(WSAENOBUFS);
-            return _IoResult_new(-1, _GetLastSocketError());
+            return _IoResult_Err(_GetLastSocketError());
         }
         _Build(buffers, bufferCount, pwsabufs);
-        error = WSASendTo((SOCKET)socket, (LPWSABUF)pwsabufs, bufferCount, &bytesSent, _ToNativeSocketFlags(socketFlags), (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in4), NULL, NULL);
+        error = WSASendTo((SOCKET)socket, (LPWSABUF)pwsabufs, bufferCount, &bytesSent, _ToNativeSendSocketFlags(socketFlags), (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in4), NULL, NULL);
         if (pwsabufs != wsabufs)
         {
             free(pwsabufs);
         }
-        return (error == 0) ? _IoResult_new(bytesSent, _SOCKET_ERROR_SUCCESS) : _IoResult_new(-1, _GetLastSocketError());
+        return (error == 0) ? _IoResult_Ok(bytesSent) : _IoResult_Err(_GetLastSocketError());
     }
     return _SendVectored(socket, buffers, bufferCount, socketFlags);
 }
@@ -874,34 +658,7 @@ _IoResult _SendToVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferC
 /// <param name="socketAddress">Pointer to the destination Ipv6 socket address.</param>
 /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
 /// <remarks>
-///     Only the following flag values are honored:
-///     <list type="bullet">
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.OutOfBand" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.Peek" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.DontRoute" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.Truncated" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.ControlDataTruncated" />
-///             </description>
-///         </item>
-///     </list>
+///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
 ///     Any other flags are silently ignored.
 /// </remarks>
 _IoResult _SendToVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags, _sockaddr_in6 *socketAddress)
@@ -915,15 +672,15 @@ _IoResult _SendToVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferC
         if (pwsabufs == NULL)
         {
             WSASetLastError(WSAENOBUFS);
-            return _IoResult_new(-1, _GetLastSocketError());
+            return _IoResult_Err(_GetLastSocketError());
         }
         _Build(buffers, bufferCount, pwsabufs);
-        error = WSASendTo((SOCKET)socket, (LPWSABUF)pwsabufs, bufferCount, &bytesSent, _ToNativeSocketFlags(socketFlags), (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in6), NULL, NULL);
+        error = WSASendTo((SOCKET)socket, (LPWSABUF)pwsabufs, bufferCount, &bytesSent, _ToNativeSendSocketFlags(socketFlags), (const struct sockaddr *)socketAddress, sizeof(_sockaddr_in6), NULL, NULL);
         if (pwsabufs != wsabufs)
         {
             free(pwsabufs);
         }
-        return (error == 0) ? _IoResult_new(bytesSent, _SOCKET_ERROR_SUCCESS) : _IoResult_new(-1, _GetLastSocketError());
+        return (error == 0) ? _IoResult_Ok(bytesSent) : _IoResult_Err(_GetLastSocketError());
     }
     return _SendVectored(socket, buffers, bufferCount, socketFlags);
 }
@@ -934,50 +691,36 @@ _IoResult _SendToVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferC
 /// <param name="socket">The socket handle.</param>
 /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
 /// <param name="bufferCount">The number of buffers.</param>
-/// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
+/// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
 /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
 /// <remarks>
-///     Only the following flag values are honored:
 ///     <list type="bullet">
 ///         <item>
 ///             <description>
-///                 <see cref="SocketFlags.OutOfBand" />
+///                 Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
+///                 Any other flags are silently ignored.
 ///             </description>
 ///         </item>
 ///         <item>
 ///             <description>
-///                 <see cref="SocketFlags.Peek" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.DontRoute" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.Truncated" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.ControlDataTruncated" />
+///                 If the data was truncated, returns <see cref="IoResult.Err" /> with
+///                 <see cref="SocketError.MessageSize" />,
+///                 even if the underlying operation succeeded.
 ///             </description>
 ///         </item>
 ///     </list>
-///     Any other flags are silently ignored.
 /// </remarks>
-_IoResult _ReceiveVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *inOutFlags)
+_IoResult _ReceiveVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags)
 {
     i32 bytesRecv;
-    DWORD flags = (inOutFlags != NULL) ? (DWORD)_ToNativeSocketFlags(*inOutFlags) : 0;
+    DWORD flags = (DWORD)_ToNativeReceiveSocketFlags(socketFlags);
     i32 error;
     WSABUF wsabufs[MAX_STACKALLOC_VECTORED_BUFFERS];
     WSABUF *pwsabufs = (bufferCount <= MAX_STACKALLOC_VECTORED_BUFFERS) ? wsabufs : (WSABUF *)malloc(sizeof(WSABUF) * bufferCount);
     if (pwsabufs == NULL)
     {
         WSASetLastError(WSAENOBUFS);
-        return _IoResult_new(-1, _GetLastSocketError());
+        return _IoResult_Err(_GetLastSocketError());
     }
     _Build(buffers, bufferCount, pwsabufs);
     error = WSARecv((SOCKET)socket, (LPWSABUF)pwsabufs, bufferCount, &bytesRecv, &flags, NULL, NULL);
@@ -987,13 +730,14 @@ _IoResult _ReceiveVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCoun
     }
     if (error == 0)
     {
-        if (inOutFlags != NULL)
+        flags = (DWORD)_FromNativeReceiveSocketFlags((i32)flags);
+        if ((flags & _SOCKET_FLAGS_PARTIAL) != 0)
         {
-            *inOutFlags = (i32)_FromNativeSocketFlags((i32)flags);
+            return _IoResult_Err(_SOCKET_ERROR_MESSAGE_SIZE);
         }
-        return _IoResult_new(bytesRecv, _SOCKET_ERROR_SUCCESS);
+        return _IoResult_Ok(bytesRecv);
     }
-    return _IoResult_new(-1, _GetLastSocketError());
+    return _IoResult_Err(_GetLastSocketError());
 }
 
 /// <summary>
@@ -1002,44 +746,30 @@ _IoResult _ReceiveVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCoun
 /// <param name="socket">The socket handle.</param>
 /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
 /// <param name="bufferCount">The number of buffers.</param>
-/// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
+/// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
 /// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
 /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
 /// <remarks>
-///     Only the following flag values are honored:
 ///     <list type="bullet">
 ///         <item>
 ///             <description>
-///                 <see cref="SocketFlags.OutOfBand" />
+///                 Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
+///                 Any other flags are silently ignored.
 ///             </description>
 ///         </item>
 ///         <item>
 ///             <description>
-///                 <see cref="SocketFlags.Peek" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.DontRoute" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.Truncated" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.ControlDataTruncated" />
+///                 If the data was truncated, returns <see cref="IoResult.Err" /> with
+///                 <see cref="SocketError.MessageSize" />,
+///                 even if the underlying operation succeeded.
 ///             </description>
 ///         </item>
 ///     </list>
-///     Any other flags are silently ignored.
 /// </remarks>
-_IoResult _ReceiveFromVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *inOutFlags, _sockaddr_in4 *socketAddress)
+_IoResult _ReceiveFromVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags, _sockaddr_in4 *socketAddress)
 {
     i32 bytesRecv;
-    DWORD flags = (inOutFlags != NULL) ? (DWORD)_ToNativeSocketFlags(*inOutFlags) : 0;
+    DWORD flags = (DWORD)_ToNativeReceiveSocketFlags(socketFlags);
     i32 error;
     _sockaddr_in4 storage;
     INT addr_len = sizeof(_sockaddr_in4);
@@ -1048,7 +778,7 @@ _IoResult _ReceiveFromVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bu
     if (pwsabufs == NULL)
     {
         WSASetLastError(WSAENOBUFS);
-        return _IoResult_new(-1, _GetLastSocketError());
+        return _IoResult_Err(_GetLastSocketError());
     }
     _Build(buffers, bufferCount, pwsabufs);
     error = WSARecvFrom((SOCKET)socket, (LPWSABUF)pwsabufs, bufferCount, &bytesRecv, &flags, (struct sockaddr *)&storage, &addr_len, NULL, NULL);
@@ -1058,17 +788,18 @@ _IoResult _ReceiveFromVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bu
     }
     if (error == 0)
     {
-        if (inOutFlags != NULL)
+        flags = (DWORD)_FromNativeReceiveSocketFlags((i32)flags);
+        if ((flags & _SOCKET_FLAGS_PARTIAL) != 0)
         {
-            *inOutFlags = (i32)_FromNativeSocketFlags((i32)flags);
+            return _IoResult_Err(_SOCKET_ERROR_MESSAGE_SIZE);
         }
         if (socketAddress != NULL)
         {
             *socketAddress = storage;
         }
-        return _IoResult_new(bytesRecv, _SOCKET_ERROR_SUCCESS);
+        return _IoResult_Ok(bytesRecv);
     }
-    return _IoResult_new(-1, _GetLastSocketError());
+    return _IoResult_Err(_GetLastSocketError());
 }
 
 /// <summary>
@@ -1077,44 +808,30 @@ _IoResult _ReceiveFromVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bu
 /// <param name="socket">The socket handle.</param>
 /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
 /// <param name="bufferCount">The number of buffers.</param>
-/// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
+/// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
 /// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
 /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
 /// <remarks>
-///     Only the following flag values are honored:
 ///     <list type="bullet">
 ///         <item>
 ///             <description>
-///                 <see cref="SocketFlags.OutOfBand" />
+///                 Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
+///                 Any other flags are silently ignored.
 ///             </description>
 ///         </item>
 ///         <item>
 ///             <description>
-///                 <see cref="SocketFlags.Peek" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.DontRoute" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.Truncated" />
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 <see cref="SocketFlags.ControlDataTruncated" />
+///                 If the data was truncated, returns <see cref="IoResult.Err" /> with
+///                 <see cref="SocketError.MessageSize" />,
+///                 even if the underlying operation succeeded.
 ///             </description>
 ///         </item>
 ///     </list>
-///     Any other flags are silently ignored.
 /// </remarks>
-_IoResult _ReceiveFromVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 *inOutFlags, _sockaddr_in6 *socketAddress)
+_IoResult _ReceiveFromVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags, _sockaddr_in6 *socketAddress)
 {
     i32 bytesRecv;
-    DWORD flags = (inOutFlags != NULL) ? (DWORD)_ToNativeSocketFlags(*inOutFlags) : 0;
+    DWORD flags = (DWORD)_ToNativeReceiveSocketFlags(socketFlags);
     i32 error;
     _sockaddr_in6 storage;
     INT addr_len = sizeof(_sockaddr_in6);
@@ -1123,7 +840,7 @@ _IoResult _ReceiveFromVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bu
     if (pwsabufs == NULL)
     {
         WSASetLastError(WSAENOBUFS);
-        return _IoResult_new(-1, _GetLastSocketError());
+        return _IoResult_Err(_GetLastSocketError());
     }
     _Build(buffers, bufferCount, pwsabufs);
     error = WSARecvFrom((SOCKET)socket, (LPWSABUF)pwsabufs, bufferCount, &bytesRecv, &flags, (struct sockaddr *)&storage, &addr_len, NULL, NULL);
@@ -1133,17 +850,18 @@ _IoResult _ReceiveFromVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bu
     }
     if (error == 0)
     {
-        if (inOutFlags != NULL)
+        flags = (DWORD)_FromNativeReceiveSocketFlags((i32)flags);
+        if ((flags & _SOCKET_FLAGS_PARTIAL) != 0)
         {
-            *inOutFlags = (i32)_FromNativeSocketFlags((i32)flags);
+            return _IoResult_Err(_SOCKET_ERROR_MESSAGE_SIZE);
         }
         if (socketAddress != NULL)
         {
             *socketAddress = storage;
         }
-        return _IoResult_new(bytesRecv, _SOCKET_ERROR_SUCCESS);
+        return _IoResult_Ok(bytesRecv);
     }
-    return _IoResult_new(-1, _GetLastSocketError());
+    return _IoResult_Err(_GetLastSocketError());
 }
 
 #endif

@@ -145,7 +145,7 @@ namespace NativeSockets
         /// <param name="__socketHandle_native">The native socket handle.</param>
         /// <param name="__pinnedBuffer_native">Pointer to the buffer containing the data to send.</param>
         /// <param name="__len_native">The length of the buffer in bytes.</param>
-        /// <param name="__socketFlags_native">The socket flags for the send operation.</param>
+        /// <param name="__socketFlags_native">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         [DllImport(DLL_NAME_WS2_32, EntryPoint = "send", CallingConvention = CALLING_CONVENTION)]
         public static extern int _send(nint __socketHandle_native, void* __pinnedBuffer_native, int __len_native, SocketFlags __socketFlags_native);
@@ -156,9 +156,9 @@ namespace NativeSockets
         /// <param name="__socketHandle_native">The native socket handle.</param>
         /// <param name="__pinnedBuffer_native">Pointer to the buffer containing the data to send.</param>
         /// <param name="__len_native">The length of the buffer in bytes.</param>
-        /// <param name="socketFlags">The socket flags for the send operation.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
-        public static int __send(nint __socketHandle_native, void* __pinnedBuffer_native, int __len_native, SocketFlags socketFlags) => _send(__socketHandle_native, __pinnedBuffer_native, __len_native, ToNativeSocketFlags(socketFlags));
+        public static int __send(nint __socketHandle_native, void* __pinnedBuffer_native, int __len_native, SocketFlags socketFlags) => _send(__socketHandle_native, __pinnedBuffer_native, __len_native, ToNativeSendSocketFlags(socketFlags));
 
         /// <summary>
         ///     Receives data on a connected socket.
@@ -166,7 +166,7 @@ namespace NativeSockets
         /// <param name="__socketHandle_native">The native socket handle.</param>
         /// <param name="__pinnedBuffer_native">Pointer to the buffer where received data will be stored.</param>
         /// <param name="__len_native">The length of the buffer in bytes.</param>
-        /// <param name="__socketFlags_native">The socket flags for the receive operation.</param>
+        /// <param name="__socketFlags_native">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         [DllImport(DLL_NAME_WS2_32, EntryPoint = "recv", CallingConvention = CALLING_CONVENTION)]
         public static extern int _recv(nint __socketHandle_native, void* __pinnedBuffer_native, int __len_native, SocketFlags __socketFlags_native);
@@ -177,9 +177,9 @@ namespace NativeSockets
         /// <param name="__socketHandle_native">The native socket handle.</param>
         /// <param name="__pinnedBuffer_native">Pointer to the buffer where received data will be stored.</param>
         /// <param name="__len_native">The length of the buffer in bytes.</param>
-        /// <param name="socketFlags">The socket flags for the receive operation.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
-        public static int __recv(nint __socketHandle_native, void* __pinnedBuffer_native, int __len_native, SocketFlags socketFlags) => _recv(__socketHandle_native, __pinnedBuffer_native, __len_native, ToNativeSocketFlags(socketFlags));
+        public static int __recv(nint __socketHandle_native, void* __pinnedBuffer_native, int __len_native, SocketFlags socketFlags) => _recv(__socketHandle_native, __pinnedBuffer_native, __len_native, ToNativeReceiveSocketFlags(socketFlags));
 
         /// <summary>
         ///     Sends data to a specified destination address.
@@ -187,7 +187,7 @@ namespace NativeSockets
         /// <param name="__socketHandle_native">The native socket handle.</param>
         /// <param name="__pinnedBuffer_native">Pointer to the buffer containing the data to send.</param>
         /// <param name="__len_native">The length of the buffer in bytes.</param>
-        /// <param name="__socketFlags_native">The socket flags for the send operation.</param>
+        /// <param name="__socketFlags_native">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="__socketAddress_native">Pointer to the destination socket address.</param>
         /// <param name="__socketAddressSize_native">Size of the destination socket address.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
@@ -200,11 +200,11 @@ namespace NativeSockets
         /// <param name="__socketHandle_native">The native socket handle.</param>
         /// <param name="__pinnedBuffer_native">Pointer to the buffer containing the data to send.</param>
         /// <param name="__len_native">The length of the buffer in bytes.</param>
-        /// <param name="socketFlags">The socket flags for the send operation.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="__socketAddress_native">Pointer to the destination socket address.</param>
         /// <param name="__socketAddressSize_native">Size of the destination socket address.</param>
         /// <returns>The number of bytes sent, or -1 on error.</returns>
-        public static int __sendto(nint __socketHandle_native, void* __pinnedBuffer_native, int __len_native, SocketFlags socketFlags, void* __socketAddress_native, int __socketAddressSize_native) => _sendto(__socketHandle_native, __pinnedBuffer_native, __len_native, ToNativeSocketFlags(socketFlags), __socketAddress_native, __socketAddressSize_native);
+        public static int __sendto(nint __socketHandle_native, void* __pinnedBuffer_native, int __len_native, SocketFlags socketFlags, void* __socketAddress_native, int __socketAddressSize_native) => _sendto(__socketHandle_native, __pinnedBuffer_native, __len_native, ToNativeSendSocketFlags(socketFlags), __socketAddress_native, __socketAddressSize_native);
 
         /// <summary>
         ///     Receives data from a socket and captures the source address.
@@ -212,7 +212,7 @@ namespace NativeSockets
         /// <param name="__socketHandle_native">The native socket handle.</param>
         /// <param name="__pinnedBuffer_native">Pointer to the buffer where received data will be stored.</param>
         /// <param name="__len_native">The maximum length of the buffer in bytes.</param>
-        /// <param name="__socketFlags_native">The socket flags for the receive operation.</param>
+        /// <param name="__socketFlags_native">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="__socketAddress_native">Pointer to a buffer that receives the source address.</param>
         /// <param name="__socketAddressSize_native">
         ///     Pointer to the size of the address buffer; on input holds the buffer size, on
@@ -228,14 +228,14 @@ namespace NativeSockets
         /// <param name="__socketHandle_native">The native socket handle.</param>
         /// <param name="__pinnedBuffer_native">Pointer to the buffer where received data will be stored.</param>
         /// <param name="__len_native">The maximum length of the buffer in bytes.</param>
-        /// <param name="socketFlags">The socket flags for the receive operation.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="__socketAddress_native">Pointer to a buffer that receives the source address.</param>
         /// <param name="__socketAddressSize_native">
         ///     Pointer to the size of the address buffer; on input holds the buffer size, on
         ///     output the actual address size.
         /// </param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
-        public static int __recvfrom(nint __socketHandle_native, void* __pinnedBuffer_native, int __len_native, SocketFlags socketFlags, void* __socketAddress_native, int* __socketAddressSize_native) => _recvfrom(__socketHandle_native, __pinnedBuffer_native, __len_native, ToNativeSocketFlags(socketFlags), __socketAddress_native, __socketAddressSize_native);
+        public static int __recvfrom(nint __socketHandle_native, void* __pinnedBuffer_native, int __len_native, SocketFlags socketFlags, void* __socketAddress_native, int* __socketAddressSize_native) => _recvfrom(__socketHandle_native, __pinnedBuffer_native, __len_native, ToNativeReceiveSocketFlags(socketFlags), __socketAddress_native, __socketAddressSize_native);
 
         /// <summary>
         ///     Polls a set of sockets for I/O activity (select).
@@ -279,7 +279,7 @@ namespace NativeSockets
         /// <param name="__buffers_native">Pointer to an array of <see cref="WSABuffer" />.</param>
         /// <param name="__bufferCount_native">The number of buffers.</param>
         /// <param name="__bytesTransferred_native">Pointer to a variable that receives the number of bytes sent.</param>
-        /// <param name="__socketFlags_native">The socket flags.</param>
+        /// <param name="__socketFlags_native">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="__overlapped_native">Pointer to an overlapped structure (can be <see langword="null" />).</param>
         /// <param name="__completionRoutine_native">A completion routine (can be <see langword="null" />).</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
@@ -293,11 +293,11 @@ namespace NativeSockets
         /// <param name="__buffers_native">Pointer to an array of <see cref="WSABuffer" />.</param>
         /// <param name="__bufferCount_native">The number of buffers.</param>
         /// <param name="__bytesTransferred_native">Pointer to a variable that receives the number of bytes sent.</param>
-        /// <param name="socketFlags">The socket flags.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="__overlapped_native">Pointer to an overlapped structure (can be <see langword="null" />).</param>
         /// <param name="__completionRoutine_native">A completion routine (can be <see langword="null" />).</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        public static SocketError __WSASend(nint __socketHandle_native, WSABuffer* __buffers_native, int __bufferCount_native, int* __bytesTransferred_native, SocketFlags socketFlags, NativeOverlapped* __overlapped_native, nint __completionRoutine_native) => _WSASend(__socketHandle_native, __buffers_native, __bufferCount_native, __bytesTransferred_native, ToNativeSocketFlags(socketFlags), __overlapped_native, __completionRoutine_native);
+        public static SocketError __WSASend(nint __socketHandle_native, WSABuffer* __buffers_native, int __bufferCount_native, int* __bytesTransferred_native, SocketFlags socketFlags, NativeOverlapped* __overlapped_native, nint __completionRoutine_native) => _WSASend(__socketHandle_native, __buffers_native, __bufferCount_native, __bytesTransferred_native, ToNativeSendSocketFlags(socketFlags), __overlapped_native, __completionRoutine_native);
 
         /// <summary>
         ///     Sends data to a specified destination using Winsock scatter/gather (WSASendTo).
@@ -306,7 +306,7 @@ namespace NativeSockets
         /// <param name="__buffers_native">Pointer to an array of <see cref="WSABuffer" />.</param>
         /// <param name="__bufferCount_native">The number of buffers.</param>
         /// <param name="__bytesTransferred_native">Pointer to a variable that receives the number of bytes sent.</param>
-        /// <param name="__socketFlags_native">The socket flags.</param>
+        /// <param name="__socketFlags_native">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="__socketAddress_native">Pointer to the destination socket address.</param>
         /// <param name="__socketAddressSize_native">The size of the destination address.</param>
         /// <param name="__overlapped_native">Pointer to an overlapped structure (can be <see langword="null" />).</param>
@@ -322,13 +322,13 @@ namespace NativeSockets
         /// <param name="__buffers_native">Pointer to an array of <see cref="WSABuffer" />.</param>
         /// <param name="__bufferCount_native">The number of buffers.</param>
         /// <param name="__bytesTransferred_native">Pointer to a variable that receives the number of bytes sent.</param>
-        /// <param name="socketFlags">The socket flags.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="__socketAddress_native">Pointer to the destination socket address.</param>
         /// <param name="__socketAddressSize_native">The size of the destination address.</param>
         /// <param name="__overlapped_native">Pointer to an overlapped structure (can be <see langword="null" />).</param>
         /// <param name="__completionRoutine_native">A completion routine (can be <see langword="null" />).</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        public static SocketError __WSASendTo(nint __socketHandle_native, WSABuffer* __buffers_native, int __bufferCount_native, int* __bytesTransferred_native, SocketFlags socketFlags, void* __socketAddress_native, int __socketAddressSize_native, NativeOverlapped* __overlapped_native, nint __completionRoutine_native) => _WSASendTo(__socketHandle_native, __buffers_native, __bufferCount_native, __bytesTransferred_native, ToNativeSocketFlags(socketFlags), __socketAddress_native, __socketAddressSize_native, __overlapped_native, __completionRoutine_native);
+        public static SocketError __WSASendTo(nint __socketHandle_native, WSABuffer* __buffers_native, int __bufferCount_native, int* __bytesTransferred_native, SocketFlags socketFlags, void* __socketAddress_native, int __socketAddressSize_native, NativeOverlapped* __overlapped_native, nint __completionRoutine_native) => _WSASendTo(__socketHandle_native, __buffers_native, __bufferCount_native, __bytesTransferred_native, ToNativeSendSocketFlags(socketFlags), __socketAddress_native, __socketAddressSize_native, __overlapped_native, __completionRoutine_native);
 
         /// <summary>
         ///     Receives data using Winsock scatter/gather (WSARecv).
@@ -358,12 +358,12 @@ namespace NativeSockets
         public static SocketError __WSARecv(nint __socketHandle_native, WSABuffer* __buffer_native, int __bufferCount_native, int* __bytesTransferred_native, SocketFlags* socketFlags, NativeOverlapped* __overlapped_native, nint __completionRoutine_native)
         {
             if (socketFlags != null)
-                *socketFlags = ToNativeSocketFlags(*socketFlags);
+                *socketFlags = ToNativeReceiveSocketFlags(*socketFlags);
 
             SocketError result = _WSARecv(__socketHandle_native, __buffer_native, __bufferCount_native, __bytesTransferred_native, socketFlags, __overlapped_native, __completionRoutine_native);
 
             if (socketFlags != null)
-                *socketFlags = FromNativeSocketFlags(*socketFlags);
+                *socketFlags = FromNativeReceiveSocketFlags(*socketFlags);
 
             return result;
         }
@@ -406,12 +406,12 @@ namespace NativeSockets
         public static SocketError __WSARecvFrom(nint __socketHandle_native, WSABuffer* __buffers_native, int __bufferCount_native, int* __bytesTransferred_native, SocketFlags* socketFlags, void* __socketAddressPointer_native, void* __socketAddressSizePointer_native, NativeOverlapped* __overlapped_native, nint __completionRoutine_native)
         {
             if (socketFlags != null)
-                *socketFlags = ToNativeSocketFlags(*socketFlags);
+                *socketFlags = ToNativeReceiveSocketFlags(*socketFlags);
 
             SocketError result = _WSARecvFrom(__socketHandle_native, __buffers_native, __bufferCount_native, __bytesTransferred_native, socketFlags, __socketAddressPointer_native, __socketAddressSizePointer_native, __overlapped_native, __completionRoutine_native);
 
             if (socketFlags != null)
-                *socketFlags = FromNativeSocketFlags(*socketFlags);
+                *socketFlags = FromNativeReceiveSocketFlags(*socketFlags);
 
             return result;
         }

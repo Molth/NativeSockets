@@ -48,34 +48,7 @@ namespace NativeSockets
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="socket" /> is null.</exception>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -96,34 +69,7 @@ namespace NativeSockets
         /// <returns>The number of bytes received, or -1 on error.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="socket" /> is null.</exception>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -143,34 +89,7 @@ namespace NativeSockets
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="socket" /> is null.</exception>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -191,34 +110,7 @@ namespace NativeSockets
         /// <returns>The number of bytes sent, or -1 on error.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="socket" /> is null.</exception>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -233,46 +125,32 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket.</param>
         /// <param name="buffers">The array of <see cref="NativeIoSlice" />.</param>
-        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketError">When this method returns, contains the error code of the operation.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="socket" /> is null.</exception>
         /// <remarks>
-        ///     Only the following flag values are honored:
         ///     <list type="bullet">
         ///         <item>
         ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///                 Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
+        ///                 Any other flags are silently ignored.
         ///             </description>
         ///         </item>
         ///         <item>
         ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///                 If the data was truncated, returns <see cref="IoResult.Err" /> with
+        ///                 <see cref="SocketError.MessageSize" />,
+        ///                 even if the underlying operation succeeded.
         ///             </description>
         ///         </item>
         ///     </list>
-        ///     Any other flags are silently ignored.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveVectored(this Socket socket, Span<NativeIoSlice> buffers, ref SocketFlags inOutFlags, out SocketError socketError)
+        public static int ReceiveVectored(this Socket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags, out SocketError socketError)
         {
             ThrowHelpers.ThrowIfNull(socket, ExceptionArgument.socket);
-            return Impl.ReceiveVectored(socket, buffers, ref inOutFlags, out socketError);
+            return Impl.ReceiveVectored(socket, buffers, socketFlags, out socketError);
         }
 
         /// <summary>
@@ -280,47 +158,33 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The socket.</param>
         /// <param name="buffers">The array of <see cref="NativeIoSlice" />.</param>
-        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">The sender's socket address.</param>
         /// <param name="socketError">When this method returns, contains the error code of the operation.</param>
         /// <returns>The number of bytes received, or -1 on error.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="socket" /> is null.</exception>
         /// <remarks>
-        ///     Only the following flag values are honored:
         ///     <list type="bullet">
         ///         <item>
         ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///                 Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
+        ///                 Any other flags are silently ignored.
         ///             </description>
         ///         </item>
         ///         <item>
         ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///                 If the data was truncated, returns <see cref="IoResult.Err" /> with
+        ///                 <see cref="SocketError.MessageSize" />,
+        ///                 even if the underlying operation succeeded.
         ///             </description>
         ///         </item>
         ///     </list>
-        ///     Any other flags are silently ignored.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveFromVectored(this Socket socket, Span<NativeIoSlice> buffers, ref SocketFlags inOutFlags, ref NativeSocketAddress socketAddress, out SocketError socketError)
+        public static int ReceiveFromVectored(this Socket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags, ref NativeSocketAddress socketAddress, out SocketError socketError)
         {
             ThrowHelpers.ThrowIfNull(socket, ExceptionArgument.socket);
-            return Impl.ReceiveFromVectored(socket, buffers, ref inOutFlags, ref socketAddress, out socketError);
+            return Impl.ReceiveFromVectored(socket, buffers, socketFlags, ref socketAddress, out socketError);
         }
     }
 }

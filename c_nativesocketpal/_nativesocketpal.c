@@ -23,6 +23,7 @@
 
 #endif
 
+#include "_IoResult.c"
 #include "_WinSock2.c"
 #include "_SocketFlags.c"
 

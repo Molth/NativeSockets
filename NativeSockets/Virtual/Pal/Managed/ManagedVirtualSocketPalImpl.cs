@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -609,55 +610,28 @@ namespace NativeSockets
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         public static IoResult Send(Socket socket, ReadOnlySpan<byte> buffer, SocketFlags socketFlags)
         {
             try
             {
-                int num = socket.Send(buffer, WindowsSocketFlags.ToNativeSocketFlags(socketFlags), out SocketError socketError);
+                int num = socket.Send(buffer, WindowsSocketFlags.ToNativeSendSocketFlags(socketFlags), out SocketError socketError);
 
-                return new IoResult(num >= 0 ? num : -1, socketError);
+                return socketError == SocketError.Success ? IoResult.Ok(num) : IoResult.Err(socketError);
             }
             catch (SocketException ex)
             {
-                return new IoResult(-1, ex.SocketErrorCode);
+                return IoResult.Err(ex.SocketErrorCode);
             }
             catch (ObjectDisposedException)
             {
-                return new IoResult(-1, SocketError.NotSocket);
+                return IoResult.Err(SocketError.NotSocket);
             }
             catch
             {
-                return new IoResult(-1, SocketError.SocketError);
+                return IoResult.Err(SocketError.SocketError);
             }
         }
 
@@ -669,55 +643,82 @@ namespace NativeSockets
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         public static IoResult Receive(Socket socket, Span<byte> buffer, SocketFlags socketFlags)
         {
             try
             {
-                int num = socket.Receive(buffer, WindowsSocketFlags.ToNativeSocketFlags(socketFlags), out SocketError socketError);
+                int num = socket.Receive(buffer, WindowsSocketFlags.ToNativeReceiveSocketFlags(socketFlags), out SocketError socketError);
 
-                return new IoResult(num >= 0 ? num : -1, socketError);
+                return socketError == SocketError.Success ? IoResult.Ok(num) : IoResult.Err(socketError);
             }
             catch (SocketException ex)
             {
-                return new IoResult(-1, ex.SocketErrorCode);
+                return IoResult.Err(ex.SocketErrorCode);
             }
             catch (ObjectDisposedException)
             {
-                return new IoResult(-1, SocketError.NotSocket);
+                return IoResult.Err(SocketError.NotSocket);
             }
             catch
             {
-                return new IoResult(-1, SocketError.SocketError);
+                return IoResult.Err(SocketError.SocketError);
+            }
+        }
+
+        /// <summary>
+        ///     Rents a single pooled array large enough to hold the combined buffers.
+        /// </summary>
+        /// <param name="buffers">The array of <see cref="NativeIoSlice" />.</param>
+        /// <param name="array">When this method returns, contains the pooled array holding the combined buffers.</param>
+        /// <param name="bufferLength">When this method returns, contains the total length of the combined buffers.</param>
+        private static void RentBuffer(ReadOnlySpan<NativeIoSlice> buffers, out byte[] array, out int bufferLength)
+        {
+            bufferLength = 0;
+            for (int i = 0; i < buffers.Length; ++i)
+                bufferLength += buffers[i].Length;
+
+            array = bufferLength == 0 ? Array.Empty<byte>() : ArrayPool<byte>.Shared.Rent(bufferLength);
+        }
+
+        /// <summary>
+        ///     Copies the buffers into a single pooled array.
+        /// </summary>
+        /// <param name="buffers">The array of <see cref="NativeIoSlice" />.</param>
+        /// <param name="array">When this method returns, contains the pooled array holding the combined buffers.</param>
+        /// <param name="bufferLength">When this method returns, contains the total length of the combined buffers.</param>
+        private static void BuildSendBuffer(ReadOnlySpan<NativeIoSlice> buffers, out byte[] array, out int bufferLength)
+        {
+            RentBuffer(buffers, out array, out bufferLength);
+            Span<byte> buffer = array.AsSpan(0, bufferLength);
+
+            int offset = 0;
+            for (int i = 0; i < buffers.Length; ++i)
+            {
+                buffers[i].AsReadOnlySpan().CopyTo(buffer.Slice(offset));
+                offset += buffers[i].Length;
+            }
+        }
+
+        /// <summary>
+        ///     Copies the received bytes from the pooled array back into the buffers.
+        /// </summary>
+        /// <param name="array">The pooled array holding the received bytes, or null when a single buffer was used.</param>
+        /// <param name="destination">The array of <see cref="NativeIoSlice" /> to copy the received bytes into.</param>
+        /// <param name="source">The received bytes.</param>
+        private static void CopyReceived(byte[]? array, Span<NativeIoSlice> destination, Span<byte> source)
+        {
+            if (array == null)
+                return;
+
+            int offset = 0;
+            for (int i = 0; i < destination.Length && offset < source.Length; ++i)
+            {
+                int length = Math.Min(destination[i].Length, source.Length - offset);
+                source.Slice(offset, length).CopyTo(destination[i].AsSpan());
+                offset += length;
             }
         }
     }

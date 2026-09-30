@@ -5,30 +5,37 @@
 
 #ifdef _WIN32
 
-#define _SOCKET_FLAGS_SUPPORTED_MASK (_SOCKET_FLAGS_OUT_OF_BAND | \
-                                      _SOCKET_FLAGS_PEEK |        \
-                                      _SOCKET_FLAGS_DONT_ROUTE |  \
-                                      _SOCKET_FLAGS_TRUNCATED |   \
-                                      _SOCKET_FLAGS_CONTROL_DATA_TRUNCATED)
-
 /// <summary>
-///     Converts a managed <see cref="SocketFlags" /> value to its native integer representation.
+///     Converts a managed <see cref="SocketFlags" /> value to
+///     its native Windows integer representation for send operations.
 /// </summary>
 /// <param name="flags">The managed flags.</param>
 /// <returns>The native integer value.</returns>
-i32 _ToNativeSocketFlags(i32 flags)
+i32 _ToNativeSendSocketFlags(i32 flags)
 {
-    return flags & _SOCKET_FLAGS_SUPPORTED_MASK;
+    return flags & _SOCKET_FLAGS_DONT_ROUTE;
 }
 
 /// <summary>
-///     Converts a native socket flag integer value to a managed <see cref="SocketFlags" />.
+///     Converts a managed <see cref="SocketFlags" /> value to
+///     its native Windows integer representation for receive operations.
+/// </summary>
+/// <param name="flags">The managed flags.</param>
+/// <returns>The native integer value.</returns>
+i32 _ToNativeReceiveSocketFlags(i32 flags)
+{
+    return flags & _SOCKET_FLAGS_PEEK;
+}
+
+/// <summary>
+///     Converts a native Windows socket flag integer value to
+///     a managed <see cref="SocketFlags" /> for receive operations.
 /// </summary>
 /// <param name="native_flags">The native integer value.</param>
 /// <returns>The managed <see cref="SocketFlags" /> value.</returns>
-i32 _FromNativeSocketFlags(i32 native_flags)
+i32 _FromNativeReceiveSocketFlags(i32 native_flags)
 {
-    return native_flags & _SOCKET_FLAGS_SUPPORTED_MASK;
+    return native_flags & (_SOCKET_FLAGS_PEEK | _SOCKET_FLAGS_TRUNCATED | _SOCKET_FLAGS_PARTIAL);
 }
 
 #else
@@ -36,73 +43,36 @@ i32 _FromNativeSocketFlags(i32 native_flags)
 #include <sys/socket.h>
 
 /// <summary>
-///     Converts a managed <see cref="SocketFlags" /> value to its native integer representation.
+///     Converts a managed <see cref="SocketFlags" /> value to
+///     its native integer representation for send operations.
 /// </summary>
 /// <param name="flags">The managed flags.</param>
 /// <returns>The native integer value.</returns>
-i32 _ToNativeSocketFlags(i32 flags)
+i32 _ToNativeSendSocketFlags(i32 flags)
 {
-    i32 native_flags = 0;
-    if (flags & _SOCKET_FLAGS_OUT_OF_BAND)
-    {
-        native_flags |= MSG_OOB;
-    }
-    if (flags & _SOCKET_FLAGS_PEEK)
-    {
-        native_flags |= MSG_PEEK;
-    }
-    if (flags & _SOCKET_FLAGS_DONT_ROUTE)
-    {
-        native_flags |= MSG_DONTROUTE;
-    }
-#ifdef MSG_TRUNC
-    if (flags & _SOCKET_FLAGS_TRUNCATED)
-    {
-        native_flags |= MSG_TRUNC;
-    }
-#endif
-#ifdef MSG_CTRUNC
-    if (flags & _SOCKET_FLAGS_CONTROL_DATA_TRUNCATED)
-    {
-        native_flags |= MSG_CTRUNC;
-    }
-#endif
-    return native_flags;
+    return (flags & _SOCKET_FLAGS_DONT_ROUTE) ? MSG_DONTROUTE : 0;
 }
 
 /// <summary>
-///     Converts a native socket flag integer value to a managed <see cref="SocketFlags" />.
+///     Converts a managed <see cref="SocketFlags" /> value to
+///     its native integer representation for receive operations.
+/// </summary>
+/// <param name="flags">The managed flags.</param>
+/// <returns>The native integer value.</returns>
+i32 _ToNativeReceiveSocketFlags(i32 flags)
+{
+    return (flags & _SOCKET_FLAGS_PEEK) ? MSG_PEEK : 0;
+}
+
+/// <summary>
+///     Converts a native socket flag integer value to
+///     a managed <see cref="SocketFlags" /> for receive operations.
 /// </summary>
 /// <param name="native_flags">The native integer value.</param>
 /// <returns>The managed <see cref="SocketFlags" /> value.</returns>
-i32 _FromNativeSocketFlags(i32 native_flags)
+i32 _FromNativeReceiveSocketFlags(i32 native_flags)
 {
-    i32 flags = 0;
-    if (native_flags & MSG_OOB)
-    {
-        flags |= _SOCKET_FLAGS_OUT_OF_BAND;
-    }
-    if (native_flags & MSG_PEEK)
-    {
-        flags |= _SOCKET_FLAGS_PEEK;
-    }
-    if (native_flags & MSG_DONTROUTE)
-    {
-        flags |= _SOCKET_FLAGS_DONT_ROUTE;
-    }
-#ifdef MSG_TRUNC
-    if (native_flags & MSG_TRUNC)
-    {
-        flags |= _SOCKET_FLAGS_TRUNCATED;
-    }
-#endif
-#ifdef MSG_CTRUNC
-    if (native_flags & MSG_CTRUNC)
-    {
-        flags |= _SOCKET_FLAGS_CONTROL_DATA_TRUNCATED;
-    }
-#endif
-    return flags;
+    return (native_flags & MSG_TRUNC) ? _SOCKET_FLAGS_TRUNCATED : 0;
 }
 
 #endif

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -39,6 +40,30 @@ namespace NativeSockets
         {
             BytesTransferred = bytesTransferred;
             SocketError = socketError;
+        }
+
+        /// <summary>
+        ///     Creates an <see cref="IoResult" /> representing an operation that has succeeded.
+        /// </summary>
+        /// <param name="bytesTransferred">The number of bytes transferred by the operation.</param>
+        /// <returns>An <see cref="IoResult" /> with <see cref="System.Net.Sockets.SocketError.Success" />.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IoResult Ok(int bytesTransferred)
+        {
+            Debug.Assert(bytesTransferred >= 0);
+            return new IoResult(bytesTransferred, SocketError.Success);
+        }
+
+        /// <summary>
+        ///     Creates an <see cref="IoResult" /> representing an operation that has failed.
+        /// </summary>
+        /// <param name="socketError">The socket error that occurred.</param>
+        /// <returns>An <see cref="IoResult" /> with <c>-1</c> as the number of bytes transferred.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IoResult Err(SocketError socketError)
+        {
+            Debug.Assert(socketError != SocketError.Success);
+            return new IoResult(-1, socketError);
         }
 
         /// <summary>

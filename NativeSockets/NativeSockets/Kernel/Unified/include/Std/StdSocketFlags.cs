@@ -11,11 +11,6 @@ namespace NativeSockets
     internal static class StdSocketFlags
     {
         /// <summary>
-        ///     Flag for out‑of‑band data.
-        /// </summary>
-        public const int SF_MSG_OOB = (int)SocketFlags.OutOfBand;
-
-        /// <summary>
         ///     Flag for peeking at the message.
         /// </summary>
         public const int SF_MSG_PEEK = (int)SocketFlags.Peek;
@@ -31,8 +26,8 @@ namespace NativeSockets
         public const int SF_MSG_TRUNC = (int)SocketFlags.Truncated;
 
         /// <summary>
-        ///     Flag indicating control data was truncated.
+        ///     Flag indicating a partial message.
         /// </summary>
-        public const int SF_MSG_CTRUNC = (int)SocketFlags.ControlDataTruncated;
+        public const int SF_MSG_PARTIAL = (int)SocketFlags.Partial;
     }
 }

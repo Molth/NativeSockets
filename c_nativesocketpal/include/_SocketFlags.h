@@ -20,17 +20,27 @@ typedef enum _SocketFlags
 } _SocketFlags;
 
 /// <summary>
-///     Converts a managed <see cref="SocketFlags" /> value to its native integer representation.
+///     Converts a managed <see cref="SocketFlags" /> value to
+///     its native integer representation for send operations.
 /// </summary>
 /// <param name="flags">The managed flags.</param>
 /// <returns>The native integer value.</returns>
-i32 _ToNativeSocketFlags(i32 flags);
+i32 _ToNativeSendSocketFlags(i32 flags);
 
 /// <summary>
-///     Converts a native socket flag integer value to a managed <see cref="SocketFlags" />.
+///     Converts a managed <see cref="SocketFlags" /> value to
+///     its native integer representation for receive operations.
+/// </summary>
+/// <param name="flags">The managed flags.</param>
+/// <returns>The native integer value.</returns>
+i32 _ToNativeReceiveSocketFlags(i32 flags);
+
+/// <summary>
+///     Converts a native socket flag integer value to
+///     a managed <see cref="SocketFlags" /> for receive operations.
 /// </summary>
 /// <param name="native_flags">The native integer value.</param>
 /// <returns>The managed <see cref="SocketFlags" /> value.</returns>
-i32 _FromNativeSocketFlags(i32 native_flags);
+i32 _FromNativeReceiveSocketFlags(i32 native_flags);
 
 #endif

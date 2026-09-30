@@ -451,34 +451,7 @@ namespace NativeSockets
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -486,7 +459,7 @@ namespace NativeSockets
         {
             int num = __send(socket, buffer, length, socketFlags);
 
-            return num >= 0 ? new IoResult(num, SocketError.Success) : new IoResult(-1, GetLastSocketError());
+            return num >= 0 ? IoResult.Ok(num) : IoResult.Err(GetLastSocketError());
         }
 
         /// <summary>
@@ -499,34 +472,7 @@ namespace NativeSockets
         /// <param name="socketAddress">Pointer to the destination Ipv4 socket address.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -536,7 +482,7 @@ namespace NativeSockets
             {
                 int num = __sendto(socket, buffer, length, socketFlags, socketAddress, sizeof(sockaddr_in4));
 
-                return num >= 0 ? new IoResult(num, SocketError.Success) : new IoResult(-1, GetLastSocketError());
+                return num >= 0 ? IoResult.Ok(num) : IoResult.Err(GetLastSocketError());
             }
 
             return Send(socket, buffer, length, socketFlags);
@@ -552,34 +498,7 @@ namespace NativeSockets
         /// <param name="socketAddress">Pointer to the destination Ipv6 socket address.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -589,7 +508,7 @@ namespace NativeSockets
             {
                 int num = __sendto(socket, buffer, length, socketFlags, socketAddress, sizeof(sockaddr_in6));
 
-                return num >= 0 ? new IoResult(num, SocketError.Success) : new IoResult(-1, GetLastSocketError());
+                return num >= 0 ? IoResult.Ok(num) : IoResult.Err(GetLastSocketError());
             }
 
             return Send(socket, buffer, length, socketFlags);
@@ -604,34 +523,7 @@ namespace NativeSockets
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -639,7 +531,7 @@ namespace NativeSockets
         {
             int num = __recv(socket, buffer, length, socketFlags);
 
-            return num >= 0 ? new IoResult(num, SocketError.Success) : new IoResult(-1, GetLastSocketError());
+            return num >= 0 ? IoResult.Ok(num) : IoResult.Err(GetLastSocketError());
         }
 
         /// <summary>
@@ -652,34 +544,7 @@ namespace NativeSockets
         /// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -695,10 +560,10 @@ namespace NativeSockets
                 if (socketAddress != null)
                     *socketAddress = storage;
 
-                return new IoResult(num, SocketError.Success);
+                return IoResult.Ok(num);
             }
 
-            return new IoResult(-1, GetLastSocketError());
+            return IoResult.Err(GetLastSocketError());
         }
 
         /// <summary>
@@ -711,34 +576,7 @@ namespace NativeSockets
         /// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -754,10 +592,10 @@ namespace NativeSockets
                 if (socketAddress != null)
                     *socketAddress = storage;
 
-                return new IoResult(num, SocketError.Success);
+                return IoResult.Ok(num);
             }
 
-            return new IoResult(-1, GetLastSocketError());
+            return IoResult.Err(GetLastSocketError());
         }
 
         /// <summary>
@@ -769,34 +607,7 @@ namespace NativeSockets
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -810,7 +621,7 @@ namespace NativeSockets
                 error = __WSASend(socket, __buffers_native.Buffer, bufferCount, &bytesTransferred, socketFlags, null, 0);
             }
 
-            return error == SocketError.Success ? new IoResult(bytesTransferred, SocketError.Success) : new IoResult(-1, GetLastSocketError());
+            return error == SocketError.Success ? IoResult.Ok(bytesTransferred) : IoResult.Err(GetLastSocketError());
         }
 
         /// <summary>
@@ -823,34 +634,7 @@ namespace NativeSockets
         /// <param name="socketAddress">Pointer to the destination Ipv4 socket address.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -866,7 +650,7 @@ namespace NativeSockets
                     error = __WSASendTo(socket, __buffers_native.Buffer, bufferCount, &bytesTransferred, socketFlags, socketAddress, sizeof(sockaddr_in4), null, 0);
                 }
 
-                return error == SocketError.Success ? new IoResult(bytesTransferred, SocketError.Success) : new IoResult(-1, GetLastSocketError());
+                return error == SocketError.Success ? IoResult.Ok(bytesTransferred) : IoResult.Err(GetLastSocketError());
             }
 
             return SendVectored(socket, buffers, bufferCount, socketFlags);
@@ -882,34 +666,7 @@ namespace NativeSockets
         /// <param name="socketAddress">Pointer to the destination Ipv6 socket address.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
-        ///     <list type="bullet">
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
-        ///             </description>
-        ///         </item>
-        ///     </list>
+        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -925,7 +682,7 @@ namespace NativeSockets
                     error = __WSASendTo(socket, __buffers_native.Buffer, bufferCount, &bytesTransferred, socketFlags, socketAddress, sizeof(sockaddr_in6), null, 0);
                 }
 
-                return error == SocketError.Success ? new IoResult(bytesTransferred, SocketError.Success) : new IoResult(-1, GetLastSocketError());
+                return error == SocketError.Success ? IoResult.Ok(bytesTransferred) : IoResult.Err(GetLastSocketError());
             }
 
             return SendVectored(socket, buffers, bufferCount, socketFlags);
@@ -937,60 +694,45 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
         /// <param name="bufferCount">The number of buffers.</param>
-        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
         ///     <list type="bullet">
         ///         <item>
         ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///                 Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
+        ///                 Any other flags are silently ignored.
         ///             </description>
         ///         </item>
         ///         <item>
         ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///                 If the data was truncated, returns <see cref="IoResult.Err" /> with
+        ///                 <see cref="SocketError.MessageSize" />,
+        ///                 even if the underlying operation succeeded.
         ///             </description>
         ///         </item>
         ///     </list>
-        ///     Any other flags are silently ignored.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IoResult ReceiveVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags)
+        public static IoResult ReceiveVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags)
         {
             Unsafe.SkipInit(out int bytesTransferred);
-            SocketFlags flags = inOutFlags != null ? *inOutFlags : 0;
             SocketError error;
 
             using (NativeScopedArray<WSABuffer> __buffers_native = Build(stackalloc WSABuffer[WinSock2.MAX_STACKALLOC_VECTORED_BUFFERS], buffers, bufferCount))
             {
-                error = __WSARecv(socket, __buffers_native.Buffer, bufferCount, &bytesTransferred, &flags, null, 0);
+                error = __WSARecv(socket, __buffers_native.Buffer, bufferCount, &bytesTransferred, &socketFlags, null, 0);
             }
 
             if (error == SocketError.Success)
             {
-                if (inOutFlags != null)
-                    *inOutFlags = flags;
+                if ((socketFlags & SocketFlags.Partial) != 0)
+                    return IoResult.Err(SocketError.MessageSize);
 
-                return new IoResult(bytesTransferred, SocketError.Success);
+                return IoResult.Ok(bytesTransferred);
             }
 
-            return new IoResult(-1, GetLastSocketError());
+            return IoResult.Err(GetLastSocketError());
         }
 
         /// <summary>
@@ -999,45 +741,30 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
         /// <param name="bufferCount">The number of buffers.</param>
-        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
         ///     <list type="bullet">
         ///         <item>
         ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///                 Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
+        ///                 Any other flags are silently ignored.
         ///             </description>
         ///         </item>
         ///         <item>
         ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///                 If the data was truncated, returns <see cref="IoResult.Err" /> with
+        ///                 <see cref="SocketError.MessageSize" />,
+        ///                 even if the underlying operation succeeded.
         ///             </description>
         ///         </item>
         ///     </list>
-        ///     Any other flags are silently ignored.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IoResult ReceiveFromVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in4* socketAddress)
+        public static IoResult ReceiveFromVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in4* socketAddress)
         {
             Unsafe.SkipInit(out int bytesTransferred);
-            SocketFlags flags = inOutFlags != null ? *inOutFlags : 0;
             SocketError error;
 
             Unsafe.SkipInit(out sockaddr_in4 storage);
@@ -1045,21 +772,21 @@ namespace NativeSockets
 
             using (NativeScopedArray<WSABuffer> __buffers_native = Build(stackalloc WSABuffer[WinSock2.MAX_STACKALLOC_VECTORED_BUFFERS], buffers, bufferCount))
             {
-                error = __WSARecvFrom(socket, __buffers_native.Buffer, bufferCount, &bytesTransferred, &flags, &storage, &socketAddressSize, null, 0);
+                error = __WSARecvFrom(socket, __buffers_native.Buffer, bufferCount, &bytesTransferred, &socketFlags, &storage, &socketAddressSize, null, 0);
             }
 
             if (error == SocketError.Success)
             {
-                if (inOutFlags != null)
-                    *inOutFlags = flags;
+                if ((socketFlags & SocketFlags.Partial) != 0)
+                    return IoResult.Err(SocketError.MessageSize);
 
                 if (socketAddress != null)
                     *socketAddress = storage;
 
-                return new IoResult(bytesTransferred, SocketError.Success);
+                return IoResult.Ok(bytesTransferred);
             }
 
-            return new IoResult(-1, GetLastSocketError());
+            return IoResult.Err(GetLastSocketError());
         }
 
         /// <summary>
@@ -1068,45 +795,30 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
         /// <param name="bufferCount">The number of buffers.</param>
-        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag values are honored:
         ///     <list type="bullet">
         ///         <item>
         ///             <description>
-        ///                 <see cref="SocketFlags.OutOfBand" />
+        ///                 Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
+        ///                 Any other flags are silently ignored.
         ///             </description>
         ///         </item>
         ///         <item>
         ///             <description>
-        ///                 <see cref="SocketFlags.Peek" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.DontRoute" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.Truncated" />
-        ///             </description>
-        ///         </item>
-        ///         <item>
-        ///             <description>
-        ///                 <see cref="SocketFlags.ControlDataTruncated" />
+        ///                 If the data was truncated, returns <see cref="IoResult.Err" /> with
+        ///                 <see cref="SocketError.MessageSize" />,
+        ///                 even if the underlying operation succeeded.
         ///             </description>
         ///         </item>
         ///     </list>
-        ///     Any other flags are silently ignored.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IoResult ReceiveFromVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in6* socketAddress)
+        public static IoResult ReceiveFromVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in6* socketAddress)
         {
             Unsafe.SkipInit(out int bytesTransferred);
-            SocketFlags flags = inOutFlags != null ? *inOutFlags : 0;
             SocketError error;
 
             Unsafe.SkipInit(out sockaddr_in6 storage);
@@ -1114,21 +826,21 @@ namespace NativeSockets
 
             using (NativeScopedArray<WSABuffer> __buffers_native = Build(stackalloc WSABuffer[WinSock2.MAX_STACKALLOC_VECTORED_BUFFERS], buffers, bufferCount))
             {
-                error = __WSARecvFrom(socket, __buffers_native.Buffer, bufferCount, &bytesTransferred, &flags, &storage, &socketAddressSize, null, 0);
+                error = __WSARecvFrom(socket, __buffers_native.Buffer, bufferCount, &bytesTransferred, &socketFlags, &storage, &socketAddressSize, null, 0);
             }
 
             if (error == SocketError.Success)
             {
-                if (inOutFlags != null)
-                    *inOutFlags = flags;
+                if ((socketFlags & SocketFlags.Partial) != 0)
+                    return IoResult.Err(SocketError.MessageSize);
 
                 if (socketAddress != null)
                     *socketAddress = storage;
 
-                return new IoResult(bytesTransferred, SocketError.Success);
+                return IoResult.Ok(bytesTransferred);
             }
 
-            return new IoResult(-1, GetLastSocketError());
+            return IoResult.Err(GetLastSocketError());
         }
 
         /// <summary>

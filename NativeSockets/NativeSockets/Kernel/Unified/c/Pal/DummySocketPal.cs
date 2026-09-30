@@ -300,7 +300,7 @@ namespace NativeSockets
         /// <param name="buffer">Pointer to the data buffer.</param>
         /// <param name="length">Length of the buffer in bytes.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <returns>The number of bytes sent, or -1 on error.</returns>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <exception cref="PlatformNotSupportedException">Always thrown by this method.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IoResult Send(nint socket, void* buffer, int length, SocketFlags socketFlags)
@@ -317,7 +317,7 @@ namespace NativeSockets
         /// <param name="length">Length of the buffer.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">Pointer to the destination Ipv4 socket address.</param>
-        /// <returns>The number of bytes sent, or -1 on error.</returns>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <exception cref="PlatformNotSupportedException">Always thrown by this method.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IoResult SendToIpv4(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in4* socketAddress)
@@ -334,7 +334,7 @@ namespace NativeSockets
         /// <param name="length">Length of the buffer.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">Pointer to the destination Ipv6 socket address.</param>
-        /// <returns>The number of bytes sent, or -1 on error.</returns>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <exception cref="PlatformNotSupportedException">Always thrown by this method.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IoResult SendToIpv6(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in6* socketAddress)
@@ -350,7 +350,7 @@ namespace NativeSockets
         /// <param name="buffer">Pointer to the receive buffer.</param>
         /// <param name="length">Length of the buffer.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <returns>The number of bytes received, or -1 on error.</returns>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <exception cref="PlatformNotSupportedException">Always thrown by this method.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IoResult Receive(nint socket, void* buffer, int length, SocketFlags socketFlags)
@@ -367,7 +367,7 @@ namespace NativeSockets
         /// <param name="length">Length of the buffer.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
-        /// <returns>The number of bytes received, or -1 on error.</returns>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <exception cref="PlatformNotSupportedException">Always thrown by this method.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IoResult ReceiveFromIpv4(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in4* socketAddress)
@@ -384,7 +384,7 @@ namespace NativeSockets
         /// <param name="length">Length of the buffer.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
-        /// <returns>The number of bytes received, or -1 on error.</returns>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <exception cref="PlatformNotSupportedException">Always thrown by this method.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IoResult ReceiveFromIpv6(nint socket, void* buffer, int length, SocketFlags socketFlags, sockaddr_in6* socketAddress)
@@ -400,7 +400,7 @@ namespace NativeSockets
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
         /// <param name="bufferCount">The number of buffers.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
-        /// <returns>The number of bytes sent, or -1 on error.</returns>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <exception cref="PlatformNotSupportedException">Always thrown by this method.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IoResult SendVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags)
@@ -417,7 +417,7 @@ namespace NativeSockets
         /// <param name="bufferCount">The number of buffers.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">Pointer to the destination Ipv4 socket address.</param>
-        /// <returns>The number of bytes sent, or -1 on error.</returns>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <exception cref="PlatformNotSupportedException">Always thrown by this method.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IoResult SendToVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in4* socketAddress)
@@ -434,7 +434,7 @@ namespace NativeSockets
         /// <param name="bufferCount">The number of buffers.</param>
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">Pointer to the destination Ipv6 socket address.</param>
-        /// <returns>The number of bytes sent, or -1 on error.</returns>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <exception cref="PlatformNotSupportedException">Always thrown by this method.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IoResult SendToVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in6* socketAddress)
@@ -449,11 +449,11 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
         /// <param name="bufferCount">The number of buffers.</param>
-        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
-        /// <returns>The number of bytes received, or -1 on error.</returns>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <exception cref="PlatformNotSupportedException">Always thrown by this method.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IoResult ReceiveVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags)
+        public static IoResult ReceiveVectored(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags)
         {
             ThrowHelpers.ThrowPlatformNotSupportedException();
             return default;
@@ -465,12 +465,12 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
         /// <param name="bufferCount">The number of buffers.</param>
-        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
-        /// <returns>The number of bytes received, or -1 on error.</returns>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <exception cref="PlatformNotSupportedException">Always thrown by this method.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IoResult ReceiveFromVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in4* socketAddress)
+        public static IoResult ReceiveFromVectoredIpv4(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in4* socketAddress)
         {
             ThrowHelpers.ThrowPlatformNotSupportedException();
             return default;
@@ -482,12 +482,12 @@ namespace NativeSockets
         /// <param name="socket">The socket handle.</param>
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
         /// <param name="bufferCount">The number of buffers.</param>
-        /// <param name="inOutFlags">When this method returns, contains the flags returned by the receive operation.</param>
+        /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
-        /// <returns>The number of bytes received, or -1 on error.</returns>
+        /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <exception cref="PlatformNotSupportedException">Always thrown by this method.</exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IoResult ReceiveFromVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags* inOutFlags, sockaddr_in6* socketAddress)
+        public static IoResult ReceiveFromVectoredIpv6(nint socket, NativeIoSlice* buffers, int bufferCount, SocketFlags socketFlags, sockaddr_in6* socketAddress)
         {
             ThrowHelpers.ThrowPlatformNotSupportedException();
             return default;
