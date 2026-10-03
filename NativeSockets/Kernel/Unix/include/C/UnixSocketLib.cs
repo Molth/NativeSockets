@@ -178,8 +178,9 @@ namespace NativeSockets
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
         /// <param name="bufferCount">The number of buffers.</param>
         /// <returns>A <see cref="NativeScopedArray{iovec}" /> that wraps the converted buffers.</returns>
+        [MustBePinned(nameof(buffer))]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static NativeScopedArray<iovec> Build(Span<iovec> buffer, NativeIoSlice* buffers, int bufferCount)
+        public static NativeScopedArray<iovec> Build([MustBePinned] Span<iovec> buffer, NativeIoSlice* buffers, int bufferCount)
         {
             NativeScopedArray<iovec> __buffers_native = new NativeScopedArray<iovec>(buffer, bufferCount);
             Span<iovec> span = __buffers_native.AsSpan();

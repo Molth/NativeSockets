@@ -99,7 +99,13 @@ namespace NativeSockets
         /// <param name="ipv6">true to create an Ipv6 socket; false for Ipv4.</param>
         /// <param name="socket">When this method returns, contains the created virtual socket.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///     caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///     the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError Create(bool ipv6, out VirtualSocket socket) => VirtualSocketPal.Create(ipv6, out socket);
 
         /// <summary>
@@ -107,7 +113,13 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The native socket handle to close.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///     caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///     the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError Close(VirtualSocket socket) => VirtualSocketPal.Close(socket);
 
         /// <summary>
@@ -135,6 +147,7 @@ namespace NativeSockets
         ///     <see cref="SocketError.Success" /> if the managed socket was retrieved;
         ///     otherwise an error code.
         /// </returns>
+        [return: MustBeUsed]
         internal SocketError TryGetSocket(out Socket? socket)
         {
             if (_handle == 0)

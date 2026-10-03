@@ -3,6 +3,7 @@ using System;
 using System.Buffers;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 
 // ReSharper disable ALL
 
@@ -62,7 +63,7 @@ namespace NativeSockets
         ///         </item>
         ///         <item>
         ///             <description>
-        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" /> and the socket is
+        ///                 When the socket is
         ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
         ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
         ///                 impact on performance.
@@ -76,6 +77,7 @@ namespace NativeSockets
         ///         </item>
         ///     </list>
         /// </remarks>
+        [return: MustBeUsed]
         public static IoResult SendTo(Socket socket, ReadOnlySpan<byte> buffer, SocketFlags socketFlags, in NativeSocketAddress socketAddress)
         {
             if (socket.AddressFamily != socketAddress.Family)
@@ -121,7 +123,7 @@ namespace NativeSockets
         ///         </item>
         ///         <item>
         ///             <description>
-        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" /> and the socket is
+        ///                 When the socket is
         ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
         ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
         ///                 impact on performance.
@@ -135,8 +137,11 @@ namespace NativeSockets
         ///         </item>
         ///     </list>
         /// </remarks>
-        public static IoResult ReceiveFrom(Socket socket, Span<byte> buffer, SocketFlags socketFlags, ref NativeSocketAddress socketAddress)
+        [return: MustBeUsed]
+        public static IoResult ReceiveFrom(Socket socket, Span<byte> buffer, SocketFlags socketFlags, out NativeSocketAddress socketAddress)
         {
+            Unsafe.SkipInit(out socketAddress);
+
             SocketAddress address = GetReceiveFromAddress(socket.AddressFamily);
 
             try
@@ -183,7 +188,7 @@ namespace NativeSockets
         ///         </item>
         ///         <item>
         ///             <description>
-        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" /> and the socket is
+        ///                 When the socket is
         ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
         ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
         ///                 impact on performance.
@@ -197,6 +202,7 @@ namespace NativeSockets
         ///         </item>
         ///     </list>
         /// </remarks>
+        [return: MustBeUsed]
         public static IoResult SendVectored(Socket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags)
         {
             byte[]? array;
@@ -263,7 +269,7 @@ namespace NativeSockets
         ///         </item>
         ///         <item>
         ///             <description>
-        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" /> and the socket is
+        ///                 When the socket is
         ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
         ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
         ///                 impact on performance.
@@ -277,6 +283,7 @@ namespace NativeSockets
         ///         </item>
         ///     </list>
         /// </remarks>
+        [return: MustBeUsed]
         public static IoResult SendToVectored(Socket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags, in NativeSocketAddress socketAddress)
         {
             if (socket.AddressFamily != socketAddress.Family)
@@ -347,7 +354,7 @@ namespace NativeSockets
         ///         </item>
         ///         <item>
         ///             <description>
-        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" /> and the socket is
+        ///                 When the socket is
         ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
         ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
         ///                 impact on performance.
@@ -361,6 +368,7 @@ namespace NativeSockets
         ///         </item>
         ///     </list>
         /// </remarks>
+        [return: MustBeUsed]
         public static IoResult ReceiveVectored(Socket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags)
         {
             Span<byte> buffer;
@@ -434,7 +442,7 @@ namespace NativeSockets
         ///         </item>
         ///         <item>
         ///             <description>
-        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" /> and the socket is
+        ///                 When the socket is
         ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
         ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
         ///                 impact on performance.
@@ -448,8 +456,11 @@ namespace NativeSockets
         ///         </item>
         ///     </list>
         /// </remarks>
-        public static IoResult ReceiveFromVectored(Socket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags, ref NativeSocketAddress socketAddress)
+        [return: MustBeUsed]
+        public static IoResult ReceiveFromVectored(Socket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags, out NativeSocketAddress socketAddress)
         {
+            Unsafe.SkipInit(out socketAddress);
+
             SocketAddress address = GetReceiveFromAddress(socket.AddressFamily);
 
             Span<byte> buffer;

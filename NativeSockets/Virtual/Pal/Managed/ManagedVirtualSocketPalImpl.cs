@@ -3,6 +3,7 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Security;
 
 // ReSharper disable ALL
@@ -38,6 +39,7 @@ namespace NativeSockets
         ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
         ///     thrown; always check the returned socket error instead of ignoring or discarding it.
         /// </remarks>
+        [return: MustBeUsed]
         public static SocketError Close(Socket socket)
         {
             try
@@ -69,6 +71,7 @@ namespace NativeSockets
         ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
         ///     thrown; always check the returned socket error instead of ignoring or discarding it.
         /// </remarks>
+        [return: MustBeUsed]
         public static SocketError SetDualMode(Socket socket, bool dualMode)
         {
             try
@@ -100,6 +103,7 @@ namespace NativeSockets
         ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
         ///     thrown; always check the returned socket error instead of ignoring or discarding it.
         /// </remarks>
+        [return: MustBeUsed]
         public static SocketError SetReuseAddress(Socket socket, bool reuseAddress)
         {
             try
@@ -131,6 +135,7 @@ namespace NativeSockets
         ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
         ///     thrown; always check the returned socket error instead of ignoring or discarding it.
         /// </remarks>
+        [return: MustBeUsed]
         public static SocketError SetDontFragment(Socket socket, bool dontFragment)
         {
             try
@@ -166,6 +171,7 @@ namespace NativeSockets
         ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
         ///     thrown; always check the returned socket error instead of ignoring or discarding it.
         /// </remarks>
+        [return: MustBeUsed]
         public static SocketError SetDontRoute(Socket socket, bool dontRoute)
         {
             try
@@ -197,6 +203,7 @@ namespace NativeSockets
         ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
         ///     thrown; always check the returned socket error instead of ignoring or discarding it.
         /// </remarks>
+        [return: MustBeUsed]
         public static SocketError SetEnableBroadcast(Socket socket, bool enableBroadcast)
         {
             try
@@ -228,6 +235,7 @@ namespace NativeSockets
         ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
         ///     thrown; always check the returned socket error instead of ignoring or discarding it.
         /// </remarks>
+        [return: MustBeUsed]
         public static SocketError SetTtl(Socket socket, int ttl)
         {
             try
@@ -263,6 +271,7 @@ namespace NativeSockets
         ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
         ///     thrown; always check the returned socket error instead of ignoring or discarding it.
         /// </remarks>
+        [return: MustBeUsed]
         public static SocketError SetSendBufferSize(Socket socket, int sendBufferSize)
         {
             try
@@ -298,6 +307,7 @@ namespace NativeSockets
         ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
         ///     thrown; always check the returned socket error instead of ignoring or discarding it.
         /// </remarks>
+        [return: MustBeUsed]
         public static SocketError SetReceiveBufferSize(Socket socket, int receiveBufferSize)
         {
             try
@@ -333,6 +343,7 @@ namespace NativeSockets
         ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
         ///     thrown; always check the returned socket error instead of ignoring or discarding it.
         /// </remarks>
+        [return: MustBeUsed]
         public static SocketError SetSendTimeout(Socket socket, int milliseconds)
         {
             try
@@ -368,6 +379,7 @@ namespace NativeSockets
         ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
         ///     thrown; always check the returned socket error instead of ignoring or discarding it.
         /// </remarks>
+        [return: MustBeUsed]
         public static SocketError SetReceiveTimeout(Socket socket, int milliseconds)
         {
             try
@@ -403,6 +415,7 @@ namespace NativeSockets
         ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
         ///     thrown; always check the returned socket error instead of ignoring or discarding it.
         /// </remarks>
+        [return: MustBeUsed]
         public static SocketError Bind(Socket socket, NativeSocketAddress socketAddress)
         {
             SocketError error = socketAddress.ToIpEndPoint(out IPEndPoint? ipEndPoint);
@@ -442,6 +455,7 @@ namespace NativeSockets
         ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
         ///     thrown; always check the returned socket error instead of ignoring or discarding it.
         /// </remarks>
+        [return: MustBeUsed]
         public static SocketError Connect(Socket socket, NativeSocketAddress socketAddress)
         {
             SocketError error = socketAddress.ToIpEndPoint(out IPEndPoint? ipEndPoint);
@@ -485,6 +499,7 @@ namespace NativeSockets
         ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
         ///     thrown; always check the returned socket error instead of ignoring or discarding it.
         /// </remarks>
+        [return: MustBeUsed]
         public static SocketError SetBlocking(Socket socket, bool blocking)
         {
             try
@@ -518,6 +533,7 @@ namespace NativeSockets
         ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
         ///     thrown; always check the returned socket error instead of ignoring or discarding it.
         /// </remarks>
+        [return: MustBeUsed]
         public static SocketError Poll(Socket socket, int microseconds, SelectMode mode, out bool status)
         {
             try
@@ -559,6 +575,7 @@ namespace NativeSockets
         ///     Exceptions are caught and reported as the <see cref="SocketError" /> instead of being
         ///     thrown; always check the returned socket error instead of ignoring or discarding it.
         /// </remarks>
+        [return: MustBeUsed]
         public static SocketError PollFlags(Socket socket, int microseconds, SelectModeFlags inFlags, out SelectModeFlags outFlags)
         {
             List<Socket>? checkRead;
@@ -657,8 +674,11 @@ namespace NativeSockets
         ///         </item>
         ///     </list>
         /// </remarks>
-        public static SocketError GetName(Socket socket, ref NativeSocketAddress socketAddress)
+        [return: MustBeUsed]
+        public static SocketError GetName(Socket socket, out NativeSocketAddress socketAddress)
         {
+            Unsafe.SkipInit(out socketAddress);
+
             try
             {
                 IPEndPoint? ipEndPoint = (IPEndPoint?)socket.LocalEndPoint;
@@ -695,7 +715,7 @@ namespace NativeSockets
         ///         </item>
         ///         <item>
         ///             <description>
-        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" /> and the socket is
+        ///                 When the socket is
         ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
         ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
         ///                 impact on performance.
@@ -709,6 +729,7 @@ namespace NativeSockets
         ///         </item>
         ///     </list>
         /// </remarks>
+        [return: MustBeUsed]
         public static IoResult Send(Socket socket, ReadOnlySpan<byte> buffer, SocketFlags socketFlags)
         {
             try
@@ -748,7 +769,7 @@ namespace NativeSockets
         ///         </item>
         ///         <item>
         ///             <description>
-        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" /> and the socket is
+        ///                 When the socket is
         ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
         ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
         ///                 impact on performance.
@@ -762,6 +783,7 @@ namespace NativeSockets
         ///         </item>
         ///     </list>
         /// </remarks>
+        [return: MustBeUsed]
         public static IoResult Receive(Socket socket, Span<byte> buffer, SocketFlags socketFlags)
         {
             try

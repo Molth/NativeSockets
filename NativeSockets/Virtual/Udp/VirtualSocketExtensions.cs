@@ -23,6 +23,7 @@ namespace NativeSockets
         ///     the returned socket error instead of ignoring or discarding it.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError SetDualMode(this VirtualSocket socket, bool dualMode) => VirtualSocketPal.SetDualMode(socket, dualMode);
 
         /// <summary>
@@ -37,6 +38,7 @@ namespace NativeSockets
         ///     the returned socket error instead of ignoring or discarding it.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError SetReuseAddress(this VirtualSocket socket, bool reuseAddress) => VirtualSocketPal.SetReuseAddress(socket, reuseAddress);
 
         /// <summary>
@@ -51,6 +53,7 @@ namespace NativeSockets
         ///     the returned socket error instead of ignoring or discarding it.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError SetDontFragment(this VirtualSocket socket, bool dontFragment) => VirtualSocketPal.SetDontFragment(socket, dontFragment);
 
         /// <summary>
@@ -65,6 +68,7 @@ namespace NativeSockets
         ///     the returned socket error instead of ignoring or discarding it.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError SetDontRoute(this VirtualSocket socket, bool dontRoute) => VirtualSocketPal.SetDontRoute(socket, dontRoute);
 
         /// <summary>
@@ -79,6 +83,7 @@ namespace NativeSockets
         ///     the returned socket error instead of ignoring or discarding it.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError SetEnableBroadcast(this VirtualSocket socket, bool enableBroadcast) => VirtualSocketPal.SetEnableBroadcast(socket, enableBroadcast);
 
         /// <summary>
@@ -93,6 +98,7 @@ namespace NativeSockets
         ///     the returned socket error instead of ignoring or discarding it.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError SetTtl(this VirtualSocket socket, int ttl) => VirtualSocketPal.SetTtl(socket, ttl);
 
         /// <summary>
@@ -107,6 +113,7 @@ namespace NativeSockets
         ///     the returned socket error instead of ignoring or discarding it.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError SetSendBufferSize(this VirtualSocket socket, int sendBufferSize) => VirtualSocketPal.SetSendBufferSize(socket, sendBufferSize);
 
         /// <summary>
@@ -121,6 +128,7 @@ namespace NativeSockets
         ///     the returned socket error instead of ignoring or discarding it.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError SetReceiveBufferSize(this VirtualSocket socket, int receiveBufferSize) => VirtualSocketPal.SetReceiveBufferSize(socket, receiveBufferSize);
 
         /// <summary>
@@ -135,6 +143,7 @@ namespace NativeSockets
         ///     the returned socket error instead of ignoring or discarding it.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError SetSendTimeout(this VirtualSocket socket, int milliseconds) => VirtualSocketPal.SetSendTimeout(socket, milliseconds);
 
         /// <summary>
@@ -149,6 +158,7 @@ namespace NativeSockets
         ///     the returned socket error instead of ignoring or discarding it.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError SetReceiveTimeout(this VirtualSocket socket, int milliseconds) => VirtualSocketPal.SetReceiveTimeout(socket, milliseconds);
 
         /// <summary>
@@ -163,6 +173,7 @@ namespace NativeSockets
         ///     the returned socket error instead of ignoring or discarding it.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError Bind(this VirtualSocket socket, NativeSocketAddress socketAddress) => VirtualSocketPal.Bind(socket, socketAddress);
 
         /// <summary>
@@ -177,6 +188,7 @@ namespace NativeSockets
         ///     the returned socket error instead of ignoring or discarding it.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError Connect(this VirtualSocket socket, NativeSocketAddress socketAddress) => VirtualSocketPal.Connect(socket, socketAddress);
 
         /// <summary>
@@ -191,6 +203,7 @@ namespace NativeSockets
         ///     the returned socket error instead of ignoring or discarding it.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError SetBlocking(this VirtualSocket socket, bool blocking) => VirtualSocketPal.SetBlocking(socket, blocking);
 
         /// <summary>
@@ -207,6 +220,7 @@ namespace NativeSockets
         ///     the returned socket error instead of ignoring or discarding it.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError Poll(this VirtualSocket socket, int microseconds, SelectMode mode, out bool status) => VirtualSocketPal.Poll(socket, microseconds, mode, out status);
 
         /// <summary>
@@ -223,6 +237,7 @@ namespace NativeSockets
         ///     the returned socket error instead of ignoring or discarding it.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError PollFlags(this VirtualSocket socket, int microseconds, SelectModeFlags inFlags, out SelectModeFlags outFlags) => VirtualSocketPal.PollFlags(socket, microseconds, inFlags, out outFlags);
 
         /// <summary>
@@ -253,7 +268,8 @@ namespace NativeSockets
         ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetName(this VirtualSocket socket, ref NativeSocketAddress socketAddress) => VirtualSocketPal.GetName(socket, ref socketAddress);
+        [return: MustBeUsed]
+        public static SocketError GetName(this VirtualSocket socket, out NativeSocketAddress socketAddress) => VirtualSocketPal.GetName(socket, out socketAddress);
 
         /// <summary>
         ///     Sends data on a connected socket.
@@ -288,6 +304,7 @@ namespace NativeSockets
         ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static IoResult Send(this VirtualSocket socket, ReadOnlySpan<byte> buffer, SocketFlags socketFlags) => VirtualSocketPal.Send(socket, buffer, socketFlags);
 
         /// <summary>
@@ -323,6 +340,7 @@ namespace NativeSockets
         ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static IoResult Receive(this VirtualSocket socket, Span<byte> buffer, SocketFlags socketFlags) => VirtualSocketPal.Receive(socket, buffer, socketFlags);
 
         /// <summary>
@@ -359,6 +377,7 @@ namespace NativeSockets
         ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static IoResult SendTo(this VirtualSocket socket, ReadOnlySpan<byte> buffer, SocketFlags socketFlags, in NativeSocketAddress socketAddress) => VirtualSocketPal.SendTo(socket, buffer, socketFlags, socketAddress);
 
         /// <summary>
@@ -395,7 +414,8 @@ namespace NativeSockets
         ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IoResult ReceiveFrom(this VirtualSocket socket, Span<byte> buffer, SocketFlags socketFlags, ref NativeSocketAddress socketAddress) => VirtualSocketPal.ReceiveFrom(socket, buffer, socketFlags, ref socketAddress);
+        [return: MustBeUsed]
+        public static IoResult ReceiveFrom(this VirtualSocket socket, Span<byte> buffer, SocketFlags socketFlags, out NativeSocketAddress socketAddress) => VirtualSocketPal.ReceiveFrom(socket, buffer, socketFlags, out socketAddress);
 
         /// <summary>
         ///     Sends data from multiple buffers on a connected socket.
@@ -430,6 +450,7 @@ namespace NativeSockets
         ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static IoResult SendVectored(this VirtualSocket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags) => VirtualSocketPal.SendVectored(socket, buffers, socketFlags);
 
         /// <summary>
@@ -466,6 +487,7 @@ namespace NativeSockets
         ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static IoResult SendToVectored(this VirtualSocket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags, in NativeSocketAddress socketAddress) => VirtualSocketPal.SendToVectored(socket, buffers, socketFlags, socketAddress);
 
         /// <summary>
@@ -508,6 +530,7 @@ namespace NativeSockets
         ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static IoResult ReceiveVectored(this VirtualSocket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags) => VirtualSocketPal.ReceiveVectored(socket, buffers, socketFlags);
 
         /// <summary>
@@ -551,6 +574,7 @@ namespace NativeSockets
         ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IoResult ReceiveFromVectored(this VirtualSocket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags, ref NativeSocketAddress socketAddress) => VirtualSocketPal.ReceiveFromVectored(socket, buffers, socketFlags, ref socketAddress);
+        [return: MustBeUsed]
+        public static IoResult ReceiveFromVectored(this VirtualSocket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags, out NativeSocketAddress socketAddress) => VirtualSocketPal.ReceiveFromVectored(socket, buffers, socketFlags, out socketAddress);
     }
 }

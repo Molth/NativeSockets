@@ -116,22 +116,42 @@ extern "C"
     } _NativeIoSlice;
 
     /// <summary>
-    ///     Represents the result of a socket I/O operation,
-    ///     containing the number of bytes transferred,
-    ///     and the socket error that occurred.
+    ///     Represents the result of an I/O operation.
+    /// </summary>
+    typedef enum _IoTag
+    {
+        /// <summary>
+        ///     The default instance; no tag has been assigned.
+        /// </summary>
+        _IO_TAG_NONE = 0,
+
+        /// <summary>
+        ///     The operation succeeded.
+        /// </summary>
+        _IO_TAG_OK = 1,
+
+        /// <summary>
+        ///     The operation failed.
+        /// </summary>
+        _IO_TAG_ERR = 2
+    } _IoTag;
+
+    /// <summary>
+    ///     Represents the result of a socket I/O operation:
+    ///     the number of bytes transferred when it succeeded,
+    ///     or the socket error that occurred when it failed.
     /// </summary>
     typedef struct _IoResult
     {
         /// <summary>
-        ///     The number of bytes transferred by the operation.
+        ///     The tag of the operation result.
         /// </summary>
-        i32 BytesTransferred;
+        i32 _tag;
 
         /// <summary>
-        ///     The socket error that occurred,
-        ///     or <see cref="System.Net.Sockets.SocketError.Success" /> if the operation succeeded.
+        ///     The number of bytes transferred, or the socket error value.
         /// </summary>
-        i32 SocketError;
+        i32 _value;
     } _IoResult;
 
     /// <summary>
@@ -295,9 +315,9 @@ extern "C"
     /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
     /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
     /// <remarks>
-///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
-///     Any other flags are silently ignored.
-/// </remarks>
+    ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
+    ///     Any other flags are silently ignored.
+    /// </remarks>
     _NATIVESOCKETPAL_API _IoResult _Send(isize socket, void *buffer, i32 length, i32 socketFlags);
 
     /// <summary>
@@ -310,9 +330,9 @@ extern "C"
     /// <param name="socketAddress">Pointer to the destination Ipv4 socket address.</param>
     /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
     /// <remarks>
-///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
-///     Any other flags are silently ignored.
-/// </remarks>
+    ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
+    ///     Any other flags are silently ignored.
+    /// </remarks>
     _NATIVESOCKETPAL_API _IoResult _SendToIpv4(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in4 *socketAddress);
 
     /// <summary>
@@ -325,9 +345,9 @@ extern "C"
     /// <param name="socketAddress">Pointer to the destination Ipv6 socket address.</param>
     /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
     /// <remarks>
-///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
-///     Any other flags are silently ignored.
-/// </remarks>
+    ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
+    ///     Any other flags are silently ignored.
+    /// </remarks>
     _NATIVESOCKETPAL_API _IoResult _SendToIpv6(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in6 *socketAddress);
 
     /// <summary>
@@ -339,9 +359,9 @@ extern "C"
     /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
     /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
     /// <remarks>
-///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
-///     Any other flags are silently ignored.
-/// </remarks>
+    ///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
+    ///     Any other flags are silently ignored.
+    /// </remarks>
     _NATIVESOCKETPAL_API _IoResult _Receive(isize socket, void *buffer, i32 length, i32 socketFlags);
 
     /// <summary>
@@ -354,9 +374,9 @@ extern "C"
     /// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
     /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
     /// <remarks>
-///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
-///     Any other flags are silently ignored.
-/// </remarks>
+    ///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
+    ///     Any other flags are silently ignored.
+    /// </remarks>
     _NATIVESOCKETPAL_API _IoResult _ReceiveFromIpv4(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in4 *socketAddress);
 
     /// <summary>
@@ -369,9 +389,9 @@ extern "C"
     /// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
     /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
     /// <remarks>
-///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
-///     Any other flags are silently ignored.
-/// </remarks>
+    ///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
+    ///     Any other flags are silently ignored.
+    /// </remarks>
     _NATIVESOCKETPAL_API _IoResult _ReceiveFromIpv6(isize socket, void *buffer, i32 length, i32 socketFlags, _sockaddr_in6 *socketAddress);
 
     /// <summary>
@@ -383,9 +403,9 @@ extern "C"
     /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
     /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
     /// <remarks>
-///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
-///     Any other flags are silently ignored.
-/// </remarks>
+    ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
+    ///     Any other flags are silently ignored.
+    /// </remarks>
     _NATIVESOCKETPAL_API _IoResult _SendVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags);
 
     /// <summary>
@@ -398,9 +418,9 @@ extern "C"
     /// <param name="socketAddress">Pointer to the destination Ipv4 socket address.</param>
     /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
     /// <remarks>
-///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
-///     Any other flags are silently ignored.
-/// </remarks>
+    ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
+    ///     Any other flags are silently ignored.
+    /// </remarks>
     _NATIVESOCKETPAL_API _IoResult _SendToVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags, _sockaddr_in4 *socketAddress);
 
     /// <summary>
@@ -413,9 +433,9 @@ extern "C"
     /// <param name="socketAddress">Pointer to the destination Ipv6 socket address.</param>
     /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
     /// <remarks>
-///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
-///     Any other flags are silently ignored.
-/// </remarks>
+    ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
+    ///     Any other flags are silently ignored.
+    /// </remarks>
     _NATIVESOCKETPAL_API _IoResult _SendToVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags, _sockaddr_in6 *socketAddress);
 
     /// <summary>
@@ -427,22 +447,22 @@ extern "C"
     /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
     /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
     /// <remarks>
-///     <list type="bullet">
-///         <item>
-///             <description>
-///                 Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
-///                 Any other flags are silently ignored.
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 If the data was truncated, returns <see cref="IoResult.Err" /> with
-///                 <see cref="SocketError.MessageSize" />,
-///                 even if the underlying operation succeeded.
-///             </description>
-///         </item>
-///     </list>
-/// </remarks>
+    ///     <list type="bullet">
+    ///         <item>
+    ///             <description>
+    ///                 Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
+    ///                 Any other flags are silently ignored.
+    ///             </description>
+    ///         </item>
+    ///         <item>
+    ///             <description>
+    ///                 If the data was truncated, returns <see cref="IoResult.Err" /> with
+    ///                 <see cref="SocketError.MessageSize" />,
+    ///                 even if the underlying operation succeeded.
+    ///             </description>
+    ///         </item>
+    ///     </list>
+    /// </remarks>
     _NATIVESOCKETPAL_API _IoResult _ReceiveVectored(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags);
 
     /// <summary>
@@ -455,22 +475,22 @@ extern "C"
     /// <param name="socketAddress">Pointer to the sender's Ipv4 socket address.</param>
     /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
     /// <remarks>
-///     <list type="bullet">
-///         <item>
-///             <description>
-///                 Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
-///                 Any other flags are silently ignored.
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 If the data was truncated, returns <see cref="IoResult.Err" /> with
-///                 <see cref="SocketError.MessageSize" />,
-///                 even if the underlying operation succeeded.
-///             </description>
-///         </item>
-///     </list>
-/// </remarks>
+    ///     <list type="bullet">
+    ///         <item>
+    ///             <description>
+    ///                 Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
+    ///                 Any other flags are silently ignored.
+    ///             </description>
+    ///         </item>
+    ///         <item>
+    ///             <description>
+    ///                 If the data was truncated, returns <see cref="IoResult.Err" /> with
+    ///                 <see cref="SocketError.MessageSize" />,
+    ///                 even if the underlying operation succeeded.
+    ///             </description>
+    ///         </item>
+    ///     </list>
+    /// </remarks>
     _NATIVESOCKETPAL_API _IoResult _ReceiveFromVectoredIpv4(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags, _sockaddr_in4 *socketAddress);
 
     /// <summary>
@@ -483,22 +503,22 @@ extern "C"
     /// <param name="socketAddress">Pointer to the sender's Ipv6 socket address.</param>
     /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
     /// <remarks>
-///     <list type="bullet">
-///         <item>
-///             <description>
-///                 Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
-///                 Any other flags are silently ignored.
-///             </description>
-///         </item>
-///         <item>
-///             <description>
-///                 If the data was truncated, returns <see cref="IoResult.Err" /> with
-///                 <see cref="SocketError.MessageSize" />,
-///                 even if the underlying operation succeeded.
-///             </description>
-///         </item>
-///     </list>
-/// </remarks>
+    ///     <list type="bullet">
+    ///         <item>
+    ///             <description>
+    ///                 Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
+    ///                 Any other flags are silently ignored.
+    ///             </description>
+    ///         </item>
+    ///         <item>
+    ///             <description>
+    ///                 If the data was truncated, returns <see cref="IoResult.Err" /> with
+    ///                 <see cref="SocketError.MessageSize" />,
+    ///                 even if the underlying operation succeeded.
+    ///             </description>
+    ///         </item>
+    ///     </list>
+    /// </remarks>
     _NATIVESOCKETPAL_API _IoResult _ReceiveFromVectoredIpv6(isize socket, _NativeIoSlice *buffers, i32 bufferCount, i32 socketFlags, _sockaddr_in6 *socketAddress);
 
 #ifdef __cplusplus

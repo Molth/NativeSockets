@@ -79,9 +79,9 @@ namespace NativeSockets
         ///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
-        public static int ReceiveFrom(Socket socket, Span<byte> buffer, SocketFlags socketFlags, ref NativeSocketAddress socketAddress, out SocketError socketError)
+        public static int ReceiveFrom(Socket socket, Span<byte> buffer, SocketFlags socketFlags, out NativeSocketAddress socketAddress, out SocketError socketError)
         {
-            IoResult result = NativeVirtualSocketPal.ReceiveFrom(new VirtualSocket(socket), buffer, socketFlags, ref socketAddress);
+            IoResult result = NativeVirtualSocketPal.ReceiveFrom(new VirtualSocket(socket), buffer, socketFlags, out socketAddress);
             socketError = result.SocketError;
             return result.BytesTransferred;
         }
@@ -199,9 +199,9 @@ namespace NativeSockets
         ///         </item>
         ///     </list>
         /// </remarks>
-        public static int ReceiveFromVectored(Socket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags, ref NativeSocketAddress socketAddress, out SocketError socketError)
+        public static int ReceiveFromVectored(Socket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags, out NativeSocketAddress socketAddress, out SocketError socketError)
         {
-            IoResult result = NativeVirtualSocketPal.ReceiveFromVectored(new VirtualSocket(socket), buffers, socketFlags, ref socketAddress);
+            IoResult result = NativeVirtualSocketPal.ReceiveFromVectored(new VirtualSocket(socket), buffers, socketFlags, out socketAddress);
             socketError = result.SocketError;
             return result.BytesTransferred;
         }

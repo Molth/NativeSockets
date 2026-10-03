@@ -36,6 +36,7 @@ namespace NativeSockets
         ///     the returned socket error instead of ignoring or discarding it.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError Poll(this Socket socket, int microseconds, SelectMode mode, out bool status)
         {
             ThrowHelpers.ThrowIfNull(socket, ExceptionArgument.socket);
@@ -57,6 +58,7 @@ namespace NativeSockets
         ///     the returned socket error instead of ignoring or discarding it.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError PollFlags(this Socket socket, int microseconds, SelectModeFlags inFlags, out SelectModeFlags outFlags)
         {
             ThrowHelpers.ThrowIfNull(socket, ExceptionArgument.socket);
@@ -99,7 +101,7 @@ namespace NativeSockets
         ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendTo(this Socket socket, ReadOnlySpan<byte> buffer, SocketFlags socketFlags, in NativeSocketAddress socketAddress, out SocketError socketError)
+        public static int SendTo(this Socket socket, ReadOnlySpan<byte> buffer, SocketFlags socketFlags, in NativeSocketAddress socketAddress, [MustBeUsed] out SocketError socketError)
         {
             ThrowHelpers.ThrowIfNull(socket, ExceptionArgument.socket);
             return Impl.SendTo(socket, buffer, socketFlags, socketAddress, out socketError);
@@ -141,10 +143,10 @@ namespace NativeSockets
         ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveFrom(this Socket socket, Span<byte> buffer, SocketFlags socketFlags, ref NativeSocketAddress socketAddress, out SocketError socketError)
+        public static int ReceiveFrom(this Socket socket, Span<byte> buffer, SocketFlags socketFlags, out NativeSocketAddress socketAddress, [MustBeUsed] out SocketError socketError)
         {
             ThrowHelpers.ThrowIfNull(socket, ExceptionArgument.socket);
-            return Impl.ReceiveFrom(socket, buffer, socketFlags, ref socketAddress, out socketError);
+            return Impl.ReceiveFrom(socket, buffer, socketFlags, out socketAddress, out socketError);
         }
 
         /// <summary>
@@ -182,7 +184,7 @@ namespace NativeSockets
         ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendVectored(this Socket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags, out SocketError socketError)
+        public static int SendVectored(this Socket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags, [MustBeUsed] out SocketError socketError)
         {
             ThrowHelpers.ThrowIfNull(socket, ExceptionArgument.socket);
             return Impl.SendVectored(socket, buffers, socketFlags, out socketError);
@@ -224,7 +226,7 @@ namespace NativeSockets
         ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int SendToVectored(this Socket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags, in NativeSocketAddress socketAddress, out SocketError socketError)
+        public static int SendToVectored(this Socket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags, in NativeSocketAddress socketAddress, [MustBeUsed] out SocketError socketError)
         {
             ThrowHelpers.ThrowIfNull(socket, ExceptionArgument.socket);
             return Impl.SendToVectored(socket, buffers, socketFlags, socketAddress, out socketError);
@@ -272,7 +274,7 @@ namespace NativeSockets
         ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveVectored(this Socket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags, out SocketError socketError)
+        public static int ReceiveVectored(this Socket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags, [MustBeUsed] out SocketError socketError)
         {
             ThrowHelpers.ThrowIfNull(socket, ExceptionArgument.socket);
             return Impl.ReceiveVectored(socket, buffers, socketFlags, out socketError);
@@ -321,10 +323,10 @@ namespace NativeSockets
         ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ReceiveFromVectored(this Socket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags, ref NativeSocketAddress socketAddress, out SocketError socketError)
+        public static int ReceiveFromVectored(this Socket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags, out NativeSocketAddress socketAddress, [MustBeUsed] out SocketError socketError)
         {
             ThrowHelpers.ThrowIfNull(socket, ExceptionArgument.socket);
-            return Impl.ReceiveFromVectored(socket, buffers, socketFlags, ref socketAddress, out socketError);
+            return Impl.ReceiveFromVectored(socket, buffers, socketFlags, out socketAddress, out socketError);
         }
     }
 }

@@ -35,7 +35,13 @@ namespace NativeSockets
         /// <param name="ipv6">true to create an Ipv6 socket; false for Ipv4.</param>
         /// <param name="socket">When this method returns, contains the created virtual socket.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///     caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///     the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError Create(bool ipv6, out VirtualSocket socket) => Impl.Create(ipv6, out socket);
 
         /// <summary>
@@ -43,7 +49,13 @@ namespace NativeSockets
         /// </summary>
         /// <param name="socket">The virtual socket.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///     caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///     the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError Close(VirtualSocket socket) => Impl.Close(socket);
 
         /// <summary>
@@ -52,7 +64,13 @@ namespace NativeSockets
         /// <param name="socket">The virtual socket.</param>
         /// <param name="dualMode">true to enable dual-mode; false to disable.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///     caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///     the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError SetDualMode(VirtualSocket socket, bool dualMode) => Impl.SetDualMode(socket, dualMode);
 
         /// <summary>
@@ -61,7 +79,13 @@ namespace NativeSockets
         /// <param name="socket">The virtual socket.</param>
         /// <param name="reuseAddress">true to allow the local socket address to be reused; false to disallow.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///     caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///     the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError SetReuseAddress(VirtualSocket socket, bool reuseAddress) => Impl.SetReuseAddress(socket, reuseAddress);
 
         /// <summary>
@@ -70,7 +94,13 @@ namespace NativeSockets
         /// <param name="socket">The virtual socket.</param>
         /// <param name="dontFragment">true to not fragment packets; false otherwise.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///     caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///     the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError SetDontFragment(VirtualSocket socket, bool dontFragment) => Impl.SetDontFragment(socket, dontFragment);
 
         /// <summary>
@@ -79,7 +109,13 @@ namespace NativeSockets
         /// <param name="socket">The virtual socket.</param>
         /// <param name="dontRoute">true to not route packets; false otherwise.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///     caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///     the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError SetDontRoute(VirtualSocket socket, bool dontRoute) => Impl.SetDontRoute(socket, dontRoute);
 
         /// <summary>
@@ -88,7 +124,13 @@ namespace NativeSockets
         /// <param name="socket">The virtual socket.</param>
         /// <param name="enableBroadcast">true to enable broadcasting; false to disable.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///     caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///     the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError SetEnableBroadcast(VirtualSocket socket, bool enableBroadcast) => Impl.SetEnableBroadcast(socket, enableBroadcast);
 
         /// <summary>
@@ -97,7 +139,13 @@ namespace NativeSockets
         /// <param name="socket">The virtual socket.</param>
         /// <param name="ttl">The time-to-live value.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///     caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///     the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError SetTtl(VirtualSocket socket, int ttl) => Impl.SetTtl(socket, ttl);
 
         /// <summary>
@@ -106,7 +154,13 @@ namespace NativeSockets
         /// <param name="socket">The virtual socket.</param>
         /// <param name="sendBufferSize">The size of the send buffer, in bytes.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///     caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///     the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError SetSendBufferSize(VirtualSocket socket, int sendBufferSize) => Impl.SetSendBufferSize(socket, sendBufferSize);
 
         /// <summary>
@@ -115,7 +169,13 @@ namespace NativeSockets
         /// <param name="socket">The virtual socket.</param>
         /// <param name="receiveBufferSize">The size of the receive buffer, in bytes.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///     caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///     the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError SetReceiveBufferSize(VirtualSocket socket, int receiveBufferSize) => Impl.SetReceiveBufferSize(socket, receiveBufferSize);
 
         /// <summary>
@@ -124,7 +184,13 @@ namespace NativeSockets
         /// <param name="socket">The virtual socket.</param>
         /// <param name="milliseconds">The send timeout in milliseconds.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///     caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///     the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError SetSendTimeout(VirtualSocket socket, int milliseconds) => Impl.SetSendTimeout(socket, milliseconds);
 
         /// <summary>
@@ -133,7 +199,13 @@ namespace NativeSockets
         /// <param name="socket">The virtual socket.</param>
         /// <param name="milliseconds">The receive timeout in milliseconds.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///     caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///     the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError SetReceiveTimeout(VirtualSocket socket, int milliseconds) => Impl.SetReceiveTimeout(socket, milliseconds);
 
         /// <summary>
@@ -142,7 +214,13 @@ namespace NativeSockets
         /// <param name="socket">The virtual socket.</param>
         /// <param name="socketAddress">The socket address to bind to.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///     caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///     the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError Bind(VirtualSocket socket, NativeSocketAddress socketAddress) => Impl.Bind(socket, socketAddress);
 
         /// <summary>
@@ -151,7 +229,13 @@ namespace NativeSockets
         /// <param name="socket">The virtual socket.</param>
         /// <param name="socketAddress">The socket address to connect to.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///     caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///     the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError Connect(VirtualSocket socket, NativeSocketAddress socketAddress) => Impl.Connect(socket, socketAddress);
 
         /// <summary>
@@ -160,7 +244,13 @@ namespace NativeSockets
         /// <param name="socket">The virtual socket.</param>
         /// <param name="blocking">true for blocking; false for non-blocking.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///     caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///     the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError SetBlocking(VirtualSocket socket, bool blocking) => Impl.SetBlocking(socket, blocking);
 
         /// <summary>
@@ -171,7 +261,13 @@ namespace NativeSockets
         /// <param name="mode">The select mode.</param>
         /// <param name="status">When this method returns, contains true if the socket is ready, false otherwise.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///     caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///     the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError Poll(VirtualSocket socket, int microseconds, SelectMode mode, out bool status) => Impl.Poll(socket, microseconds, mode, out status);
 
         /// <summary>
@@ -182,7 +278,13 @@ namespace NativeSockets
         /// <param name="inFlags">The select mode.</param>
         /// <param name="outFlags">When this method returns, contains the poll result flags.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
+        /// <remarks>
+        ///     When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///     caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///     the returned socket error instead of ignoring or discarding it.
+        /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static SocketError PollFlags(VirtualSocket socket, int microseconds, SelectModeFlags inFlags, out SelectModeFlags outFlags) => Impl.PollFlags(socket, microseconds, inFlags, out outFlags);
 
         /// <summary>
@@ -192,15 +294,29 @@ namespace NativeSockets
         /// <param name="socketAddress">The socket address to receive the local name into.</param>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
         /// <remarks>
-        ///     This failure only occurs on .NET 8 and later, because the <c>SendTo</c> overload
-        ///     <c>SendTo(ReadOnlySpan&lt;byte&gt;, SocketFlags, SocketAddress)</c> added in .NET 8
-        ///     does not set the underlying <c>_rightEndPoint</c> field. After a <c>SendTo</c> that
-        ///     triggers an implicit bind, the socket is actually bound, but <c>LocalEndPoint</c>
-        ///     cannot be queried and throws. In that state this method reports an error even though
-        ///     the datagram was delivered successfully.
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 This failure only occurs on .NET 8 and later, because the <c>SendTo</c> overload
+        ///                 <c>SendTo(ReadOnlySpan&lt;byte&gt;, SocketFlags, SocketAddress)</c> added in .NET 8
+        ///                 does not set the underlying <c>_rightEndPoint</c> field. After a <c>SendTo</c> that
+        ///                 triggers an implicit bind, the socket is actually bound, but <c>LocalEndPoint</c>
+        ///                 cannot be queried and throws. In that state this method reports an error even though
+        ///                 the datagram was delivered successfully.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///                 caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///                 the returned socket error instead of ignoring or discarding it.
+        ///             </description>
+        ///         </item>
+        ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetName(VirtualSocket socket, ref NativeSocketAddress socketAddress) => Impl.GetName(socket, ref socketAddress);
+        [return: MustBeUsed]
+        public static SocketError GetName(VirtualSocket socket, out NativeSocketAddress socketAddress) => Impl.GetName(socket, out socketAddress);
 
         /// <summary>
         ///     Sends data on a connected socket.
@@ -210,10 +326,24 @@ namespace NativeSockets
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
-        ///     Any other flags are silently ignored.
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
+        ///                 Any other flags are silently ignored.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///                 caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///                 the returned socket error instead of ignoring or discarding it.
+        ///             </description>
+        ///         </item>
+        ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static IoResult Send(VirtualSocket socket, ReadOnlySpan<byte> buffer, SocketFlags socketFlags) => Impl.Send(socket, buffer, socketFlags);
 
         /// <summary>
@@ -224,10 +354,24 @@ namespace NativeSockets
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
-        ///     Any other flags are silently ignored.
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
+        ///                 Any other flags are silently ignored.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///                 caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///                 the returned socket error instead of ignoring or discarding it.
+        ///             </description>
+        ///         </item>
+        ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static IoResult Receive(VirtualSocket socket, Span<byte> buffer, SocketFlags socketFlags) => Impl.Receive(socket, buffer, socketFlags);
 
         /// <summary>
@@ -239,10 +383,24 @@ namespace NativeSockets
         /// <param name="socketAddress">The destination socket address.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
-        ///     Any other flags are silently ignored.
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
+        ///                 Any other flags are silently ignored.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///                 caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///                 the returned socket error instead of ignoring or discarding it.
+        ///             </description>
+        ///         </item>
+        ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static IoResult SendTo(VirtualSocket socket, ReadOnlySpan<byte> buffer, SocketFlags socketFlags, in NativeSocketAddress socketAddress) => Impl.SendTo(socket, buffer, socketFlags, socketAddress);
 
         /// <summary>
@@ -254,11 +412,25 @@ namespace NativeSockets
         /// <param name="socketAddress">The sender's socket address.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
-        ///     Any other flags are silently ignored.
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
+        ///                 Any other flags are silently ignored.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///                 caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///                 the returned socket error instead of ignoring or discarding it.
+        ///             </description>
+        ///         </item>
+        ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IoResult ReceiveFrom(VirtualSocket socket, Span<byte> buffer, SocketFlags socketFlags, ref NativeSocketAddress socketAddress) => Impl.ReceiveFrom(socket, buffer, socketFlags, ref socketAddress);
+        [return: MustBeUsed]
+        public static IoResult ReceiveFrom(VirtualSocket socket, Span<byte> buffer, SocketFlags socketFlags, out NativeSocketAddress socketAddress) => Impl.ReceiveFrom(socket, buffer, socketFlags, out socketAddress);
 
         /// <summary>
         ///     Sends data from multiple buffers on a connected socket.
@@ -268,10 +440,24 @@ namespace NativeSockets
         /// <param name="socketFlags">A bitwise combination of the <see cref="SocketFlags" /> values.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
-        ///     Any other flags are silently ignored.
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
+        ///                 Any other flags are silently ignored.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///                 caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///                 the returned socket error instead of ignoring or discarding it.
+        ///             </description>
+        ///         </item>
+        ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static IoResult SendVectored(VirtualSocket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags) => Impl.SendVectored(socket, buffers, socketFlags);
 
         /// <summary>
@@ -283,10 +469,24 @@ namespace NativeSockets
         /// <param name="socketAddress">The destination socket address.</param>
         /// <returns>An <see cref="IoResult" /> containing the number of bytes transferred and the socket error.</returns>
         /// <remarks>
-        ///     Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
-        ///     Any other flags are silently ignored.
+        ///     <list type="bullet">
+        ///         <item>
+        ///             <description>
+        ///                 Only the following flag value is honored: <see cref="SocketFlags.DontRoute" />.
+        ///                 Any other flags are silently ignored.
+        ///             </description>
+        ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///                 caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///                 the returned socket error instead of ignoring or discarding it.
+        ///             </description>
+        ///         </item>
+        ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static IoResult SendToVectored(VirtualSocket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags, in NativeSocketAddress socketAddress) => Impl.SendToVectored(socket, buffers, socketFlags, socketAddress);
 
         /// <summary>
@@ -311,9 +511,17 @@ namespace NativeSockets
         ///                 even if the underlying operation succeeded.
         ///             </description>
         ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///                 caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///                 the returned socket error instead of ignoring or discarding it.
+        ///             </description>
+        ///         </item>
         ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: MustBeUsed]
         public static IoResult ReceiveVectored(VirtualSocket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags) => Impl.ReceiveVectored(socket, buffers, socketFlags);
 
         /// <summary>
@@ -339,9 +547,17 @@ namespace NativeSockets
         ///                 even if the underlying operation succeeded.
         ///             </description>
         ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" />, exceptions are
+        ///                 caught and reported as the <see cref="SocketError" /> instead of being thrown; always check
+        ///                 the returned socket error instead of ignoring or discarding it.
+        ///             </description>
+        ///         </item>
         ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IoResult ReceiveFromVectored(VirtualSocket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags, ref NativeSocketAddress socketAddress) => Impl.ReceiveFromVectored(socket, buffers, socketFlags, ref socketAddress);
+        [return: MustBeUsed]
+        public static IoResult ReceiveFromVectored(VirtualSocket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags, out NativeSocketAddress socketAddress) => Impl.ReceiveFromVectored(socket, buffers, socketFlags, out socketAddress);
     }
 }

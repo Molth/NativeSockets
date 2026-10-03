@@ -458,8 +458,9 @@ namespace NativeSockets
         /// <param name="buffers">Pointer to an array of <see cref="NativeIoSlice" />.</param>
         /// <param name="bufferCount">The number of buffers.</param>
         /// <returns>A <see cref="NativeScopedArray{WSABuffer}" /> that wraps the converted buffers.</returns>
+        [MustBePinned(nameof(buffer))]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static NativeScopedArray<WSABuffer> Build(Span<WSABuffer> buffer, NativeIoSlice* buffers, int bufferCount)
+        public static NativeScopedArray<WSABuffer> Build([MustBePinned] Span<WSABuffer> buffer, NativeIoSlice* buffers, int bufferCount)
         {
             NativeScopedArray<WSABuffer> __buffers_native = new NativeScopedArray<WSABuffer>(buffer, bufferCount);
             Span<WSABuffer> span = __buffers_native.AsSpan();

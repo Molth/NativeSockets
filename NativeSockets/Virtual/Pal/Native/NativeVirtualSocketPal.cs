@@ -268,7 +268,7 @@ namespace NativeSockets
         ///     Thrown when <see cref="NativeSocketPal.IsSupported" /> is
         ///     <see langword="false" />.
         /// </exception>
-        public static SocketError GetName(VirtualSocket socket, ref NativeSocketAddress socketAddress) => socket.AsNativeSocket().GetName(ref socketAddress);
+        public static SocketError GetName(VirtualSocket socket, out NativeSocketAddress socketAddress) => socket.AsNativeSocket().GetName(out socketAddress);
 
         /// <summary>
         ///     Sends data on a connected socket.
@@ -338,7 +338,7 @@ namespace NativeSockets
         ///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
-        public static IoResult ReceiveFrom(VirtualSocket socket, Span<byte> buffer, SocketFlags socketFlags, ref NativeSocketAddress socketAddress) => socket.AsNativeSocket().ReceiveFrom(buffer, socketFlags, ref socketAddress);
+        public static IoResult ReceiveFrom(VirtualSocket socket, Span<byte> buffer, SocketFlags socketFlags, out NativeSocketAddress socketAddress) => socket.AsNativeSocket().ReceiveFrom(buffer, socketFlags, out socketAddress);
 
         /// <summary>
         ///     Sends data from multiple buffers on a connected socket.
@@ -434,7 +434,7 @@ namespace NativeSockets
         ///         </item>
         ///     </list>
         /// </remarks>
-        public static IoResult ReceiveFromVectored(VirtualSocket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags, ref NativeSocketAddress socketAddress) => socket.AsNativeSocket().ReceiveFromVectored(buffers, socketFlags, ref socketAddress);
+        public static IoResult ReceiveFromVectored(VirtualSocket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags, out NativeSocketAddress socketAddress) => socket.AsNativeSocket().ReceiveFromVectored(buffers, socketFlags, out socketAddress);
 
         /// <summary>
         ///     Gets the virtual socket pal implementation for this class.

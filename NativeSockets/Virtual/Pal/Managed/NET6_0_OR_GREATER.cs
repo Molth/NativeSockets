@@ -3,6 +3,7 @@ using System;
 using System.Buffers;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 
 // ReSharper disable ALL
 
@@ -48,7 +49,7 @@ namespace NativeSockets
         ///         </item>
         ///         <item>
         ///             <description>
-        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" /> and the socket is
+        ///                 When the socket is
         ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
         ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
         ///                 impact on performance.
@@ -60,8 +61,18 @@ namespace NativeSockets
         ///                 thrown; always check the returned socket error instead of ignoring or discarding it.
         ///             </description>
         ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Do not use custom <c>EndPoint</c> types or any other approach that reuses a single
+        ///                 instance to reduce allocations. The underlying <see cref="Socket" /> internally
+        ///                 caches <c>_rightEndPoint</c>; since the cached value is a reference, the next
+        ///                 <c>SendTo</c> call goes to the previously cached address again, and the next
+        ///                 <c>ReceiveFrom</c> call also returns the previously cached address again.
+        ///             </description>
+        ///         </item>
         ///     </list>
         /// </remarks>
+        [return: MustBeUsed]
         public static IoResult SendTo(Socket socket, ReadOnlySpan<byte> buffer, SocketFlags socketFlags, in NativeSocketAddress socketAddress)
         {
             if (socket.AddressFamily != socketAddress.Family)
@@ -109,7 +120,7 @@ namespace NativeSockets
         ///         </item>
         ///         <item>
         ///             <description>
-        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" /> and the socket is
+        ///                 When the socket is
         ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
         ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
         ///                 impact on performance.
@@ -121,10 +132,22 @@ namespace NativeSockets
         ///                 thrown; always check the returned socket error instead of ignoring or discarding it.
         ///             </description>
         ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Do not use custom <c>EndPoint</c> types or any other approach that reuses a single
+        ///                 instance to reduce allocations. The underlying <see cref="Socket" /> internally
+        ///                 caches <c>_rightEndPoint</c>; since the cached value is a reference, the next
+        ///                 <c>ReceiveFrom</c> call returns the previously cached address again, and the next
+        ///                 <c>SendTo</c> call also goes to the previously cached address again.
+        ///             </description>
+        ///         </item>
         ///     </list>
         /// </remarks>
-        public static IoResult ReceiveFrom(Socket socket, Span<byte> buffer, SocketFlags socketFlags, ref NativeSocketAddress socketAddress)
+        [return: MustBeUsed]
+        public static IoResult ReceiveFrom(Socket socket, Span<byte> buffer, SocketFlags socketFlags, out NativeSocketAddress socketAddress)
         {
+            Unsafe.SkipInit(out socketAddress);
+
             EndPoint ipEndPoint = GetReceiveFromIpEndPoint(socket);
 
             try
@@ -171,7 +194,7 @@ namespace NativeSockets
         ///         </item>
         ///         <item>
         ///             <description>
-        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" /> and the socket is
+        ///                 When the socket is
         ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
         ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
         ///                 impact on performance.
@@ -185,6 +208,7 @@ namespace NativeSockets
         ///         </item>
         ///     </list>
         /// </remarks>
+        [return: MustBeUsed]
         public static IoResult SendVectored(Socket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags)
         {
             byte[]? array;
@@ -251,7 +275,7 @@ namespace NativeSockets
         ///         </item>
         ///         <item>
         ///             <description>
-        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" /> and the socket is
+        ///                 When the socket is
         ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
         ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
         ///                 impact on performance.
@@ -263,8 +287,18 @@ namespace NativeSockets
         ///                 thrown; always check the returned socket error instead of ignoring or discarding it.
         ///             </description>
         ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Do not use custom <c>EndPoint</c> types or any other approach that reuses a single
+        ///                 instance to reduce allocations. The underlying <see cref="Socket" /> internally
+        ///                 caches <c>_rightEndPoint</c>; since the cached value is a reference, the next
+        ///                 <c>SendTo</c> call goes to the previously cached address again, and the next
+        ///                 <c>ReceiveFrom</c> call also returns the previously cached address again.
+        ///             </description>
+        ///         </item>
         ///     </list>
         /// </remarks>
+        [return: MustBeUsed]
         public static IoResult SendToVectored(Socket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags, in NativeSocketAddress socketAddress)
         {
             if (socket.AddressFamily != socketAddress.Family)
@@ -337,7 +371,7 @@ namespace NativeSockets
         ///         </item>
         ///         <item>
         ///             <description>
-        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" /> and the socket is
+        ///                 When the socket is
         ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
         ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
         ///                 impact on performance.
@@ -351,6 +385,7 @@ namespace NativeSockets
         ///         </item>
         ///     </list>
         /// </remarks>
+        [return: MustBeUsed]
         public static IoResult ReceiveVectored(Socket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags)
         {
             byte[]? array;
@@ -424,7 +459,7 @@ namespace NativeSockets
         ///         </item>
         ///         <item>
         ///             <description>
-        ///                 When <see cref="NativeSocketPal.IsSupported" /> is <see langword="false" /> and the socket is
+        ///                 When the socket is
         ///                 non-blocking, consider polling with <c>Poll</c> or <c>PollFlags</c> before sending or
         ///                 receiving, because frequent <see cref="SocketError.WouldBlock" /> exceptions have a severe
         ///                 impact on performance.
@@ -436,10 +471,22 @@ namespace NativeSockets
         ///                 thrown; always check the returned socket error instead of ignoring or discarding it.
         ///             </description>
         ///         </item>
+        ///         <item>
+        ///             <description>
+        ///                 Do not use custom <c>EndPoint</c> types or any other approach that reuses a single
+        ///                 instance to reduce allocations. The underlying <see cref="Socket" /> internally
+        ///                 caches <c>_rightEndPoint</c>; since the cached value is a reference, the next
+        ///                 <c>ReceiveFrom</c> call returns the previously cached address again, and the next
+        ///                 <c>SendTo</c> call also goes to the previously cached address again.
+        ///             </description>
+        ///         </item>
         ///     </list>
         /// </remarks>
-        public static IoResult ReceiveFromVectored(Socket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags, ref NativeSocketAddress socketAddress)
+        [return: MustBeUsed]
+        public static IoResult ReceiveFromVectored(Socket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags, out NativeSocketAddress socketAddress)
         {
+            Unsafe.SkipInit(out socketAddress);
+
             EndPoint ipEndPoint = GetReceiveFromIpEndPoint(socket);
 
             byte[]? array;

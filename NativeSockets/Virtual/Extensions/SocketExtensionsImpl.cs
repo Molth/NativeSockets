@@ -42,7 +42,7 @@ namespace NativeSockets
         ///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
-        public delegate* managed<Socket, Span<byte>, SocketFlags, ref NativeSocketAddress, out SocketError, int> ReceiveFrom;
+        public delegate* managed<Socket, Span<byte>, SocketFlags, out NativeSocketAddress, out SocketError, int> ReceiveFrom;
 
         /// <summary>
         ///     Sends data from multiple buffers on a connected socket.
@@ -108,6 +108,6 @@ namespace NativeSockets
         ///         </item>
         ///     </list>
         /// </remarks>
-        public delegate* managed<Socket, Span<NativeIoSlice>, SocketFlags, ref NativeSocketAddress, out SocketError, int> ReceiveFromVectored;
+        public delegate* managed<Socket, Span<NativeIoSlice>, SocketFlags, out NativeSocketAddress, out SocketError, int> ReceiveFromVectored;
     }
 }

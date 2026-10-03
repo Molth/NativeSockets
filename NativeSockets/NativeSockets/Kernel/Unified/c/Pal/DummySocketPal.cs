@@ -22,11 +22,6 @@ namespace NativeSockets
         public const ushort ADDRESS_FAMILY_INTER_NETWORK_V6 = (ushort)AddressFamily.InterNetworkV6;
 
         /// <summary>
-        ///     Gets a value indicating whether any platform-specific implementation is supported.
-        /// </summary>
-        public static bool IsSupported => false;
-
-        /// <summary>
         ///     Retrieves the last socket error code from the underlying platform.
         /// </summary>
         /// <returns>The last <see cref="SocketError" />.</returns>

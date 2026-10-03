@@ -35,7 +35,7 @@ namespace NativeSockets
         ///         </item>
         ///     </list>
         /// </remarks>
-        public static int SendTo(Socket socket, ReadOnlySpan<byte> buffer, SocketFlags socketFlags, in NativeSocketAddress socketAddress, out SocketError socketError)
+        public static int SendTo(Socket socket, ReadOnlySpan<byte> buffer, SocketFlags socketFlags, in NativeSocketAddress socketAddress, [MustBeUsed] out SocketError socketError)
         {
             IoResult result = ManagedVirtualSocketPalImpl.SendTo(socket, buffer, socketFlags, socketAddress);
             socketError = result.SocketError;
@@ -67,9 +67,9 @@ namespace NativeSockets
         ///         </item>
         ///     </list>
         /// </remarks>
-        public static int ReceiveFrom(Socket socket, Span<byte> buffer, SocketFlags socketFlags, ref NativeSocketAddress socketAddress, out SocketError socketError)
+        public static int ReceiveFrom(Socket socket, Span<byte> buffer, SocketFlags socketFlags, out NativeSocketAddress socketAddress, [MustBeUsed] out SocketError socketError)
         {
-            IoResult result = ManagedVirtualSocketPalImpl.ReceiveFrom(socket, buffer, socketFlags, ref socketAddress);
+            IoResult result = ManagedVirtualSocketPalImpl.ReceiveFrom(socket, buffer, socketFlags, out socketAddress);
             socketError = result.SocketError;
             return result.BytesTransferred;
         }
@@ -98,7 +98,7 @@ namespace NativeSockets
         ///         </item>
         ///     </list>
         /// </remarks>
-        public static int SendVectored(Socket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags, out SocketError socketError)
+        public static int SendVectored(Socket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags, [MustBeUsed] out SocketError socketError)
         {
             IoResult result = ManagedVirtualSocketPalImpl.SendVectored(socket, buffers, socketFlags);
             socketError = result.SocketError;
@@ -130,7 +130,7 @@ namespace NativeSockets
         ///         </item>
         ///     </list>
         /// </remarks>
-        public static int SendToVectored(Socket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags, in NativeSocketAddress socketAddress, out SocketError socketError)
+        public static int SendToVectored(Socket socket, ReadOnlySpan<NativeIoSlice> buffers, SocketFlags socketFlags, in NativeSocketAddress socketAddress, [MustBeUsed] out SocketError socketError)
         {
             IoResult result = ManagedVirtualSocketPalImpl.SendToVectored(socket, buffers, socketFlags, socketAddress);
             socketError = result.SocketError;
@@ -161,7 +161,7 @@ namespace NativeSockets
         ///         </item>
         ///     </list>
         /// </remarks>
-        public static int ReceiveVectored(Socket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags, out SocketError socketError)
+        public static int ReceiveVectored(Socket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags, [MustBeUsed] out SocketError socketError)
         {
             IoResult result = ManagedVirtualSocketPalImpl.ReceiveVectored(socket, buffers, socketFlags);
             socketError = result.SocketError;
@@ -193,9 +193,9 @@ namespace NativeSockets
         ///         </item>
         ///     </list>
         /// </remarks>
-        public static int ReceiveFromVectored(Socket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags, ref NativeSocketAddress socketAddress, out SocketError socketError)
+        public static int ReceiveFromVectored(Socket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags, out NativeSocketAddress socketAddress, [MustBeUsed] out SocketError socketError)
         {
-            IoResult result = ManagedVirtualSocketPalImpl.ReceiveFromVectored(socket, buffers, socketFlags, ref socketAddress);
+            IoResult result = ManagedVirtualSocketPalImpl.ReceiveFromVectored(socket, buffers, socketFlags, out socketAddress);
             socketError = result.SocketError;
             return result.BytesTransferred;
         }

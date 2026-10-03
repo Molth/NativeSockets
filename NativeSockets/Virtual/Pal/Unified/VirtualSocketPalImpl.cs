@@ -124,15 +124,7 @@ namespace NativeSockets
         ///     Gets the local name (socket address) of a socket.
         /// </summary>
         /// <returns><see cref="SocketError.Success" /> on success; otherwise an error code.</returns>
-        /// <remarks>
-        ///     This failure only occurs on .NET 8 and later, because the <c>SendTo</c> overload
-        ///     <c>SendTo(ReadOnlySpan&lt;byte&gt;, SocketFlags, SocketAddress)</c> added in .NET 8
-        ///     does not set the underlying <c>_rightEndPoint</c> field. After a <c>SendTo</c> that
-        ///     triggers an implicit bind, the socket is actually bound, but <c>LocalEndPoint</c>
-        ///     cannot be queried and throws. In that state this method reports an error even though
-        ///     the datagram was delivered successfully.
-        /// </remarks>
-        public delegate* managed<VirtualSocket, ref NativeSocketAddress, SocketError> GetName;
+        public delegate* managed<VirtualSocket, out NativeSocketAddress, SocketError> GetName;
 
         /// <summary>
         ///     Sends data on a connected socket.
@@ -172,7 +164,7 @@ namespace NativeSockets
         ///     Only the following flag value is honored: <see cref="SocketFlags.Peek" />.
         ///     Any other flags are silently ignored.
         /// </remarks>
-        public delegate* managed<VirtualSocket, Span<byte>, SocketFlags, ref NativeSocketAddress, IoResult> ReceiveFrom;
+        public delegate* managed<VirtualSocket, Span<byte>, SocketFlags, out NativeSocketAddress, IoResult> ReceiveFrom;
 
         /// <summary>
         ///     Sends data from multiple buffers on a connected socket.
@@ -238,6 +230,6 @@ namespace NativeSockets
         ///         </item>
         ///     </list>
         /// </remarks>
-        public delegate* managed<VirtualSocket, Span<NativeIoSlice>, SocketFlags, ref NativeSocketAddress, IoResult> ReceiveFromVectored;
+        public delegate* managed<VirtualSocket, Span<NativeIoSlice>, SocketFlags, out NativeSocketAddress, IoResult> ReceiveFromVectored;
     }
 }

@@ -414,7 +414,7 @@ namespace NativeSockets
         ///     <see langword="false" />.
         /// </exception>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static SocketError GetName(this NativeSocket socket, ref NativeSocketAddress socketAddress)
+        public static SocketError GetName(this NativeSocket socket, out NativeSocketAddress socketAddress)
         {
             SocketError result;
             fixed (void* pAddress = &socketAddress)
@@ -422,7 +422,7 @@ namespace NativeSockets
                 result = socket.IsIpv4 ? SocketPal.GetNameIpv4(socket.Handle, (sockaddr_in4*)pAddress) : SocketPal.GetNameIpv6(socket.Handle, (sockaddr_in6*)pAddress);
             }
 
-            if (result == SocketError.Success && socket.IsIpv4)
+            if (socket.IsIpv4 && result == SocketError.Success)
                 SpanHelpers.Set(ref Unsafe.Add(ref Unsafe.As<NativeSocketAddress, byte>(ref socketAddress), 16), 0, 12);
 
             return result;
@@ -521,7 +521,7 @@ namespace NativeSockets
         ///     Any other flags are silently ignored.
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IoResult ReceiveFrom(this NativeSocket socket, Span<byte> buffer, SocketFlags socketFlags, ref NativeSocketAddress socketAddress)
+        public static IoResult ReceiveFrom(this NativeSocket socket, Span<byte> buffer, SocketFlags socketFlags, out NativeSocketAddress socketAddress)
         {
             IoResult result;
             fixed (void* pBuffer = &MemoryMarshal.GetReference(buffer))
@@ -657,7 +657,7 @@ namespace NativeSockets
         ///     </list>
         /// </remarks>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IoResult ReceiveFromVectored(this NativeSocket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags, ref NativeSocketAddress socketAddress)
+        public static IoResult ReceiveFromVectored(this NativeSocket socket, Span<NativeIoSlice> buffers, SocketFlags socketFlags, out NativeSocketAddress socketAddress)
         {
             IoResult result;
             fixed (NativeIoSlice* pBuffer = &MemoryMarshal.GetReference(buffers))
